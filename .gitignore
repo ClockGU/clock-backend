@@ -1,0 +1,30 @@
+# Basics
+*.py[cod]
+__pycache__
+.local
+
+# Logs
+*.log
+
+# Unit test / coverage reports
+.coverage
+.tox
+htmlcov
+
+# Translations
+*.mo
+*.pot
+
+# Vim
+*~
+*.swp
+*.swo
+
+# virtual environments
+.env
+
+# Cache
+.cache/
+
+# OSX
+.DS_Store
