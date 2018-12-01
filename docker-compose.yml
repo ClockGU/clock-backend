@@ -25,3 +25,23 @@ services:
       - db
     ports:
       - "8000:8000"
+
+  rabbit_broker:
+    hostname: rabbit
+    image: rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=broker_adm
+      - RABBITMQ_DEFAULT_PASS=broker_pass
+    ports:
+      - "5673:5672"
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ./docker/local/Dockerfile.celery
+    volumes:
+      - .:/app
+    links:
+      - rabbit_broker
+    depends_on:
+      - rabbit_broker
