@@ -16,7 +16,7 @@ import environ
 #BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ROOT_DIR = environ.Path(__file__) - 3
-APPS_DIR = ROOT_DIR.path('apiapi')
+APPS_DIR = ROOT_DIR.path('api')
 
 env = environ.Env()
 
