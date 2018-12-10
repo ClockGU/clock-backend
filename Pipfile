@@ -1,31 +1,43 @@
 [[source]]
-
-url = "https://pypi.python.org/simple"
+name = "pypi"
+url = "https://pypi.org/simple"
 verify_ssl = true
 
-
-[packages]
-
-django = "*"
-gunicorn = "*"
-"psycopg2" = "*"
-django-environ = "*"
-gevent = "*"
-whitenoise = "*"
-raven = "*"
-
-
 [dev-packages]
-
-werkzeug = "*"
-django-debug-toolbar = "*"
-ipdb = "*"
-pytest = "*"
-pytest-django = "*"
 django-extensions = "*"
-pytest-isort = "*"
-pytest-sugar = "*"
+werkzeug = "*"
+django-test-plus = "*"
 coverage = "*"
 django-coverage-plugin = "*"
+ipython = "*"
+ipdb = "*"
+pytest-django = "*"
+pytest-sugar = "*"
 pytest-cov = "*"
 codecov = "*"
+freezegun = "*"
+pylint = "*"
+pylint-django = "*"
+flake8 = "*"
+isort = "*"
+black = "*"
+
+[packages]
+django = "*"
+gunicorn = "*"
+gevent = "*"
+raven = "*"
+whitenoise = "*"
+django-guardian = "*"
+django-environ = "*"
+djoser = "*"
+python-dateutil = "*"
+django-anymail = "*"
+django-taggit = "*"
+psycopg2 = "*"
+psycopg2-binary = "*"
+djangorestframework-simplejwt = "*"
+djangorestframework = "*"
+
+[requires]
+python_version = "3.6"
