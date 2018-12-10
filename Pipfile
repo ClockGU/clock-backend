@@ -38,6 +38,7 @@ psycopg2 = "*"
 psycopg2-binary = "*"
 djangorestframework-simplejwt = "*"
 djangorestframework = "*"
+celery = "*"
 
 [requires]
 python_version = "3.6"

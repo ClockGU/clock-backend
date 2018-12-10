@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import time
-from .celery import app
+from api.celery import app
 
 # 20 Second running Tasks
 
