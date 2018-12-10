@@ -17,8 +17,8 @@ services:
       dockerfile: ./docker/local/Dockerfile.web
     command: /start.sh
     environment:
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
     volumes:
       - .:/app
     depends_on:
@@ -39,6 +39,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/local/Dockerfile.celery
+    environment:
+      - RABBITMQ_URL=amqp://broker_adm:broker_pass@rabbit_broker:5672
     volumes:
       - .:/app
     links:

@@ -3,4 +3,4 @@ ADD ./api/ /app/
 WORKDIR /app/
 RUN useradd -ms /bin/bash celery-user
 RUN pip install celery
-ENTRYPOINT celery -A api worker --concurrency=20 --loglevel=WARNING --uid=celery-user
+ENTRYPOINT celery worker -A api.celery_inst --concurrency=20 --loglevel=WARNING --uid=celery-user
