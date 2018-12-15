@@ -1,6 +1,10 @@
 FROM python:3.6
+ENV PYTHONBUFFERED=1
 ADD ./api/ /app/
 WORKDIR /app/
+
+COPY Pipfile Pipfile.lock /
+RUN pip install pipenv
+RUN LIBRARY_PATH=/lib:/usr/lib /bin/sh -c "pipenv install --dev --system"
 RUN useradd -ms /bin/bash celery-user
-RUN pip install celery
-ENTRYPOINT celery worker -A api.celery_inst --concurrency=20 --loglevel=WARNING --uid=celery-user
+ENTRYPOINT celery worker -A api.celery --concurrency=3 --loglevel=WARNING --uid=celery-user
