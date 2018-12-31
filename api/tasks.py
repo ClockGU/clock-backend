@@ -2,26 +2,26 @@ from __future__ import absolute_import
 import time
 from api.celery import app
 from django.contrib.auth.models import User
+import random
 
-# 20 Second running Tasks
 
+# Example Tasks
 
+# Task which creates 5 User DB-Entries
 @app.task(bind=True, default_retry_delay=10)
-def twenty_second_user(self, i):
-    User.objects.create(username="Tim{}".format(i))
-    print("This Task ends.")
+def async_5_user_creation(self):
+    for _ in range(5):
+        print("This Task starts.")
+        i = random.randint(0, 1000)
+        User.objects.create(username="Tim{}".format(i))
+        print("This Task ends.")
 
 
+# Task which prints a Start Message, sleeps 20 sec, and prints End message
+# Visualization that all workers are used.
 @app.task(bind=True, default_retry_delay=10)
 def twenty_second_task(self, i):
     print("This Task begins {}.".format(i))
     time.sleep(20)
     print("This Task ends.")
-
-
-@app.task(bind=True, default_retry_delay=10)
-def forty_print_task(self):
-    for i in range(40):
-        print("Current count is {}.".format(i))
-        time.sleep(2)
 

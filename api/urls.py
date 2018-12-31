@@ -4,6 +4,7 @@ from django.conf.urls import url
 from api.views import index
 
 urlpatterns = [
-    path('', index, name='index')
+    # Demonstration url for celery
+    path("celery-dummy", index, name="index")
 
 ]
