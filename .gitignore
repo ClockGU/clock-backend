@@ -28,3 +28,6 @@ htmlcov
 
 # OSX
 .DS_Store
+
+# IDE's
+.idea/
