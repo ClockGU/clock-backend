@@ -17,11 +17,41 @@ services:
       dockerfile: ./docker/local/Dockerfile.web
     command: /start.sh
     environment:
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - RABBITMQ_URL=amqp://broker_adm:broker_pass@rabbit_broker:5672/
     volumes:
       - .:/app
     depends_on:
       - db
     ports:
       - "8000:8000"
+
+  rabbit_broker:
+    hostname: "rabbit_broker"
+    image: rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=broker_adm
+      - RABBITMQ_DEFAULT_PASS=broker_pass
+    ports:
+      - "5673:5672"
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ./docker/local/Dockerfile.celery
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - RABBITMQ_URL=amqp://broker_adm:broker_pass@rabbit_broker:5672/
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+    volumes:
+      - .:/app
+    links:
+      - rabbit_broker
+      - web
+      - db
+    depends_on:
+      - rabbit_broker
+      - db
