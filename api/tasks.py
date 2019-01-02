@@ -24,4 +24,3 @@ def twenty_second_task(self, i):
     print("This Task begins {}.".format(i))
     time.sleep(20)
     print("This Task ends.")
-
