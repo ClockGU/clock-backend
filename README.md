@@ -1,3 +1,9 @@
+## Clock und das Backend
+![Clock Logo](https://raw.githubusercontent.com/ClockGU/documentation/master/images/clock_dummy_image.png)
+
+---
+
+
 ---
 
 ## Celery
