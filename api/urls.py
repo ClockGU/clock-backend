@@ -6,5 +6,4 @@ from api.views import index
 urlpatterns = [
     # Demonstration url for celery
     path("celery-dummy", index, name="index")
-
 ]
