@@ -1,10 +1,13 @@
-## Clock und das Backend
-![Clock Logo](https://raw.githubusercontent.com/ClockGU/documentation/master/images/clock_dummy_image.png)
+![Clock Logo](https://raw.githubusercontent.com/ClockGU/documentation/master/images/clock_current_logo_600x150.png)
 
----
+<h2 align="center"> Arbeitszeitdoukumentation einfach EINFACH </h2>
 
+<p align="center">
+<a href="https://travis-ci.org/ClockGU/clock-backend"><img alt="Build Status" src="https://travis-ci.org/ClockGU/clock-backend.svg?branch=master"></a>
+<a href="https://github.com/ambv/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+<a href="https://codecov.io/github/ClockGU/clock-backend?branch=master"><img alt="Coverage" src="https://codecov.io/github/ClockGU/clock-backend/coverage.svg?branch=master"></a>
+</p>
 
----
 
 ## Celery
 
