@@ -3,10 +3,10 @@ from api.models import User, Contract
 
 
 @pytest.fixture
-def user_model_class_instace():
-    return User()
+def user_model_class():
+    return User
 
 
 @pytest.fixture
-def contract_model_class_instance():
-    return Contract()
+def contract_model_class():
+    return Contract
