@@ -22,3 +22,5 @@ black-check:
     docker-compose run --rm web black . --check
 black-format:
     docker-compose run --rm web black .
+pytest:
+    docker-compose run --rm web pytest
