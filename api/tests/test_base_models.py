@@ -1,5 +1,7 @@
 import pytest
 from django.db import models
+from taggit.managers import TaggableManager
+import uuid
 
 
 class TestUserModelExists:
@@ -38,6 +40,25 @@ class TestContractModelExists:
         from api.models import Contract
 
         assert issubclass(Contract, models.Model)
+
+
+class TestShiftModelExists:
+    def test_model_existence(self):
+        """
+        This Test tests if an Object User can be imported.
+        :return:
+        """
+
+        from api.models import Shift
+
+    def test_model_is_model(self):
+        """
+        Test if the User Object is a Django Model
+        :return:
+        """
+        from api.models import Shift
+
+        assert issubclass(Shift, models.Model)
 
 
 class TestUserFields:
@@ -184,3 +205,158 @@ class TestContractFields:
         assert isinstance(
             contract_model_class._meta.get_field("modified_by"), models.ForeignKey
         )
+
+
+class TestShiftields:
+    """
+    This Testsuit summerizes the basic field tests:
+    1. Do all fields exist
+    2. Do all fields have the correct format/class instance
+    """
+
+    def test_model_has_id(self, shift_model_class):
+        assert hasattr(shift_model_class, "id")
+
+    def test_model_has_user(self, shift_model_class):
+        assert hasattr(shift_model_class, "user")
+
+    def test_model_has_started(self, shift_model_class):
+        assert hasattr(shift_model_class, "started")
+
+    def test_model_has_stopped(self, shift_model_class):
+        assert hasattr(shift_model_class, "stopped")
+
+    def test_model_has_contract(self, shift_model_class):
+        assert hasattr(shift_model_class, "contract")
+
+    def test_model_has_type(self, shift_model_class):
+        assert hasattr(shift_model_class, "type")
+
+    def test_model_has_note(self, shift_model_class):
+        assert hasattr(shift_model_class, "note")
+
+    def test_model_has_tags(self, shift_model_class):
+        assert hasattr(shift_model_class, "tags")
+
+    def test_model_has_was_reviewed(self, shift_model_class):
+        assert hasattr(shift_model_class, "was_reviewed")
+
+    def test_model_has_was_exported(self, shift_model_class):
+        assert hasattr(shift_model_class, "was_exported")
+
+    def test_model_has_created_at(self, shift_model_class):
+        assert hasattr(shift_model_class, "created_at")
+
+    def test_model_has_created_by(self, shift_model_class):
+        assert hasattr(shift_model_class, "created_by")
+
+    def test_model_has_modified_at(self, shift_model_class):
+        assert hasattr(shift_model_class, "modified_at")
+
+    def test_model_has_modified_by(self, shift_model_class):
+        assert hasattr(shift_model_class, "modified_by")
+
+    def test_field_type_id(self, shift_model_class):
+        assert isinstance(shift_model_class._meta.get_field("id"), models.UUIDField)
+
+    def test_field_type_user(self, shift_model_class):
+        assert isinstance(shift_model_class._meta.get_field("user"), models.ForeignKey)
+
+    def test_field_type_started(self, shift_model_class):
+        assert isinstance(
+            shift_model_class._meta.get_field("started"), models.DateTimeField
+        )
+
+    def test_field_type_stopped(self, shift_model_class):
+        assert isinstance(
+            shift_model_class._meta.get_field("stopped"), models.DateTimeField
+        )
+
+    def test_field_type_contract(self, shift_model_class):
+        assert isinstance(
+            shift_model_class._meta.get_field("contract"), models.ForeignKey
+        )
+
+    def test_field_type_type(self, shift_model_class):
+        assert isinstance(shift_model_class._meta.get_field("type"), models.CharField)
+
+    def test_field_type_note(self, shift_model_class):
+        assert isinstance(shift_model_class._meta.get_field("note"), models.TextField)
+
+    def test_field_type_tags(self, shift_model_class):
+        assert isinstance(shift_model_class._meta.get_field("tags"), TaggableManager)
+
+    def test_field_type_was_reviewed(self, shift_model_class):
+        assert isinstance(
+            shift_model_class._meta.get_field("was_reviewed"), models.BooleanField
+        )
+
+    def test_field_typ_was_exported(self, shift_model_class):
+        assert isinstance(
+            shift_model_class._meta.get_field("was_exported"), models.BooleanField
+        )
+
+    def test_field_type_created_at(self, shift_model_class):
+        assert isinstance(
+            shift_model_class._meta.get_field("created_at"), models.DateTimeField
+        )
+
+    def test_field_type_created_by(self, shift_model_class):
+        assert isinstance(
+            shift_model_class._meta.get_field("created_by"), models.ForeignKey
+        )
+
+    def test_field_type_modified_at(self, shift_model_class):
+        assert isinstance(
+            shift_model_class._meta.get_field("modified_at"), models.DateTimeField
+        )
+
+    def test_field_type_modified_by(self, shift_model_class):
+        assert isinstance(
+            shift_model_class._meta.get_field("modified_by"), models.ForeignKey
+        )
+
+    def test_field_conf_id(self, shift_model_class):
+        field = shift_model_class._meta.get_field("id")
+        assert field.primary_key
+        assert field.default == uuid.uuid4
+        assert not field.editable
+
+    def test_field_conf_user(self, shift_model_class, user_model_class):
+        field = shift_model_class._meta.get_field("user")
+        assert issubclass(field.remote_field.model, user_model_class)
+
+    def test_field_conf_contract(self, shift_model_class, contract_model_class):
+        field = shift_model_class._meta.get_field("contract")
+        assert issubclass(field.remote_field.model, contract_model_class)
+
+    def test_field_conf_type(self, shift_model_class):
+        choices = (("Shift", "St"), ("Sick", "Sk"), ("Vacation", "Vn"))
+        field = shift_model_class._meta.get_field("type")
+        assert field.choices == choices
+
+    def test_field_conf_was_reviewed(self, shift_model_class):
+        field = shift_model_class._meta.get_field("was_reviewed")
+        assert (
+            field.default == True
+        )  # if no default is provided django returns an object which would be allways True
+
+    def test_field_conf_was_exported(self, shift_model_class):
+        field = shift_model_class._meta.get_field("was_exported")
+        assert not field.default
+
+    def test_field_conf_created_at(self, shift_model_class):
+        field = shift_model_class._meta.get_field("created_at")
+        assert field.auto_now_add
+
+    def test_field_conf_created_by(self, shift_model_class, user_model_class):
+        field = shift_model_class._meta.get_field("created_by")
+        assert issubclass(field.remote_field.model, user_model_class)
+
+    def test_field_conf_modified_at(self, shift_model_class):
+        field = shift_model_class._meta.get_field("modified_at")
+        assert field.auto_now
+
+    def test_field_conf_modified_by(self, shift_model_class, user_model_class):
+        field = shift_model_class._meta.get_field("modified_by")
+        assert issubclass(field.remote_field.model, user_model_class)
