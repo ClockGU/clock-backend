@@ -36,7 +36,7 @@ class Contract(models.Model):
 
 class Shift(models.Model):
 
-    TYPE_CHOICES = (("Shift", "St"), ("Sick", "Sk"), ("Vacation", "Vn"))
+    TYPE_CHOICES = (("st", "Shift"), ("sk", "Sick"), ("vn", "Vacation"))
 
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True

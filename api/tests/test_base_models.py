@@ -331,7 +331,7 @@ class TestShiftields:
         assert issubclass(field.remote_field.model, contract_model_class)
 
     def test_field_conf_type(self, shift_model_class):
-        choices = (("Shift", "St"), ("Sick", "Sk"), ("Vacation", "Vn"))
+        choices = (("st", "Shift"), ("sk", "Sick"), ("vn", "Vacation"))
         field = shift_model_class._meta.get_field("type")
         assert field.choices == choices
 
