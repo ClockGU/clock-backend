@@ -8,6 +8,34 @@
 <a href="https://codecov.io/github/ClockGU/clock-backend?branch=master"><img alt="Coverage" src="https://codecov.io/github/ClockGU/clock-backend/coverage.svg?branch=master"></a>
 </p>
 
+## Development
+
+### Code Format
+
+Wie bereits am Badge erkenntlich ist der Code des Projektes durch den Black Formatter formatiert. Die Codeformattierung
+wird durch Travis CI in jedem PR überprüft. Erfüllt der commitete Code nicht die Ansprüche des Black Styles scheitert
+der Travis build. Somit ist jeder interessierte Collaborator angehalten eine einheitliche Codebase (bzgl. des Styles) 
+beizusteuern.
+
+Wie halte ich den Black Style ein ?
+
+Die einfachste Möglichkeit den Black Style einzuhalten ist gleich so zu coden. Die Richtlinien wie Black Style aussieht
+ist [hier](https://github.com/ambv/black#the-black-code-style) zu finden.
+
+Eine weitere Möglichkeit wäre es Black jedes mal selbst auszuführen. Dazu muss Black nicht mal systemweit installiert
+werden, da das Projekt black automatisch im Pipenv installiert. Um schließlich die Formatierung des gerade geschriebenen
+Codes durch zuführen führt einfach `docker-compose run --rm web black .` aus. Wem das zu viel getippe ist kann auch 
+`make` benutzen. Hier stellt das Projekt bereits ein Makefile und zwei Commands bezüglich Black zur Verfügung.
+Mit `make black-check` (nicht zu verwechseln mit Black Jack :rofl:) wird kein Code formatiert sonderlediglich überprüft
+ob und wenn ja wieviele Files von einer Formatierung betroffen wären.
+Mit `make black-format` formatiert man alle, noch nicht dem Style genügenden, Files.
+
+Eine letzte Möglichkeit ist es Git-Hooks auszunutzen; den pre-commit Hook. Dieser Hook führt Befehle/Skripte/Programme
+aus bevor Git tatsächlich einen commit durchführt. Um dies zu tun ist das Pythonprogramm [pre-commit](https://pre-commit.com/)
+nötig. Dies kann simple über `sudo pip install pre-commit` installiert werden. Anschließend muss nur noch der vom Projekt,
+in `.pre-commit-config.yaml` definierte, Hook installiert werden. Dies geschiet durch `pre-commit install`. Nun muss man
+sich keine Gedanken mehr über Black machen. Bei jedem Commit wird nun der Black Formatter über den Code geschickt.
+
 
 ## Celery
 

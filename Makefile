@@ -18,3 +18,7 @@ lang-make:
 	pipenv run python manage.py makemessages --no-location --no-wrap
 lang-compile:
 	pipenv run python manage.py compilemessages
+black-check:
+    docker-compose run --rm web black . --check
+black-format:
+    docker-compose run --rm web black .
