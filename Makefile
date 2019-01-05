@@ -19,8 +19,8 @@ lang-make:
 lang-compile:
 	pipenv run python manage.py compilemessages
 black-check:
-    docker-compose run --rm web black . --check
+	docker-compose run --rm web black . --check
 black-format:
-    docker-compose run --rm web black .
+	docker-compose run --rm web black .
 pytest:
-    docker-compose run --rm web pytest
+	docker-compose run --rm web pytest
