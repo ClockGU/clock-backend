@@ -5,7 +5,9 @@ from taggit.managers import TaggableManager
 
 class User(models.Model):
 
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
     email = models.EmailField()
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -16,7 +18,9 @@ class User(models.Model):
 
 class Contract(models.Model):
 
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
     user = models.ForeignKey(
         to=User, related_name="contracts", on_delete=models.CASCADE
     )

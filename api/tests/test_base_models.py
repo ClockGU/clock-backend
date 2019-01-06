@@ -120,6 +120,12 @@ class TestUserFields:
             user_model_class._meta.get_field("modified_at"), models.DateTimeField
         )
 
+    def test_field_conf_id(self, user_model_class):
+        field = user_model_class._meta.get_field("id")
+        assert field.primary_key
+        assert field.default == uuid.uuid4
+        assert not field.editable
+
 
 class TestContractFields:
     """
@@ -205,6 +211,12 @@ class TestContractFields:
         assert isinstance(
             contract_model_class._meta.get_field("modified_by"), models.ForeignKey
         )
+
+    def test_field_conf_id(self, contract_model_class):
+        field = contract_model_class._meta.get_field("id")
+        assert field.primary_key
+        assert field.default == uuid.uuid4
+        assert not field.editable
 
 
 class TestShiftields:

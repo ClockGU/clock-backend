@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+import uuid
 
 
 class Migration(migrations.Migration):
@@ -12,7 +13,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Contract",
             fields=[
-                ("id", models.UUIDField(primary_key=True, serialize=False)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
                 ("hours", models.FloatField()),
                 ("start_date", models.DateField()),
