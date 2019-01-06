@@ -410,7 +410,7 @@ class TestReportFields:
         assert hasattr(report_model_class, "month_year")
 
     def test_model_has_hours(self, report_model_class):
-        assert hasattr(report_model_class, "duration")
+        assert hasattr(report_model_class, "hours")
 
     def test_model_has_contract(self, report_model_class):
         assert hasattr(report_model_class, "contract")
