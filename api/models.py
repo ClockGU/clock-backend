@@ -60,3 +60,20 @@ class Shift(models.Model):
     created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
+
+
+class Report(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    month_year = models.DateField()
+    hours = models.DurationField()
+    contract = models.ForeignKey(
+        to=Contract, related_name="reports", on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(to=User, related_name="reports", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
+    modified_at = models.DateTimeField(auto_now=True)
+    modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
