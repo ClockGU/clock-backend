@@ -1,5 +1,5 @@
 import pytest
-from api.models import User, Contract, Shift
+from api.models import User, Contract, Shift, Report
 
 
 @pytest.fixture
@@ -15,3 +15,8 @@ def contract_model_class():
 @pytest.fixture
 def shift_model_class():
     return Shift
+
+
+@pytest.fixture
+def report_model_class():
+    return Report

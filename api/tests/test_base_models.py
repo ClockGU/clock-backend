@@ -26,7 +26,7 @@ class TestUserModelExists:
 class TestContractModelExists:
     def test_model_existence(self):
         """
-        This Test tests if an Object User can be imported.
+        This Test tests if an Object Contract can be imported.
         :return:
         """
 
@@ -34,7 +34,7 @@ class TestContractModelExists:
 
     def test_model_is_model(self):
         """
-        Test if the User Object is a Django Model
+        Test if the Contract Object is a Django Model
         :return:
         """
         from api.models import Contract
@@ -45,7 +45,7 @@ class TestContractModelExists:
 class TestShiftModelExists:
     def test_model_existence(self):
         """
-        This Test tests if an Object User can be imported.
+        This Test tests if an Object Shift can be imported.
         :return:
         """
 
@@ -53,12 +53,31 @@ class TestShiftModelExists:
 
     def test_model_is_model(self):
         """
-        Test if the User Object is a Django Model
+        Test if the Shift Object is a Django Model
         :return:
         """
         from api.models import Shift
 
         assert issubclass(Shift, models.Model)
+
+
+class TestReportModelExists:
+    def test_model_existence(self):
+        """
+        This Test tests if an Object Report can be imported.
+        :return:
+        """
+
+        from api.models import Report
+
+    def test_model_is_model(self):
+        """
+        Test if the Report Object is a Django Model
+        :return:
+        """
+        from api.models import Report
+
+        assert issubclass(Report, models.Model)
 
 
 class TestUserFields:
@@ -371,4 +390,110 @@ class TestShiftields:
 
     def test_field_conf_modified_by(self, shift_model_class, user_model_class):
         field = shift_model_class._meta.get_field("modified_by")
+        assert issubclass(field.remote_field.model, user_model_class)
+
+
+class TestReportFields:
+    """
+    This Testsuit summerizes the basic field tests:
+    1. Do all fields exist
+    2. Do all fields have the correct format/class instance
+    """
+
+    def test_model_has_id(self, report_model_class):
+        assert hasattr(report_model_class, "id")
+
+    def test_model_has_user(self, report_model_class):
+        assert hasattr(report_model_class, "user")
+
+    def test_model_has_month_year(self, report_model_class):
+        assert hasattr(report_model_class, "month_year")
+
+    def test_model_has_hours(self, report_model_class):
+        assert hasattr(report_model_class, "duration")
+
+    def test_model_has_contract(self, report_model_class):
+        assert hasattr(report_model_class, "contract")
+
+    def test_model_has_created_at(self, report_model_class):
+        assert hasattr(report_model_class, "created_at")
+
+    def test_model_has_created_by(self, report_model_class):
+        assert hasattr(report_model_class, "created_by")
+
+    def test_model_has_modified_at(self, report_model_class):
+        assert hasattr(report_model_class, "modified_at")
+
+    def test_model_has_modified_by(self, report_model_class):
+        assert hasattr(report_model_class, "modified_by")
+
+    def test_field_type_id(self, report_model_class):
+        assert isinstance(report_model_class._meta.get_field("id"), models.UUIDField)
+
+    def test_field_type_user(self, report_model_class):
+        assert isinstance(report_model_class._meta.get_field("user"), models.ForeignKey)
+
+    def test_field_type_month_year(self, report_model_class):
+        assert isinstance(
+            report_model_class._meta.get_field("month_year"), models.DateField
+        )
+
+    def test_field_type_hours(self, report_model_class):
+        assert isinstance(
+            report_model_class._meta.get_field("hours"), models.DurationField
+        )
+
+    def test_field_type_contract(self, report_model_class):
+        assert isinstance(
+            report_model_class._meta.get_field("contract"), models.ForeignKey
+        )
+
+    def test_field_type_created_at(self, report_model_class):
+        assert isinstance(
+            report_model_class._meta.get_field("created_at"), models.DateTimeField
+        )
+
+    def test_field_type_created_by(self, report_model_class):
+        assert isinstance(
+            report_model_class._meta.get_field("created_by"), models.ForeignKey
+        )
+
+    def test_field_type_modified_at(self, report_model_class):
+        assert isinstance(
+            report_model_class._meta.get_field("modified_at"), models.DateTimeField
+        )
+
+    def test_field_type_modified_by(self, report_model_class):
+        assert isinstance(
+            report_model_class._meta.get_field("modified_by"), models.ForeignKey
+        )
+
+    def test_field_conf_id(self, report_model_class):
+        field = report_model_class._meta.get_field("id")
+        assert field.primary_key
+        assert field.default == uuid.uuid4
+        assert not field.editable
+
+    def test_field_conf_user(self, report_model_class, user_model_class):
+        field = report_model_class._meta.get_field("user")
+        assert issubclass(field.remote_field.model, user_model_class)
+
+    def test_field_conf_contract(self, report_model_class, contract_model_class):
+        field = report_model_class._meta.get_field("contract")
+        assert issubclass(field.remote_field.model, contract_model_class)
+
+    def test_field_conf_created_at(self, report_model_class):
+        field = report_model_class._meta.get_field("created_at")
+        assert field.auto_now_add
+
+    def test_field_conf_created_by(self, report_model_class, user_model_class):
+        field = report_model_class._meta.get_field("created_by")
+        assert issubclass(field.remote_field.model, user_model_class)
+
+    def test_field_conf_modified_at(self, report_model_class):
+        field = report_model_class._meta.get_field("modified_at")
+        assert field.auto_now
+
+    def test_field_conf_modified_by(self, report_model_class, user_model_class):
+        field = report_model_class._meta.get_field("modified_by")
         assert issubclass(field.remote_field.model, user_model_class)
