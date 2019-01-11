@@ -1,19 +1,104 @@
 import uuid
 from django.db import models
 from taggit.managers import TaggableManager
+from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.base_user import BaseUserManager
+from django import forms
 
 
-class User(models.Model):
+class CustomUserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(
+        self,
+        email,
+        password,
+        first_name="",
+        last_name="",
+        personal_number="",
+        username="",
+        **extra_fields
+    ):
+        """
+        Create and save a user with the given username, email, password, first_name, last_name and personal_number.
+        """
+
+        email = self.normalize_email(email)
+        user = self.model(
+            username=username,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            personal_number=personal_number,
+            **extra_fields
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(
+        self,
+        email="",
+        first_name="",
+        last_name="",
+        personal_number="",
+        password="",
+        username="",
+        **extra_fields
+    ):
+        if not email:
+            raise ValueError("The field 'email' is required.")
+        if not first_name:
+            raise ValueError("The field 'first_name' is required.")
+        if not last_name:
+            raise ValueError("The field 'last_name' is required.")
+        if not personal_number:
+            raise ValueError("The field 'personal_number' is required.")
+        if not password:
+            raise ValueError("The field 'password' is required.")
+        # We always set the provided username to the user's email
+        username = email
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        return self._create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            personal_number=personal_number,
+            **extra_fields
+        )
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+
+        return self._create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
 
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    email = models.EmailField()
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    username = models.CharField(max_length=151, blank=True)
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=50)  # Firstname is required
+    last_name = models.CharField(max_length=100)  # Lastname is required
     personal_number = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
 
 
 class Contract(models.Model):

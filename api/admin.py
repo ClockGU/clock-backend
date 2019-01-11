@@ -2,11 +2,14 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 from api.models import User, Contract, Shift, Report
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(BaseUserAdmin):
 
-    list_display = ("id", "email", "last_name", "created_at", "modified_at")
+    list_display = ("id", "email", "last_name", "date_joined", "modified_at")
+    ordering = ("date_joined",)
+    readonly_fields = ("date_joined",)
 
 
 admin.site.register(User, UserAdmin)
