@@ -103,7 +103,7 @@ class TestUserFields:
         assert hasattr(user_model_class, "personal_number")
 
     def test_model_has_created_at_field(self, user_model_class):
-        assert hasattr(user_model_class, "created_at")
+        assert hasattr(user_model_class, "date_joined")
 
     def test_model_has_modified_at_field(self, user_model_class):
         assert hasattr(user_model_class, "modified_at")
@@ -131,7 +131,7 @@ class TestUserFields:
 
     def test_field_type_created_at(self, user_model_class):
         assert isinstance(
-            user_model_class._meta.get_field("created_at"), models.DateTimeField
+            user_model_class._meta.get_field("date_joined"), models.DateTimeField
         )
 
     def test_field_type_modified_at(self, user_model_class):
