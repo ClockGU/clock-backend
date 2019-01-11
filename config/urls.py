@@ -21,4 +21,6 @@ from django.contrib import admin
 urlpatterns = [
     url(r"^api/", include("api.urls"), name="api"),
     url(r"^admin/", admin.site.urls),
+    url(r"^auth/", include("djoser.urls")),
+    url(r"^auth/", include("djoser.urls.jwt")),
 ]
