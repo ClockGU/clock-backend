@@ -95,6 +95,8 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     )
 }
+
+DJOSER = {"TOKEN_MODEL": None}
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
