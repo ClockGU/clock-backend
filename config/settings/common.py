@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "taggit",
     "rest_framework",
+    "drf_yasg",
     "djoser",
 ]
 
