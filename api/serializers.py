@@ -13,7 +13,8 @@ class ContractSerializer(serializers.ModelSerializer):
             # Will be set automatically by the Model
             "modified_at": {"required": False},
             "created_by": {"write_only": True},
-            "modified_by": {"write_only": False},
+            "modified_by": {"write_only": True},
+            "user": {"write_only": True},
         }
 
     def validate(self, attrs):
