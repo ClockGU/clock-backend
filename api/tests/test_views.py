@@ -16,10 +16,28 @@ class TestContractApiEndpoint:
         assert response.status_code == 401
 
     @pytest.mark.django_db
-    def test_list_not_allowed(self, client, user_object_jwt):
+    def test_list_objects_of_request_user(
+        self, client, user_object, user_object_jwt, db_creation_contracts_list_endpoint
+    ):
+        """
+        We test that the list-endpoint only retrieves the Contracts of the User who issues the request.
+        :param client:
+        :param user_object:
+        :param user_object_jwt:
+        :param create_n_user_objects:
+        :param create_n_contract_objects:
+        :return:
+        """
+
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(path="http://localhost:8000/api/contracts/")
-        assert response.status_code == 501
+        data = json.loads(response.content)
+        print(data)
+        assert response.status_code == 200
+        assert all(
+            Contract.objects.get(id=contract["id"]).user.id == user_object.id
+            for contract in data
+        )
 
     @pytest.mark.django_db
     def test_create_with_correct_user(

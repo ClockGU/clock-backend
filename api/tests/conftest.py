@@ -39,6 +39,29 @@ def user_object():
 
 
 @pytest.fixture
+def create_n_user_objects():
+    email = "test{}@test.com"
+    first_name = "Testfirstname"
+    last_name = "Testlastname"
+    personal_number = "1234567890"
+    password = "Test_password"
+
+    def create_users(n):
+        return [
+            User.objects.create(
+                email=email.format(i),
+                first_name=first_name,
+                last_name=last_name,
+                personal_number=personal_number,
+                password=password,
+            )
+            for i in range(n)
+        ]
+
+    return create_users
+
+
+@pytest.fixture
 def user_object_password():
     return "Test_password"
 
@@ -121,3 +144,36 @@ def user_object_jwt(user_object, client, user_object_password):
     )
 
     return user_response.data["access"]
+
+
+@pytest.fixture
+def create_n_contract_objects(user_object):
+    name = "Test Contract{}"
+    hours = 20.0
+    start_date = datetime.date(2019, 1, 1)
+    end_date = datetime.date(2019, 1, 31)
+
+    def create_contracts(n, user):
+        for i in range(n):
+            Contract.objects.create(
+                name=name.format(i),
+                hours=hours,
+                start_date=start_date,
+                end_date=end_date,
+                user=user,
+                created_by=user,
+                modified_by=user,
+            )
+
+    return create_contracts
+
+
+@pytest.fixture
+def db_creation_contracts_list_endpoint(
+    user_object, create_n_user_objects, create_n_contract_objects
+):
+    # Create 2 contracts for the User to test
+    create_n_contract_objects(2, user_object)
+    # Create another user and 2 Contracts for him
+    different_user = create_n_user_objects(1)[0]
+    create_n_contract_objects(2, different_user)
