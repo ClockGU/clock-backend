@@ -20,14 +20,13 @@ class TestContractApiEndpoint:
         self, client, invalid_uuid_contract_json, user_object, user_object_jwt
     ):
         """
-        The invalid uuid_contrac_json includes provided data for 'user', 'created_by' and 'modified_by'
-        which shall be set to the user-id provided within the JWT of the request.
+        The invalid uuid_contract_json includes provided data for 'user', 'created_by' and 'modified_by'.
+        which is set to the user ID from the JWT of the request.
         :param invalid_uuid_contract_json:
         :param user_object:
         :return:
         """
 
-        assert user_object_jwt
 
         response = client.post(
             path="/api/contracts/",
