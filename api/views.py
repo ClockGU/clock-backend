@@ -1,6 +1,5 @@
 import jwt
 import os
-import config.settings.local as lc
 from django.http import HttpResponse
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
