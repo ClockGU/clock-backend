@@ -100,9 +100,9 @@ def negative_hours_contract_json(valid_contract_json):
 @pytest.fixture
 def invalid_uuid_contract_json(valid_contract_json):
     random_uuid = uuid.uuid4()
-    valid_contract_json.pop("user")
-    valid_contract_json.pop("created_by")
-    valid_contract_json.pop("modified_by")
+    valid_contract_json["user"] = random_uuid
+    valid_contract_json["created_by"] = random_uuid
+    valid_contract_json["modified_by"] = random_uuid
     valid_contract_json.pop("created_at")
     valid_contract_json.pop("modified_at")
     return valid_contract_json

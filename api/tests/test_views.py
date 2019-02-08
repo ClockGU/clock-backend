@@ -27,7 +27,6 @@ class TestContractApiEndpoint:
         :return:
         """
 
-
         response = client.post(
             path="/api/contracts/",
             data=invalid_uuid_contract_json,
