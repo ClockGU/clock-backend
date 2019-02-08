@@ -20,8 +20,9 @@ class ContractViewSet(viewsets.ModelViewSet):
     serializer_class = ContractSerializer
     name = "contracts"
 
-    def list(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+    def get_queryset(self):
+        queryset = super(ContractViewSet, self).get_queryset()
+        return queryset.filter(user__id=self.request.user_id)
 
     def create(self, request, *args, **kwargs):
         user_id = request.user_id
