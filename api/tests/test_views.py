@@ -11,8 +11,14 @@ from api.models import Contract
 
 
 class TestContractApiEndpoint:
-    def test_list_not_allowed(self, client):
-        response = client.get("http://localhost:8000/api/contracts/")
+    def test_list_forbidden_without_jwt(self, client):
+        response = client.get(path="http://localhost:8000/api/contracts/")
+        assert response.status_code == 401
+
+    @pytest.mark.django_db
+    def test_list_not_allowed(self, client, user_object_jwt):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(path="http://localhost:8000/api/contracts/")
         assert response.status_code == 501
 
     @pytest.mark.django_db
@@ -26,12 +32,8 @@ class TestContractApiEndpoint:
         :param user_object:
         :return:
         """
-
-        response = client.post(
-            path="/api/contracts/",
-            data=invalid_uuid_contract_json,
-            header="Authorization: Bearer {}".format(user_object_jwt),
-        )
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(path="/api/contracts/", data=invalid_uuid_contract_json)
 
         content = json.loads(response.content)
 

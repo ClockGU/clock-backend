@@ -26,7 +26,7 @@ class ContractViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def create(self, request, *args, **kwargs):
-        jwt_token = request.META.get("header").split()[-1]
+        jwt_token = request.META.get("HTTP_AUTHORIZATION").split()[-1]
         user_id = jwt.decode(
             jwt_token, os.environ.get("DJANGO_SECRET_KEY"), algorithm="HS256"
         )["user_id"]
