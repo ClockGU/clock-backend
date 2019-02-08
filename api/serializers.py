@@ -20,7 +20,7 @@ class ContractSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         """
         Object-level validation.
-        Here we validate : start_date is, timewise, prior to end_date
+        Validate that the start_date is smaller than the end_date.
         :param attrs:
         :return:
         """
@@ -34,7 +34,7 @@ class ContractSerializer(serializers.ModelSerializer):
 
     def validate_start_date(self, start_date):
         """
-        Furthermore we check that the day of the start_date is the first or 15th of the month.
+        Check that the day of the start_date is the 1st or 15th day of the month.
         :param start_date:
         :return: hours
         """
@@ -47,24 +47,24 @@ class ContractSerializer(serializers.ModelSerializer):
 
     def validate_end_date(self, end_date):
         """
-        We check that the Contract ends either on the 14. or last day of a month.
+        Check that the contract ends either on the 14. or last day of a month.
         :param end_date:
         :return:
         """
         if end_date.day not in (14, monthrange(end_date.year, end_date.month)[1]):
             raise serializers.ValidationError(
-                "Ein Vertrag durf nur am 14. oder letzten Tag eines Monats enden."
+                "Ein Vertrag darf nur am 14. oder letzten Tag eines Monats enden."
             )
 
         return end_date
 
     def validate_hours(self, hours):
         """
-        We check wether the provided value for hours is greater than zero.
+        Check that the provided value for hours is greater than zero.
         :param hours:
         :return: hours
         """
-        if hours < 0:
+        if hours <= 0:
             raise serializers.ValidationError(
                 "Die Anzahl der Stunden muss größer 0 sein."
             )

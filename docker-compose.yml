@@ -21,7 +21,7 @@ services:
       - POSTGRES_PORT=5432
       - DJANGO_SETTINGS_MODULE=config.settings.local
       - RABBITMQ_URL=amqp://broker_adm:broker_pass@rabbit_broker:5672/
-      - DJANGO_SECRET_KEY=h18i_1j3^d$e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)
+      - DJANGO_SECRET_KEY=h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)
     volumes:
       - .:/app
     depends_on:

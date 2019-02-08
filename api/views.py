@@ -2,9 +2,7 @@ import jwt
 import os
 import config.settings.local as lc
 from django.http import HttpResponse
-from rest_framework import viewsets
-from rest_framework import mixins
-from rest_framework import status
+from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 from api.tasks import twenty_second_task, async_5_user_creation
 
