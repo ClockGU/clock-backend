@@ -95,9 +95,10 @@ AUTH_USER_MODEL = "api.User"
 SIMPLE_JWT = {"ALGORITHM": "HS256", "SIGNING_KEY": env.str("DJANGO_SECRET_KEY")}
 
 REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ),
 }
 
 DJOSER = {"TOKEN_MODEL": None}
