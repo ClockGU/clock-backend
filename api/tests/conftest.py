@@ -28,17 +28,6 @@ def report_model_class():
 
 
 @pytest.fixture
-def user_object():
-    return User.objects.create_user(
-        email="test@test.com",
-        first_name="Testfirstname",
-        last_name="Testlastname",
-        personal_number="1234567890",
-        password="Test_password",
-    )
-
-
-@pytest.fixture
 def create_n_user_objects():
     email = "test{}@test.com"
     first_name = "Testfirstname"
@@ -46,19 +35,30 @@ def create_n_user_objects():
     personal_number = "1234567890"
     password = "Test_password"
 
-    def create_users(n):
+    def create_users(start_stop):
         return [
-            User.objects.create(
+            User.objects.create_user(
                 email=email.format(i),
                 first_name=first_name,
                 last_name=last_name,
                 personal_number=personal_number,
                 password=password,
             )
-            for i in range(n)
+            for i in range(*start_stop)
         ]
 
     return create_users
+
+
+@pytest.fixture
+def user_object(create_n_user_objects):
+    """
+    This Fixture creates a user object which resembles the standart user.
+    The standart user symbolize the user sending requests to the api.
+    :param create_n_user_objects:
+    :return: User
+    """
+    return create_n_user_objects((1,))[0]
 
 
 @pytest.fixture
@@ -142,7 +142,6 @@ def user_object_jwt(user_object, client, user_object_password):
         path=reverse("jwt-create"),
         data={"email": user_object.email, "password": user_object_password},
     )
-
     return user_response.data["access"]
 
 
@@ -153,8 +152,8 @@ def create_n_contract_objects(user_object):
     start_date = datetime.date(2019, 1, 1)
     end_date = datetime.date(2019, 1, 31)
 
-    def create_contracts(n, user):
-        for i in range(n):
+    def create_contracts(start_stop, user):
+        return [
             Contract.objects.create(
                 name=name.format(i),
                 hours=hours,
@@ -164,16 +163,39 @@ def create_n_contract_objects(user_object):
                 created_by=user,
                 modified_by=user,
             )
+            for i in range(*start_stop)
+        ]
 
     return create_contracts
 
 
 @pytest.fixture
+def contract_object(user_object, create_n_contract_objects):
+    """
+    This Fixture creates a contract object which resembles the standart contract.
+    The standart contract belongs to the standart User.
+    :param user_object:
+    :param create_n_contract_objects:
+    :return:
+    """
+    return create_n_contract_objects((1,), user_object)[0]
+
+
+@pytest.fixture
+def diff_user_object(create_n_user_objects):
+    return create_n_user_objects((1, 2))[0]
+
+
+@pytest.fixture
+def diff_user_contract_object(create_n_contract_objects, diff_user_object):
+    return create_n_contract_objects((1, 2), diff_user_object)[0]
+
+
+@pytest.fixture
 def db_creation_contracts_list_endpoint(
-    user_object, create_n_user_objects, create_n_contract_objects
+    user_object, create_n_user_objects, create_n_contract_objects, diff_user_object
 ):
     # Create 2 contracts for the User to test
-    create_n_contract_objects(2, user_object)
+    create_n_contract_objects((1, 3), user_object)
     # Create another user and 2 Contracts for him
-    different_user = create_n_user_objects(1)[0]
-    create_n_contract_objects(2, different_user)
+    create_n_contract_objects((1, 3), diff_user_object)
