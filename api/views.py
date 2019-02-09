@@ -1,7 +1,7 @@
 from django.http import HttpResponse
-from rest_framework import mixins, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.response import Response
-from api.tasks import twenty_second_task, async_5_user_creation
+from api.tasks import async_5_user_creation
 
 from api.models import Contract
 

@@ -1,16 +1,12 @@
 # View tests come here
 
 import pytest
-import requests
-from django.urls import reverse
-
 import json
-import jwt
-from django.conf import settings
+
+from django.urls import reverse
 from rest_framework import status
-from pytz import datetime
-from api.models import Contract, User
-from rest_framework.test import RequestsClient
+
+from api.models import Contract
 
 
 class TestContractApiEndpoint:
