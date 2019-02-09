@@ -19,5 +19,4 @@ class AccessOwnDataPermission(IsAuthenticated):
         return is_authenticated
 
     def has_object_permission(self, request, view, obj):
-
-        return request.user_id == obj.user.id
+        return request.user_id == str(obj.user.id)
