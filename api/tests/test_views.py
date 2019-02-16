@@ -63,6 +63,14 @@ class TestContractApiEndpoint:
         assert response.status_code == 401
 
     @pytest.mark.django_db
+    def test_put_forbidden_without_jwt(self, client, valid_contract_json):
+
+        response = client.put(
+            path="http://localhost:8000/api/contracts/", data=valid_contract_json
+        )
+        assert response.status_code == 401
+
+    @pytest.mark.django_db
     def test_list_objects_of_request_user(
         self, client, user_object, user_object_jwt, db_creation_contracts_list_endpoint
     ):
@@ -96,6 +104,7 @@ class TestContractApiEndpoint:
         :param user_object:
         :return:
         """
+
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.post(path="/api/contracts/", data=invalid_uuid_contract_json)
 

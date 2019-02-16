@@ -20,20 +20,23 @@ class ContractViewSet(viewsets.ModelViewSet):
     serializer_class = ContractSerializer
     name = "contracts"
 
-    def get_queryset(self):
-        queryset = super(ContractViewSet, self).get_queryset()
-        return queryset.filter(user__id=self.request.user_id)
-
-    def create(self, request, *args, **kwargs):
+    def add_user_id(self, request):
         user_id = request.user_id
         data = request.data.dict()
         data["user"] = user_id
         data["created_by"] = user_id
         data["modified_by"] = user_id
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
+        return data
+
+    def get_queryset(self):
+        queryset = super(ContractViewSet, self).get_queryset()
+        return queryset.filter(user__id=self.request.user_id)
+
+    def get_serializer(self, *args, **kwargs):
+        seri = super(ContractViewSet, self).get_serializer(*args, **kwargs)
+        request = self.request
+        if request.method == "POST":
+            seri.initial_data = self.add_user_id(request)
+            return seri
+
+        return seri
