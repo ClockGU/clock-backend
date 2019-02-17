@@ -154,3 +154,37 @@ class TestContractApiEndpoint:
         assert contract.modified_by.id == user_id
         #      New Datetime           Old Datetime  --> Result should be positive
         assert contract.modified_at > contract_object.modified_at
+
+    @pytest.mark.django_db
+    def test_patch_uuid_contract(
+        self,
+        client,
+        invalid_uuid_contract_patch_endpoint,
+        contract_object,
+        user_object,
+        user_object_jwt,
+    ):
+        """
+        Test that trying to patch 'user, 'created_by' and 'mdofied_by' does not work.
+        Updating other values do not need to be tested here.
+        :param client:
+        :param invalid_uuid_contract_patch_endpoint:
+        :param contract_object:
+        :param user_object:
+        :param user_obejct_jwt:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.patch(
+            path=reverse("api:contracts-detail", args=[contract_object.id]),
+            data=invalid_uuid_contract_patch_endpoint,
+        )
+        contract = Contract.objects.get(id=contract_object.id)
+        user_id = user_object.id
+        assert response.status_code == 200
+
+        assert contract.user.id == user_id
+        assert contract.created_by.id == user_id
+        assert contract.modified_by.id == user_id
+        #      New Datetime           Old Datetime  --> Result should be positive
+        assert contract.modified_at > contract_object.modified_at
