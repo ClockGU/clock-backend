@@ -144,7 +144,7 @@ class TestContractApiEndpoint:
             data=invalid_uuid_contract_put_endpoint,
         )
         content = json.loads(response.content)
-
+        print(content)
         assert response.status_code == 200
         # Check that neither "user", "created_by" nor "modified_by" changed from the originial/issuing user
         user_id = user_object.id
