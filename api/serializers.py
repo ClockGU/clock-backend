@@ -70,3 +70,25 @@ class ContractSerializer(serializers.ModelSerializer):
             )
 
         return hours
+
+    def add_user_id(self, request, data):
+        user_id = request.user_id
+        data["user"] = user_id
+        data["created_by"] = user_id
+        data["modified_by"] = user_id
+        return data
+
+    def to_internal_value(self, data):
+        request = self.context["request"]
+        data = data.dict()
+        if request.method in ["POST", "PUT"]:
+            data = self.add_user_id(request, data)
+
+        if request.method == "PATCH":
+            # Not allowed keys "user" and "created_by" in a PATCH-Request.
+            # Set "modified_by" to the user issuing the request
+            data.pop("user", None)
+            data.pop("created_by", None)
+            data["modified_by"] = request.user_id
+
+        return super(ContractSerializer, self).to_internal_value(data)

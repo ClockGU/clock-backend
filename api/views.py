@@ -20,31 +20,6 @@ class ContractViewSet(viewsets.ModelViewSet):
     serializer_class = ContractSerializer
     name = "contracts"
 
-    def add_user_id(self, serializer):
-        user_id = self.request.user_id
-        data = serializer.initial_data.dict()
-        data["user"] = user_id
-        data["created_by"] = user_id
-        data["modified_by"] = user_id
-        return data
-
     def get_queryset(self):
         queryset = super(ContractViewSet, self).get_queryset()
         return queryset.filter(user__id=self.request.user_id)
-
-    def get_serializer(self, *args, **kwargs):
-        seri = super(ContractViewSet, self).get_serializer(*args, **kwargs)
-        request = self.request
-        if request.method in ["POST", "PUT"]:
-            seri.initial_data = self.add_user_id(seri)
-            return seri
-
-        if request.method == "PATCH":
-            # Not allowed keys "user" and "created_by" in a PATCH-Request.
-            # Set "modified_by" to the user issuing the request
-            seri.initial_data.pop("user", None)
-            seri.initial_data.pop("created_by", None)
-            seri.initial_data["modified_by"] = request.user_id
-            return seri
-
-        return seri
