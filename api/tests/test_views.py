@@ -116,3 +116,41 @@ class TestContractApiEndpoint:
         assert new_contract.user.id == user_object.id
         assert new_contract.created_by.id == user_object.id
         assert new_contract.created_by.id == user_object.id
+
+    @pytest.mark.django_db
+    def test_update_uuid_contract(
+        self,
+        client,
+        invalid_uuid_contract_put_endpoint,
+        contract_object,
+        user_object,
+        user_object_jwt,
+    ):
+        """
+        Test that updating 'user', 'created_by' and 'modified_by' does not work.
+        This is tested via 'invalid_uuid_contract_json' which has non-existent uuid's in these fields.
+        By testing with this fixture it is also covered that even if the uuid corresponds to a existent user
+        it is not possible to switch/modify the contracts owner.
+
+        :param client:
+        :param invalid_uuid_contract_json:
+        :param contract_object:
+        :return:
+        """
+
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.put(
+            path=reverse("api:contracts-detail", args=[contract_object.id]),
+            data=invalid_uuid_contract_put_endpoint,
+        )
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        # Check that neither "user", "created_by" nor "modified_by" changed from the originial/issuing user
+        user_id = user_object.id
+        contract = Contract.objects.get(id=contract_object.id)
+        assert contract.user.id == user_id
+        assert contract.created_by.id == user_id
+        assert contract.modified_by.id == user_id
+        #      New Datetime           Old Datetime  --> Result should be positive
+        assert contract.modified_at > contract_object.modified_at

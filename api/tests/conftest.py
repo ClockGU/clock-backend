@@ -199,3 +199,9 @@ def db_creation_contracts_list_endpoint(
     create_n_contract_objects((1, 3), user_object)
     # Create another user and 2 Contracts for him
     create_n_contract_objects((1, 3), diff_user_object)
+
+
+@pytest.fixture
+def invalid_uuid_contract_put_endpoint(invalid_uuid_contract_json, contract_object):
+    invalid_uuid_contract_json["id"] = contract_object.id
+    return invalid_uuid_contract_json
