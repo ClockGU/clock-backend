@@ -205,3 +205,15 @@ def db_creation_contracts_list_endpoint(
 def invalid_uuid_contract_put_endpoint(invalid_uuid_contract_json, contract_object):
     invalid_uuid_contract_json["id"] = contract_object.id
     return invalid_uuid_contract_json
+
+
+@pytest.fixture
+def invalid_uuid_contract_patch_endpoint(contract_object):
+    random_uuid = uuid.uuid4()
+    _dict = {
+        "id": contract_object.id,
+        "user": random_uuid,
+        "created_by": random_uuid,
+        "modified_by": random_uuid,
+    }
+    return _dict

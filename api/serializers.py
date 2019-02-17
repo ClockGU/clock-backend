@@ -24,8 +24,14 @@ class ContractSerializer(serializers.ModelSerializer):
         :param attrs:
         :return:
         """
+        start_date = attrs.get("start_date")
+        end_date = attrs.get("end_date")
 
-        if attrs.get("start_date") > attrs.get("end_date"):
+        if self.instance and self.partial:
+            start_date = attrs.get("start_date", self.instance.start_date)
+            end_date = attrs.get("end_date", self.instance.end_date)
+
+        if start_date > end_date:
             raise serializers.ValidationError(
                 "Der Beginn eines Vertrages muss vor dessen Ende liegen."
             )
