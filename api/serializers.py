@@ -78,7 +78,7 @@ class ContractSerializer(serializers.ModelSerializer):
         return hours
 
     def add_user_id(self, request, data):
-        user_id = request.user_id
+        user_id = request.user.id
         data["user"] = user_id
         data["created_by"] = user_id
         data["modified_by"] = user_id
@@ -95,6 +95,6 @@ class ContractSerializer(serializers.ModelSerializer):
             # Set "modified_by" to the user issuing the request
             data.pop("user", None)
             data.pop("created_by", None)
-            data["modified_by"] = request.user_id
+            data["modified_by"] = request.user.id
 
         return super(ContractSerializer, self).to_internal_value(data)
