@@ -40,6 +40,7 @@ class TestContractApiEndpoint:
         response = client.get(path=r"/api/contracts/", args=[contract_object.id])
         assert response.status_code == 401
 
+    @pytest.mark.django_db
     def test_list_forbidden_without_jwt(self, client):
         """
         Test the list endpoint returns a 401 if no JWT is present.
