@@ -1,6 +1,6 @@
 import pytest
 from rest_framework import serializers
-from api.serializers import ContractSerializer
+from api.serializers import ContractSerializer, ShiftSerializer
 import pprint
 from pytz import datetime
 
@@ -55,5 +55,54 @@ class TestContractSerializerValidation:
             ).is_valid(raise_exception=True)
 
 
-class TestViewSerializerValidation:
-    pass
+class TestShiftSerializerValidation:
+    @pytest.mark.django_db
+    def test_validate_correct_data(self, valid_shift_querydict, plain_request_object):
+        ShiftSerializer(
+            data=valid_shift_querydict, context={"request": plain_request_object}
+        ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_stopped_before_started_validation(
+        self, stopped_before_started_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ShiftSerializer(
+                data=stopped_before_started_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_stopped_on_next_day_validation(
+        self, stopped_on_next_day_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ShiftSerializer(
+                data=stopped_on_next_day_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_contract_not_belonging_to_user_validation(
+        self, contract_not_belonging_to_user_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ShiftSerializer(
+                data=contract_not_belonging_to_user_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_type_validation(self, wrong_type_querydict, plain_request_object):
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ShiftSerializer(
+                data=wrong_type_querydict, context={"request": plain_request_object}
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_tags_validation(self, tags_not_string_querydict, plain_request_object):
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ShiftSerializer(
+                data=tags_not_string_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
