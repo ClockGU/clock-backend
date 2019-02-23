@@ -1,9 +1,17 @@
 import uuid
 from django.db import models
 from taggit.managers import TaggableManager
+from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
+
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.base_user import BaseUserManager
 from django import forms
+
+
+class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
+    class Meta:
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
 
 
 class CustomUserManager(BaseUserManager):
@@ -138,7 +146,7 @@ class Shift(models.Model):
     )
     type = models.CharField(choices=TYPE_CHOICES, max_length=2)
     note = models.TextField(blank=True)
-    tags = TaggableManager(blank=True)
+    tags = TaggableManager(blank=True, through=UUIDTaggedItem)
     was_reviewed = models.BooleanField(default=True)
     was_exported = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
