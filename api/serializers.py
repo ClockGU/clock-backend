@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from calendar import monthrange
-from api.models import Contract
+from api.models import Contract, Shift
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -100,3 +100,18 @@ class ContractSerializer(RestrictModificationModelSerializer):
             )
 
         return hours
+
+
+class ShiftSerializer(RestrictModificationModelSerializer):
+    class Meta:
+        model = Shift
+        fields = "__all__"
+        extra_kwargs = {
+            # Will be set automatically by the Model
+            "created_at": {"required": False},
+            # Will be set automatically by the Model
+            "modified_at": {"required": False},
+            "created_by": {"write_only": True},
+            "modified_by": {"write_only": True},
+            "user": {"write_only": True},
+        }
