@@ -53,3 +53,7 @@ class TestContractSerializerValidation:
                 data=negative_hours_contract_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
+
+
+class TestViewSerializerValidation:
+    pass

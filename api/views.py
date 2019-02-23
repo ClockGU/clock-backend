@@ -4,9 +4,9 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from api.tasks import async_5_user_creation
 
-from api.models import Contract
+from api.models import Contract, Shift
 
-from api.serializers import ContractSerializer
+from api.serializers import ContractSerializer, ShiftSerializer
 
 # Proof of Concept that celery works
 
@@ -24,3 +24,11 @@ class ContractViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super(ContractViewSet, self).get_queryset()
         return queryset.filter(user__id=self.request.user.id)
+
+
+class ShiftViewSet(viewsets.ModelViewSet):
+    queryset = Shift.objects.all()
+    serializer_class = ShiftSerializer
+    name = "shifts"
+    permission_classes = ()
+    authentication_classes = ()

@@ -10,7 +10,7 @@ def valid_shift_json(user_object, contract_object):
     modified_at = created_at
     user = user_object.id
     contract = contract_object.id
-    type = "st"
+    _type = "st"
     note = "something was strange"
     tags = ["tag1, tag2"]
 
@@ -18,7 +18,7 @@ def valid_shift_json(user_object, contract_object):
         "started": started,
         "stopped": stopped,
         "contract": contract,
-        "type": type,
+        "type": _type,
         "note": note,
         "tags": tags,
         "user": user,
@@ -27,3 +27,4 @@ def valid_shift_json(user_object, contract_object):
         "created_at": created_at,
         "modified_at": modified_at,
     }
+    return data

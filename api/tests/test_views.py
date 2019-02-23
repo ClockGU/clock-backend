@@ -10,6 +10,19 @@ from api.models import Contract
 
 
 class TestContractApiEndpoint:
+    """
+    This TestCase includes:
+       - tests which try accesing an Endpoint without a provided JWT
+           --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same
+               permission_class and authentication_class
+       - tests which try to change the values fro user, created_by and modified by
+           --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same base
+               serializer which provides this provides this Functionality
+       - tests which try to create a Contract for a different user than who is issueing the request
+           --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same base
+               serializer which provides this provides this Functionality
+    """
+
     @pytest.mark.django_db
     def test_get_only_own_contract(
         self, client, user_object_jwt, diff_user_contract_object
@@ -145,7 +158,7 @@ class TestContractApiEndpoint:
             data=invalid_uuid_contract_put_endpoint,
         )
         content = json.loads(response.content)
-        print(content)
+
         assert response.status_code == 200
         # Check that neither "user", "created_by" nor "modified_by" changed from the originial/issuing user
         user_id = user_object.id
@@ -189,3 +202,7 @@ class TestContractApiEndpoint:
         assert contract.modified_by.id == user_id
         #      New Datetime           Old Datetime  --> Result should be positive
         assert contract.modified_at > contract_object.modified_at
+
+
+class TestShiftApiEndpoint:
+    pass
