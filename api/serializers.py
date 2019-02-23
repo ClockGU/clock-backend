@@ -3,6 +3,10 @@ from calendar import monthrange
 from api.models import Contract, Shift
 
 
+class TagsSerializerField(serializers.SerializerMethodField, serializers.ListField):
+    pass
+
+
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
     def add_user_id(self, request, data):
         user_id = request.user.id
@@ -103,6 +107,9 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
 
 class ShiftSerializer(RestrictModificationModelSerializer):
+
+    tags = TagsSerializerField()
+
     class Meta:
         model = Shift
         fields = "__all__"
@@ -114,4 +121,9 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "created_by": {"write_only": True},
             "modified_by": {"write_only": True},
             "user": {"write_only": True},
+            "was_reviewed": {"read_only": True},
+            "was_exported": {"read_only": True},
         }
+
+    def get_tags(self, obj):
+        return list(map(lambda x: x.name, obj.tags.all()))
