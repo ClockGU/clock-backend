@@ -1,7 +1,8 @@
 import pytest
 import uuid
 from pytz import datetime
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
+from rest_framework.request import Request, QueryDict
 from django.urls import reverse
 
 from api.models import User, Contract, Shift, Report
@@ -93,10 +94,26 @@ def valid_contract_json(user_object):
 
 
 @pytest.fixture
+def valid_contract_querydict(valid_contract_json):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(valid_contract_json)
+    return qdict
+
+
+@pytest.fixture
 def end_date_before_start_date_contract_json(valid_contract_json):
     start_date = datetime.date(2019, 2, 1)
     valid_contract_json["start_date"] = start_date
     return valid_contract_json
+
+
+@pytest.fixture
+def end_date_before_start_date_contract_querydict(
+    end_date_before_start_date_contract_json
+):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(end_date_before_start_date_contract_json)
+    return qdict
 
 
 @pytest.fixture
@@ -107,6 +124,13 @@ def start_date_day_incorrect_contract_json(valid_contract_json):
 
 
 @pytest.fixture
+def start_date_day_incorrect_contract_querydict(start_date_day_incorrect_contract_json):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(start_date_day_incorrect_contract_json)
+    return qdict
+
+
+@pytest.fixture
 def end_date_day_incorrect_contract_json(valid_contract_json):
     end_date = datetime.date(2019, 1, 22)
     valid_contract_json["end_date"] = end_date
@@ -114,10 +138,24 @@ def end_date_day_incorrect_contract_json(valid_contract_json):
 
 
 @pytest.fixture
+def end_date_day_incorrect_contract_querydict(end_date_day_incorrect_contract_json):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(end_date_day_incorrect_contract_json)
+    return qdict
+
+
+@pytest.fixture
 def negative_hours_contract_json(valid_contract_json):
     hours = -20.0
     valid_contract_json["hours"] = hours
     return valid_contract_json
+
+
+@pytest.fixture
+def negative_hours_contract_querydict(negative_hours_contract_json):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(negative_hours_contract_json)
+    return qdict
 
 
 @pytest.fixture
@@ -217,3 +255,10 @@ def invalid_uuid_contract_patch_endpoint(contract_object):
         "modified_by": random_uuid,
     }
     return _dict
+
+
+@pytest.fixture
+def plain_request_object(user_object):
+    request = APIRequestFactory().get(reverse("user-me"), data=QueryDict())
+    force_authenticate(request, user=user_object)
+    return Request(request)

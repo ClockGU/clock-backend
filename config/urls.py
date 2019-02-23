@@ -22,6 +22,6 @@ urlpatterns = [
     url(r"^api/", include("api.urls"), name="api"),
     url(r"^api/", include("api-docs.api_docs"), name="api_docs"),
     url(r"^admin/", admin.site.urls),
-    url(r"^auth/", include("djoser.urls")),
+    url(r"^auth/", include("djoser.urls"), name="djoser-auth"),
     url(r"^auth/", include("djoser.urls.jwt")),
 ]
