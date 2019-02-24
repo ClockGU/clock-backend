@@ -32,3 +32,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
     name = "shifts"
     permission_classes = ()
     authentication_classes = ()
+
+    def get_queryset(self):
+        queryset = super(ShiftViewSet, self).get_queryset()
+        return queryset.filter(user__id=self.request.user.id)
