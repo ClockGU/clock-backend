@@ -6,7 +6,7 @@ import json
 from django.urls import reverse
 from rest_framework import status
 
-from api.models import Contract
+from api.models import Contract, Shift
 
 
 class TestContractApiEndpoint:
@@ -205,4 +205,17 @@ class TestContractApiEndpoint:
 
 
 class TestShiftApiEndpoint:
-    pass
+    @pytest.mark.django_db
+    def test_list_objects_of_request_user(
+        self, client, user_object, user_object_jwt, db_creation_shifts_list_endpoint
+    ):
+
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(path="http://localhost:8000/api/shifts/")
+
+        data = json.loads(response.content)
+        assert response.status_code == 200
+        assert all(
+            Shift.objects.get(id=shift["id"]).user.id == user_object.id
+            for shift in data
+        )

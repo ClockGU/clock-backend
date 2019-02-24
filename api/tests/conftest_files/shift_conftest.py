@@ -1,6 +1,7 @@
 import pytest
 from pytz import datetime
 from rest_framework.request import QueryDict
+from api.models import Shift
 
 
 @pytest.fixture
@@ -108,3 +109,52 @@ def tags_not_string_querydict(tags_not_strings_json):
     qdict = QueryDict("", mutable=True)
     qdict.update(tags_not_strings_json)
     return qdict
+
+
+@pytest.fixture
+def create_n_shift_objects():
+
+    started = datetime.datetime(2019, 1, 29, 14)
+    stopped = datetime.datetime(2019, 1, 29, 16)
+    created_at = datetime.datetime(2019, 1, 29, 16).isoformat()
+    modified_at = created_at
+    _type = "st"
+    note = "something was strange"
+    tags = ["tag1, tag2"]
+
+    def create_shifts(start_stop, user, contract):
+        lst = []
+        for i in range(*start_stop):
+            shift = Shift.objects.create(
+                started=started,
+                stopped=stopped,
+                created_at=created_at,
+                modified_at=modified_at,
+                type=_type,
+                note=note,
+                user=user,
+                created_by=user,
+                modified_by=user,
+                contract=contract,
+            )
+            shift.tags.add(*tags)
+            lst.append(shift)
+        return lst
+
+    return create_shifts
+
+
+@pytest.fixture
+def db_creation_shifts_list_endpoint(
+    user_object,
+    diff_user_object,
+    contract_object,
+    diff_user_contract_object,
+    create_n_shift_objects,
+):
+    # Create 2 shifts for the User
+    create_n_shift_objects((1, 3), user=user_object, contract=contract_object)
+    # Create another 2 shifts for different User
+    create_n_shift_objects(
+        (1, 3), user=diff_user_object, contract=diff_user_contract_object
+    )
