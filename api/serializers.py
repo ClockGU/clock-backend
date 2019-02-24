@@ -1,10 +1,15 @@
 from rest_framework import serializers
 from calendar import monthrange
 from api.models import Contract, Shift
+from rest_framework.request import QueryDict
 
 
-class TagsSerializerField(serializers.SerializerMethodField, serializers.ListField):
-    pass
+class TagsSerializerField(serializers.Field):
+    def to_representation(self, obj):
+        return list(map(lambda x: x.name, obj.all()))
+
+    def to_internal_value(self, data):
+        return data
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -126,4 +131,49 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         }
 
     def get_tags(self, obj):
+        if isinstance(obj, QueryDict):
+            return obj.get("tags")
         return list(map(lambda x: x.name, obj.tags.all()))
+
+    def validate(self, attrs):
+        print(attrs)
+        assert attrs.get("tags")
+        started = attrs.get("started")
+        stopped = attrs.get("stopped")
+
+        if self.instance and self.partial:
+            started = attrs.get("started", self.instance.started)
+            stopped = attrs.get("stopped", self.instance.stopped)
+        # validate that started and stopped are on the same day
+        if not (started.date() == stopped.date()):
+            raise serializers.ValidationError(
+                "Eine Schicht muss an dem gleichen Tag enden an dem sie angefangen hat."
+            )
+        if started > stopped:
+            raise serializers.ValidationError(
+                "Der Beginn einer Schicht muss vor deren Ende leigen."
+            )
+
+        return attrs
+
+    def validate_contract(self, contract):
+        if not (contract.user == self.context["request"].user):
+            raise serializers.ValidationError(
+                "Das Vertragsobjekt muss dem User gehören der die Schicht erstellt."
+            )
+
+        return contract
+
+    def validate_tags(self, tags):
+        assert tags
+        if not isinstance(tags, list):
+            raise serializers.ValidationError(
+                "Tags müssen als Liste und nicht als {} dargestellt werden.".format(
+                    type(tags)
+                )
+            )
+
+        if not all(map(lambda x: isinstance(x, str), tags)):
+            raise serializers.ValidationError("Tags dürfen nur strings sein.")
+
+        return tags
