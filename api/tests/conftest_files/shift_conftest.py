@@ -112,6 +112,46 @@ def tags_not_string_querydict(tags_not_strings_json):
 
 
 @pytest.fixture
+def shift_starts_before_contract_json(valid_shift_json):
+    """
+    The contract object has for start_date the 29th of January in 2019.
+    :param valid_shift_json:
+    :return:
+    """
+    valid_shift_json["started"] = datetime.datetime(2018, 12, 19, 14)
+    valid_shift_json["stopped"] = datetime.datetime(2018, 12, 19, 16)
+    return valid_shift_json
+
+
+@pytest.fixture
+def shift_starts_before_contract_querydict(shift_starts_before_contract_json):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(shift_starts_before_contract_json)
+    return qdict
+
+
+@pytest.fixture
+def shift_starts_ends_after_contract_json(valid_shift_json):
+    """
+    The contract object has for start_date the 29th of January in 2019.
+    :param valid_shift_json:
+    :return:
+    """
+    valid_shift_json["started"] = datetime.datetime(2019, 2, 19, 14)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 2, 19, 16)
+    return valid_shift_json
+
+
+@pytest.fixture
+def shift_starts_ends_after_contract_json_querydict(
+    shift_starts_ends_after_contract_json
+):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(shift_starts_ends_after_contract_json)
+    return qdict
+
+
+@pytest.fixture
 def create_n_shift_objects():
 
     started = datetime.datetime(2019, 1, 29, 14)
