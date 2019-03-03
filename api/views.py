@@ -30,8 +30,6 @@ class ShiftViewSet(viewsets.ModelViewSet):
     queryset = Shift.objects.all()
     serializer_class = ShiftSerializer
     name = "shifts"
-    permission_classes = ()
-    authentication_classes = ()
 
     def get_queryset(self):
         queryset = super(ShiftViewSet, self).get_queryset()

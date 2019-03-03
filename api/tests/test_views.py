@@ -219,3 +219,22 @@ class TestShiftApiEndpoint:
             Shift.objects.get(id=shift["id"]).user.id == user_object.id
             for shift in data
         )
+
+    @pytest.mark.django_db
+    def test_create(self, client, user_object, user_object_jwt, valid_shift_json):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path="http://localhost:8000/api/shifts/", data=valid_shift_json
+        )
+        data = json.loads(response.content)
+
+        assert response.status_code == 201
+        shift_object = Shift.objects.get(pk=data["id"])
+        initial_tags = json.loads(valid_shift_json["tags"])
+
+        assert shift_object
+        assert shift_object.tags.all().count() == len(initial_tags)
+
+        assert all(
+            shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
+        )
