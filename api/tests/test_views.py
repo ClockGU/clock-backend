@@ -238,3 +238,21 @@ class TestShiftApiEndpoint:
         assert all(
             shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
         )
+
+    @pytest.mark.django_db
+    def test_put_new_tags(self, client, user_object_jwt, put_new_tags_json):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.put(
+            path=reverse("api:shifts-detail", args=[put_new_tags_json["id"]]),
+            data=put_new_tags_json,
+        )
+
+        data = json.loads(response.content)
+        initial_tags = json.loads(put_new_tags_json["tags"])
+
+        assert response.status_code == 200
+        shift_object = Shift.objects.get(pk=put_new_tags_json["id"])
+        assert shift_object.tags.all().count() == len(initial_tags)
+        assert all(
+            shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
+        )

@@ -187,6 +187,11 @@ def create_n_shift_objects():
 
 
 @pytest.fixture
+def shift_object(create_n_shift_objects, user_object, contract_object):
+    return create_n_shift_objects((1,), user_object, contract_object)[0]
+
+
+@pytest.fixture
 def db_creation_shifts_list_endpoint(
     user_object,
     diff_user_object,
@@ -200,3 +205,10 @@ def db_creation_shifts_list_endpoint(
     create_n_shift_objects(
         (1, 3), user=diff_user_object, contract=diff_user_contract_object
     )
+
+
+@pytest.fixture
+def put_new_tags_json(valid_shift_json, shift_object):
+    valid_shift_json["id"] = shift_object.id
+    valid_shift_json["tags"] = json.dumps(["new_tag1", "new_tag2"])
+    return valid_shift_json
