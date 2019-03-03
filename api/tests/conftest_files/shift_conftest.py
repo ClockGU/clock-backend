@@ -1,4 +1,6 @@
 import pytest
+import json
+
 from pytz import datetime
 from rest_framework.request import QueryDict
 from api.models import Shift
@@ -6,15 +8,15 @@ from api.models import Shift
 
 @pytest.fixture
 def valid_shift_json(user_object, contract_object):
-    started = datetime.datetime(2019, 1, 29, 14)
-    stopped = datetime.datetime(2019, 1, 29, 16)
+    started = datetime.datetime(2019, 1, 29, 14).isoformat()
+    stopped = datetime.datetime(2019, 1, 29, 16).isoformat()
     created_at = datetime.datetime(2019, 1, 29, 16).isoformat()
     modified_at = created_at
     user = user_object.id
     contract = contract_object.id
     _type = "st"
     note = "something was strange"
-    tags = ["tag1, tag2"]
+    tags = json.dumps(["tag1", "tag2"])
 
     data = {
         "started": started,
@@ -100,7 +102,7 @@ def wrong_type_querydict(wrong_type_json):
 
 @pytest.fixture
 def tags_not_strings_json(valid_shift_json):
-    valid_shift_json["tags"] = [1, [], "a"]
+    valid_shift_json["tags"] = json.dumps([1, [], "a"])
     return valid_shift_json
 
 

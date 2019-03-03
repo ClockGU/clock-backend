@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import serializers
 from calendar import monthrange
 from api.models import Contract, Shift
@@ -9,7 +11,7 @@ class TagsSerializerField(serializers.Field):
         return list(map(lambda x: x.name, obj.all()))
 
     def to_internal_value(self, data):
-        return data
+        return json.loads(data)
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -130,11 +132,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "was_exported": {"read_only": True},
         }
 
-    def get_tags(self, obj):
-        if isinstance(obj, QueryDict):
-            return obj.get("tags")
-        return list(map(lambda x: x.name, obj.tags.all()))
-
     def validate(self, attrs):
         print(attrs)
         assert attrs.get("tags")
@@ -185,3 +182,12 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             raise serializers.ValidationError("Tags dürfen nur strings sein.")
 
         return tags
+
+    def create(self, validated_data):
+        tags = validated_data.pop("tags", None)
+        created_object = super(ShiftSerializer, self).create(validated_data)
+        if tags:
+            assert isinstance(tags, list)
+            created_object.tags.set(*tags)
+
+        return created_object
