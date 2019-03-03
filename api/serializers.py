@@ -191,3 +191,26 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             created_object.tags.set(*tags)
 
         return created_object
+
+    def update(self, instance, validated_data):
+        """
+        On an update, we override the tags.
+        Therefore all previous tags have to be provided to 'add' a new one.
+        Example:
+
+        old tags --> ['tag1', 'tag2']
+
+        new tags --> ['tag1', 'tag2', 'tag3']
+
+        provided tags to achieve this : ['tag1', 'tag2', 'tag3']
+
+        :param instance:
+        :param validated_data:
+        :return:
+        """
+        tags = validated_data.pop("tags", None)
+        updated_object = super(ShiftSerializer, self).update(instance, validated_data)
+        if tags:
+            assert isinstance(tags, list)
+            updated_object.tags.set(*tags)
+        return updated_object
