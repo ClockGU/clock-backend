@@ -213,10 +213,8 @@ def put_new_tags_json(valid_shift_json, shift_object):
     valid_shift_json["tags"] = json.dumps(["new_tag1", "new_tag2"])
     return valid_shift_json
 
+
 @pytest.fixture
 def patch_new_tags_json(shift_object):
-    _dict = {
-        "id": shift_object.id,
-        "tags": json.dumps(["new_tag1", "new_tag2"])
-    }
+    _dict = {"id": shift_object.id, "tags": json.dumps(["new_tag1", "new_tag2"])}
     return _dict
