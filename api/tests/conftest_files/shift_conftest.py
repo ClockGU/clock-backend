@@ -220,6 +220,7 @@ def patch_new_tags_json(shift_object):
     return _dict
 
 
+@pytest.fixture
 def db_creation_list_month_year_endpoint(
     db_creation_shifts_list_endpoint,
     user_object,
