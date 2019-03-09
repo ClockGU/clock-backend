@@ -156,15 +156,15 @@ def shift_starts_ends_after_contract_json_querydict(
 @pytest.fixture
 def create_n_shift_objects():
 
-    started = datetime.datetime(2019, 1, 29, 14)
-    stopped = datetime.datetime(2019, 1, 29, 16)
+    _started = datetime.datetime(2019, 1, 29, 14)
+    _stopped = datetime.datetime(2019, 1, 29, 16)
     created_at = datetime.datetime(2019, 1, 29, 16).isoformat()
     modified_at = created_at
     _type = "st"
     note = "something was strange"
     tags = ["tag1, tag2"]
 
-    def create_shifts(start_stop, user, contract):
+    def create_shifts(start_stop, user, contract, started=_started, stopped=_stopped):
         lst = []
         for i in range(*start_stop):
             shift = Shift.objects.create(
@@ -218,3 +218,24 @@ def put_new_tags_json(valid_shift_json, shift_object):
 def patch_new_tags_json(shift_object):
     _dict = {"id": shift_object.id, "tags": json.dumps(["new_tag1", "new_tag2"])}
     return _dict
+
+
+def db_creation_list_month_year_endpoint(
+    db_creation_shifts_list_endpoint,
+    user_object,
+    contract_object,
+    create_n_shift_objects,
+):
+
+    # dependency of db_creation_shifts_list_endpoint creates 2 shifts for user_object on 29th of January
+    # and 2 shifts for diff user_object also on 29th of January
+    # We now create 2 shift on 2nd of February for user_object
+    _started = datetime.datetime(2019, 2, 2, 14)
+    _stopped = datetime.datetime(2019, 2, 2, 16)
+    create_n_shift_objects(
+        (1, 3),
+        user=user_object,
+        contract=contract_object,
+        started=_started,
+        stopped=_stopped,
+    )
