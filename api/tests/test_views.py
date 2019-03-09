@@ -277,6 +277,7 @@ class TestShiftApiEndpoint:
             shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
         )
 
+    @pytest.mark.django_db
     def test_list_month_year_endpoint(
         self, client, user_object_jwt, db_creation_list_month_year_endpoint
     ):
