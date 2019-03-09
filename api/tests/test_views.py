@@ -5,6 +5,8 @@ import json
 
 from django.urls import reverse
 from rest_framework import status
+from datetime import datetime
+
 
 from api.models import Contract, Shift
 
@@ -273,4 +275,20 @@ class TestShiftApiEndpoint:
         assert shift_object.tags.all().count() == len(initial_tags)
         assert all(
             shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
+        )
+
+    def test_list_month_year_endpoint(
+        self, client, user_object_jwt, db_creation_list_month_year_endpoint
+    ):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(path=reverse("api:list-shifts", args=[1, 2019]))
+
+        data = json.loads(response.content)
+        print(data)
+        assert response.status_code == 200
+        assert len(data) == 2
+        assert all(
+            datetime.strptime(i["started"], "%Y-%m-%dT%H:%M:%SZ").month == 1
+            and datetime.strptime(i["started"], "%Y-%m-%dT%H:%M:%SZ").year == 2019
+            for i in data
         )
