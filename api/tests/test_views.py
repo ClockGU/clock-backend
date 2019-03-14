@@ -5,11 +5,26 @@ import json
 
 from django.urls import reverse
 from rest_framework import status
+from datetime import datetime
 
-from api.models import Contract
+
+from api.models import Contract, Shift
 
 
 class TestContractApiEndpoint:
+    """
+    This TestCase includes:
+       - tests which try accesing an Endpoint without a provided JWT
+           --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same
+               permission_class and authentication_class
+       - tests which try to change the values fro user, created_by and modified by
+           --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same base
+               serializer which provides this provides this Functionality
+       - tests which try to create a Contract for a different user than who is issueing the request
+           --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same base
+               serializer which provides this provides this Functionality
+    """
+
     @pytest.mark.django_db
     def test_get_only_own_contract(
         self, client, user_object_jwt, diff_user_contract_object
@@ -145,7 +160,7 @@ class TestContractApiEndpoint:
             data=invalid_uuid_contract_put_endpoint,
         )
         content = json.loads(response.content)
-        print(content)
+
         assert response.status_code == 200
         # Check that neither "user", "created_by" nor "modified_by" changed from the originial/issuing user
         user_id = user_object.id
@@ -189,3 +204,92 @@ class TestContractApiEndpoint:
         assert contract.modified_by.id == user_id
         #      New Datetime           Old Datetime  --> Result should be positive
         assert contract.modified_at > contract_object.modified_at
+
+
+class TestShiftApiEndpoint:
+    @pytest.mark.django_db
+    def test_list_objects_of_request_user(
+        self, client, user_object, user_object_jwt, db_creation_shifts_list_endpoint
+    ):
+
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(path="http://localhost:8000/api/shifts/")
+
+        data = json.loads(response.content)
+        assert response.status_code == 200
+        assert all(
+            Shift.objects.get(id=shift["id"]).user.id == user_object.id
+            for shift in data
+        )
+
+    @pytest.mark.django_db
+    def test_create(self, client, user_object, user_object_jwt, valid_shift_json):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path="http://localhost:8000/api/shifts/", data=valid_shift_json
+        )
+        data = json.loads(response.content)
+
+        assert response.status_code == 201
+        shift_object = Shift.objects.get(pk=data["id"])
+        initial_tags = json.loads(valid_shift_json["tags"])
+
+        assert shift_object
+        assert shift_object.tags.all().count() == len(initial_tags)
+
+        assert all(
+            shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
+        )
+
+    @pytest.mark.django_db
+    def test_put_new_tags(self, client, user_object_jwt, put_new_tags_json):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.put(
+            path=reverse("api:shifts-detail", args=[put_new_tags_json["id"]]),
+            data=put_new_tags_json,
+        )
+
+        data = json.loads(response.content)
+        initial_tags = json.loads(put_new_tags_json["tags"])
+
+        assert response.status_code == 200
+        shift_object = Shift.objects.get(pk=put_new_tags_json["id"])
+        assert shift_object.tags.all().count() == len(initial_tags)
+        assert all(
+            shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
+        )
+
+    @pytest.mark.django_db
+    def test_patch_new_tags(self, client, user_object_jwt, patch_new_tags_json):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.patch(
+            path=reverse("api:shifts-detail", args=[patch_new_tags_json["id"]]),
+            data=patch_new_tags_json,
+        )
+
+        initial_tags = json.loads(patch_new_tags_json["tags"])
+
+        assert response.status_code == 200
+        shift_object = Shift.objects.get(pk=patch_new_tags_json["id"])
+
+        assert shift_object.tags.all().count() == len(initial_tags)
+        assert all(
+            shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
+        )
+
+    @pytest.mark.django_db
+    def test_list_month_year_endpoint(
+        self, client, user_object_jwt, db_creation_list_month_year_endpoint
+    ):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(path=reverse("api:list-shifts", args=[1, 2019]))
+
+        data = json.loads(response.content)
+        print(data)
+        assert response.status_code == 200
+        assert len(data) == 2
+        assert all(
+            datetime.strptime(i["started"], "%Y-%m-%dT%H:%M:%SZ").month == 1
+            and datetime.strptime(i["started"], "%Y-%m-%dT%H:%M:%SZ").year == 2019
+            for i in data
+        )
