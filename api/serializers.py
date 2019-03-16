@@ -2,8 +2,7 @@ import json
 
 from rest_framework import serializers
 from calendar import monthrange
-from api.models import Contract, Shift
-from rest_framework.request import QueryDict
+from api.models import Contract, Shift, Report
 
 
 class TagsSerializerField(serializers.Field):
@@ -214,3 +213,17 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             assert isinstance(tags, list)
             updated_object.tags.set(*tags)
         return updated_object
+
+
+class ReportSerializer(RestrictModificationModelSerializer):
+    class Meta:
+        model = Report
+        fields = "__all__"
+        extra_kwargs = {
+            # Will be set automatically by the Model
+            "created_at": {"required": False},
+            "modified_at": {"required": False},
+            "created_by": {"write_only": True},
+            "modified_by": {"write_only": True},
+            "user": {"write_only": True},
+        }

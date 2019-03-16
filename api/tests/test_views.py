@@ -3,9 +3,11 @@
 import pytest
 import json
 
+
 from django.urls import reverse
 from rest_framework import status
 from datetime import datetime
+from freezegun import freeze_time
 
 
 from api.models import Contract, Shift
@@ -313,3 +315,16 @@ class TestShiftApiEndpoint:
             and datetime.strptime(i["started"], "%Y-%m-%dT%H:%M:%SZ").year == 2019
             for i in data
         )
+
+
+class TestReportApiEndpoint:
+    @freeze_time("2019-01-10")
+    @pytest.mark.django_db
+    def test_get_current_endpoint(
+        self, client, user_object_jwt, db_get_current_endpoint
+    ):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(path=reverse("api:reports-get_current"))
+        content = json.loads(response.content)
+
+        assert content["month_year"] == "2019-01-01"
