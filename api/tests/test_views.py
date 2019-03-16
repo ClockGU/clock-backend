@@ -205,6 +205,26 @@ class TestContractApiEndpoint:
         #      New Datetime           Old Datetime  --> Result should be positive
         assert contract.modified_at > contract_object.modified_at
 
+    @pytest.mark.django_db
+    def test_shifts_action_contract(
+        self,
+        client,
+        user_object_jwt,
+        user_object,
+        contract_object,
+        db_creation_shifts_list_endpoint,
+    ):
+
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(
+            path=reverse("api:contracts-shifts", args=[contract_object.id])
+        )
+
+        content = json.loads(response.content)
+
+        assert len(content) == 2  # We created only 2 shifts for the User
+        assert all(shift["contract"] == str(contract_object.id) for shift in content)
+
 
 class TestShiftApiEndpoint:
     @pytest.mark.django_db
