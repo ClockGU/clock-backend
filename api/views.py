@@ -20,11 +20,18 @@ def index(request):
 class ContractViewSet(viewsets.ModelViewSet):
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
+
     name = "contracts"
 
     def get_queryset(self):
         queryset = super(ContractViewSet, self).get_queryset()
         return queryset.filter(user__id=self.request.user.id)
+
+    @action(detail=True, url_name="shifts", url_path="shifts", methods=["get"])
+    def get_shifts_list(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = ShiftSerializer(instance.shifts, many=True)
+        return Response(serializer.data)
 
 
 class ShiftViewSet(viewsets.ModelViewSet):
