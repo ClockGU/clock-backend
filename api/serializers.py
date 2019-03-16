@@ -221,8 +221,8 @@ class ReportSerializer(RestrictModificationModelSerializer):
         fields = "__all__"
         extra_kwargs = {
             # Will be set automatically by the Model
-            "created_at": {"required": False, "write_only": True},
-            "modified_at": {"required": False, "write_only": True},
+            "created_at": {"required": False},
+            "modified_at": {"required": False},
             "created_by": {"write_only": True},
             "modified_by": {"write_only": True},
             "user": {"write_only": True},
