@@ -1,11 +1,10 @@
 import uuid
+
+from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
-
-from django.contrib.auth.models import AbstractUser, UserManager
-from django.contrib.auth.base_user import BaseUserManager
-from django import forms
 
 
 class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):

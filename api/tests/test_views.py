@@ -1,14 +1,12 @@
 # View tests come here
 
-import pytest
 import json
-
-
-from django.urls import reverse
-from rest_framework import status
 from datetime import datetime
-from freezegun import freeze_time
 
+import pytest
+from django.urls import reverse
+from freezegun import freeze_time
+from rest_framework import status
 
 from api.models import Contract, Shift
 
@@ -19,7 +17,7 @@ class TestContractApiEndpoint:
        - tests which try accesing an Endpoint without a provided JWT
            --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same
                permission_class and authentication_class
-       - tests which try to change the values fro user, created_by and modified by
+       - tests which try to change the values for user, created_by and modified by
            --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same base
                serializer which provides this provides this Functionality
        - tests which try to create a Contract for a different user than who is issueing the request
@@ -70,7 +68,7 @@ class TestContractApiEndpoint:
     @pytest.mark.django_db
     def test_create_forbidden_without_jwt(self, client, valid_contract_json):
         """
-        Test the create endpoint returns a 401 if no JWT is present
+        Test the create endpoint returns a 401 if no JWT is present.
         :param client:
         :param valid_contract_json:
         :return:
@@ -82,6 +80,12 @@ class TestContractApiEndpoint:
 
     @pytest.mark.django_db
     def test_put_forbidden_without_jwt(self, client, valid_contract_json):
+        """
+        Test the PUT endpoint returns 401 if no JWT is present.
+        :param client:
+        :param valid_contract_json:
+        :return:
+        """
 
         response = client.put(
             path="http://localhost:8000/api/contracts/", data=valid_contract_json
@@ -147,7 +151,7 @@ class TestContractApiEndpoint:
         """
         Test that updating 'user', 'created_by' and 'modified_by' does not work.
         This is tested via 'invalid_uuid_contract_json' which has non-existent uuid's in these fields.
-        By testing with this fixture it is also covered that even if the uuid corresponds to a existent user
+        By testing with this fixture it is also covered that even if the uuid corresponds to an existent user
         it is not possible to switch/modify the contracts owner.
 
         :param client:
@@ -216,6 +220,16 @@ class TestContractApiEndpoint:
         contract_object,
         db_creation_shifts_list_endpoint,
     ):
+        """
+        Test that the endpoint api/contracts/<uuid>/shifts exists and that it lists all shifts
+        corresponding to the contract with <uuid>.
+        :param client:
+        :param user_object_jwt:
+        :param user_object:
+        :param contract_object:
+        :param db_creation_shifts_list_endpoint:
+        :return:
+        """
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(
@@ -233,9 +247,17 @@ class TestShiftApiEndpoint:
     def test_list_objects_of_request_user(
         self, client, user_object, user_object_jwt, db_creation_shifts_list_endpoint
     ):
+        """
+        Test that the list-endpoint only retrieves the Shifts of the User who issues the request.
+        :param client:
+        :param user_object:
+        :param user_object_jwt:
+        :param db_creation_shifts_list_endpoint:
+        :return:
+        """
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(path="http://localhost:8000/api/shifts/")
+        response = client.get(path=reverse("api:shifts-list"))
 
         data = json.loads(response.content)
         assert response.status_code == 200
@@ -246,10 +268,17 @@ class TestShiftApiEndpoint:
 
     @pytest.mark.django_db
     def test_create(self, client, user_object, user_object_jwt, valid_shift_json):
+        """
+        Test that the create-endpoint creates the Shift correctly. Special focus on valid creation of the
+        provided tags.
+        :param client:
+        :param user_object:
+        :param user_object_jwt:
+        :param valid_shift_json:
+        :return:
+        """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.post(
-            path="http://localhost:8000/api/shifts/", data=valid_shift_json
-        )
+        response = client.post(path=reverse("api:shifts-list"), data=valid_shift_json)
         data = json.loads(response.content)
 
         assert response.status_code == 201
@@ -265,6 +294,13 @@ class TestShiftApiEndpoint:
 
     @pytest.mark.django_db
     def test_put_new_tags(self, client, user_object_jwt, put_new_tags_json):
+        """
+        Test that the PUT-endpoint updates the tags correctly.
+        :param client:
+        :param user_object_jwt:
+        :param put_new_tags_json:
+        :return:
+        """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.put(
             path=reverse("api:shifts-detail", args=[put_new_tags_json["id"]]),
@@ -283,6 +319,14 @@ class TestShiftApiEndpoint:
 
     @pytest.mark.django_db
     def test_patch_new_tags(self, client, user_object_jwt, patch_new_tags_json):
+        """
+        Test that the PATCH-endpoint updates the Tags correctly.
+        Here it is worth noteing that all Tags, even those who are kept, are needed within the payload.
+        :param client:
+        :param user_object_jwt:
+        :param patch_new_tags_json:
+        :return:
+        """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.patch(
             path=reverse("api:shifts-detail", args=[patch_new_tags_json["id"]]),
@@ -303,6 +347,14 @@ class TestShiftApiEndpoint:
     def test_list_month_year_endpoint(
         self, client, user_object_jwt, db_creation_list_month_year_endpoint
     ):
+        """
+        Test that the endpoint api/list-shifts/<month>/<year>/ exists and that it lists all Shifts
+        of the provided <month> in the provided <year> corresponding to the User issueing the request.
+        :param client:
+        :param user_object_jwt:
+        :param db_creation_list_month_year_endpoint:
+        :return:
+        """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(path=reverse("api:list-shifts", args=[1, 2019]))
 
@@ -323,6 +375,14 @@ class TestReportApiEndpoint:
     def test_get_current_endpoint(
         self, client, user_object_jwt, db_get_current_endpoint
     ):
+        """
+        Test that the endpoint api/reports/get_current/ exists and that it retrieves the Report for the current
+        month.
+        :param client:
+        :param user_object_jwt:
+        :param db_get_current_endpoint:
+        :return:
+        """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(path=reverse("api:reports-get_current"))
         content = json.loads(response.content)

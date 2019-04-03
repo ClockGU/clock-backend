@@ -1,9 +1,9 @@
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-from django.conf.urls import url
-from rest_framework import permissions
-from django.urls import reverse
 import environ
+from django.conf.urls import url
+from django.urls import reverse
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
 
 # This is the documentation for the API, generated for swagger and Redoc standart
 env = environ.Env()

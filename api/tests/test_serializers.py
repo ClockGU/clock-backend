@@ -1,15 +1,27 @@
-import pytest
-from rest_framework import serializers
-from api.serializers import ContractSerializer, ShiftSerializer
 import pprint
+
+import pytest
 from pytz import datetime
+from rest_framework import serializers
+
+from api.serializers import ContractSerializer, ShiftSerializer
 
 
 class TestContractSerializerValidation:
+    """
+    This Testsuit summerizes the Validation and Representation of the ContractSerializer.
+    """
+
     @pytest.mark.django_db
     def test_validate_correct_data(
         self, valid_contract_querydict, plain_request_object
     ):
+        """
+        The ContractSerializer is tested if a valid JSON passes validation.
+        :param valid_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
         ContractSerializer(
             data=valid_contract_querydict, context={"request": plain_request_object}
         ).is_valid(raise_exception=True)
@@ -18,6 +30,13 @@ class TestContractSerializerValidation:
     def test_start_date_causality_validation(
         self, end_date_before_start_date_contract_querydict, plain_request_object
     ):
+        """
+        The ContractSerializer is tested whether it raises a ValidationError
+        if the start and end dates are causally correct.
+        :param end_date_before_start_date_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ContractSerializer(
                 data=end_date_before_start_date_contract_querydict,
@@ -28,6 +47,13 @@ class TestContractSerializerValidation:
     def test_start_date_day_validation(
         self, start_date_day_incorrect_contract_querydict, plain_request_object
     ):
+        """
+        The  ContractSerializer is tested whether it raises a Validation
+        if the start_date day is not the 1. or 15. of a month.
+        :param start_date_day_incorrect_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ContractSerializer(
                 data=start_date_day_incorrect_contract_querydict,
@@ -38,6 +64,13 @@ class TestContractSerializerValidation:
     def test_end_date_day_validation(
         self, end_date_day_incorrect_contract_querydict, plain_request_object
     ):
+        """
+        The  ContractSerializer is tested whether it raises a Validation
+        if the start_date day is not the 14. or last day of a month.
+        :param end_date_day_incorrect_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ContractSerializer(
                 data=end_date_day_incorrect_contract_querydict,
@@ -48,6 +81,13 @@ class TestContractSerializerValidation:
     def test_negative_hours_validation(
         self, negative_hours_contract_querydict, plain_request_object
     ):
+        """
+        The  ContractSerializer is tested whether it raises a Validation
+        if the hours value is negative.
+        :param negative_hours_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ContractSerializer(
                 data=negative_hours_contract_querydict,
@@ -56,8 +96,18 @@ class TestContractSerializerValidation:
 
 
 class TestShiftSerializerValidation:
+    """
+    This Testsuit summerizes the Validation and Representation of the ShiftSerializer.
+    """
+
     @pytest.mark.django_db
     def test_validate_correct_data(self, valid_shift_querydict, plain_request_object):
+        """
+        The ShiftSerializer is tested if a valid JSON passes validation.
+        :param valid_shift_querydict:
+        :param plain_request_object:
+        :return:
+        """
         ShiftSerializer(
             data=valid_shift_querydict, context={"request": plain_request_object}
         ).is_valid(raise_exception=True)
@@ -66,6 +116,13 @@ class TestShiftSerializerValidation:
     def test_stopped_before_started_validation(
         self, stopped_before_started_querydict, plain_request_object
     ):
+        """
+        The  ShiftSerializer is tested whether it raises a Validation
+        if the started and ended datetimes are causally incorrect.
+        :param stopped_before_started_querydict: 
+        :param plain_request_object: 
+        :return: 
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(
                 data=stopped_before_started_querydict,
@@ -76,6 +133,13 @@ class TestShiftSerializerValidation:
     def test_stopped_on_next_day_validation(
         self, stopped_on_next_day_querydict, plain_request_object
     ):
+        """
+        The  ShiftSerializer is tested whether it raises a Validation
+        if the shift ends on a different day.
+        :param stopped_on_next_day_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(
                 data=stopped_on_next_day_querydict,
@@ -86,6 +150,13 @@ class TestShiftSerializerValidation:
     def test_shift_started_before_contract_validation(
         self, shift_starts_before_contract_querydict, plain_request_object
     ):
+        """
+        The  ShiftSerializer is tested whether it raises a Validation
+        if the shift starts before the contract started.
+        :param shift_starts_before_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(
                 data=shift_starts_before_contract_querydict,
@@ -96,6 +167,13 @@ class TestShiftSerializerValidation:
     def test_shift_starts_ends_after_contract_validation(
         self, shift_starts_ends_after_contract_json_querydict, plain_request_object
     ):
+        """
+        The  ShiftSerializer is tested whether it raises a Validation
+        if the shift ends after the contract ends.
+        :param shift_starts_ends_after_contract_json_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(
                 data=shift_starts_ends_after_contract_json_querydict,
@@ -106,6 +184,13 @@ class TestShiftSerializerValidation:
     def test_contract_not_belonging_to_user_validation(
         self, contract_not_belonging_to_user_querydict, plain_request_object
     ):
+        """
+        The  ShiftSerializer is tested whether it raises a Validation
+        if the provided contract does not belong to the provided user.
+        :param contract_not_belonging_to_user_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(
                 data=contract_not_belonging_to_user_querydict,
@@ -114,6 +199,13 @@ class TestShiftSerializerValidation:
 
     @pytest.mark.django_db
     def test_type_validation(self, wrong_type_querydict, plain_request_object):
+        """
+        The  ShiftSerializer is tested whether it raises a Validation
+        if the provided shift type is incorrect.
+        :param wrong_type_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(
                 data=wrong_type_querydict, context={"request": plain_request_object}
@@ -121,6 +213,13 @@ class TestShiftSerializerValidation:
 
     @pytest.mark.django_db
     def test_tags_validation(self, tags_not_string_querydict, plain_request_object):
+        """
+        The  ShiftSerializer is tested whether it raises a Validation
+        if the tags are incorrect.
+        :param tags_not_string_querydict:
+        :param plain_request_object:
+        :return:
+        """
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(
                 data=tags_not_string_querydict,

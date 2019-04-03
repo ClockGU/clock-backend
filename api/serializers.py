@@ -1,11 +1,17 @@
 import json
+from calendar import monthrange
 
 from rest_framework import serializers
-from calendar import monthrange
-from api.models import Contract, Shift, Report
+
+from api.models import Contract, Report, Shift
 
 
 class TagsSerializerField(serializers.Field):
+    """
+    Custom Field to represent Tags within the ShiftSerializer.
+    Tags are represented by a list of strings.
+    """
+
     def to_representation(self, obj):
         return list(map(lambda x: x.name, obj.all()))
 
@@ -14,6 +20,13 @@ class TagsSerializerField(serializers.Field):
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
+    """
+    This class, derived from ModelSerializer, is used as a base class for all Serializer classes within the project.
+    The purpose of this baseclass is to assure that whatever a (possible) malicious User provides within the fields
+    'user', 'created_by' or 'modified_by' is set to the user id given by the JWT Authentication.
+    This solely refers to POST, PUT and PATCH methods and thereby prevent manipulation of other users content.
+    """
+
     def add_user_id(self, request, data):
         user_id = request.user.id
         data["user"] = user_id
@@ -132,7 +145,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         }
 
     def validate(self, attrs):
-        print(attrs)
         assert attrs.get("tags")
         started = attrs.get("started")
         stopped = attrs.get("stopped")
@@ -169,7 +181,12 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         return contract
 
     def validate_tags(self, tags):
-        assert tags
+        """
+        Validate that the deserialization of the tags field is a list and
+        that all values within this list are strings.
+        :param tags:
+        :return:
+        """
         if not isinstance(tags, list):
             raise serializers.ValidationError(
                 "Tags müssen als Liste und nicht als {} dargestellt werden.".format(
@@ -183,6 +200,12 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         return tags
 
     def create(self, validated_data):
+        """
+        Customization of the derived create method.
+        It adds the utility to create Tags.
+        :param validated_data:
+        :return:
+        """
         tags = validated_data.pop("tags", None)
         created_object = super(ShiftSerializer, self).create(validated_data)
         if tags:
@@ -216,6 +239,11 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
 
 class ReportSerializer(RestrictModificationModelSerializer):
+    """
+    This Serializer class does not provide any custom validation since it is only used within a
+    ReadOnlyViewSet and therefore will never perform a create or update.
+    """
+
     class Meta:
         model = Report
         fields = "__all__"
