@@ -1,15 +1,14 @@
 from django.http import HttpResponse
+from pytz import datetime
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
 
-
+from api.models import Contract, Report, Shift
+from api.serializers import (ContractSerializer, ReportSerializer,
+                             ShiftSerializer)
 from api.tasks import async_5_user_creation
-from pytz import datetime
-from api.models import Contract, Shift, Report
-
-from api.serializers import ContractSerializer, ShiftSerializer, ReportSerializer
 
 # Proof of Concept that celery works
 

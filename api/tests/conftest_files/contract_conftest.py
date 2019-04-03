@@ -1,10 +1,10 @@
-import pytest
 import uuid
+
+import pytest
 from pytz import datetime
 from rest_framework.request import QueryDict
 
 from api.models import Contract
-
 
 # This conftest file provides all necessary test data concerning the Contract Model.
 # It will be imported by the conftest.py in the parent directory.

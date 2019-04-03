@@ -3,7 +3,6 @@ from pytz import datetime
 
 from api.models import Report
 
-
 # This conftest file provides all necessary test data concerning the Report Model.
 # It will be imported by the conftest.py in the parent directory.
 

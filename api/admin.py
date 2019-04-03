@@ -1,8 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.urls import reverse
 from django.utils.html import format_html
-from api.models import User, Contract, Shift, Report
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+
+from api.models import Contract, Report, Shift, User
 
 
 class UserAdmin(BaseUserAdmin):

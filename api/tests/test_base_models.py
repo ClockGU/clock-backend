@@ -1,6 +1,7 @@
+import uuid
+
 from django.db import models
 from taggit.managers import TaggableManager
-import uuid
 
 
 class TestUserModelExists:

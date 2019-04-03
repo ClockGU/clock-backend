@@ -1,8 +1,10 @@
-import pytest
-from rest_framework import serializers
-from api.serializers import ContractSerializer, ShiftSerializer
 import pprint
+
+import pytest
 from pytz import datetime
+from rest_framework import serializers
+
+from api.serializers import ContractSerializer, ShiftSerializer
 
 
 class TestContractSerializerValidation:

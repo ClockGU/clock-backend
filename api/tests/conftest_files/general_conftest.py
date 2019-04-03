@@ -1,12 +1,10 @@
 import pytest
-
-from rest_framework.test import APIClient
-from rest_framework.test import APIRequestFactory, force_authenticate
-from rest_framework.request import Request, QueryDict
 from django.urls import reverse
+from rest_framework.request import QueryDict, Request
+from rest_framework.test import (APIClient, APIRequestFactory,
+                                 force_authenticate)
 
-from api.models import User, Contract, Shift, Report
-
+from api.models import Contract, Report, Shift, User
 
 # This conftest file provides all necessary test data concerning project classes and auxiliary functions/classes.
 # It will be imported by the conftest.py in the parent directory.

@@ -1,9 +1,11 @@
 from __future__ import absolute_import
-import time
-from api.celery import app
-from django.contrib.auth.models import User
-import random
 
+import random
+import time
+
+from django.contrib.auth.models import User
+
+from api.celery import app
 
 # Example Tasks
 
