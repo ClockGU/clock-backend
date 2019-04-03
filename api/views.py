@@ -6,8 +6,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from api.models import Contract, Report, Shift
-from api.serializers import (ContractSerializer, ReportSerializer,
-                             ShiftSerializer)
+from api.serializers import ContractSerializer, ReportSerializer, ShiftSerializer
 from api.tasks import async_5_user_creation
 
 # Proof of Concept that celery works

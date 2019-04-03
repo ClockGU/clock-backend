@@ -11,6 +11,7 @@ class TagsSerializerField(serializers.Field):
     Custom Field to represent Tags within the ShiftSerializer.
     Tags are represented by a list of strings.
     """
+
     def to_representation(self, obj):
         return list(map(lambda x: x.name, obj.all()))
 
@@ -25,6 +26,7 @@ class RestrictModificationModelSerializer(serializers.ModelSerializer):
     'user', 'created_by' or 'modified_by' is set to the user id given by the JWT Authentication.
     This solely refers to POST, PUT and PATCH methods and thereby prevent manipulation of other users content.
     """
+
     def add_user_id(self, request, data):
         user_id = request.user.id
         data["user"] = user_id
@@ -241,6 +243,7 @@ class ReportSerializer(RestrictModificationModelSerializer):
     This Serializer class does not provide any custom validation since it is only used within a
     ReadOnlyViewSet and therefore will never perform a create or update.
     """
+
     class Meta:
         model = Report
         fields = "__all__"
