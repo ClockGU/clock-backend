@@ -149,11 +149,13 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         started = attrs.get("started")
         stopped = attrs.get("stopped")
         contract = attrs.get("contract")
+        shift = None
 
         if self.instance and self.partial:
             started = attrs.get("started", self.instance.started)
             stopped = attrs.get("stopped", self.instance.stopped)
             contract = attrs.get("contract", self.instance.contract)
+            shift = self.instance
 
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
@@ -165,10 +167,21 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 "Der Beginn einer Schicht muss vor deren Ende leigen."
             )
 
-        if not (contract.start_date < started.date() < contract.end_date):
+        if not (contract.start_date <= started.date() <= contract.end_date):
             raise serializers.ValidationError(
                 "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
             )
+
+        if not (contract.start_date <= stopped.date() <= contract.end_date):
+            raise serializers.ValidationError(
+                "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+            )
+
+        if shift:
+            if shift.was_exported:
+                raise serializers.ValidationError(
+                    "Eine Schicht die bereits exportiert wurde darf nicht modifiziert werden."
+                )
 
         return attrs
 
