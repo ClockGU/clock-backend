@@ -1,14 +1,12 @@
 # View tests come here
 
-import pytest
 import json
-
-
-from django.urls import reverse
-from rest_framework import status
 from datetime import datetime
-from freezegun import freeze_time
 
+import pytest
+from django.urls import reverse
+from freezegun import freeze_time
+from rest_framework import status
 
 from api.models import Contract, Shift
 

@@ -1,9 +1,7 @@
 import pytest
-
 from django.urls import reverse
 
 from api.models import User
-
 
 # This conftest file provides all necessary test data concerning the User Model.
 # It will be imported by the conftest.py in the parent directory.

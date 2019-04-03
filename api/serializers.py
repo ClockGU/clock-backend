@@ -1,8 +1,9 @@
 import json
+from calendar import monthrange
 
 from rest_framework import serializers
-from calendar import monthrange
-from api.models import Contract, Shift, Report
+
+from api.models import Contract, Report, Shift
 
 
 class TagsSerializerField(serializers.Field):

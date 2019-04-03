@@ -1,5 +1,6 @@
-from api.tasks import twenty_second_task, twenty_second_user
 import os
+
+from api.tasks import twenty_second_task, twenty_second_user
 
 # Proof of concept, run this to see that celery is working
 
