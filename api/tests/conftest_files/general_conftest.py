@@ -1,8 +1,7 @@
 import pytest
 from django.urls import reverse
 from rest_framework.request import QueryDict, Request
-from rest_framework.test import (APIClient, APIRequestFactory,
-                                 force_authenticate)
+from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
 from api.models import Contract, Report, Shift, User
 

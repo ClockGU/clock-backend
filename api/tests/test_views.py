@@ -278,9 +278,7 @@ class TestShiftApiEndpoint:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.post(
-            path=reverse("api:shifts-list"), data=valid_shift_json
-        )
+        response = client.post(path=reverse("api:shifts-list"), data=valid_shift_json)
         data = json.loads(response.content)
 
         assert response.status_code == 201
