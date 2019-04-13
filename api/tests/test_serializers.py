@@ -1,8 +1,6 @@
-import pprint
-
 import pytest
-from pytz import datetime
 from rest_framework import serializers
+from freezegun import freeze_time
 
 from api.serializers import ContractSerializer, ShiftSerializer
 
@@ -223,5 +221,16 @@ class TestShiftSerializerValidation:
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(
                 data=tags_not_string_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @freeze_time("2019-02-10 00:00:00+00:00")
+    @pytest.mark.django_db
+    def test_shift_in_past_as_planned_fails(
+        self, shift_is_planned_but_started_in_past_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ShiftSerializer(
+                data=shift_is_planned_but_started_in_past_json_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)

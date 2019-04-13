@@ -1,6 +1,6 @@
 import json
 from calendar import monthrange
-
+from pytz import datetime, utc
 from rest_framework import serializers
 
 from api.models import Contract, Report, Shift
@@ -140,21 +140,22 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "created_by": {"write_only": True},
             "modified_by": {"write_only": True},
             "user": {"write_only": True},
-            "was_reviewed": {"read_only": True},
+            "was_reviewed": {"required": False},
             "was_exported": {"read_only": True},
         }
 
     def validate(self, attrs):
-        assert attrs.get("tags")
         started = attrs.get("started")
         stopped = attrs.get("stopped")
         contract = attrs.get("contract")
+        was_reviewed = attrs.get("was_reviewed", False)
         shift = None
 
         if self.instance and self.partial:
             started = attrs.get("started", self.instance.started)
             stopped = attrs.get("stopped", self.instance.stopped)
             contract = attrs.get("contract", self.instance.contract)
+            was_reviewed = attrs.get("was_reviewed", self.instance.was_reviewd)
             shift = self.instance
 
         # validate that started and stopped are on the same day
@@ -176,6 +177,14 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             raise serializers.ValidationError(
                 "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
             )
+
+        # If Shift is considered as 'planned'
+        if not was_reviewed:
+            # A planned Shift has to start in the future
+            if not started > datetime.datetime.now().astimezone(utc):
+                raise serializers.ValidationError(
+                    "Eine Schicht die geplant wird muss in der Zukunft starten/enden."
+                )
 
         if shift:
             if shift.was_exported:
