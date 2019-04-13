@@ -376,3 +376,14 @@ def db_creation_list_month_year_endpoint(
         started=_started,
         stopped=_stopped,
     )
+
+
+@pytest.fixture
+def put_to_exported_shift_json(shift_object, valid_shift_json):
+    shift_object.was_exported = True
+    shift_object.save()
+    valid_shift_json["id"] = shift_object.id
+    valid_shift_json["tags"] = json.dumps(
+        ["new_tag1", "new_tag2"]
+    )  # tags just for example
+    return valid_shift_json

@@ -1,7 +1,7 @@
 import json
 from calendar import monthrange
 from pytz import datetime, utc
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 
 from api.models import Contract, Report, Shift
 
@@ -149,14 +149,14 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         stopped = attrs.get("stopped")
         contract = attrs.get("contract")
         was_reviewed = attrs.get("was_reviewed", False)
-        shift = None
+        was_exported = False
 
-        if self.instance and self.partial:
+        if self.instance and (self.partial or self.context["request"].method == "PUT"):
             started = attrs.get("started", self.instance.started)
             stopped = attrs.get("stopped", self.instance.stopped)
             contract = attrs.get("contract", self.instance.contract)
-            was_reviewed = attrs.get("was_reviewed", self.instance.was_reviewd)
-            shift = self.instance
+            was_reviewed = attrs.get("was_reviewed", self.instance.was_reviewed)
+            was_exported = self.instance.was_exported
 
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
@@ -185,12 +185,11 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 raise serializers.ValidationError(
                     "Eine Schicht die geplant wird muss in der Zukunft starten/enden."
                 )
-
-        if shift:
-            if shift.was_exported:
-                raise serializers.ValidationError(
-                    "Eine Schicht die bereits exportiert wurde darf nicht modifiziert werden."
-                )
+        # was_exported is read_only and marks whether a shift was exported and hence not modifyable anymore
+        if was_exported:
+            raise exceptions.PermissionDenied(
+                "Eine Schicht die bereits exportiert wurde darf nicht modifiziert werden."
+            )
 
         return attrs
 
