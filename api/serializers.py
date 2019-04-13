@@ -1,7 +1,7 @@
 import json
 from calendar import monthrange
-
-from rest_framework import serializers
+from pytz import datetime, utc
+from rest_framework import serializers, exceptions
 
 from api.models import Contract, Report, Shift
 
@@ -140,20 +140,23 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "created_by": {"write_only": True},
             "modified_by": {"write_only": True},
             "user": {"write_only": True},
-            "was_reviewed": {"read_only": True},
+            "was_reviewed": {"required": False},
             "was_exported": {"read_only": True},
         }
 
     def validate(self, attrs):
-        assert attrs.get("tags")
         started = attrs.get("started")
         stopped = attrs.get("stopped")
         contract = attrs.get("contract")
+        was_reviewed = attrs.get("was_reviewed", False)
+        was_exported = False
 
-        if self.instance and self.partial:
+        if self.instance and (self.partial or self.context["request"].method == "PUT"):
             started = attrs.get("started", self.instance.started)
             stopped = attrs.get("stopped", self.instance.stopped)
             contract = attrs.get("contract", self.instance.contract)
+            was_reviewed = attrs.get("was_reviewed", self.instance.was_reviewed)
+            was_exported = self.instance.was_exported
 
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
@@ -165,9 +168,27 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 "Der Beginn einer Schicht muss vor deren Ende leigen."
             )
 
-        if not (contract.start_date < started.date() < contract.end_date):
+        if not (contract.start_date <= started.date() <= contract.end_date):
             raise serializers.ValidationError(
                 "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+            )
+
+        if not (contract.start_date <= stopped.date() <= contract.end_date):
+            raise serializers.ValidationError(
+                "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+            )
+
+        # If Shift is considered as 'planned'
+        if not was_reviewed:
+            # A planned Shift has to start in the future
+            if not started > datetime.datetime.now().astimezone(utc):
+                raise serializers.ValidationError(
+                    "Eine Schicht die geplant wird muss in der Zukunft starten/enden."
+                )
+        # was_exported is read_only and marks whether a shift was exported and hence not modifyable anymore
+        if was_exported:
+            raise exceptions.PermissionDenied(
+                "Eine Schicht die bereits exportiert wurde darf nicht modifiziert werden."
             )
 
         return attrs

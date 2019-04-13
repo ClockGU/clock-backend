@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from pytz import datetime
+from pytz import datetime, utc
 from rest_framework.request import QueryDict
 
 from api.models import Shift
@@ -13,20 +13,22 @@ from api.models import Shift
 @pytest.fixture
 def valid_shift_json(user_object, contract_object):
     """
-    This fixture provides a valid (according to the ShiftSerializer) JSON dictionary.
+    This fixture provides a valid (according to the ShiftSerializer) JSON dictionary for a shift
+    which is created manually (for the past) or was 'gestochen'.
     :param user_object:
     :param contract_object:
     :return: Dict
     """
-    started = datetime.datetime(2019, 1, 29, 14).isoformat()
-    stopped = datetime.datetime(2019, 1, 29, 16).isoformat()
-    created_at = datetime.datetime(2019, 1, 29, 16).isoformat()
+    started = datetime.datetime(2019, 1, 29, 14, tzinfo=utc).isoformat()
+    stopped = datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat()
+    created_at = datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat()
     modified_at = created_at
     user = user_object.id
     contract = contract_object.id
     _type = "st"
     note = "something was strange"
     tags = json.dumps(["tag1", "tag2"])
+    was_reviewed = True
 
     data = {
         "started": started,
@@ -40,6 +42,7 @@ def valid_shift_json(user_object, contract_object):
         "modified_by": user,
         "created_at": created_at,
         "modified_at": modified_at,
+        "was_reviewed": was_reviewed,
     }
     return data
 
@@ -64,8 +67,8 @@ def stopped_before_started_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2019, 1, 29, 16)
-    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 29, 14)
+    valid_shift_json["started"] = datetime.datetime(2019, 1, 29, 16, tzinfo=utc)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 29, 14, tzinfo=utc)
     return valid_shift_json
 
 
@@ -89,7 +92,7 @@ def stopped_on_next_day_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 30, 1)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 30, 1, tzinfo=utc)
     return valid_shift_json
 
 
@@ -187,8 +190,8 @@ def shift_starts_before_contract_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2018, 12, 19, 14)
-    valid_shift_json["stopped"] = datetime.datetime(2018, 12, 19, 16)
+    valid_shift_json["started"] = datetime.datetime(2018, 12, 19, 14, tzinfo=utc)
+    valid_shift_json["stopped"] = datetime.datetime(2018, 12, 19, 16, tzinfo=utc)
     return valid_shift_json
 
 
@@ -213,8 +216,8 @@ def shift_starts_ends_after_contract_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2019, 2, 19, 14)
-    valid_shift_json["stopped"] = datetime.datetime(2019, 2, 19, 16)
+    valid_shift_json["started"] = datetime.datetime(2019, 2, 19, 14, tzinfo=utc)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 2, 19, 16, tzinfo=utc)
     return valid_shift_json
 
 
@@ -233,6 +236,21 @@ def shift_starts_ends_after_contract_json_querydict(
 
 
 @pytest.fixture
+def shift_is_planned_but_started_in_past_json(valid_shift_json):
+    valid_shift_json["was_reviewed"] = False
+    return valid_shift_json
+
+
+@pytest.fixture
+def shift_is_planned_but_started_in_past_json_querydict(
+    shift_is_planned_but_started_in_past_json
+):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(shift_is_planned_but_started_in_past_json)
+    return qdict
+
+
+@pytest.fixture
 def create_n_shift_objects():
     """
     This fixture resembles a shift object factory.
@@ -240,9 +258,9 @@ def create_n_shift_objects():
     Nonetheless in terms of consistency this mechanism is kept as in the user_conftest.py.
     :return: Function
     """
-    _started = datetime.datetime(2019, 1, 29, 14)
-    _stopped = datetime.datetime(2019, 1, 29, 16)
-    created_at = datetime.datetime(2019, 1, 29, 16).isoformat()
+    _started = datetime.datetime(2019, 1, 29, 14, tzinfo=utc)
+    _stopped = datetime.datetime(2019, 1, 29, 16, tzinfo=utc)
+    created_at = datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat()
     modified_at = created_at
     _type = "st"
     note = "something was strange"
@@ -349,8 +367,8 @@ def db_creation_list_month_year_endpoint(
     # dependency of db_creation_shifts_list_endpoint creates 2 shifts for user_object on 29th of January
     # and 2 shifts for diff user_object also on 29th of January
     # We now create 2 shift on 2nd of February for user_object
-    _started = datetime.datetime(2019, 2, 2, 14)
-    _stopped = datetime.datetime(2019, 2, 2, 16)
+    _started = datetime.datetime(2019, 2, 2, 14, tzinfo=utc)
+    _stopped = datetime.datetime(2019, 2, 2, 16, tzinfo=utc)
     create_n_shift_objects(
         (1, 3),
         user=user_object,
@@ -358,3 +376,14 @@ def db_creation_list_month_year_endpoint(
         started=_started,
         stopped=_stopped,
     )
+
+
+@pytest.fixture
+def put_to_exported_shift_json(shift_object, valid_shift_json):
+    shift_object.was_exported = True
+    shift_object.save()
+    valid_shift_json["id"] = shift_object.id
+    valid_shift_json["tags"] = json.dumps(
+        ["new_tag1", "new_tag2"]
+    )  # tags just for example
+    return valid_shift_json

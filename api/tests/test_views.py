@@ -368,6 +368,17 @@ class TestShiftApiEndpoint:
             for i in data
         )
 
+    @pytest.mark.django_db
+    def test_updating_exported_shift_returns_403(
+        self, client, user_object_jwt, put_to_exported_shift_json
+    ):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.put(
+            path=reverse("api:shifts-detail", args=[put_to_exported_shift_json["id"]]),
+            data=put_to_exported_shift_json,
+        )
+        assert response.status_code == 403
+
 
 class TestReportApiEndpoint:
     @freeze_time("2019-01-10")
