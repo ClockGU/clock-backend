@@ -5,7 +5,7 @@ import time
 
 from django.contrib.auth.models import User
 
-from api.celery import app
+from project_celery.celery import app
 
 # Example Tasks
 
