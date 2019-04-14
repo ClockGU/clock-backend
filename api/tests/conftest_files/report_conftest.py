@@ -49,7 +49,16 @@ def report_object(create_n_report_objects, user_object, contract_object):
     :param contract_object:
     :return:
     """
+    # Clear all previously created Reports which might have been created
+    Report.objects.all().delete()
     return create_n_report_objects((1,), user_object, contract_object)[0]
+
+
+@pytest.fixture
+def delete_report_object_afterwards():
+
+    yield
+    Report.objects.all().delete()
 
 
 @pytest.fixture

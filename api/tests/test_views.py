@@ -101,8 +101,7 @@ class TestContractApiEndpoint:
         :param client:
         :param user_object:
         :param user_object_jwt:
-        :param create_n_user_objects:
-        :param create_n_contract_objects:
+        :param db_creation_contracts_list_endpoint:
         :return:
         """
 
@@ -117,13 +116,23 @@ class TestContractApiEndpoint:
 
     @pytest.mark.django_db
     def test_create_with_correct_user(
-        self, client, invalid_uuid_contract_json, user_object, user_object_jwt
+        self,
+        client,
+        invalid_uuid_contract_json,
+        user_object,
+        user_object_jwt,
+        delete_report_object_afterwards,
     ):
         """
         Test that 'user', 'created_by' and 'modified_by' (incorrectly set invalid_uuid_contract_json)
         are set to the user_id from the JWT of the request.
+
+        We include the 'delete_report_object_afterwards' since the Contract creation triggers
+        a Report object creation.
+        :param client:
         :param invalid_uuid_contract_json:
         :param user_object:
+        :param user_object_jwt:
         :return:
         """
 
@@ -155,7 +164,7 @@ class TestContractApiEndpoint:
         it is not possible to switch/modify the contracts owner.
 
         :param client:
-        :param invalid_uuid_contract_json:
+        :param invalid_uuid_contract_put_endpoint:
         :param contract_object:
         :return:
         """
@@ -193,7 +202,7 @@ class TestContractApiEndpoint:
         :param invalid_uuid_contract_patch_endpoint:
         :param contract_object:
         :param user_object:
-        :param user_obejct_jwt:
+        :param user_object_jwt:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
@@ -243,7 +252,13 @@ class TestContractApiEndpoint:
 
     @pytest.mark.django_db
     def test_automatic_report_creation_upon_contract_creation(
-        self, client, valid_contract_json, user_object, user_object_jwt, contract_object
+        self,
+        client,
+        valid_contract_json,
+        user_object,
+        user_object_jwt,
+        contract_object,
+        delete_report_object_afterwards,
     ):
         """
         Test that after the creation of a valid Contract a Report for it's start month is created
@@ -384,7 +399,7 @@ class TestShiftApiEndpoint:
         response = client.get(path=reverse("api:list-shifts", args=[1, 2019]))
 
         data = json.loads(response.content)
-        print(data)
+
         assert response.status_code == 200
         assert len(data) == 2
         assert all(
