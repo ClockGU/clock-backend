@@ -8,7 +8,7 @@ from django.urls import reverse
 from freezegun import freeze_time
 from rest_framework import status
 
-from api.models import Contract, Shift
+from api.models import Contract, Shift, Report
 
 
 class TestContractApiEndpoint:
@@ -240,6 +240,31 @@ class TestContractApiEndpoint:
 
         assert len(content) == 2  # We created only 2 shifts for the User
         assert all(shift["contract"] == str(contract_object.id) for shift in content)
+
+    @pytest.mark.django_db
+    def test_automatic_report_creation_upon_contract_creation(
+        self, client, valid_contract_json, user_object, user_object_jwt, contract_object
+    ):
+        """
+        Test that after the creation of a valid Contract a Report for it's start month is created
+        for the User which creates the contract.
+        :param client:
+        :param valid_contract_json:
+        :param user_object:
+        :param user_object_jwt:
+        :param contract_object:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(path="/api/contracts/", data=valid_contract_json)
+
+        content = json.loads(response.content)
+        start_date = (
+            datetime.strptime(content["start_date"], "%Y-%m-%d").replace(day=1).date()
+        )
+        assert Report.objects.get(
+            user=user_object, month_year=start_date, contract=contract_object
+        )
 
 
 class TestShiftApiEndpoint:
