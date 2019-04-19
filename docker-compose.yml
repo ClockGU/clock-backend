@@ -24,6 +24,10 @@ services:
       - DJANGO_SECRET_KEY=h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)
     volumes:
       - .:/app
+    links:
+      - rabbit_broker
+      - celery_worker
+      - db
     depends_on:
       - db
     ports:
@@ -52,7 +56,6 @@ services:
       - .:/app
     links:
       - rabbit_broker
-      - web
       - db
     depends_on:
       - rabbit_broker

@@ -24,6 +24,7 @@ env = environ.Env()
 
 INSTALLED_APPS = [
     "api.apps.APIConfig",
+    "project_celery",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
