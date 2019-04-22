@@ -1,23 +1,23 @@
 from freezegun import freeze_time
 from datetime import datetime
-from api.models import Report
+
 import pytest
 import time
-from api.models import User
-
+from celery.contrib.testing.worker import start_worker
+from api.models import User, Report
 from project_celery.tasks import create_reports_monthly
+from project_celery.celery import app
 
 
 class TestCeleryBeats:
-    @pytest.mark.django_db
+    @pytest.mark.django_db(transaction=True)
     @freeze_time("2019-02-1")
     def test_start_of_month_report_creation(
-        self, user_object, contract_ending_in_february
+        self, celery_test_fixture, user_object, contract_ending_in_february
     ):
-        print(User.objects.filter(is_active=True, is_staff=False))
 
         create_reports_monthly.delay()
-        time.sleep(20)
+        time.sleep(1)
         _month_year = datetime.now().date()
 
         assert (
