@@ -45,9 +45,20 @@ def create_reports_monthly(self):
     for user in User.objects.filter(is_active=True, is_staff=False):
         for contract in user.contracts.all():
             if contract.start_date < date_now <= contract.end_date:
+
+                last_report = Report.objects.get(
+                    contract=contract, month_year__month=date_now.month - 1
+                )
+                carry_over_hours = datetime.timedelta(0)
+
+                if last_report:
+                    carry_over_hours = last_report.hours - datetime.timedelta(
+                        hours=contract.hours
+                    )
+
                 Report.objects.create(
                     month_year=date_now,
-                    hours=datetime.timedelta(0),
+                    hours=carry_over_hours,
                     contract=contract,
                     user=user,
                     created_by=user,

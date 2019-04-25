@@ -27,3 +27,22 @@ def celery_test_fixture(user_object, contract_ending_in_february):
     worker.__enter__()
     yield
     worker.__exit__(None, None, None)
+
+
+@pytest.fixture
+def celery_test_fixture_correct_hours(user_object, contract_ending_in_february):
+    """
+    This fixture modifies the automatically created report for January to have symbolicaly 10 hours of work
+    documented. It is needed to test wether teh automatic Report creation actual carries over the hours of
+    the last month.
+    :param user_object:
+    :param contract_ending_in_february:
+    :return:
+    """
+    january_report = contract_ending_in_february.reports.get(month_year__month=1)
+    january_report.hours = datetime.timedelta(hours=10)
+    january_report.save()
+    worker = start_worker(app)
+    worker.__enter__()
+    yield
+    worker.__exit__(None, None, None)
