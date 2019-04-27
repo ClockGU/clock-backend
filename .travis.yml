@@ -2,6 +2,7 @@ sudo: false
 
 services:
   - postgresql
+  - rabbitmq
 
 addons:
   postgresql: "9.4"
@@ -11,7 +12,7 @@ python:
   - "3.6"
 
 env:
-  - TRAVIS_CI=True
+  - TRAVIS_CI=True RABBITMQ_URL="amqp://broker_adm:broker_pass@localhost:5672/rabbit_broker"
 
 cache:
   directories:
@@ -22,6 +23,11 @@ install:
 before_script:
   - psql -c "CREATE DATABASE test_db_app;" -U postgres
   - psql -c "CREATE USER db_user WITH PASSWORD 'db_pass';" -U postgres
+  - sudo rabbitmqctl add_user broker_adm broker_pass
+  - sudo rabbitmqctl add_vhost rabbit_broker
+  - sudo rabbitmqctl set_permissions -p rabbit_broker broker_adm ".*" ".*" ".*"
+
+
 script:
   - make ci
   - black . --check

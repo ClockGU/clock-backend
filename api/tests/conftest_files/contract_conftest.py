@@ -183,10 +183,10 @@ def create_n_contract_objects(user_object):
     """
     name = "Test Contract{}"
     hours = 20.0
-    start_date = datetime.date(2019, 1, 1)
-    end_date = datetime.date(2019, 1, 31)
+    _start_date = datetime.date(2019, 1, 1)
+    _end_date = datetime.date(2019, 1, 31)
 
-    def create_contracts(start_stop, user):
+    def create_contracts(start_stop, user, start_date=_start_date, end_date=_end_date):
         return [
             Contract.objects.create(
                 name=name.format(i),
@@ -213,6 +213,12 @@ def contract_object(user_object, create_n_contract_objects):
     :return:
     """
     return create_n_contract_objects((1,), user_object)[0]
+
+
+@pytest.fixture
+def contract_ending_in_february(create_n_contract_objects, user_object):
+    end_date = datetime.date(2019, 2, 28)
+    return create_n_contract_objects((1,), user_object, end_date=end_date)[0]
 
 
 @pytest.fixture
