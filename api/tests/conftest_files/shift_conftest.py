@@ -251,7 +251,7 @@ def shift_is_planned_but_started_in_past_json_querydict(
 
 
 @pytest.fixture
-def create_n_shift_objects():
+def create_n_shift_objects(report_object):
     """
     This fixture resembles a shift object factory.
     Shifts are distinguised by id, there is no specific need for the start_stop mechanism.
@@ -303,6 +303,7 @@ def shift_object(create_n_shift_objects, user_object, contract_object):
 @pytest.fixture
 def db_creation_shifts_list_endpoint(
     user_object,
+    report_object,
     diff_user_object,
     contract_object,
     diff_user_contract_object,
@@ -353,6 +354,8 @@ def patch_new_tags_json(shift_object):
 def db_creation_list_month_year_endpoint(
     db_creation_shifts_list_endpoint,
     user_object,
+    report_object,
+    february_report_object,
     contract_object,
     create_n_shift_objects,
 ):

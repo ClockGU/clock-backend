@@ -43,7 +43,7 @@ def create_n_report_objects():
 @pytest.fixture
 def report_object(create_n_report_objects, user_object, contract_object):
     """
-    This fixture creates one report object.
+    This fixture creates one report object for January.
     :param create_n_report_objects:
     :param user_object:
     :param contract_object:
@@ -52,6 +52,20 @@ def report_object(create_n_report_objects, user_object, contract_object):
     # Clear all previously created Reports which might have been created
     Report.objects.all().delete()
     return create_n_report_objects((1,), user_object, contract_object)[0]
+
+
+@pytest.fixture
+def february_report_object(create_n_report_objects, user_object, contract_object):
+    """
+    This fixture creates one report object for February.
+    :param create_n_report_objects:
+    :param user_object:
+    :param contract_object:
+    :return:
+    """
+    return create_n_report_objects(
+        (1,), user_object, contract_object, month_year=datetime.date(2019, 2, 1)
+    )[0]
 
 
 @pytest.fixture

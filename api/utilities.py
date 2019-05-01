@@ -57,46 +57,47 @@ def update_report_after_shift_save(sender, instance, created, **kwargs):
     """
     # Only run the Report update mechanism if a Shift which is not planned (was_reviewd=True) is
     # saved. Planned Shifts are not considered while updating Reports.
+    if not instance.was_reviewed:
+        return None
 
-    if instance.was_reviewed:
-        # Retrieve Report Object of interest
-        report = Report.objects.get(
+    # Retrieve Report Object of interest
+    report = Report.objects.get(
+        contract=instance.contract,
+        month_year__month=instance.started.month,
+        month_year__year=instance.started.year,
+    )
+    # If a Shift is created we just need to add it's duration to the Report
+    if created:
+        update_value = instance.stopped - instance.stopped
+        report.hours += update_value
+    # If a Shift is updated we need to roll over all
+    else:
+        # Aggregate the total work time for that month
+        total_work_time = Shift.objects.filter(
             contract=instance.contract,
-            month_year__month=instance.started.month,
-            month_year__year=instance.started.year,
-        )
-        # If a Shift is created we just need to add it's duration to the Report
-        if created:
-            update_value = instance.stopped - instance.stopped
-            report.hours += update_value
-        # If a Shift is updated we need to roll over all
-        else:
-            # Aggregate the total work time for that month
-            total_work_time = Shift.objects.filter(
-                contract=instance.contract,
-                started__month=instance.started.month,
-                started__year=instance.started.year,
-                was_reviewed=True,
-            ).aggregate(
-                total_work_time=Sum(
-                    F("stopped") - F("started"), output_field=DurationField()
-                )
-            )[
-                "total_work_time"
-            ]
-            # Get the Report of the previous month
-            # This one might not exist in the case that the Function is called in the First month of an active Contract
-            last_months_report = Report.objects.filter(
-                month_year=report.month_year - relativedelta(months=1)
-            ).first()
-            carry_over_hours = datetime.timedelta(0)
-            if last_months_report:
-                carry_over_hours = last_months_report.hours - datetime.timedelta(
-                    hours=report.contract.hours
-                )
+            started__month=instance.started.month,
+            started__year=instance.started.year,
+            was_reviewed=True,
+        ).aggregate(
+            total_work_time=Sum(
+                F("stopped") - F("started"), output_field=DurationField()
+            )
+        )[
+            "total_work_time"
+        ]
+        # Get the Report of the previous month
+        # This one might not exist in the case that the Function is called in the First month of an active Contract
+        last_months_report = Report.objects.filter(
+            month_year=report.month_year - relativedelta(months=1)
+        ).first()
+        carry_over_hours = datetime.timedelta(0)
+        if last_months_report:
+            carry_over_hours = last_months_report.hours - datetime.timedelta(
+                hours=report.contract.hours
+            )
 
-            report.hours = carry_over_hours + total_work_time
-        report.save()
+        report.hours = carry_over_hours + total_work_time
+    report.save()
 
 
 post_save.connect(
