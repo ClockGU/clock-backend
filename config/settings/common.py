@@ -35,10 +35,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_yasg",
     "djoser",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -103,6 +105,9 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {"TOKEN_MODEL": None}
+
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
