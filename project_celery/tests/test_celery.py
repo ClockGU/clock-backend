@@ -10,7 +10,7 @@ from project_celery.celery import app
 
 
 class TestCeleryBeats:
-    @pytest.mark.django_db(transaction=True)
+    @pytest.mark.django_db(transaction=True, reset_sequences=True)
     @freeze_time("2019-02-1")
     def test_start_of_month_report_creation(
         self, celery_test_fixture, user_object, contract_ending_in_february
@@ -39,7 +39,7 @@ class TestCeleryBeats:
             month_year=_month_year,
         )
 
-    @pytest.mark.django_db(transaction=True)
+    @pytest.mark.django_db(transaction=True, reset_sequences=True)
     @freeze_time("2019-02-1")
     def test_start_of_month_report_creation_correct_hours(
         self,
