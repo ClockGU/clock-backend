@@ -16,7 +16,7 @@ class TagsSerializerField(serializers.Field):
         return list(map(lambda x: x.name, obj.all()))
 
     def to_internal_value(self, data):
-        return json.loads(data)
+        return data
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -36,7 +36,7 @@ class RestrictModificationModelSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         request = self.context["request"]
-        data = data.dict()
+
         if request.method in ["POST", "PUT"]:
             data = self.add_user_id(request, data)
 

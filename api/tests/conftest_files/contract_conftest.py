@@ -22,7 +22,7 @@ def valid_contract_json(user_object):
     hours = 20.0
     start_date = datetime.date(2019, 1, 1).isoformat()
     end_date = datetime.date(2019, 1, 31).isoformat()
-    user = user_object.id
+    user = str(user_object.id)
 
     created_at = datetime.datetime(2018, 12, 31, hour=10).isoformat()
     modified_at = created_at
@@ -164,7 +164,7 @@ def invalid_uuid_contract_json(valid_contract_json):
     :param valid_contract_json:
     :return: Dict
     """
-    random_uuid = uuid.uuid4()
+    random_uuid = str(uuid.uuid4())
     valid_contract_json["user"] = random_uuid
     valid_contract_json["created_by"] = random_uuid
     valid_contract_json["modified_by"] = random_uuid
@@ -260,7 +260,7 @@ def invalid_uuid_contract_put_endpoint(invalid_uuid_contract_json, contract_obje
     :param contract_object:
     :return: Dict
     """
-    invalid_uuid_contract_json["id"] = contract_object.id
+    invalid_uuid_contract_json["id"] = str(contract_object.id)
     return invalid_uuid_contract_json
 
 
@@ -273,9 +273,9 @@ def invalid_uuid_contract_patch_endpoint(contract_object):
     :param contract_object:
     :return: Dict
     """
-    random_uuid = uuid.uuid4()
+    random_uuid = str(uuid.uuid4())
     _dict = {
-        "id": contract_object.id,
+        "id": str(contract_object.id),
         "user": random_uuid,
         "created_by": random_uuid,
         "modified_by": random_uuid,
