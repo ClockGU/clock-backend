@@ -16,7 +16,7 @@ class TagsSerializerField(serializers.Field):
         return list(map(lambda x: x.name, obj.all()))
 
     def to_internal_value(self, data):
-        return json.loads(data)
+        return data
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
