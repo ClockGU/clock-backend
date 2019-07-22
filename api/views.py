@@ -1,9 +1,11 @@
 from django.http import HttpResponse
+from django.template.loader import get_template
 from pytz import datetime
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from pdfkit import from_string as pdf_from_string
 
 from api.models import Contract, Report, Shift
 from api.serializers import ContractSerializer, ReportSerializer, ShiftSerializer
@@ -21,6 +23,16 @@ def index(request):
     """
     async_5_user_creation.delay()
     return HttpResponse("A Dummy site.")
+
+
+# Test view. To be deleted later.
+def test_template_engine(request):
+    template = get_template("api/stundenzettel.html")
+    html = template.render({"blargh": "Something to render."})
+    pdf = pdf_from_string(html, False)
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = "attachment; filename='test.pdf'"
+    return response
 
 
 class ContractViewSet(viewsets.ModelViewSet):

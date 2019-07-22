@@ -1,7 +1,13 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from api.views import ContractViewSet, ReportViewSet, ShiftViewSet, index
+from api.views import (
+    ContractViewSet,
+    ReportViewSet,
+    ShiftViewSet,
+    index,
+    test_template_engine,
+)
 
 app_name = "api"
 router = DefaultRouter()
@@ -14,6 +20,7 @@ list_month_year_shifts = ShiftViewSet.as_view({"get": "list_month_year"})
 urlpatterns = [
     # Demonstration url for celery
     path("celery-dummy", index, name="index"),
+    path("blargh", test_template_engine, name="test"),
     path(
         "list-shifts/<int:month>/<int:year>/",
         list_month_year_shifts,

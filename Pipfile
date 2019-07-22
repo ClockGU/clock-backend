@@ -41,6 +41,7 @@ djangorestframework-simplejwt = "==3.3"
 celery = "==4.2.1"
 drf-yasg = "==1.12.1"
 django-cors-headers = "*"
+pdfkit = "*"
 
 [requires]
 python_version = "3.6"
