@@ -425,7 +425,7 @@ class TestReportApiEndpoint:
     @freeze_time("2019-01-10")
     @pytest.mark.django_db
     def test_get_current_endpoint(
-        self, client, user_object_jwt, db_get_current_endpoint
+        self, client, user_object_jwt, db_get_current_endpoint, report_object
     ):
         """
         Test that the endpoint api/reports/get_current/ exists and that it retrieves the Report for the current
@@ -438,5 +438,58 @@ class TestReportApiEndpoint:
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(path=reverse("api:reports-get_current"))
         content = json.loads(response.content)
-
         assert content["month_year"] == "2019-01-01"
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_method_retrieves_all_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_gather_all_shifts,
+        report_object,
+    ):
+        """
+        Test that the utility method of the ReportViewSet 'aggregate_shift_content' catches all Shifts of a month.
+        :return:
+        """
+        content = prepared_ReportViewSet_view.aggregate_shift_content(report_object)
+
+        assert len(content) == 5
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_method_omits_planned_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_ignores_planned_shifts,
+        report_object,
+    ):
+        """
+        Test that the utility method of the ReportViewSet 'aggregate_shift_content' catches all Shifts of a month
+        but omits planned Shifts.
+
+        The Fixture provides 5 Shifts as the 'shift_content_aggregation_gather_all_shifts' fixture and an additional
+        Shift which is planned (was_reviewed=False).
+        :param prepared_ReportViewSet_view:
+        :param shift_content_aggregation_ignores_planned_shifts:
+        :param report_objects:
+        :return:
+        """
+        content = prepared_ReportViewSet_view.aggregate_shift_content(report_object)
+
+        assert len(content) == 5
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_merges_multiple_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_merges_shifts,
+        report_object,
+    ):
+
+        content = prepared_ReportViewSet_view.aggregate_shift_content(report_object)
+
+        assert len(content) == 1
+        assert content["26.01.2019"]
+        assert content["26.01.2019"]["started"] == "10:00:00"
+        assert content["26.01.2019"]["stopped"] == "18:00:00"
+        assert content["26.01.2019"]["work_time"] == "6:00:00"
+        assert content["26.01.2019"]["break_time"] == "2:00:00"

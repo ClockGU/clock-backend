@@ -266,7 +266,14 @@ def create_n_shift_objects():
     note = "something was strange"
     tags = ["tag1, tag2"]
 
-    def create_shifts(start_stop, user, contract, started=_started, stopped=_stopped):
+    def create_shifts(
+        start_stop,
+        user,
+        contract,
+        started=_started,
+        stopped=_stopped,
+        was_reviewed=True,
+    ):
         lst = []
         for i in range(*start_stop):
             shift = Shift.objects.create(
@@ -280,6 +287,7 @@ def create_n_shift_objects():
                 created_by=user,
                 modified_by=user,
                 contract=contract,
+                was_reviewed=was_reviewed,
             )
             shift.tags.add(*tags)
             lst.append(shift)
@@ -387,3 +395,86 @@ def put_to_exported_shift_json(shift_object, valid_shift_json):
         ["new_tag1", "new_tag2"]
     )  # tags just for example
     return valid_shift_json
+
+
+@pytest.fixture
+def shift_content_aggregation_gather_all_shifts(
+    report_object, user_object, contract_object, create_n_shift_objects
+):
+    """
+    This fixture creates 5 Shifts scatterd over the month.
+    On 5., 10., 15., 20., and 25. of February.
+    :param report_object:
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+
+    for i in range(1, 6):
+        create_n_shift_objects(
+            (1,),
+            user=user_object,
+            contract=contract_object,
+            started=datetime.datetime(2019, 1, i * 5, 14, tzinfo=utc),
+            stopped=datetime.datetime(2019, 1, i * 5, 16, tzinfo=utc),
+        )
+
+
+@pytest.fixture
+def shift_content_aggregation_ignores_planned_shifts(
+    user_object,
+    contract_object,
+    create_n_shift_objects,
+    shift_content_aggregation_gather_all_shifts,
+):
+    """
+    This fixture Creates a additional Shift which is marked as planned (was_reviewd=False) on 26. of February.
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :param shift_content_aggregation_gather_all_shifts:
+    :return:
+    """
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 14, tzinfo=utc),
+        stopped=datetime.datetime(2019, 1, 26, 14, tzinfo=utc),
+        was_reviewed=False,
+    )
+
+
+@pytest.fixture
+def shift_content_aggregation_merges_shifts(
+    user_object, contract_object, create_n_shift_objects
+):
+    """
+    This fixture creates 3 Shifts with a duration of 2 hours each and 1 hour break between each.
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 10, tzinfo=utc),
+        stopped=datetime.datetime(2019, 1, 26, 12, tzinfo=utc),
+    )
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 13, tzinfo=utc),
+        stopped=datetime.datetime(2019, 1, 26, 15, tzinfo=utc),
+    )
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 16, tzinfo=utc),
+        stopped=datetime.datetime(2019, 1, 26, 18, tzinfo=utc),
+    )

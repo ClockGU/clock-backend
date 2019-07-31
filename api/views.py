@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.template.loader import get_template
+from django.db.models import Sum, F, DurationField
 from pytz import datetime
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -102,6 +103,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
 class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Report.objects.all()
+    authentication_classes = ()
+    permission_classes = ()
     serializer_class = ReportSerializer
     name = "reports"
 
@@ -130,3 +133,127 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    @action(detail=True, url_name="export", url_path="export")
+    def export(self, request, *args, **kwargs):
+        """
+        Endpoint to export a given Report.
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        options = {
+            "page-size": "Letter",
+            "margin-top": "5px",
+            "margin-right": "5px",
+            "margin-bottom": "5px",
+            "margin-left": "15px",
+            "encoding": "UTF-8",
+            "no-outline": None,
+        }
+        report = self.get_object()
+        aggregated_content = self.aggregate_export_content(report_object=report)
+        pdf = self.compile_pdf(
+            template_name="api/stundenzettel.html",
+            content_dict=aggregated_content,
+            pdf_options=options,
+        )
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response["Content-Disposition"] = "attachment; filename=test.pdf"
+
+        return response
+
+    def compile_pdf(self, template_name, content_dict, pdf_options):
+        """
+        Compile a PDF given a Django HTML-Tmeplate name as string, a content dictionary and possible options.
+        :param template_name:
+        :param content_dict:
+        :param pdf_options:
+        :return:
+        """
+        template = get_template(template_name)
+        html = template.render(content_dict)
+        pdf = pdf_from_string(html, False, options=pdf_options)
+        return pdf
+
+    def get_shifts_to_export(self, report_object):
+        """
+        Methode to provide all Shift Objects for a given Report to be exported
+        in a Stundenzettel ordered by started field.
+        :param report_object:
+        :return:
+        """
+        shifts = Shift.objects.filter(
+            contract=report_object.contract,
+            started__year=report_object.month_year.year,
+            started__month=report_object.month_year.month,
+            user=report_object.user,
+            was_reviewed=True,
+        ).order_by("started")
+
+        return shifts
+
+    def aggregate_shift_content(self, report_object):
+        """
+        Method to aggregate a content with all dates at which a shift was worked.
+        By creating this dictionary we merge all Shifts on a date to One Object with the following rule:
+
+        Take the started value of the first Shift of the date as actual started value.
+        Use the stopped value of the last Shift of the date as actual stopped value.
+        Calculate the total work time as Sum of stopped - started values of each Shift at a date.
+        Calculate the break time as the actual stopped - actual started - worktime.
+
+        E.g.:
+
+        Assume we have at a given date (1.1.1999) 3 Shifts.
+        1. 10:00-11:30
+        2. 13:00-15:30
+        3. 16:00-18:30
+
+        From this follow the values:
+        actual started : 10:00
+        actual stopped : 18:30
+        work time : 6 hours 30 minutes
+        break time : 2 hours
+
+        :param report_object:
+        :return:
+        """
+        content = {}
+        shifts = self.get_shifts_to_export(report_object)
+
+        dates = shifts.dates("started", "day")
+
+        for date in dates:
+            shift_of_date = shifts.filter(started__date=date)
+            worked_time = shift_of_date.aggregate(
+                work_time=Sum(F("stopped") - F("started"), output_field=DurationField())
+            )["work_time"]
+            started = shift_of_date.first().started
+            stopped = shift_of_date.last().stopped
+
+            content[date.strftime("%d.%m.%Y")] = {
+                "started": started.time().isoformat(),
+                "stopped": stopped.time().isoformat(),
+                "type": shift_of_date.first().type,
+                "work_time": str(worked_time),
+                "break_time": str(stopped - started - worked_time),
+            }
+        return content
+
+    def aggregate_export_content(self, report_object):
+        """
+        Method which aggregates a dictionary to fill in the Stundenzettel HTML-Template.
+        :param report_object:
+        :return:
+        """
+        content = {}
+
+        # Check for overlapping Shifts Coming soon
+        shifts_content = self.aggregate_shift_content(report_object)
+        # Get all Days, as Dates, on which the user worked
+        content["shift_content"] = shifts_content
+
+        return content
