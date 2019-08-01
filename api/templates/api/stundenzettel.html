@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Arbeitszeitkonto</title>
+    <link rel="stylesheet" href="/app/api/static/api/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
+    crossorigin="anonymous">
+    <script src="/app/api/static/api/js/bootstrap.min.js"></script>
+    <style>
+        .row-grid+.row-grid {
+            margin-top: 5px;
+        }
+
+        .row-grid+table {
+            margin-top: 5px;
+        }
+
+        .table th,
+        .table td {
+            padding: .1rem .5rem;
+        }
+
+        /* .table th { */
+        /* background-color: #6c757d !important; */
+        /* } */
+
+        .table-bordered {
+            border-bottom: 0;
+            border-left: 0;
+        }
+
+        .table-bordered tfoot th,
+        .table-bordered tfoot td {
+            border: 0;
+        }
+    </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+
+      <div class="col-8">
+        <h3 class="text-primary">Goethe-Universität Frankfurt am Main</h3>
+        <p class="text-primary">Arbeitszeitblatt zur Erfassung der Arbeitszeit von studentischen Hilfskräften nach § 17 MiLoG und Arbeitszeitkonto
+          i.S.v. § 2 Abs. 2 MiLoG</p>
+      </div>
+
+      <div class="col-4 text-bottom">
+          <p class="text-primary text-right">Stand: 01.01.1970
+          <br /> HR / Personalservices</p>
+      </div>
+
+    </div>
+
+    <div class="row row-grid">
+      <div class="col-4"><strong>Name, Vorname</strong></div>
+      <div class="col-4">{{general.user_name}}</div>
+      <div class="col"><strong>Pers. Nr.</strong></div>
+      <div class="col-2">{{ general.personal_number }}</div>
+    </div>
+
+    <div class="row row-grid">
+      <div class="col"><strong>Fachbereich / Organisationseinheit</strong></div>
+      <div class="col-7">{{ general.contract_name }}</div>
+    </div>
+
+    <div class="row row-grid">
+      <div class="col-1"><strong>Monat</strong></div>
+      <div class="col-1">{{ general.month }}</div>
+      <div class="col-1"><strong>Jahr</strong></div>
+      <div class="col-2">{{ general.year }}</div>
+      <div class="col-6"><strong>Monatliche Sollarbeitszeit (hh:mm)</strong></div>
+      <div class="col-1">{{ general.debit_work_time }}</div>
+    </div>
+
+    <table class="table table-bordered text-center">
+      <thead class="bg-secondary2">
+        <tr>
+          <th scope="col">Datum</th>
+          <th scope="col">Beginn</th>
+          <th scope="col">Ende</th>
+          <th scope="col">Abwesenheitsgrund<sup>1</sup></th>
+          <th scope="col">Arbeitszeit</th>
+          <th scope="col">Pause</th>
+          <th scope="col">Netto-Arbeitszeit</th>
+          <th scope="col">F / K / U</th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ general.total_worked_time }}</td>
+          <td>00:00</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+            <strong>Summe</strong>
+          </td>
+          <td>
+            <strong>{{ general.total_worked_time }}</strong>
+          </td>
+          <td></td>
+        </tr>
+      </tfoot>
+      <tbody>
+        <tr>
+          <th scope="row">01.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">02.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">03.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">04.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">05.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">06.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">07.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">08.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">09.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">10.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">11.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">12.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">13.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">14.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">15.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">16.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">17.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">18.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">19.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">20.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">21.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">22.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">23.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">24.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">25.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">26.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">27.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">28.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">29.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">30.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <th scope="row">31.01.1970</th>
+          <td>08:00</td>
+          <td>09:00</td>
+          <td>-</td>
+          <td>01:00</td>
+          <td>00:00</td>
+          <td>01:00</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="table table-bordered text-center">
+      <caption>1) Feiertag (F), Urlaub (U), Krank (K) <br /> 2) AZK = Arbeitszeitkonto</caption>
+      <thead>
+        <tr>
+          <th></th>
+          <th>AZK<sup>2</sup>  Übertrag Vormonat</th>
+          <th>vertr. festgel. monatliche Arbeitszeit</th>
+          <th>AZK<sup>2</sup> Übertrag Folgemonat</th>
+        </tr>
+      </thead>
+      <tbody class="border">
+        <tr>
+          <td></td>
+          <td>{{ general.last_month_carry_over }}</td>
+          <td>{{ general.debit_work_time }}</td>
+          <td>{{ general.next_month_carry_over }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</body>
+
+</html>
