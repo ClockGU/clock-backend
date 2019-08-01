@@ -8,9 +8,12 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from pdfkit import from_string as pdf_from_string
+from dateutil.relativedelta import relativedelta
+from math import modf
 
 from api.models import Contract, Report, Shift
 from api.serializers import ContractSerializer, ReportSerializer, ShiftSerializer
+from api.utilities import relativedelta_to_string
 from project_celery.tasks import async_5_user_creation
 
 # Proof of Concept that celery works
@@ -138,7 +141,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, url_name="export", url_path="export")
     def export(self, request, *args, **kwargs):
         """
-        Endpoint to export a given Report.
+        Endpoint to export a given Report as Stundenzettel.
         :param request:
         :param args:
         :param kwargs:
@@ -264,6 +267,55 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             }
         return content
 
+    def calculate_carry_over_hours(self, report_object, next_month=True):
+
+        # Calculate carry over from last month
+        report_to_carry = report_object
+        if not next_month:
+            try:
+                report_to_carry = Report.objects.get(
+                    contract=report_object.contract,
+                    month_year=report_object.month_year - relativedelta(months=1),
+                )
+            except Report.DoesNotExist:
+                # If no Report Object exists we are in the case of the first Report of a Contract
+                # Hence return 0:00:00 hours
+                return datetime.timedelta(0)
+        time_delta = report_to_carry.hours - datetime.timedelta(
+            hours=report_object.contract.hours
+        )
+        relative_time = relativedelta(seconds=time_delta.total_seconds())
+
+        # relativedelta will in this case maximaly convert the seconds into days we use this
+        # to format a string
+        return relativedelta_to_string(relative_time)
+
+    def aggregate_general_content(self, report_object, shifts):
+        """
+        Aggregate Data for Tablefooter and User info of the Stundenzettel.
+        :param report_object:
+        :param shifts:
+        :return:
+        """
+        content = {}
+        contract_hours_decimal, contract_hours = modf(report_object.contract.hours)
+
+        content["debit_work_time"] = "{hours:02g}:{minutes:02g}".format(
+            hours=contract_hours, minutes=60 * round(contract_hours_decimal, 2)
+        )
+        content["total_worked_time"] = relativedelta_to_string(
+            relativedelta(seconds=report_object.hours.total_seconds())
+        )
+
+        content["last_month_carry_over"] = self.calculate_carry_over_hours(
+            report_object, next_month=False
+        )
+        content["next_month_carry_over"] = self.calculate_carry_over_hours(
+            report_object
+        )
+
+        return content
+
     def aggregate_export_content(self, report_object):
         """
         Method which aggregates a dictionary to fill in the Stundenzettel HTML-Template.
@@ -274,7 +326,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         shift_queryset = self.get_shifts_to_export(report_object)
         # Check for overlapping Shifts Coming soon
         shifts_content = self.aggregate_shift_content(shift_queryset)
+        general_content = self.aggregate_general_content(report_object, shift_queryset)
         # Get all Days, as Dates, on which the user worked
         content["shift_content"] = shifts_content
+        content["general"] = general_content
 
         return content
