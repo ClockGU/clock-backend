@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.db.models import Sum, F, DurationField
+from django.db.models.functions import Coalesce
 from pytz import datetime
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -195,7 +196,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
         return shifts
 
-    def aggregate_shift_content(self, report_object):
+    def aggregate_shift_content(self, shifts):
         """
         Method to aggregate a content with all dates at which a shift was worked.
         By creating this dictionary we merge all Shifts on a date to One Object with the following rule:
@@ -222,24 +223,44 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :return:
         """
         content = {}
-        shifts = self.get_shifts_to_export(report_object)
 
         dates = shifts.dates("started", "day")
 
         for date in dates:
-            shift_of_date = shifts.filter(started__date=date)
-            worked_time = shift_of_date.aggregate(
-                work_time=Sum(F("stopped") - F("started"), output_field=DurationField())
+            shifts_of_date = shifts.filter(started__date=date)
+            worked_shifts = shifts_of_date.filter(type="st")
+            vacation_or_sick_shifts = shifts_of_date.exclude(type="st")
+            # calculate time worked
+            worked_time = worked_shifts.aggregate(
+                work_time=Coalesce(
+                    Sum(F("stopped") - F("started"), output_field=DurationField()),
+                    datetime.timedelta(0),
+                )
             )["work_time"]
-            started = shift_of_date.first().started
-            stopped = shift_of_date.last().stopped
+            # calculate time not present
+            sick_or_vacation_time = vacation_or_sick_shifts.aggregate(
+                sick_or_vac_time=Coalesce(
+                    Sum(F("stopped") - F("started"), output_field=DurationField()),
+                    datetime.timedelta(0),
+                )
+            )["sick_or_vac_time"]
+
+            vacation_or_sick_type = ""
+            if vacation_or_sick_shifts.exists():
+                vacation_or_sick_type = (
+                    vacation_or_sick_shifts.first().get_type_display()
+                )
+
+            started = shifts_of_date.first().started
+            stopped = shifts_of_date.last().stopped
 
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().isoformat(),
                 "stopped": stopped.time().isoformat(),
-                "type": shift_of_date.first().type,
+                "type": vacation_or_sick_type,
                 "work_time": str(worked_time),
                 "break_time": str(stopped - started - worked_time),
+                "sick_or_vac_time": str(sick_or_vacation_time),
             }
         return content
 
@@ -250,9 +271,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :return:
         """
         content = {}
-
+        shift_queryset = self.get_shifts_to_export(report_object)
         # Check for overlapping Shifts Coming soon
-        shifts_content = self.aggregate_shift_content(report_object)
+        shifts_content = self.aggregate_shift_content(shift_queryset)
         # Get all Days, as Dates, on which the user worked
         content["shift_content"] = shifts_content
 
