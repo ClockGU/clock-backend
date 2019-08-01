@@ -299,7 +299,17 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         """
         content = {}
         contract_hours_decimal, contract_hours = modf(report_object.contract.hours)
+        user = report_object.user
+        # Data for Header
+        content["user_name"] = "{lastname}, {firstname}".format(
+            lastname=user.last_name, firstname=user.first_name
+        )
+        content["personal_number"] = user.personal_number
+        content["contract_name"] = report_object.contract.name
+        content["month"] = report_object.month_year.month
+        content["year"] = report_object.month_year.year
 
+        # Data for Footer
         content["debit_work_time"] = "{hours:02g}:{minutes:02g}".format(
             hours=contract_hours, minutes=60 * round(contract_hours_decimal, 2)
         )
