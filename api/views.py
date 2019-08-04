@@ -203,7 +203,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         return shifts
 
     def set_shifts_as_exported(self, report_object):
-
+        """
+        Set all exported Shifts as was_exported=True.
+        :param report_object:
+        :return:
+        """
         shifts = self.get_shifts_to_export(report_object)
         shifts.update(was_exported=True)
 
