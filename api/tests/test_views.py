@@ -498,3 +498,29 @@ class TestReportApiEndpoint:
         assert content["26.01.2019"]["work_time"] == "8:00:00"
         assert content["26.01.2019"]["net_work_time"] == "6:00:00"
         assert content["26.01.2019"]["break_time"] == "2:00:00"
+
+    @pytest.mark.django_db
+    def test_method_to_set_shifts_exported(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_gather_all_shifts,
+        report_object,
+    ):
+        """
+        Test of the set_shifts_as_exported_method.
+
+        :param prepared_ReportViewSet_view:
+        :param shift_content_aggregation_gather_all_shifts:
+        :param report_object:
+        :return:
+        """
+        prepared_ReportViewSet_view.set_shifts_as_exported(report_object)
+
+        shifts = Shift.objects.filter(
+            user=report_object.user,
+            contract=report_object.contract,
+            started__month=1,
+            started__year=2019,
+        ).order_by("started")
+
+        assert all(s.was_exported for s in shifts)
