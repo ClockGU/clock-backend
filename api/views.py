@@ -275,7 +275,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 "type": vacation_or_sick_type,
                 "work_time": str(stopped - started),
                 "net_work_time": str(worked_time),
-                "break_time": str(stopped - started - worked_time),
+                "break_time": str(
+                    stopped - started - worked_time - sick_or_vacation_time
+                ),
                 "sick_or_vac_time": str(sick_or_vacation_time),
             }
         return content

@@ -262,7 +262,6 @@ def create_n_shift_objects():
     _stopped = datetime.datetime(2019, 1, 29, 16, tzinfo=utc)
     created_at = datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat()
     modified_at = created_at
-    _type = "st"
     note = "something was strange"
     tags = ["tag1, tag2"]
 
@@ -273,6 +272,7 @@ def create_n_shift_objects():
         started=_started,
         stopped=_stopped,
         was_reviewed=True,
+        type="st",
     ):
         lst = []
         for i in range(*start_stop):
@@ -281,7 +281,7 @@ def create_n_shift_objects():
                 stopped=stopped,
                 created_at=created_at,
                 modified_at=modified_at,
-                type=_type,
+                type=type,
                 note=note,
                 user=user,
                 created_by=user,
@@ -480,6 +480,41 @@ def shift_content_aggregation_merges_shifts(
         contract=contract_object,
         started=datetime.datetime(2019, 1, 26, 16, tzinfo=utc),
         stopped=datetime.datetime(2019, 1, 26, 18, tzinfo=utc),
+    )
+    return Shift.objects.filter(
+        user=user_object, contract=contract_object, started__month=1, started__year=2019
+    ).order_by("started")
+
+
+@pytest.fixture
+def two_shifts_with_one_vacation_shift(
+    user_object, contract_object, create_n_shift_objects
+):
+    """
+    This fixture creates two shifts for a day.
+    1. Shift is a regular 4 hour shift of type `st`.
+    2. Shift is a vacation shift of 4 hours (type=vn).
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+    # Regular Shift
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 10, tzinfo=utc),
+        stopped=datetime.datetime(2019, 1, 26, 14, tzinfo=utc),
+    )
+    # Vacation Shift
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 14, tzinfo=utc),
+        stopped=datetime.datetime(2019, 1, 26, 18, tzinfo=utc),
+        type="vn",
     )
     return Shift.objects.filter(
         user=user_object, contract=contract_object, started__month=1, started__year=2019
