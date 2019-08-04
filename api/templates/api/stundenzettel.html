@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-
+{% load stundenzettel_utility %}
+{% get_calendar general.year general.month as calendar %}
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -99,7 +100,7 @@
           <td></td>
           <td></td>
           <td>{{ general.total_worked_time }}</td>
-          <td>00:00</td>
+          <td>00:00:00</td>
         </tr>
         <tr>
           <td></td>
@@ -117,316 +118,32 @@
         </tr>
       </tfoot>
       <tbody>
-        <tr>
-          <th scope="row">01.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">02.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">03.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">04.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">05.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">06.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">07.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">08.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">09.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">10.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">11.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">12.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">13.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">14.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">15.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">16.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">17.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">18.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">19.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">20.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">21.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">22.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">23.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">24.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">25.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">26.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">27.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">28.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">29.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">30.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <th scope="row">31.01.1970</th>
-          <td>08:00</td>
-          <td>09:00</td>
-          <td>-</td>
-          <td>01:00</td>
-          <td>00:00</td>
-          <td>01:00</td>
-          <td>-</td>
-        </tr>
+      {% for date in calendar %}
+          {% get_dict_value shift_content date as content%}
+          {% if content %}
+            <tr>
+              <th scope="row">{{ date }}</th>
+              <td>{{ content.started }}</td>
+              <td>{{ content.stopped }}</td>
+              <td>{{ content.type }}</td>
+              <td>{{ content.work_time }}</td>
+              <td>{{ content.break_time }}</td>
+              <td>{{ content.net_work_time }}</td>
+              <td>{{ content.sick_or_vac_time }}</td>
+            </tr>
+          {% else %}
+              <tr>
+              <th scope="row">{{ date }}</th>
+              <td>00:00:00</td>
+              <td>00:00:00</td>
+              <td></td>
+              <td>00:00:00</td>
+              <td>00:00:00</td>
+              <td>00:00:00</td>
+              <td>00:00:00</td>
+            </tr>
+          {% endif %}
+      {% endfor %}
       </tbody>
     </table>
 
