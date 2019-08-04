@@ -107,8 +107,6 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
 class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Report.objects.all()
-    authentication_classes = ()
-    permission_classes = ()
     serializer_class = ReportSerializer
     name = "reports"
 
@@ -165,8 +163,13 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             pdf_options=options,
         )
         response = HttpResponse(pdf, content_type="application/pdf")
-        response["Content-Disposition"] = "attachment; filename=test.pdf"
-
+        response[
+            "Content-Disposition"
+        ] = "attachment; filename=Stundenzettel_{month:02d}_{year}.pdf".format(
+            month=aggregated_content["general"]["month"],
+            year=aggregated_content["general"]["year"],
+        )
+        self.set_shifts_as_exported(report)
         return response
 
     def compile_pdf(self, template_name, content_dict, pdf_options):
@@ -198,6 +201,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         ).order_by("started")
 
         return shifts
+
+    def set_shifts_as_exported(self, report_object):
+
+        shifts = self.get_shifts_to_export(report_object)
+        shifts.update(was_exported=True)
 
     def aggregate_shift_content(self, shifts):
         """
@@ -261,7 +269,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 "started": started.time().isoformat(),
                 "stopped": stopped.time().isoformat(),
                 "type": vacation_or_sick_type,
-                "work_time": str(worked_time),
+                "work_time": str(stopped - started),
+                "net_work_time": str(worked_time),
                 "break_time": str(stopped - started - worked_time),
                 "sick_or_vac_time": str(sick_or_vacation_time),
             }
@@ -286,7 +295,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         )
         relative_time = relativedelta(seconds=time_delta.total_seconds())
 
-        # relativedelta will in this case maximaly convert the seconds into days we use this
+        # relativedelta will in this case maximally convert the seconds into days we use this
         # to format a string
         return relativedelta_to_string(relative_time)
 
