@@ -4,6 +4,8 @@ from django.test import RequestFactory
 from rest_framework.request import QueryDict, Request
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
+from dateutil.relativedelta import relativedelta
+
 from api.models import Contract, Report, Shift, User
 from api.views import ReportViewSet
 
@@ -70,3 +72,13 @@ def prepared_ReportViewSet_view(report_object):
         reverse("api:reports-export", args=["{}".format(report_object.id)])
     )
     return setup_view(ReportViewSet(), request)
+
+
+@pytest.fixture
+def positive_relativedelta_object():
+    return relativedelta(days=6, hours=4, minutes=23, seconds=15)
+
+
+@pytest.fixture
+def negative_relativedelta_object():
+    return relativedelta(days=-6, hours=-4, minutes=-23, seconds=-15)
