@@ -30,25 +30,6 @@ def index(request):
     return HttpResponse("A Dummy site.")
 
 
-# Test view. To be deleted later.
-def test_template_engine(request):
-    options = {
-        "page-size": "A4",
-        "margin-top": "5px",
-        "margin-right": "5px",
-        "margin-bottom": "5px",
-        "margin-left": "15px",
-        "encoding": "UTF-8",
-        "no-outline": None,
-    }
-    template = get_template("api/stundenzettel.html")
-    html = template.render()
-    pdf = pdf_from_string(html, False, options=options)
-    response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = "attachment; filename=test.pdf"
-    return response
-
-
 class ContractViewSet(viewsets.ModelViewSet):
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
