@@ -42,6 +42,7 @@ celery = "==4.2.1"
 drf-yasg = "==1.12.1"
 django-cors-headers = "*"
 pdfkit = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.6"
