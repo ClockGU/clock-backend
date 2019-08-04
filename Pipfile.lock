@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f5cd0d37ba88d5e9c4fe5b7922a467b34bd116df77abb5f94a5a72e9b8566240"
+            "sha256": "7391a23f0baa10e7a9eb161193b63b5f67f33167833897b62d0885b95a904b06"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -136,11 +136,11 @@
         },
         "djangorestframework": {
             "hashes": [
-                "sha256:79c6efbb2514bc50cf25906d7c0a5cfead714c7af667ff4bd110312cd380ae66",
-                "sha256:a4138613b67e3a223be6c97f53b13d759c5b90d2b433bad670b8ebf95402075f"
+                "sha256:42979bd5441bb4d8fd69d0f385024a114c3cae7df0f110600b718751250f6929",
+                "sha256:aedb48010ebfab9651aaab1df5fd3b4848eb4182afc909852a2110c24f89a359"
             ],
             "index": "pypi",
-            "version": "==3.9.1"
+            "version": "==3.10.2"
         },
         "djangorestframework-simplejwt": {
             "hashes": [
@@ -152,19 +152,19 @@
         },
         "djoser": {
             "hashes": [
-                "sha256:a9eaf1b172c40f14be82fd145bfc02de7b3470b085b53169755c2c08fb7bd0a2",
-                "sha256:f311248eda5f14dcfe839b9481721a701aa9b67195b4e7606c234d476cb24cdf"
+                "sha256:3c4112f50c29f7f9811688bedf440ccd1490abb44c5969cc8cfcf6c4d183cd26",
+                "sha256:b2586f8a45bec04083d90bbfc255d21af9dcd5f45c79ce911e28aa78a4939f17"
             ],
             "index": "pypi",
-            "version": "==1.5.1"
+            "version": "==2.0.1"
         },
         "drf-yasg": {
             "hashes": [
-                "sha256:89c84779fb4bfe9c0704bdd40ad70b91fff13fa202696ce580de1c8615414f88",
-                "sha256:c37adfd3859d04827f971098227a54ef7229a79860860dae7b41abdc17e4e8cf"
+                "sha256:68fded2ffdf46e03f33e766184b7d8f1e1a5236f94acfd0c4ba932a57b812566",
+                "sha256:fcef74709ead2b365410be3d12afbfd0a6e49d1efe615a15a929da7e950bb83c"
             ],
             "index": "pypi",
-            "version": "==1.12.1"
+            "version": "==1.16.1"
         },
         "gevent": {
             "hashes": [
