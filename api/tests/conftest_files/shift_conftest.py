@@ -419,6 +419,9 @@ def shift_content_aggregation_gather_all_shifts(
             started=datetime.datetime(2019, 1, i * 5, 14, tzinfo=utc),
             stopped=datetime.datetime(2019, 1, i * 5, 16, tzinfo=utc),
         )
+    return Shift.objects.filter(
+        user=user_object, contract=contract_object, started__month=1, started__year=2019
+    ).order_by("started")
 
 
 @pytest.fixture
@@ -478,3 +481,6 @@ def shift_content_aggregation_merges_shifts(
         started=datetime.datetime(2019, 1, 26, 16, tzinfo=utc),
         stopped=datetime.datetime(2019, 1, 26, 18, tzinfo=utc),
     )
+    return Shift.objects.filter(
+        user=user_object, contract=contract_object, started__month=1, started__year=2019
+    ).order_by("started")

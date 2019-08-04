@@ -451,7 +451,9 @@ class TestReportApiEndpoint:
         Test that the utility method of the ReportViewSet 'aggregate_shift_content' catches all Shifts of a month.
         :return:
         """
-        content = prepared_ReportViewSet_view.aggregate_shift_content(report_object)
+        content = prepared_ReportViewSet_view.aggregate_shift_content(
+            shift_content_aggregation_gather_all_shifts
+        )
 
         assert len(content) == 5
 
@@ -473,7 +475,7 @@ class TestReportApiEndpoint:
         :param report_objects:
         :return:
         """
-        content = prepared_ReportViewSet_view.aggregate_shift_content(report_object)
+        content = prepared_ReportViewSet_view.get_shifts_to_export(report_object)
 
         assert len(content) == 5
 
@@ -485,11 +487,14 @@ class TestReportApiEndpoint:
         report_object,
     ):
 
-        content = prepared_ReportViewSet_view.aggregate_shift_content(report_object)
+        content = prepared_ReportViewSet_view.aggregate_shift_content(
+            shift_content_aggregation_merges_shifts
+        )
 
         assert len(content) == 1
         assert content["26.01.2019"]
         assert content["26.01.2019"]["started"] == "10:00:00"
         assert content["26.01.2019"]["stopped"] == "18:00:00"
-        assert content["26.01.2019"]["work_time"] == "6:00:00"
+        assert content["26.01.2019"]["work_time"] == "8:00:00"
+        assert content["26.01.2019"]["net_work_time"] == "6:00:00"
         assert content["26.01.2019"]["break_time"] == "2:00:00"
