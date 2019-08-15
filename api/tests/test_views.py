@@ -600,6 +600,7 @@ class TestReportApiEndpoint:
         export_content = prepared_ReportViewSet_view.aggregate_export_content(
             report_object
         )
+
         pdf = prepared_ReportViewSet_view.compile_pdf(
             template_name="api/stundenzettel.html",
             content_dict=export_content,
@@ -613,5 +614,4 @@ class TestReportApiEndpoint:
                 "no-outline": None,
             },
         )
-
         assert pdf.startswith(bytes("%PDF-1", "UTF-8"))

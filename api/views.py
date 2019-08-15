@@ -162,6 +162,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :return:
         """
         template = get_template(template_name)
+        print(template)
         html = template.render(content_dict)
         pdf = pdf_from_string(html, False, options=pdf_options)
         return pdf
