@@ -276,7 +276,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             except Report.DoesNotExist:
                 # If no Report Object exists we are in the case of the first Report of a Contract
                 # Hence return 0:00:00 hours
-                return datetime.timedelta(0)
+                return "00:00:00"
         time_delta = report_to_carry.hours - datetime.timedelta(
             hours=report_object.contract.hours
         )

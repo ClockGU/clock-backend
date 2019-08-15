@@ -20,7 +20,7 @@ def create_n_report_objects():
     created_at = datetime.datetime(2019, 1, 1, 16).isoformat()
     modified_at = created_at
 
-    def create_reports(start_stop, user, contract, month_year=month_year):
+    def create_reports(start_stop, user, contract, hours=hours, month_year=month_year):
         lst = []
         for i in range(*start_stop):
             report = Report.objects.create(
@@ -52,6 +52,25 @@ def report_object(create_n_report_objects, user_object, contract_object):
     # Clear all previously created Reports which might have been created
     Report.objects.all().delete()
     return create_n_report_objects((1,), user_object, contract_object)[0]
+
+
+@pytest.fixture
+def previous_report_object(create_n_report_objects, user_object, contract_object):
+    """
+    This fixture creates a report object for preceeding report_object with a resulting carry_over
+    of 2 hours
+    :param create_n_report_objects:
+    :param user_object:
+    :param contract_object:
+    :return:
+    """
+    return create_n_report_objects(
+        (1,),
+        user_object,
+        contract_object,
+        hours=datetime.timedelta(hours=22),
+        month_year=datetime.date(2018, 12, 1),
+    )[0]
 
 
 @pytest.fixture

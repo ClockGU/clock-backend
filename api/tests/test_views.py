@@ -539,3 +539,53 @@ class TestReportApiEndpoint:
         ).order_by("started")
 
         assert all(s.was_exported for s in shifts)
+
+    @pytest.mark.django_db
+    def test_method_for_carryover_hours_previous_month_defualt(
+        self, prepared_ReportViewSet_view, report_object
+    ):
+        """
+        Test if the method returns '00:00:00' for the carry over hours
+        of the previous month if no report exists there.
+        :param prepared_ReportViewSet_view:
+        :param report_object:
+        :return:
+        """
+
+        carry_over_hours = prepared_ReportViewSet_view.calculate_carry_over_hours(
+            report_object, next_month=False
+        )
+        assert carry_over_hours == "00:00:00"
+
+    @pytest.mark.django_db
+    def test_method_for_carry_over_hours_previous_month(
+        self, prepared_ReportViewSet_view, report_object, previous_report_object
+    ):
+        """
+        Test if the Method calculates the hours to carry over from
+        the previous moth correctly.
+        :param prepared_reportViewSet_view:
+        :param report_object:
+        :param previous_report_object:
+        :return:
+        """
+        carry_over_hours = prepared_ReportViewSet_view.calculate_carry_over_hours(
+            report_object, next_month=False
+        )
+        assert carry_over_hours == "02:00:00"
+
+    @pytest.mark.django_db
+    def test_method_for_carry_over_hours_next_month(
+        self, prepared_ReportViewSet_view, report_object
+    ):
+        """
+        Test if method calculates the hours to carry over to next month
+        correctly.
+        :param prepared_ReportViewSet_view:
+        :param report_object:
+        :return:
+        """
+        carry_over_hours = prepared_ReportViewSet_view.calculate_carry_over_hours(
+            report_object, next_month=True
+        )
+        assert carry_over_hours == "-20:00:00"
