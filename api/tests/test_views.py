@@ -589,3 +589,29 @@ class TestReportApiEndpoint:
             report_object, next_month=True
         )
         assert carry_over_hours == "-20:00:00"
+
+    @pytest.mark.django_db
+    def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):
+        """
+        Test whether the method actually returns a PDF file.
+        :param prepared_ReportViewSet_view:
+        :return:
+        """
+        export_content = prepared_ReportViewSet_view.aggregate_export_content(
+            report_object
+        )
+        pdf = prepared_ReportViewSet_view.compile_pdf(
+            template_name="api/stundenzettel.html",
+            content_dict=export_content,
+            pdf_options={
+                "page-size": "Letter",
+                "margin-top": "30px",
+                "margin-right": "5px",
+                "margin-bottom": "5px",
+                "margin-left": "15px",
+                "encoding": "UTF-8",
+                "no-outline": None,
+            },
+        )
+
+        assert pdf.startswith(bytes("%PDF-1", "UTF-8"))
