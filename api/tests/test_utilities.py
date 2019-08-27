@@ -62,3 +62,24 @@ class TestUpdateSignals:
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 2, 1)
         ).hours == datetime.timedelta(hours=-18)
+
+    @pytest.mark.django_db
+    def test_signal_only_updates_reviewed_shifts(
+        self, report_object, contract_object, user_object
+    ):
+        Shift.objects.create(
+            started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
+            stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
+            created_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=user_object,
+            created_by=user_object,
+            modified_by=user_object,
+            contract=contract_object,
+            was_reviewed=False,
+        )
+        assert Report.objects.get(
+            contract=contract_object, month_year=datetime.date(2019, 1, 1)
+        ).hours == datetime.timedelta(0)
