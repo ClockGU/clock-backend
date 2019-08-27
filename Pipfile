@@ -18,9 +18,7 @@ freezegun = "==0.3.11"
 pylint = "==2.2.2"
 pylint-django = "==2.0.4"
 flake8 = "==3.6.0"
-isort = "==4.3.4"
 black = "==18.9b0"
-pytest-django = "*"
 
 [packages]
 Django = "==2.1.5"
@@ -41,6 +39,8 @@ djangorestframework-simplejwt = "==3.3"
 celery = "==4.2.1"
 drf-yasg = "==1.12.1"
 django-cors-headers = "*"
+pytest-django = "*"
+isort = "*"
 
 [requires]
 python_version = "3.6"
