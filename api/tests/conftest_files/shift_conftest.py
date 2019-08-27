@@ -356,7 +356,7 @@ def db_creation_list_month_year_endpoint(
     user_object,
     report_object,
     february_report_object,
-    contract_object,
+    contract_ending_in_february,
     create_n_shift_objects,
 ):
     """
@@ -375,7 +375,7 @@ def db_creation_list_month_year_endpoint(
     create_n_shift_objects(
         (1, 3),
         user=user_object,
-        contract=contract_object,
+        contract=contract_ending_in_february,
         started=_started,
         stopped=_stopped,
     )

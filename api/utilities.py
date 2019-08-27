@@ -44,7 +44,7 @@ post_save.connect(
 
 def update_report_after_shift_save(sender, instance, created, **kwargs):
     """
-    After the saving a Shift we need to update the corresponding Report to reflect the now
+    After saving a Shift we need to update the corresponding Report to reflect the now
     possibly updated overall work time.
 
     While updating we skip the whole mechanism if a Shift is planned (was_reviewd=False).

@@ -16,11 +16,11 @@ def create_n_report_objects():
     :return: Function
     """
     month_year = datetime.date(2019, 1, 1)
-    hours = datetime.timedelta(0)
+    _hours = datetime.timedelta(0)
     created_at = datetime.datetime(2019, 1, 1, 16).isoformat()
     modified_at = created_at
 
-    def create_reports(start_stop, user, contract, month_year=month_year):
+    def create_reports(start_stop, user, contract, hours=_hours, month_year=month_year):
         lst = []
         for i in range(*start_stop):
             report = Report.objects.create(
@@ -55,16 +55,42 @@ def report_object(create_n_report_objects, user_object, contract_object):
 
 
 @pytest.fixture
-def february_report_object(create_n_report_objects, user_object, contract_object):
+def january_report_object(
+    create_n_report_objects, user_object, contract_ending_in_february
+):
     """
     This fixture creates one report object for February.
     :param create_n_report_objects:
     :param user_object:
-    :param contract_object:
+    :param contract_ending_in_february:
+    :return:
+    """
+
+    return create_n_report_objects(
+        (1,),
+        user_object,
+        contract_ending_in_february,
+        hours=datetime.timedelta(hours=22),
+        month_year=datetime.date(2019, 1, 1),
+    )[0]
+
+
+@pytest.fixture
+def february_report_object(
+    create_n_report_objects, user_object, contract_ending_in_february
+):
+    """
+    This fixture creates one report object for February.
+    :param create_n_report_objects:
+    :param user_object:
+    :param contract_ending_in_february:
     :return:
     """
     return create_n_report_objects(
-        (1,), user_object, contract_object, month_year=datetime.date(2019, 2, 1)
+        (1,),
+        user_object,
+        contract_ending_in_february,
+        month_year=datetime.date(2019, 2, 1),
     )[0]
 
 
