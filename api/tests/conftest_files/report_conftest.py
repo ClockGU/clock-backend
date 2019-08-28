@@ -20,7 +20,6 @@ def create_n_report_objects():
     created_at = datetime.datetime(2019, 1, 1, 16).isoformat()
     modified_at = created_at
 
-
     def create_reports(start_stop, user, contract, hours=_hours, month_year=month_year):
         lst = []
         for i in range(*start_stop):
@@ -71,6 +70,8 @@ def previous_report_object(create_n_report_objects, user_object, contract_object
         contract_object,
         hours=datetime.timedelta(hours=22),
         month_year=datetime.date(2018, 12, 1),
+    )[0]
+
 
 @pytest.fixture
 def january_report_object(
