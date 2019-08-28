@@ -615,3 +615,19 @@ class TestReportApiEndpoint:
             },
         )
         assert pdf.startswith(bytes("%PDF-1", "UTF-8"))
+
+    @pytest.mark.django_db
+    def test_export_endpoint_returns_file(self, report_object, client, user_object_jwt):
+        """
+        Test that the Endpoint really returns a file.
+        :param report_object:
+        :param client:
+        :param user_object_jwt:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(
+            path=reverse("api:reports-export", args=[report_object.pk])
+        )
+
+        assert response.status_code == 200
