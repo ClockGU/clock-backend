@@ -41,11 +41,15 @@ def create_reports_monthly(self):
     :param self:
     :return:
     """
+    file = open("blargh.txt", "a")
+    file.write("task fired")
     date_now = datetime.datetime.now().date()
     for user in User.objects.filter(is_active=True, is_staff=False):
+        file.write("user found")
         for contract in user.contracts.all():
+            file.write("task contract found")
             if contract.start_date < date_now <= contract.end_date:
-
+                file.write("valid contract found")
                 last_report = Report.objects.get(
                     contract=contract, month_year__month=date_now.month - 1
                 )
@@ -64,3 +68,5 @@ def create_reports_monthly(self):
                     created_by=user,
                     modified_by=user,
                 )
+                file.write("report created")
+    file.close()

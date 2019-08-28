@@ -40,7 +40,8 @@ class TestContractApiEndpoint:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(
-            path=reverse("api:contracts-detail", args=[diff_user_contract_object.id])
+            path=reverse("api:contracts-detail", args=[diff_user_contract_object.id]),
+            content_type="application/json",
         )
         assert response.status_code == 404
 
@@ -53,7 +54,11 @@ class TestContractApiEndpoint:
         :param user_object:
         :return:
         """
-        response = client.get(path=r"/api/contracts/", args=[contract_object.id])
+        response = client.get(
+            path=r"/api/contracts/",
+            args=[contract_object.id],
+            content_type="application/json",
+        )
         assert response.status_code == 401
 
     @pytest.mark.django_db
@@ -63,7 +68,9 @@ class TestContractApiEndpoint:
         :param client:
         :return:
         """
-        response = client.get(path="http://localhost:8000/api/contracts/")
+        response = client.get(
+            path="http://localhost:8000/api/contracts/", content_type="application/json"
+        )
         assert response.status_code == 401
 
     @pytest.mark.django_db
@@ -75,7 +82,9 @@ class TestContractApiEndpoint:
         :return:
         """
         response = client.post(
-            path="http://localhost:8000/api/contracts/", data=valid_contract_json
+            path="http://localhost:8000/api/contracts/",
+            data=json.dumps(valid_contract_json),
+            content_type="application/json",
         )
         assert response.status_code == 401
 
@@ -89,7 +98,9 @@ class TestContractApiEndpoint:
         """
 
         response = client.put(
-            path="http://localhost:8000/api/contracts/", data=valid_contract_json
+            path="http://localhost:8000/api/contracts/",
+            data=json.dumps(valid_contract_json),
+            content_type="application/json",
         )
         assert response.status_code == 401
 
@@ -107,7 +118,9 @@ class TestContractApiEndpoint:
         """
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(path="http://localhost:8000/api/contracts/")
+        response = client.get(
+            path="http://localhost:8000/api/contracts/", content_type="application/json"
+        )
         data = json.loads(response.content)
         assert response.status_code == 200
         assert all(
@@ -138,7 +151,11 @@ class TestContractApiEndpoint:
         """
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.post(path="/api/contracts/", data=invalid_uuid_contract_json)
+        response = client.post(
+            path="/api/contracts/",
+            data=json.dumps(invalid_uuid_contract_json),
+            content_type="application/json",
+        )
 
         content = json.loads(response.content)
 
@@ -173,7 +190,8 @@ class TestContractApiEndpoint:
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.put(
             path=reverse("api:contracts-detail", args=[contract_object.id]),
-            data=invalid_uuid_contract_put_endpoint,
+            data=json.dumps(invalid_uuid_contract_put_endpoint),
+            content_type="application/json",
         )
         content = json.loads(response.content)
 
@@ -209,7 +227,8 @@ class TestContractApiEndpoint:
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.patch(
             path=reverse("api:contracts-detail", args=[contract_object.id]),
-            data=invalid_uuid_contract_patch_endpoint,
+            data=json.dumps(invalid_uuid_contract_patch_endpoint),
+            content_type="application/json",
         )
         contract = Contract.objects.get(id=contract_object.id)
         user_id = user_object.id
@@ -243,7 +262,8 @@ class TestContractApiEndpoint:
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(
-            path=reverse("api:contracts-shifts", args=[contract_object.id])
+            path=reverse("api:contracts-shifts", args=[contract_object.id]),
+            content_type="application/json",
         )
 
         content = json.loads(response.content)
@@ -272,7 +292,11 @@ class TestContractApiEndpoint:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.post(path="/api/contracts/", data=valid_contract_json)
+        response = client.post(
+            path="/api/contracts/",
+            data=json.dumps(valid_contract_json),
+            content_type="application/json",
+        )
 
         content = json.loads(response.content)
         start_date = (
@@ -298,7 +322,9 @@ class TestShiftApiEndpoint:
         """
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(path=reverse("api:shifts-list"))
+        response = client.get(
+            path=reverse("api:shifts-list"), content_type="application/json"
+        )
 
         data = json.loads(response.content)
         assert response.status_code == 200
@@ -319,12 +345,16 @@ class TestShiftApiEndpoint:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.post(path=reverse("api:shifts-list"), data=valid_shift_json)
+        response = client.post(
+            path=reverse("api:shifts-list"),
+            data=json.dumps(valid_shift_json),
+            content_type="application/json",
+        )
         data = json.loads(response.content)
 
         assert response.status_code == 201
         shift_object = Shift.objects.get(pk=data["id"])
-        initial_tags = json.loads(valid_shift_json["tags"])
+        initial_tags = valid_shift_json["tags"]
 
         assert shift_object
         assert shift_object.tags.all().count() == len(initial_tags)
@@ -345,14 +375,14 @@ class TestShiftApiEndpoint:
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.put(
             path=reverse("api:shifts-detail", args=[put_new_tags_json["id"]]),
-            data=put_new_tags_json,
+            data=json.dumps(put_new_tags_json),
+            content_type="application/json",
         )
-
         data = json.loads(response.content)
-        initial_tags = json.loads(put_new_tags_json["tags"])
-
+        print(data)
         assert response.status_code == 200
-        shift_object = Shift.objects.get(pk=put_new_tags_json["id"])
+        initial_tags = put_new_tags_json["tags"]
+        shift_object = Shift.objects.get(pk=data["id"])
         assert shift_object.tags.all().count() == len(initial_tags)
         assert all(
             shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
@@ -371,10 +401,11 @@ class TestShiftApiEndpoint:
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.patch(
             path=reverse("api:shifts-detail", args=[patch_new_tags_json["id"]]),
-            data=patch_new_tags_json,
+            data=json.dumps(patch_new_tags_json),
+            content_type="application/json",
         )
 
-        initial_tags = json.loads(patch_new_tags_json["tags"])
+        initial_tags = patch_new_tags_json["tags"]
 
         assert response.status_code == 200
         shift_object = Shift.objects.get(pk=patch_new_tags_json["id"])
@@ -397,7 +428,10 @@ class TestShiftApiEndpoint:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(path=reverse("api:list-shifts", args=[1, 2019]))
+        response = client.get(
+            path=reverse("api:list-shifts", args=[1, 2019]),
+            content_type="application/json",
+        )
 
         data = json.loads(response.content)
 
@@ -416,8 +450,10 @@ class TestShiftApiEndpoint:
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.put(
             path=reverse("api:shifts-detail", args=[put_to_exported_shift_json["id"]]),
-            data=put_to_exported_shift_json,
+            data=json.dumps(put_to_exported_shift_json),
+            content_type="application/json",
         )
+        print(json.loads(response.content))
         assert response.status_code == 403
 
 
@@ -436,7 +472,9 @@ class TestReportApiEndpoint:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(path=reverse("api:reports-get_current"))
+        response = client.get(
+            path=reverse("api:reports-get_current"), content_type="application/json"
+        )
         content = json.loads(response.content)
         assert content["month_year"] == "2019-01-01"
 

@@ -23,11 +23,11 @@ def valid_shift_json(user_object, contract_object):
     stopped = datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat()
     created_at = datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat()
     modified_at = created_at
-    user = user_object.id
-    contract = contract_object.id
+    user = str(user_object.id)
+    contract = str(contract_object.id)
     _type = "st"
     note = "something was strange"
-    tags = json.dumps(["tag1", "tag2"])
+    tags = ["tag1", "tag2"]
     was_reviewed = True
 
     data = {
@@ -117,7 +117,7 @@ def contract_not_belonging_to_user_json(valid_shift_json, diff_user_contract_obj
     :param diff_user_contract_object:
     :return:Dict
     """
-    valid_shift_json["contract"] = diff_user_contract_object.id
+    valid_shift_json["contract"] = str(diff_user_contract_object.id)
     return valid_shift_json
 
 
@@ -165,7 +165,7 @@ def tags_not_strings_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["tags"] = json.dumps([1, [], "a"])
+    valid_shift_json["tags"] = [1, [], "a"]
     return valid_shift_json
 
 
@@ -251,7 +251,7 @@ def shift_is_planned_but_started_in_past_json_querydict(
 
 
 @pytest.fixture
-def create_n_shift_objects():
+def create_n_shift_objects(report_object):
     """
     This fixture resembles a shift object factory.
     Shifts are distinguised by id, there is no specific need for the start_stop mechanism.
@@ -311,6 +311,7 @@ def shift_object(create_n_shift_objects, user_object, contract_object):
 @pytest.fixture
 def db_creation_shifts_list_endpoint(
     user_object,
+    report_object,
     diff_user_object,
     contract_object,
     diff_user_contract_object,
@@ -341,8 +342,8 @@ def put_new_tags_json(valid_shift_json, shift_object):
     :param shift_object:
     :return: Dict
     """
-    valid_shift_json["id"] = shift_object.id
-    valid_shift_json["tags"] = json.dumps(["new_tag1", "new_tag2"])
+    valid_shift_json["id"] = str(shift_object.id)
+    valid_shift_json["tags"] = ["new_tag1", "new_tag2"]
     return valid_shift_json
 
 
@@ -353,7 +354,7 @@ def patch_new_tags_json(shift_object):
     :param shift_object:
     :return: Dict
     """
-    _dict = {"id": shift_object.id, "tags": json.dumps(["new_tag1", "new_tag2"])}
+    _dict = {"id": str(shift_object.id), "tags": ["new_tag1", "new_tag2"]}
     return _dict
 
 
@@ -361,7 +362,9 @@ def patch_new_tags_json(shift_object):
 def db_creation_list_month_year_endpoint(
     db_creation_shifts_list_endpoint,
     user_object,
-    contract_object,
+    report_object,
+    february_report_object,
+    contract_ending_in_february,
     create_n_shift_objects,
 ):
     """
@@ -380,7 +383,7 @@ def db_creation_list_month_year_endpoint(
     create_n_shift_objects(
         (1, 3),
         user=user_object,
-        contract=contract_object,
+        contract=contract_ending_in_february,
         started=_started,
         stopped=_stopped,
     )
@@ -390,10 +393,9 @@ def db_creation_list_month_year_endpoint(
 def put_to_exported_shift_json(shift_object, valid_shift_json):
     shift_object.was_exported = True
     shift_object.save()
-    valid_shift_json["id"] = shift_object.id
-    valid_shift_json["tags"] = json.dumps(
-        ["new_tag1", "new_tag2"]
-    )  # tags just for example
+    valid_shift_json["id"] = str(shift_object.id)
+    valid_shift_json["tags"] = ["new_tag1", "new_tag2"]
+
     return valid_shift_json
 
 
