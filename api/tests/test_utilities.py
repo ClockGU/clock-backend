@@ -1,4 +1,3 @@
-
 import json
 from datetime import datetime
 
@@ -132,4 +131,3 @@ class TestUpdateSignals:
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
         ).hours == datetime.timedelta(0)
-
