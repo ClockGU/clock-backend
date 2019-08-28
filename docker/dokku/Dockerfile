@@ -1,4 +1,4 @@
-FROM python:alpine3.6
+FROM surnet/alpine-python-wkhtmltopdf:3.6.5-0.12.5-full
 ARG DJANGO_SETTINGS_MODULE
 ARG DJANGO_ADMIN_URL
 ARG DJANGO_SECRET_KEY

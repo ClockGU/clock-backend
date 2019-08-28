@@ -461,7 +461,7 @@ class TestReportApiEndpoint:
     @freeze_time("2019-01-10")
     @pytest.mark.django_db
     def test_get_current_endpoint(
-        self, client, user_object_jwt, db_get_current_endpoint
+        self, client, user_object_jwt, db_get_current_endpoint, report_object
     ):
         """
         Test that the endpoint api/reports/get_current/ exists and that it retrieves the Report for the current
@@ -476,5 +476,196 @@ class TestReportApiEndpoint:
             path=reverse("api:reports-get_current"), content_type="application/json"
         )
         content = json.loads(response.content)
-
         assert content["month_year"] == "2019-01-01"
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_method_retrieves_all_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_gather_all_shifts,
+        report_object,
+    ):
+        """
+        Test that the utility method of the ReportViewSet 'aggregate_shift_content' catches all Shifts of a month.
+        :return:
+        """
+        content = prepared_ReportViewSet_view.aggregate_shift_content(
+            shift_content_aggregation_gather_all_shifts
+        )
+
+        assert len(content) == 5
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_method_omits_planned_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_ignores_planned_shifts,
+        report_object,
+    ):
+        """
+        Test that the utility method of the ReportViewSet 'aggregate_shift_content' catches all Shifts of a month
+        but omits planned Shifts.
+
+        The Fixture provides 5 Shifts as the 'shift_content_aggregation_gather_all_shifts' fixture and an additional
+        Shift which is planned (was_reviewed=False).
+        :param prepared_ReportViewSet_view:
+        :param shift_content_aggregation_ignores_planned_shifts:
+        :param report_objects:
+        :return:
+        """
+        content = prepared_ReportViewSet_view.get_shifts_to_export(report_object)
+
+        assert len(content) == 5
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_merges_multiple_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_merges_shifts,
+        report_object,
+    ):
+
+        content = prepared_ReportViewSet_view.aggregate_shift_content(
+            shift_content_aggregation_merges_shifts
+        )
+
+        assert len(content) == 1
+        assert content["26.01.2019"]
+        assert content["26.01.2019"]["started"] == "10:00:00"
+        assert content["26.01.2019"]["stopped"] == "18:00:00"
+        assert content["26.01.2019"]["work_time"] == "8:00:00"
+        assert content["26.01.2019"]["net_work_time"] == "6:00:00"
+        assert content["26.01.2019"]["break_time"] == "2:00:00"
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_handles_vacation_shifts(
+        self, prepared_ReportViewSet_view, two_shifts_with_one_vacation_shift
+    ):
+        content = prepared_ReportViewSet_view.aggregate_shift_content(
+            two_shifts_with_one_vacation_shift
+        )
+
+        assert len(content) == 1
+        assert content["26.01.2019"]["break_time"] == "0:00:00"
+        assert content["26.01.2019"]["work_time"] == "8:00:00"
+        assert content["26.01.2019"]["net_work_time"] == "4:00:00"
+        assert content["26.01.2019"]["type"] == "Vacation"
+        assert content["26.01.2019"]["sick_or_vac_time"] == "4:00:00"
+
+    @pytest.mark.django_db
+    def test_method_to_set_shifts_exported(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_gather_all_shifts,
+        report_object,
+    ):
+        """
+        Test of the set_shifts_as_exported_method.
+
+        :param prepared_ReportViewSet_view:
+        :param shift_content_aggregation_gather_all_shifts:
+        :param report_object:
+        :return:
+        """
+        prepared_ReportViewSet_view.set_shifts_as_exported(report_object)
+
+        shifts = Shift.objects.filter(
+            user=report_object.user,
+            contract=report_object.contract,
+            started__month=1,
+            started__year=2019,
+        ).order_by("started")
+
+        assert all(s.was_exported for s in shifts)
+
+    @pytest.mark.django_db
+    def test_method_for_carryover_hours_previous_month_defualt(
+        self, prepared_ReportViewSet_view, report_object
+    ):
+        """
+        Test if the method returns '00:00:00' for the carry over hours
+        of the previous month if no report exists there.
+        :param prepared_ReportViewSet_view:
+        :param report_object:
+        :return:
+        """
+
+        carry_over_hours = prepared_ReportViewSet_view.calculate_carry_over_hours(
+            report_object, next_month=False
+        )
+        assert carry_over_hours == "00:00:00"
+
+    @pytest.mark.django_db
+    def test_method_for_carry_over_hours_previous_month(
+        self, prepared_ReportViewSet_view, report_object, previous_report_object
+    ):
+        """
+        Test if the Method calculates the hours to carry over from
+        the previous moth correctly.
+        :param prepared_reportViewSet_view:
+        :param report_object:
+        :param previous_report_object:
+        :return:
+        """
+        carry_over_hours = prepared_ReportViewSet_view.calculate_carry_over_hours(
+            report_object, next_month=False
+        )
+        assert carry_over_hours == "02:00:00"
+
+    @pytest.mark.django_db
+    def test_method_for_carry_over_hours_next_month(
+        self, prepared_ReportViewSet_view, report_object
+    ):
+        """
+        Test if method calculates the hours to carry over to next month
+        correctly.
+        :param prepared_ReportViewSet_view:
+        :param report_object:
+        :return:
+        """
+        carry_over_hours = prepared_ReportViewSet_view.calculate_carry_over_hours(
+            report_object, next_month=True
+        )
+        assert carry_over_hours == "-20:00:00"
+
+    @pytest.mark.django_db
+    def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):
+        """
+        Test whether the method actually returns a PDF file.
+        :param prepared_ReportViewSet_view:
+        :return:
+        """
+        export_content = prepared_ReportViewSet_view.aggregate_export_content(
+            report_object
+        )
+
+        pdf = prepared_ReportViewSet_view.compile_pdf(
+            template_name="api/stundenzettel.html",
+            content_dict=export_content,
+            pdf_options={
+                "page-size": "Letter",
+                "margin-top": "30px",
+                "margin-right": "5px",
+                "margin-bottom": "5px",
+                "margin-left": "15px",
+                "encoding": "UTF-8",
+                "no-outline": None,
+            },
+        )
+        assert pdf.startswith(bytes("%PDF-1", "UTF-8"))
+
+    @pytest.mark.django_db
+    def test_export_endpoint_returns_file(self, report_object, client, user_object_jwt):
+        """
+        Test that the Endpoint really returns a file.
+        :param report_object:
+        :param client:
+        :param user_object_jwt:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(
+            path=reverse("api:reports-export", args=[report_object.pk])
+        )
+
+        assert response.status_code == 200

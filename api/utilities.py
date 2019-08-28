@@ -9,6 +9,27 @@ from dateutil.relativedelta import relativedelta
 # Receiver used for the main API
 
 
+def relativedelta_to_string(relative_time_delta):
+    """
+    Format a relaativedelta object for string representation in the format +/- HH:MM:SS.
+
+    Example:
+
+    relativedelta(days=-3, hours=-8) becomes -80:00:00.
+
+    relativedelta(days=-1, hours=-8, minutes=-30) becomes -32:30:00
+
+    :param relative_time_delta:
+    :return:
+    """
+
+    return "{hours:02g}:{minutes:02g}:{seconds:02g}".format(
+        hours=relative_time_delta.days * 24 + relative_time_delta.hours,
+        minutes=abs(relative_time_delta.minutes),
+        seconds=abs(relative_time_delta.seconds),
+    )
+
+
 def create_report_after_contract_save(sender, instance, created, **kwargs):
     """
     Receiver Function to be called by the post_save signal of a Contract object.

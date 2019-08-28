@@ -24,6 +24,17 @@ cache:
 install:
   - make
 before_script:
+  - sudo mkdir /app
+  - sudo mv !(app) /app/
+  - sudo chmod 777 -R /app
+  - cd /app
+  - sudo apt-get install -y openssl build-essential xorg libssl-dev
+  - wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+  - tar vxf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+  - cd wkhtmltox
+  - sudo chown root:root bin/wkhtmltopdf
+  - sudo cp -r * /usr/
+  - cd ..
   - psql -c "CREATE DATABASE test_db_app;" -U postgres
   - psql -c "CREATE USER db_user WITH PASSWORD 'db_pass';" -U postgres
   - sudo rabbitmqctl add_user broker_adm broker_pass

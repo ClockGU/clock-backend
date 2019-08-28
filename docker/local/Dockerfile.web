@@ -1,4 +1,4 @@
-FROM python:alpine3.6
+FROM surnet/alpine-python-wkhtmltopdf:3.6.5-0.12.5-full
 # Tell python not to produce any `__pycache__` and `*.pyc` files
 ENV PYTHONBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 INSIDE_DOCKER=1
 

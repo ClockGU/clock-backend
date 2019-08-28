@@ -17,6 +17,9 @@ Including another URLconf
 
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     url(r"^api/", include("api.urls"), name="api"),
@@ -24,4 +27,4 @@ urlpatterns = [
     url(r"^admin/", admin.site.urls),
     url(r"^auth/", include("djoser.urls"), name="djoser-auth"),
     url(r"^auth/", include("djoser.urls.jwt")),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

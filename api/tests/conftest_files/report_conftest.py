@@ -55,6 +55,25 @@ def report_object(create_n_report_objects, user_object, contract_object):
 
 
 @pytest.fixture
+def previous_report_object(create_n_report_objects, user_object, contract_object):
+    """
+    This fixture creates a report object for preceeding report_object with a resulting carry_over
+    of 2 hours
+    :param create_n_report_objects:
+    :param user_object:
+    :param contract_object:
+    :return:
+    """
+    return create_n_report_objects(
+        (1,),
+        user_object,
+        contract_object,
+        hours=datetime.timedelta(hours=22),
+        month_year=datetime.date(2018, 12, 1),
+    )[0]
+
+
+@pytest.fixture
 def january_report_object(
     create_n_report_objects, user_object, contract_ending_in_february
 ):
