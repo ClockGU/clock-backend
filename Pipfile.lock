@@ -1,9 +1,7 @@
 {
     "_meta": {
         "hash": {
-
-            "sha256": "02f4e9e0a34abd1c55d1ff8615279d7112cb8a14181a51b3980089670b9f5817"
-
+            "sha256": "d5c4e9e188fb8ee5cce85292d5dd5394d1979f5158c2ebf791e9b96415caab23"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -24,20 +22,6 @@
                 "sha256:19d851b879a471fcfdcf01df9936cff924f422baa77653289f7095dedd5fb26a"
             ],
             "version": "==2.5.1"
-        },
-        "atomicwrites": {
-            "hashes": [
-                "sha256:03472c30eb2c5d1ba9227e4c2ca66ab8287fbfbbda3888aa93dc2e28fc6811b4",
-                "sha256:75a9445bac02d8d058d5e1fe689654ba5a6556a1dfd8ce6ec55a0ed79866cfa6"
-            ],
-            "version": "==1.3.0"
-        },
-        "attrs": {
-            "hashes": [
-                "sha256:69c0dbf2ed392de1cb5ec704444b08a5ef81680a61cb899dc08127123af36a79",
-                "sha256:f0b870f674851ecbfbbbd364d6b5cbdff9dcedbc7f3f5e18a6891057f21fe399"
-            ],
-            "version": "==19.1.0"
         },
         "atomicwrites": {
             "hashes": [
@@ -168,11 +152,11 @@
         },
         "djoser": {
             "hashes": [
-                "sha256:3c4112f50c29f7f9811688bedf440ccd1490abb44c5969cc8cfcf6c4d183cd26",
-                "sha256:b2586f8a45bec04083d90bbfc255d21af9dcd5f45c79ce911e28aa78a4939f17"
+                "sha256:36e06fdfc429a3aa8647289ee0e50806114d89f781de9245a68c6a44575d1bdd",
+                "sha256:e08570cc691caab6bf708e884b98fe3aeda61d5f84eca2d5781dfd9601ee04cf"
             ],
             "index": "pypi",
-            "version": "==2.0.1"
+            "version": "==2.0.3"
         },
         "drf-yasg": {
             "hashes": [
@@ -454,6 +438,7 @@
                 "sha256:95b1f6db806e5b1b5b443efeb58984c24945508f93a866c1719e1a507a957d7c",
                 "sha256:c3d5020755f70c82eceda3feaf556af9a341334414a8eca521a18f463bcead88"
             ],
+            "index": "pypi",
             "version": "==5.1.1"
         },
         "pytest-django": {
@@ -932,6 +917,7 @@
                 "sha256:95b1f6db806e5b1b5b443efeb58984c24945508f93a866c1719e1a507a957d7c",
                 "sha256:c3d5020755f70c82eceda3feaf556af9a341334414a8eca521a18f463bcead88"
             ],
+            "index": "pypi",
             "version": "==5.1.1"
         },
         "pytest-cov": {
