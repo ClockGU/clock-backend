@@ -93,6 +93,11 @@ RAVEN_CONFIG = {
     "CELERY_LOGLEVEL": env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO),
     "DSN": SENTRY_DSN,
 }
+RAVEN_MIDDLEWARE = (
+    "raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware",
+    "raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware",
+)
+MIDDLEWARE = RAVEN_MIDDLEWARE + MIDDLEWARE
 
 # ADMIN URL
 ADMIN_URL = env("DJANGO_ADMIN_URL")
