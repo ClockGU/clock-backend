@@ -133,3 +133,11 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
+
+# CELERY STUFF
+BROKER_URL = env("RABBITMQ_URL")
+CELERY_RESULT_BACKEND = env("RABBITMQ_URL")
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_ALWAYS_EAGER = True
