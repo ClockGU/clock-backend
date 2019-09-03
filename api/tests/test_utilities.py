@@ -23,6 +23,37 @@ def test_relativedelta_to_string_negative_delta(negative_relativedelta_object):
 
 class TestUpdateSignals:
     @pytest.mark.django_db
+    def test_signal_updates_with_prev_month_carry_over(
+        self, report_update_user, report_update_contract, report_update_february_report
+    ):
+        """
+        Test that on an update the Report Update signal takes the previous months hours - Contrac.hours as carry over.
+        :param report_update_user:
+        :param report_update_contract:
+        :param report_update_february_report:
+        :return:
+        """
+        shift = Shift.objects.create(
+            started=datetime.datetime(2019, 2, 11, 14, tzinfo=utc),
+            stopped=datetime.datetime(2019, 2, 11, 16, tzinfo=utc),
+            created_at=datetime.datetime(2019, 2, 11, 16, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 2, 11, 16, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=report_update_user,
+            created_by=report_update_user,
+            modified_by=report_update_user,
+            contract=report_update_contract,
+        )
+
+        shift.stopped = datetime.datetime(2019, 2, 11, 18, tzinfo=utc)
+        shift.save()
+
+        assert Report.objects.get(
+            contract=report_update_contract, month_year=datetime.date(2019, 2, 1)
+        ).hours == datetime.timedelta(hours=-16)
+
+    @pytest.mark.django_db
     def test_signal_updates_shifts_report(
         self, report_object, contract_object, user_object
     ):
@@ -60,7 +91,7 @@ class TestUpdateSignals:
         user_object,
     ):
 
-        # Creeate shift for 29.01. which is 2 hours long
+        # Create shift for 29.01. which is 2 hours long
         Shift.objects.create(
             started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
             stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
@@ -77,29 +108,6 @@ class TestUpdateSignals:
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
         ).hours == datetime.timedelta(hours=-18)
-
-    @pytest.mark.django_db
-    def test_signal_updates_with_prev_month_carry_over(
-        self, contract_update_fixture, contract_ending_in_february, user_object
-    ):
-
-        shift = Shift.objects.create(
-            started=datetime.datetime(2019, 2, 11, 14, tzinfo=utc),
-            stopped=datetime.datetime(2019, 2, 11, 16, tzinfo=utc),
-            created_at=datetime.datetime(2019, 2, 11, 16, tzinfo=utc).isoformat(),
-            modified_at=datetime.datetime(2019, 2, 11, 16, tzinfo=utc).isoformat(),
-            type="st",
-            note="smth",
-            user=user_object,
-            created_by=user_object,
-            modified_by=user_object,
-            contract=contract_ending_in_february,
-        )
-        shift.stopped = datetime.datetime(2019, 2, 11, 18, tzinfo=utc)
-        shift.save()
-        assert Report.objects.get(
-            contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
-        ).hours == datetime.timedelta(hours=6)
 
     @pytest.mark.django_db
     def test_signal_only_updates_reviewed_shifts(

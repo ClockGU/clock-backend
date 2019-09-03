@@ -1,5 +1,5 @@
 [run]
 include = api/*
-omit = *migrations*, tests/, .*, *config*, manage.py
+omit = *migrations*, */tests/*, .*, *config*, manage.py
 plugins =
     django_coverage_plugin
