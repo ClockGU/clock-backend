@@ -272,6 +272,7 @@ def create_n_shift_objects(report_object):
         started=_started,
         stopped=_stopped,
         was_reviewed=True,
+        was_exported=False,
         type="st",
     ):
         lst = []
@@ -288,6 +289,7 @@ def create_n_shift_objects(report_object):
                 modified_by=user,
                 contract=contract,
                 was_reviewed=was_reviewed,
+                was_exported=was_exported,
             )
             shift.tags.add(*tags)
             lst.append(shift)
@@ -521,3 +523,25 @@ def two_shifts_with_one_vacation_shift(
     return Shift.objects.filter(
         user=user_object, contract=contract_object, started__month=1, started__year=2019
     ).order_by("started")
+
+
+@pytest.fixture
+def test_shift_creation_if_allready_exported(
+    user_object, contract_object, create_n_shift_objects
+):
+    """
+    This fixture creates a Shift Object which is allready marked as exported.
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :param shift_object:
+    :return:
+    """
+    return create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 10, tzinfo=utc),
+        stopped=datetime.datetime(2019, 1, 26, 12, tzinfo=utc),
+        was_exported=True,
+    )

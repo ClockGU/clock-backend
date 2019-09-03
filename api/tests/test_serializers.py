@@ -234,3 +234,22 @@ class TestShiftSerializerValidation:
                 data=shift_is_planned_but_started_in_past_json_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_shift_not_createable_if_allready_exported_exist(
+        self,
+        valid_shift_querydict,
+        plain_request_object,
+        test_shift_creation_if_allready_exported,
+    ):
+        """
+        Test that we can not create a Shift if allready exported Shifts exist for this month.
+        :param valid_shift_querydict:
+        :param plain_request_object:
+        :param test_shift_creation_if_allready_exported:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ShiftSerializer(
+                data=valid_shift_querydict, context={"request": plain_request_object}
+            ).is_valid(raise_exception=True)
