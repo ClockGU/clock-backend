@@ -124,7 +124,7 @@ def update_report_after_shift_save(sender, instance, created, **kwargs):
 post_save.connect(
     update_report_after_shift_save,
     sender=Shift,
-    dispatch_uid="create_report_after_contract_save",
+    dispatch_uid="update_report_after_shift_save",
 )
 
 
