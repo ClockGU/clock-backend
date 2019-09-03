@@ -59,6 +59,11 @@ def diff_user_object(create_n_user_objects):
 
 
 @pytest.fixture
+def report_update_user(create_n_user_objects):
+    return create_n_user_objects((10, 11))[0]
+
+
+@pytest.fixture
 def user_object_password():
     """
     This fixture provides the password of the standart user in clean, unhased form. It will be needed in the following
