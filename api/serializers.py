@@ -191,6 +191,19 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 "Eine Schicht die bereits exportiert wurde darf nicht modifiziert werden."
             )
 
+        # try to get shifts for the given contract, in the given month which are allready exported
+        exported_shifts = Shift.objects.filter(
+            contract=contract, started__month=started.month, was_exported=True
+        ).first()
+        print(exported_shifts)
+        # if there is at least one exported shift it's not allowed to create or update any
+        # shifts in that month for that contract
+        if exported_shifts:
+            raise serializers.ValidationError(
+                "Für diesen Monat wurde bereits ein Stundenzettel exportiert.\n"
+                "Es ist nicht möglich Schichten in diesem Monat zu ändern oder neue zu erstellen. "
+            )
+
         return attrs
 
     def validate_contract(self, contract):
