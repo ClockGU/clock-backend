@@ -99,10 +99,15 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = super(ReportViewSet, self).get_queryset()
         return queryset.filter(user__id=self.request.user.id)
 
-    @action(detail=False, url_name="get_current", url_path="get_current")
-    def get_current(self, request, *args, **kwargs):
+    @action(
+        detail=False,
+        url_name="get_current",
+        url_path="get_current/(?P<contract_id>[^/.]+)",
+    )
+    def get_current(self, request, contract_id, *args, **kwargs):
         """
         Custom endpoint which retrieves the Report of the current month.
+        :param contract_id:
         :param request:
         :param args:
         :param kwargs:
@@ -111,7 +116,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         now = datetime.datetime.now()
         queryset = self.get_queryset()
         instance = get_object_or_404(
-            queryset, month_year__month=now.month, month_year__year=now.year
+            queryset,
+            month_year__month=now.month,
+            month_year__year=now.year,
+            contract__id=contract_id,
         )
 
         serializer = self.get_serializer(instance)
