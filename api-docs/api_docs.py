@@ -14,9 +14,9 @@ contact_mail = env("CONTACT_MAIL", default="")
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="GeoMat API",
+        title="Clock API",
         default_version="v1.0",
-        description="This is the API for the elearning project GeoMat",
+        description="This is the API for the project Clock",
         contact=openapi.Contact(email=contact_mail),
     ),
     # validators=['ssv', 'flex'],
