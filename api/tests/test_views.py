@@ -461,7 +461,7 @@ class TestReportApiEndpoint:
     @freeze_time("2019-01-10")
     @pytest.mark.django_db
     def test_get_current_endpoint(
-        self, client, user_object_jwt, db_get_current_endpoint, report_object
+        self, client, user_object_jwt, db_get_current_endpoint, contract_object
     ):
         """
         Test that the endpoint api/reports/get_current/ exists and that it retrieves the Report for the current
@@ -473,7 +473,8 @@ class TestReportApiEndpoint:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(
-            path=reverse("api:reports-get_current"), content_type="application/json"
+            path=reverse("api:reports-get_current", args=[contract_object.id]),
+            content_type="application/json",
         )
         content = json.loads(response.content)
         assert content["month_year"] == "2019-01-01"
