@@ -15,7 +15,7 @@ python:
   - "3.6"
 
 env:
-  - TRAVIS_CI=True RABBITMQ_URL="amqp://broker_adm:broker_pass@localhost:5672/rabbit_broker"
+  - TRAVIS_CI=True RABBITMQ_URL="amqp://broker_adm:broker_pass@localhost:5672/rabbit_broker" DJANGO_SECRET_KEY="h18i_1j3^d$e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)"
 
 cache:
   directories:
