@@ -655,6 +655,20 @@ class TestReportApiEndpoint:
         )
         assert pdf.startswith(bytes("%PDF-1", "UTF-8"))
 
+        @pytest.mark.django_db
+        def test_check_for_overlapping_shifts(
+            self, prepared_ReportViewSet_view, report_object, shift_overlapping
+        ):
+            """
+            Test whether the method detects overlapping shifts.
+            :param prepared_ReportViewSet_view:
+            :return:
+            """
+            overlapping_shifts = prepared_ReportViewSet_view.check_for_overlapping_shifts(
+                report_object
+            )
+            assert len(overlapping_shifts) == 1
+
     @pytest.mark.django_db
     def test_export_endpoint_returns_file(self, report_object, client, user_object_jwt):
         """

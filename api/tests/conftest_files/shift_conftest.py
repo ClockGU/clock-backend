@@ -454,6 +454,31 @@ def shift_content_aggregation_ignores_planned_shifts(
 
 
 @pytest.fixture
+def shift_overlapping(user_object, contract_object, create_n_shift_objects):
+    """
+    This fixture creates 2 Shifts with a duration of 2 hours each, and a 1-hour overlap.
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 10, tzinfo=utc),
+        stopped=datetime.datetime(2019, 1, 26, 12, tzinfo=utc),
+    )
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 11, tzinfo=utc),
+        stopped=datetime.datetime(2019, 1, 26, 13, tzinfo=utc),
+    )
+
+
+@pytest.fixture
 def shift_content_aggregation_merges_shifts(
     user_object, contract_object, create_n_shift_objects
 ):

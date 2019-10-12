@@ -145,6 +145,14 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             "no-outline": None,
         }
         report = self.get_object()
+        overlapping_shifts = self.check_for_overlapping_shifts(report_object=report)
+        if overlapping_shifts:
+            return HttpResponse(
+                overlapping_shifts,
+                status=400,
+                reason="the report contains overlapping shifts.",
+            )
+
         aggregated_content = self.aggregate_export_content(report_object=report)
         pdf = self.compile_pdf(
             template_name="api/stundenzettel.html",
@@ -347,3 +355,29 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["general"] = general_content
 
         return content
+
+    def check_for_overlapping_shifts(self, report_object):
+        """
+        Method for finding overlapping shifts
+        :param report_object:
+        :return: a list of tuples of overlapping shift objects
+        """
+        shifts = self.get_shifts_to_export(report_object)
+        dates = shifts.dates("started", "day")
+        overlapping_shifts = []
+        for date in dates:
+            shifts_of_date = shifts.filter(started__date=date)
+            for idx, shift in enumerate(shifts_of_date):
+                upcoming_shifts = shifts_of_date[idx:]
+                overlapping_with_shift = filter(
+                    lambda upcoming_shift: (upcoming_shift.started < shift.end),
+                    upcoming_shifts,
+                )
+
+                overlapping_shifts.extend(
+                    map(
+                        lambda overlap_with_shift: (shift, overlap_with_shift),
+                        overlapping_with_shift,
+                    )
+                )
+        return overlapping_shifts
