@@ -21,6 +21,27 @@ def test_relativedelta_to_string_negative_delta(negative_relativedelta_object):
     assert result_string == "-148:23:15"
 
 
+@freeze_time("2019-04-10")
+@pytest.mark.django_db
+def test_report_creation_on_contract_creation(user_object):
+    """
+    Test that for a Contract created in the 4th month after actual start
+    all Reports (4) are created.
+    :param user_object:
+    :return:
+    """
+    _contract = Contract.objects.create(
+        user=user_object,
+        name="Report Creation Test Contract",
+        hours=20.0,
+        start_date=datetime.date(2019, 1, 1),
+        end_date=datetime.date(2019, 7, 31),
+        created_by=user_object,
+        modified_by=user_object
+    )
+    assert len(Report.objects.filter(contract=_contract)) == 4
+
+
 class TestUpdateSignals:
     @pytest.mark.django_db
     def test_signal_updates_with_prev_month_carry_over(
