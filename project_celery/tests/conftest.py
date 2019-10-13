@@ -14,7 +14,7 @@ from api.tests.conftest_files.user_conftest import *
 
 
 @pytest.fixture
-def celery_test_fixture(user_object, contract_ending_in_february):
+def celery_test_fixture(user_object):
     """
     This Fixture starts a celery worker in the running test container and exits it.
     With this manual entering and exiting it is possible to use the time set by freezgun and also

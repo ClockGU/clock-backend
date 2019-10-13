@@ -364,8 +364,6 @@ def patch_new_tags_json(shift_object):
 def db_creation_list_month_year_endpoint(
     db_creation_shifts_list_endpoint,
     user_object,
-    report_object,
-    february_report_object,
     contract_ending_in_february,
     create_n_shift_objects,
 ):

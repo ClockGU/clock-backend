@@ -21,10 +21,33 @@ def test_relativedelta_to_string_negative_delta(negative_relativedelta_object):
     assert result_string == "-148:23:15"
 
 
+@freeze_time("2020-04-10")
+@pytest.mark.django_db
+def test_report_creation_on_contract_creation(user_object):
+    """
+    Test that for a Contract created in the 4th month after actual start
+    all Reports (4) are created.
+    :param user_object:
+    :return:
+    """
+    print(datetime.date.today())
+    _contract = Contract.objects.create(
+        user=user_object,
+        name="Report Creation Test Contract",
+        hours=20.0,
+        start_date=datetime.date(2020, 1, 1),
+        end_date=datetime.date(2020, 7, 31),
+        created_by=user_object,
+        modified_by=user_object,
+    )
+    assert len(Report.objects.filter(contract=_contract)) == 4
+
+
 class TestUpdateSignals:
+    @freeze_time("2020-02-15")
     @pytest.mark.django_db
     def test_signal_updates_with_prev_month_carry_over(
-        self, report_update_user, report_update_contract, report_update_february_report
+        self, report_update_user, report_update_contract
     ):
         """
         Test that on an update the Report Update signal takes the previous months hours - Contrac.hours as carry over.
@@ -64,7 +87,7 @@ class TestUpdateSignals:
         :param user_object:
         :return:
         """
-        # Creeate shift for 29.01. which is 2 hours long
+        # Create shift for 29.01. which is 2 hours long
         Shift.objects.create(
             started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
             stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
@@ -82,13 +105,10 @@ class TestUpdateSignals:
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
         ).hours == datetime.timedelta(hours=2)
 
+    @freeze_time("2020-02-15")
     @pytest.mark.django_db
     def test_signal_updates_next_months_report(
-        self,
-        report_object,
-        february_report_object,
-        contract_ending_in_february,
-        user_object,
+        self, contract_ending_in_february, user_object
     ):
 
         # Create shift for 29.01. which is 2 hours long

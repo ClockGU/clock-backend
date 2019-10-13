@@ -3,17 +3,16 @@ from datetime import datetime, timedelta
 
 import pytest
 import time
-from celery.contrib.testing.worker import start_worker
 from api.models import User, Report, Contract
 from project_celery.tasks import create_reports_monthly
 from project_celery.celery import app
 
 
 class TestCeleryBeats:
+    @pytest.mark.freeze_time("2019-01-31")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
-    @freeze_time("2019-02-1")
     def test_start_of_month_report_creation(
-        self, celery_test_fixture, user_object, contract_ending_in_february
+        self, celery_test_fixture, user_object, contract_ending_in_february, freezer
     ):
         """
         Test the periodical task which creates a Report for every user, and each of his contracts, at
@@ -23,7 +22,9 @@ class TestCeleryBeats:
         :param contract_ending_in_february:
         :return:
         """
-        create_reports_monthly.delay()
+
+        freezer.move_to("2019-02-01")
+        create_reports_monthly()
         time.sleep(10)
         _month_year = datetime.now().date()
 
@@ -39,13 +40,14 @@ class TestCeleryBeats:
             month_year=_month_year,
         )
 
+    @pytest.mark.freeze_time("2019-01-31")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
-    @freeze_time("2019-02-1")
     def test_start_of_month_report_creation_correct_hours(
         self,
         celery_test_fixture_correct_hours,
         user_object,
         contract_ending_in_february,
+        freezer,
     ):
         """
         Test that the automatic Report creation correctly carries over the hours of the last month.
@@ -58,8 +60,11 @@ class TestCeleryBeats:
         :param contract_ending_in_february:
         :return:
         """
-        create_reports_monthly.delay()
+        freezer.move_to("2019-02-01")
+        create_reports_monthly()
         time.sleep(10)
         _month_year = datetime.now().date()
 
-        assert Report.objects.get(month_year__month=2).hours == timedelta(hours=-10)
+        assert Report.objects.get(
+            contract=contract_ending_in_february, month_year__month=2
+        ).hours == timedelta(hours=-10)

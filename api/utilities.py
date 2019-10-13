@@ -34,7 +34,8 @@ def create_report_after_contract_save(sender, instance, created, **kwargs):
     """
     Receiver Function to be called by the post_save signal of a Contract object.
     It creates a Report object for the month when the Contract starts.
-    Hereby we neglect that a User could create a Contract which started in the past.
+    The User might create a Contract after it already started so we also create
+    all Report objects for the months between the start month and 'now".
 
     State: 14. April 2019
 
@@ -46,6 +47,9 @@ def create_report_after_contract_save(sender, instance, created, **kwargs):
     """
     if created:
         _month_year = instance.start_date.replace(day=1)
+        today = datetime.date.today()
+        # Always create a Report for the month it start.
+        # This concerns Contracts starting in the future.
         Report.objects.create(
             month_year=_month_year,
             hours=datetime.timedelta(0),
@@ -54,6 +58,19 @@ def create_report_after_contract_save(sender, instance, created, **kwargs):
             created_by=instance.user,
             modified_by=instance.user,
         )
+        _month_year += relativedelta(months=1)
+        # If today is inbetween start and end date create Reports for all months
+        # between start and today.
+        while _month_year <= today:
+            Report.objects.create(
+                month_year=_month_year,
+                hours=datetime.timedelta(0),
+                contract=instance,
+                user=instance.user,
+                created_by=instance.user,
+                modified_by=instance.user,
+            )
+            _month_year += relativedelta(months=1)
 
 
 post_save.connect(
