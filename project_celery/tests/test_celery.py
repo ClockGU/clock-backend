@@ -47,7 +47,7 @@ class TestCeleryBeats:
         celery_test_fixture_correct_hours,
         user_object,
         contract_ending_in_february,
-        freezer
+        freezer,
     ):
         """
         Test that the automatic Report creation correctly carries over the hours of the last month.
@@ -65,4 +65,6 @@ class TestCeleryBeats:
         time.sleep(10)
         _month_year = datetime.now().date()
 
-        assert Report.objects.get(contract=contract_ending_in_february, month_year__month=2).hours == timedelta(hours=-10)
+        assert Report.objects.get(
+            contract=contract_ending_in_february, month_year__month=2
+        ).hours == timedelta(hours=-10)

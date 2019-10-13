@@ -416,7 +416,9 @@ class TestShiftApiEndpoint:
         )
 
     @pytest.mark.django_db
-    @pytest.mark.freeze_time("2019-02-10")  # needed for fixture creation --> Report creation signal on Contract creation
+    @pytest.mark.freeze_time(
+        "2019-02-10"
+    )  # needed for fixture creation --> Report creation signal on Contract creation
     def test_list_month_year_endpoint(
         self, client, user_object_jwt, db_creation_list_month_year_endpoint
     ):

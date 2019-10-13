@@ -38,13 +38,12 @@ def test_report_creation_on_contract_creation(user_object):
         start_date=datetime.date(2020, 1, 1),
         end_date=datetime.date(2020, 7, 31),
         created_by=user_object,
-        modified_by=user_object
+        modified_by=user_object,
     )
     assert len(Report.objects.filter(contract=_contract)) == 4
 
 
 class TestUpdateSignals:
-
     @freeze_time("2020-02-15")
     @pytest.mark.django_db
     def test_signal_updates_with_prev_month_carry_over(
@@ -109,9 +108,7 @@ class TestUpdateSignals:
     @freeze_time("2020-02-15")
     @pytest.mark.django_db
     def test_signal_updates_next_months_report(
-        self,
-        contract_ending_in_february,
-        user_object,
+        self, contract_ending_in_february, user_object
     ):
 
         # Create shift for 29.01. which is 2 hours long
