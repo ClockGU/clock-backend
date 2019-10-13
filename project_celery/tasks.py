@@ -45,6 +45,12 @@ def create_reports_monthly(self):
     for user in User.objects.filter(is_active=True, is_staff=False):
         for contract in user.contracts.all():
             if contract.start_date < date_now <= contract.end_date:
+                # It is possible for Contracts which started in the future (seen from time of Creation)
+                # to already have an existing Report for the month they start in.
+                # To avoid creating a second one we do this check.
+                if Report.objects.filter(contract=contract, month_year=date_now).exists():
+                    continue
+
                 last_report = Report.objects.get(
                     contract=contract, month_year__month=date_now.month - 1
                 )
