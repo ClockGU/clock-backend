@@ -251,6 +251,13 @@ def contract_ending_in_february(create_n_contract_objects, user_object):
 
 
 @pytest.fixture
+def contract_from_march_till_august(create_n_contract_objects, user_object):
+    start_date=datetime.date(2019, 3, 1)
+    end_date= datetime.date(2019, 8, 30)
+    return create_n_contract_objects((1,), user_object, start_date=start_date, end_date=end_date)[0]
+
+
+@pytest.fixture
 def contract_ending_in_february_test_update_version(
     create_n_contract_objects, user_object
 ):
