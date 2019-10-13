@@ -221,7 +221,7 @@ def report_update_contract(create_n_contract_objects, report_update_user):
         (1,),
         report_update_user,
         start_date=datetime.date(2019, 1, 1),
-        end_date=datetime.date(2019, 2, 1),
+        end_date=datetime.date(2019, 2, 28),
     )[0]
 
 
