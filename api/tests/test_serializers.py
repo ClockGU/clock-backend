@@ -10,6 +10,7 @@ class TestContractSerializerValidation:
     This Testsuit summerizes the Validation and Representation of the ContractSerializer.
     """
 
+    @pytest.mark.freeze_time("2019-01-10")
     @pytest.mark.django_db
     def test_validate_correct_data(
         self, valid_contract_querydict, plain_request_object
@@ -89,6 +90,23 @@ class TestContractSerializerValidation:
         with pytest.raises(serializers.ValidationError) as e_info:
             ContractSerializer(
                 data=negative_hours_contract_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.freeze_time("2019-03-01")
+    @pytest.mark.django_db
+    def test_contract_ended_in_past_validation(
+        self, plain_request_object, contract_ending_in_february_querydict
+    ):
+        """
+
+        :param plain_request_object:
+        :param contract_ending_in_february_json:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ContractSerializer(
+                data=contract_ending_in_february_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 

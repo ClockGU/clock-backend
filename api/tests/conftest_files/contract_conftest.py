@@ -55,6 +55,25 @@ def valid_contract_querydict(valid_contract_json):
 
 
 @pytest.fixture
+def contract_ending_in_february_json(valid_contract_json):
+    """
+    Change the enddate to Februaray 28th.
+    Testing that the creation of this contract in March won't work.
+    :param valid_contract_json:
+    :return:
+    """
+    valid_contract_json["end_date"] = datetime.date(2019, 2, 28)
+    return valid_contract_json
+
+
+@pytest.fixture
+def contract_ending_in_february_querydict(contract_ending_in_february_json):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(contract_ending_in_february_json)
+    return qdict
+
+
+@pytest.fixture
 def end_date_before_start_date_contract_json(valid_contract_json):
     """
     This fixture creates an invalid according to the ContractSerializer) JSON dictionary
