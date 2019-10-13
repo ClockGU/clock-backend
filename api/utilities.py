@@ -48,9 +48,20 @@ def create_report_after_contract_save(sender, instance, created, **kwargs):
     if created:
         _month_year = instance.start_date.replace(day=1)
         today = datetime.date.today()
-
+        # Always create a Report for the month it start.
+        # This concerns Contracts starting in the future.
+        Report.objects.create(
+            month_year=_month_year,
+            hours=datetime.timedelta(0),
+            contract=instance,
+            user=instance.user,
+            created_by=instance.user,
+            modified_by=instance.user,
+        )
+        _month_year += relativedelta(months=1)
+        # If today is inbetween start and end date create Reports for all months
+        # between start and today.
         while _month_year <= today:
-
             Report.objects.create(
                 month_year=_month_year,
                 hours=datetime.timedelta(0),
