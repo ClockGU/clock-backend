@@ -176,7 +176,7 @@ class TestContractApiEndpoint:
         contract_object,
         user_object,
         user_object_jwt,
-        freezer
+        freezer,
     ):
         """
         Test that updating 'user', 'created_by' and 'modified_by' does not work.
@@ -189,7 +189,9 @@ class TestContractApiEndpoint:
         :param contract_object:
         :return:
         """
-        freezer.move_to("2019-01-10 00:07:00") # can't shift to far because the JWT might expire (~5min)
+        freezer.move_to(
+            "2019-01-10 00:07:00"
+        )  # can't shift to far because the JWT might expire (~5min)
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.put(
             path=reverse("api:contracts-detail", args=[contract_object.id]),
@@ -217,7 +219,7 @@ class TestContractApiEndpoint:
         contract_object,
         user_object,
         user_object_jwt,
-        freezer
+        freezer,
     ):
         """
         Test that trying to patch 'user, 'created_by' and 'mdofied_by' does not work.
@@ -229,7 +231,9 @@ class TestContractApiEndpoint:
         :param user_object_jwt:
         :return:
         """
-        freezer.move_to("2019-01-10 00:07:00") # can't shift to far because the JWT might expire (~5min)
+        freezer.move_to(
+            "2019-01-10 00:07:00"
+        )  # can't shift to far because the JWT might expire (~5min)
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.patch(
             path=reverse("api:contracts-detail", args=[contract_object.id]),

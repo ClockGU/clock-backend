@@ -95,7 +95,9 @@ class TestContractSerializerValidation:
 
     @pytest.mark.freeze_time("2019-03-01")
     @pytest.mark.django_db
-    def test_contract_ended_in_past_validation(self, plain_request_object, contract_ending_in_february_querydict):
+    def test_contract_ended_in_past_validation(
+        self, plain_request_object, contract_ending_in_february_querydict
+    ):
         """
 
         :param plain_request_object:

@@ -53,6 +53,7 @@ def valid_contract_querydict(valid_contract_json):
     qdict.update(valid_contract_json)
     return qdict
 
+
 @pytest.fixture
 def contract_ending_in_february_json(valid_contract_json):
     """
