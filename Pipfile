@@ -5,7 +5,6 @@ verify_ssl = true
 
 [dev-packages]
 django-extensions = "==2.1.4"
-django-test-plus = "==1.1.1"
 coverage = "==5.0a4"
 django_coverage_plugin = "==1.6.0"
 ipython = "==7.2.0"
@@ -20,6 +19,8 @@ pylint-django = "==2.0.4"
 flake8 = "==3.6.0"
 black = "==18.9b0"
 werkzeug = "*"
+pytest-freezegun = "*"
+django-test-plus = "*"
 
 [packages]
 gunicorn = "==19.9.0"
@@ -43,7 +44,7 @@ pdfkit = "*"
 pytest = "*"
 pytest-django = "*"
 isort = "*"
-django = "*"
+django = "==2.2"
 
 [requires]
 python_version = "3.6"
