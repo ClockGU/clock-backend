@@ -92,6 +92,21 @@ class TestContractSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    @pytest.mark.freeze_time("2019-03-01")
+    @pytest.mark.django_db
+    def test_contract_ended_in_past_validation(self, plain_request_object, contract_ending_in_february_querydict):
+        """
+
+        :param plain_request_object:
+        :param contract_ending_in_february_json:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ContractSerializer(
+                data=contract_ending_in_february_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
 
 class TestShiftSerializerValidation:
     """
