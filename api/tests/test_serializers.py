@@ -10,6 +10,7 @@ class TestContractSerializerValidation:
     This Testsuit summerizes the Validation and Representation of the ContractSerializer.
     """
 
+    @pytest.mark.freeze_time("2019-01-10")
     @pytest.mark.django_db
     def test_validate_correct_data(
         self, valid_contract_querydict, plain_request_object
