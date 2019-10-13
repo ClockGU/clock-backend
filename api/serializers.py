@@ -73,6 +73,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         """
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
+        today = datetime.date.today()
 
         if self.instance and self.partial:
             start_date = attrs.get("start_date", self.instance.start_date)
@@ -81,6 +82,11 @@ class ContractSerializer(RestrictModificationModelSerializer):
         if start_date > end_date:
             raise serializers.ValidationError(
                 "Der Beginn eines Vertrages muss vor dessen Ende liegen."
+            )
+
+        if end_date < today:
+            raise serializers.ValidationError(
+                "Der Vertrag darf nicht bereits in der Vergangheit geendet haben."
             )
 
         return attrs
