@@ -48,7 +48,9 @@ def create_reports_monthly(self):
                 # It is possible for Contracts which started in the future (seen from time of Creation)
                 # to already have an existing Report for the month they start in.
                 # To avoid creating a second one we do this check.
-                if Report.objects.filter(contract=contract, month_year=date_now).exists():
+                if Report.objects.filter(
+                    contract=contract, month_year=date_now
+                ).exists():
                     continue
 
                 last_report = Report.objects.get(

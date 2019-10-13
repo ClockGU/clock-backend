@@ -71,18 +71,29 @@ class TestCeleryBeats:
 
     @pytest.mark.freeze_time("2019-01-10")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
-    def test_skipping_contracts_already_having_a_report(self, user_object, contract_from_march_till_august, freezer):
+    def test_skipping_contracts_already_having_a_report(
+        self, user_object, contract_from_march_till_august, freezer
+    ):
         """
 
         :param contract_from_march_till_august:
         :return:
         """
-        assert Report.objects.filter(user=user_object, contract=contract_from_march_till_august).count() == 1
+        assert (
+            Report.objects.filter(
+                user=user_object, contract=contract_from_march_till_august
+            ).count()
+            == 1
+        )
         freezer.move_to("2019-03-01")
         create_reports_monthly()
         time.sleep(10)
 
         assert (
-                Report.objects.filter(user=user_object, contract=contract_from_march_till_august,
-                                      month_year__month=3).count() == 1
+            Report.objects.filter(
+                user=user_object,
+                contract=contract_from_march_till_august,
+                month_year__month=3,
+            ).count()
+            == 1
         )
