@@ -2,6 +2,7 @@
 
 import json
 from datetime import datetime
+from dateutil.parser import parse
 
 import pytest
 import time
@@ -454,8 +455,7 @@ class TestShiftApiEndpoint:
         assert response.status_code == 200
         assert len(data) == 2
         assert all(
-            datetime.strptime(i["started"], "%Y-%m-%dT%H:%M:%SZ").month == 1
-            and datetime.strptime(i["started"], "%Y-%m-%dT%H:%M:%SZ").year == 2019
+            parse(i["started"]).month == 1 and parse(i["started"]).year == 2019
             for i in data
         )
 
