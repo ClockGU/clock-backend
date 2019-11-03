@@ -698,4 +698,6 @@ class TestReportApiEndpoint:
         :return:
         """
         with pytest.raises(serializers.ValidationError) as e_info:
-            prepared_ReportViewSet_view.validate_shifts(overlapping_shifts)
+            prepared_ReportViewSet_view.check_for_overlapping_shifts(overlapping_shifts)
+        print(e_info.value.args)
+        assert None
