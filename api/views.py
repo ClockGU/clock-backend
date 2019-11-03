@@ -3,13 +3,14 @@ from django.template.loader import get_template
 from django.db.models import Sum, F, DurationField
 from django.db.models.functions import Coalesce
 from pytz import datetime
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from pdfkit import from_string as pdf_from_string
 from dateutil.relativedelta import relativedelta
 from math import modf
+from more_itertools import pairwise
 
 from api.models import Contract, Report, Shift
 from api.serializers import ContractSerializer, ReportSerializer, ShiftSerializer
@@ -295,6 +296,23 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         # to format a string
         return relativedelta_to_string(relative_time)
 
+    def check_for_overlapping_shifts(self, shift_queryset):
+        """
+        Check the given Queryset for possible overlapping shifts and raise a Validation error
+        with pairs of overlapping shifts.
+        :param shift_queryset:
+        :return:
+        """
+        e = []
+
+        for early_shift, late_shift in pairwise(shift_queryset.order_by("started")):
+
+            if late_shift.started < early_shift.stopped:
+                e.append([str(early_shift.id), str(late_shift.id)])
+
+        if e:
+            raise serializers.ValidationError({"shifts": e})
+
     def aggregate_general_content(self, report_object, shifts):
         """
         Aggregate Data for Tablefooter and User info of the Stundenzettel.
@@ -339,7 +357,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         """
         content = {}
         shift_queryset = self.get_shifts_to_export(report_object)
-        # Check for overlapping Shifts Coming soon
+        # Check for overlapping Shifts
+        self.check_for_overlapping_shifts(shift_queryset)
         shifts_content = self.aggregate_shift_content(shift_queryset)
         general_content = self.aggregate_general_content(report_object, shift_queryset)
         # Get all Days, as Dates, on which the user worked
