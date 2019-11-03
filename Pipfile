@@ -4,7 +4,6 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-django-extensions = "==2.1.4"
 coverage = "==5.0a4"
 django_coverage_plugin = "==1.6.0"
 ipython = "==7.2.0"
@@ -21,6 +20,7 @@ black = "==18.9b0"
 werkzeug = "*"
 pytest-freezegun = "*"
 django-test-plus = "*"
+django-extensions = "*"
 
 [packages]
 gunicorn = "==19.9.0"
@@ -45,6 +45,7 @@ pytest = "*"
 pytest-django = "*"
 isort = "*"
 django = "==2.2"
+more-itertools = "*"
 
 [requires]
 python_version = "3.6"
