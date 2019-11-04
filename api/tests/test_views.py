@@ -8,7 +8,7 @@ import pytest
 import time
 from django.urls import reverse
 from freezegun import freeze_time
-from rest_framework import status
+from rest_framework import status, serializers
 
 from api.models import Contract, Shift, Report
 
@@ -686,3 +686,16 @@ class TestReportApiEndpoint:
         )
 
         assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_export_endpoint_validates_overlapping_shifts(
+        self, prepared_ReportViewSet_view, overlapping_shifts
+    ):
+        """
+
+        :param prepared_ReportViewSet_view:
+        :param overlapping_shifts:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError) as e_info:
+            prepared_ReportViewSet_view.check_for_overlapping_shifts(overlapping_shifts)

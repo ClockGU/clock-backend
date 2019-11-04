@@ -543,3 +543,57 @@ def test_shift_creation_if_allready_exported(
         stopped=datetime.datetime(2019, 1, 26, 12, tzinfo=utc),
         was_exported=True,
     )
+
+
+@pytest.fixture
+def overlapping_shifts(user_object, contract_object, create_n_shift_objects):
+    """
+
+    :param user_object:
+    :param contract_object:
+    :return:
+    """
+    Shift.objects.bulk_create(
+        [
+            Shift(
+                started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
+                stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
+                created_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+                modified_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+                type="st",
+                user=user_object,
+                created_by=user_object,
+                modified_by=user_object,
+                contract=contract_object,
+                was_reviewed=True,
+                was_exported=False,
+            ),
+            Shift(
+                started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
+                stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
+                created_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+                modified_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+                type="st",
+                user=user_object,
+                created_by=user_object,
+                modified_by=user_object,
+                contract=contract_object,
+                was_reviewed=True,
+                was_exported=False,
+            ),
+            Shift(
+                started=datetime.datetime(2019, 1, 29, 15, tzinfo=utc),
+                stopped=datetime.datetime(2019, 1, 29, 18, tzinfo=utc),
+                created_at=datetime.datetime(2019, 1, 29, 18, tzinfo=utc).isoformat(),
+                modified_at=datetime.datetime(2019, 1, 29, 18, tzinfo=utc).isoformat(),
+                type="st",
+                user=user_object,
+                created_by=user_object,
+                modified_by=user_object,
+                contract=contract_object,
+                was_reviewed=True,
+                was_exported=False,
+            ),
+        ]
+    )
+    return Shift.objects.filter(user=user_object, contract=contract_object)
