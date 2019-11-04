@@ -308,10 +308,20 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         for early_shift, late_shift in pairwise(shift_queryset.order_by("started")):
 
             if late_shift.started < early_shift.stopped:
-                e.append([str(early_shift.id), str(late_shift.id)])
+                e.append(
+                    [
+                        ShiftSerializer(early_shift).data,
+                        ShiftSerializer(late_shift).data,
+                    ]
+                )
 
         if e:
-            raise serializers.ValidationError({"shifts": e})
+            raise serializers.ValidationError(
+                {
+                    "message": "Ein Export des Stundenzettels ist nicht möglich, da es Überschneidungen der Schichten gibt.",
+                    "shifts": e,
+                }
+            )
 
     def aggregate_general_content(self, report_object, shifts):
         """
