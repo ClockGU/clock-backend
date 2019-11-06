@@ -6,7 +6,7 @@ from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
 from dateutil.relativedelta import relativedelta
 
-from api.models import Contract, Report, Shift, User
+from api.models import Contract, Report, Shift, User, ClockedInShift
 from api.views import ReportViewSet
 
 # This conftest file provides all necessary test data concerning project classes and auxiliary functions/classes.
@@ -26,6 +26,11 @@ def contract_model_class():
 @pytest.fixture
 def shift_model_class():
     return Shift
+
+
+@pytest.fixture
+def clockedinshift_model_class():
+    return ClockedInShift
 
 
 @pytest.fixture
