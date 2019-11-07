@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from api.models import Contract, Report, Shift, User
+from api.models import Contract, Report, Shift, User, ClockedInShift
 
 
 class UserAdmin(BaseUserAdmin):
@@ -61,6 +61,14 @@ class ShiftAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Shift, ShiftAdmin)
+
+
+class ClockedInShiftAdmin(ShiftAdmin):
+
+    list_display = ("id", "link_user", "created_at", "modified_at")
+
+
+admin.site.register(ClockedInShift, ClockedInShiftAdmin)
 
 
 class ReportAdmin(admin.ModelAdmin):
