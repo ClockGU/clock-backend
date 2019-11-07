@@ -292,7 +292,7 @@ class TestClockedInShiftSerializer:
         :param plain_request_object:
         :return:
         """
-        ContractSerializer(
+        ClockedInShiftSerializer(
             data=valid_clockedinshift_querydict,
             context={"request": plain_request_object},
         ).is_valid(raise_exception=True)
