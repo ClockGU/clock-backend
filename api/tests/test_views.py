@@ -473,6 +473,61 @@ class TestShiftApiEndpoint:
         assert response.status_code == 403
 
 
+class TestClockedInShiftEndpoint:
+    @pytest.mark.django_db
+    def test_get_endpoint_without_pk(
+        self, client, user_object_jwt, clockedinshift_object
+    ):
+        """
+        Test that the endpoint api/clockedinshifts/ returns a detail representation of the only existing
+        ClockedInShift object.
+        :param client:
+        :param user_object_jwt:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(
+            path="/api/clockedinshifts/", content_type="application/json"
+        )
+        content = json.loads(response.content)
+        assert content["id"] == str(clockedinshift_object.id)
+
+    @pytest.mark.django_db
+    def test_get_endpoint_returns_404(self, client, user_object_jwt):
+        """
+        Test that the endpoint api/clockedinshifts/ returns a 404 status if no
+        ClockedInShift object exists.
+        :param client:
+        :param user_object_jwt:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(
+            path="/api/clockedinshifts/", content_type="application/json"
+        )
+        assert response.status_code == 404
+
+    @pytest.mark.django_db
+    def test_creating_second_obeject_not_allowed(
+        self, client, user_object_jwt, clockedinshift_object, valid_clockedinshift_json
+    ):
+        """
+        Test that the attempt of creating a second ClockedInShift object results in a 400 Response.
+        :param client:
+        :param user_object_jwt:
+        :param clockedinshift_object:
+        :param valid_clockedinshift_json:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path="/api/clockedinshifts/",
+            data=json.dumps(valid_clockedinshift_json),
+            content_type="application/json",
+        )
+        assert response.status_code == 400
+
+
 class TestReportApiEndpoint:
     @freeze_time("2019-01-10")
     @pytest.mark.django_db

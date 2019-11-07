@@ -66,3 +66,14 @@ def clockedinshift_invalid_contract_querydict(clockedinshift_invalid_contract_js
     qdict = QueryDict("", mutable=True)
     qdict.update(clockedinshift_invalid_contract_json)
     return qdict
+
+
+@pytest.fixture
+def clockedinshift_object(user_object, contract_object):
+    return ClockedInShift.objects.create(
+        started=datetime.datetime(2019, 2, 11, 14, tzinfo=utc),
+        user=user_object,
+        contract=contract_object,
+        created_by=user_object,
+        modified_by=user_object,
+    )
