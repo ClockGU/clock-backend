@@ -9,3 +9,4 @@ from api.tests.conftest_files.general_conftest import *
 from api.tests.conftest_files.report_conftest import *
 from api.tests.conftest_files.shift_conftest import *
 from api.tests.conftest_files.user_conftest import *
+from api.tests.conftest_files.clockedinshift_conftest import *

@@ -2,7 +2,11 @@ import pytest
 from rest_framework import serializers
 from freezegun import freeze_time
 
-from api.serializers import ContractSerializer, ShiftSerializer
+from api.serializers import (
+    ContractSerializer,
+    ShiftSerializer,
+    ClockedInShiftSerializer,
+)
 
 
 class TestContractSerializerValidation:
@@ -270,4 +274,42 @@ class TestShiftSerializerValidation:
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(
                 data=valid_shift_querydict, context={"request": plain_request_object}
+            ).is_valid(raise_exception=True)
+
+
+class TestClockedInShiftSerializer:
+    """
+    This Testsuit summerizes the Validation and Representation of the ClockedInShiftSerializer.
+    """
+
+    @pytest.mark.django_db
+    def test_validate_correct_data(
+        self, valid_clockedinshift_querydict, plain_request_object
+    ):
+        """
+        The ClockedInShiftSerializer is tested if a valid JSON passes validation.
+        :param valid_clockedinshift_querydict:
+        :param plain_request_object:
+        :return:
+        """
+        ContractSerializer(
+            data=valid_clockedinshift_querydict,
+            context={"request": plain_request_object},
+        ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_contract_not_belonging_to_user_validation(
+        self, clockedinshift_invalid_contract_json, plain_request_object
+    ):
+        """
+        The  ClockedInShiftSerializer is tested whether it raises a Validation
+        if the provided contract does not belong to the provided user.
+        :param clockedinshift_invalid_contract_json:
+        :param plain_request_object:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ShiftSerializer(
+                data=clockedinshift_invalid_contract_json,
+                context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
