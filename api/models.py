@@ -154,6 +154,24 @@ class Shift(models.Model):
     modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
 
 
+class ClockedInShift(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    user = models.OneToOneField(
+        to=User, related_name="clocked_in_shift", on_delete=models.CASCADE
+    )
+    started = models.DateTimeField()
+    contract = models.OneToOneField(
+        to=Contract, related_name="clocked_in_shift", on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
+    modified_at = models.DateTimeField(auto_now=True)
+    modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
+
+
 class Report(models.Model):
 
     id = models.UUIDField(
