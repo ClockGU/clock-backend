@@ -276,6 +276,17 @@ class TestShiftSerializerValidation:
                 data=valid_shift_querydict, context={"request": plain_request_object}
             ).is_valid(raise_exception=True)
 
+    @freeze_time("2019-01-01 00:00:00+00:00")
+    @pytest.mark.django_db
+    def test_shift_in_future_was_reviewed_fails(
+        self, shift_starting_in_future_was_reviewed_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ShiftSerializer(
+                data=shift_starting_in_future_was_reviewed_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
 
 class TestClockedInShiftSerializer:
     """

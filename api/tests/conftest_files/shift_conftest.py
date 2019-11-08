@@ -361,6 +361,30 @@ def patch_new_tags_json(shift_object):
 
 
 @pytest.fixture
+def shift_starting_in_future_was_reviewed_json(valid_shift_json):
+    """
+    This fixture is used to test whether it is possible to create a shift in the future which
+    was already flagged as reviewed.
+    Shift on 29.01.2019
+    """
+    return valid_shift_json
+
+
+@pytest.fixture
+def shift_starting_in_future_was_reviewed_querydict(
+    shift_starting_in_future_was_reviewed_json
+):
+    """
+    Create QueryDict instance.
+    :param shift_starting_in_future_was_reviewed_json:
+    :return:
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(shift_starting_in_future_was_reviewed_json)
+    return qdict
+
+
+@pytest.fixture
 def db_creation_list_month_year_endpoint(
     db_creation_shifts_list_endpoint,
     user_object,
