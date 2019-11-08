@@ -3,7 +3,7 @@ from django.template.loader import get_template
 from django.db.models import Sum, F, DurationField
 from django.db.models.functions import Coalesce
 from pytz import datetime
-from rest_framework import viewsets, serializers
+from rest_framework import viewsets, serializers, mixins
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -12,8 +12,13 @@ from dateutil.relativedelta import relativedelta
 from math import modf
 from more_itertools import pairwise
 
-from api.models import Contract, Report, Shift
-from api.serializers import ContractSerializer, ReportSerializer, ShiftSerializer
+from api.models import Contract, Report, Shift, ClockedInShift
+from api.serializers import (
+    ContractSerializer,
+    ReportSerializer,
+    ShiftSerializer,
+    ClockedInShiftSerializer,
+)
 from api.utilities import relativedelta_to_string
 from project_celery.tasks import async_5_user_creation
 
@@ -84,6 +89,31 @@ class ShiftViewSet(viewsets.ModelViewSet):
         """
         queryset = self.get_queryset().filter(started__month=month, started__year=year)
         serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ClockedInShiftViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = ClockedInShift.objects.all()
+    serializer_class = ClockedInShiftSerializer
+    name = "clockedinshift"
+
+    def list(self, request, *args, **kwargs):
+        """
+        Override the list method to utilize the url matching.
+        Since there will only be one or no ClockedInShift object we want a
+        method to retrieve it without a pk.
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        instance = get_object_or_404(self.get_queryset(), user__id=self.request.user.id)
+        serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
 

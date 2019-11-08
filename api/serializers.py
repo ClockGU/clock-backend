@@ -3,7 +3,7 @@ from calendar import monthrange
 from pytz import datetime, utc
 from rest_framework import serializers, exceptions
 
-from api.models import Contract, Report, Shift
+from api.models import Contract, Report, Shift, ClockedInShift
 
 
 class TagsSerializerField(serializers.Field):
@@ -276,6 +276,28 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             assert isinstance(tags, list)
             updated_object.tags.set(*tags)
         return updated_object
+
+
+class ClockedInShiftSerializer(RestrictModificationModelSerializer):
+    class Meta:
+        model = ClockedInShift
+        fields = "__all__"
+        extra_kwargs = {
+            # Will be set automatically by the Model
+            "created_at": {"required": False},
+            "modified_at": {"required": False},
+            "created_by": {"write_only": True},
+            "modified_by": {"write_only": True},
+            "user": {"write_only": True},
+        }
+
+    def validate_contract(self, contract):
+        if not (contract.user == self.context["request"].user):
+            raise serializers.ValidationError(
+                "Das Vertragsobjekt muss dem User gehören der die Schicht erstellt."
+            )
+
+        return contract
 
 
 class ReportSerializer(RestrictModificationModelSerializer):
