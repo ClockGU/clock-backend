@@ -191,6 +191,11 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 raise serializers.ValidationError(
                     "Eine Schicht die geplant wird muss in der Zukunft starten/enden."
                 )
+        else:
+            if started > datetime.datetime.now().astimezone(utc):
+                raise serializers.ValidationError(
+                    "Eine Schicht die in der Zukunft starte/endet muss als geplant gekenzeichnet sein."
+                )
         # was_exported is read_only and marks whether a shift was exported and hence not modifyable anymore
         if was_exported:
             raise exceptions.PermissionDenied(
