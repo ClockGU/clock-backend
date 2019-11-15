@@ -19,7 +19,7 @@ from api.serializers import (
     ShiftSerializer,
     ClockedInShiftSerializer,
 )
-from api.utilities import relativedelta_to_string
+from api.utilities import relativedelta_to_string, timedelta_to_string
 from project_celery.tasks import async_5_user_creation
 
 # Proof of Concept that celery works
@@ -291,15 +291,15 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             stopped = shifts_of_date.last().stopped
 
             content[date.strftime("%d.%m.%Y")] = {
-                "started": started.time().isoformat(),
-                "stopped": stopped.time().isoformat(),
+                "started": started.time().strftime("%H:%M"),
+                "stopped": stopped.time().strftime("%H:%M"),
                 "type": vacation_or_sick_type,
-                "work_time": str(stopped - started),
-                "net_work_time": str(worked_time),
-                "break_time": str(
+                "work_time": timedelta_to_string(stopped - started),
+                "net_work_time": timedelta_to_string(worked_time),
+                "break_time": timedelta_to_string(
                     stopped - started - worked_time - sick_or_vacation_time
                 ),
-                "sick_or_vac_time": str(sick_or_vacation_time),
+                "sick_or_vac_time": timedelta_to_string(sick_or_vacation_time),
             }
         return content
 
@@ -315,8 +315,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 )
             except Report.DoesNotExist:
                 # If no Report Object exists we are in the case of the first Report of a Contract
-                # Hence return 0:00:00 hours
-                return "00:00:00"
+                # Hence return 00:00 hours
+                return "00:00"
         time_delta = report_to_carry.hours - datetime.timedelta(
             hours=report_object.contract.hours
         )
