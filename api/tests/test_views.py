@@ -603,11 +603,11 @@ class TestReportApiEndpoint:
 
         assert len(content) == 1
         assert content["26.01.2019"]
-        assert content["26.01.2019"]["started"] == "10:00:00"
-        assert content["26.01.2019"]["stopped"] == "18:00:00"
-        assert content["26.01.2019"]["work_time"] == "8:00:00"
-        assert content["26.01.2019"]["net_work_time"] == "6:00:00"
-        assert content["26.01.2019"]["break_time"] == "2:00:00"
+        assert content["26.01.2019"]["started"] == "10:00"
+        assert content["26.01.2019"]["stopped"] == "18:00"
+        assert content["26.01.2019"]["work_time"] == "08:00"
+        assert content["26.01.2019"]["net_work_time"] == "06:00"
+        assert content["26.01.2019"]["break_time"] == "02:00"
 
     @pytest.mark.django_db
     def test_aggregate_shift_content_handles_vacation_shifts(
@@ -618,11 +618,11 @@ class TestReportApiEndpoint:
         )
 
         assert len(content) == 1
-        assert content["26.01.2019"]["break_time"] == "0:00:00"
-        assert content["26.01.2019"]["work_time"] == "8:00:00"
-        assert content["26.01.2019"]["net_work_time"] == "4:00:00"
+        assert content["26.01.2019"]["break_time"] == "00:00"
+        assert content["26.01.2019"]["work_time"] == "08:00"
+        assert content["26.01.2019"]["net_work_time"] == "04:00"
         assert content["26.01.2019"]["type"] == "Vacation"
-        assert content["26.01.2019"]["sick_or_vac_time"] == "4:00:00"
+        assert content["26.01.2019"]["sick_or_vac_time"] == "04:00"
 
     @pytest.mark.django_db
     def test_method_to_set_shifts_exported(
@@ -655,7 +655,7 @@ class TestReportApiEndpoint:
         self, prepared_ReportViewSet_view, report_object
     ):
         """
-        Test if the method returns '00:00:00' for the carry over hours
+        Test if the method returns '00:00' for the carry over hours
         of the previous month if no report exists there.
         :param prepared_ReportViewSet_view:
         :param report_object:
@@ -665,7 +665,7 @@ class TestReportApiEndpoint:
         carry_over_hours = prepared_ReportViewSet_view.calculate_carry_over_hours(
             report_object, next_month=False
         )
-        assert carry_over_hours == "00:00:00"
+        assert carry_over_hours == "00:00"
 
     @pytest.mark.django_db
     def test_method_for_carry_over_hours_previous_month(
@@ -682,7 +682,7 @@ class TestReportApiEndpoint:
         carry_over_hours = prepared_ReportViewSet_view.calculate_carry_over_hours(
             report_object, next_month=False
         )
-        assert carry_over_hours == "02:00:00"
+        assert carry_over_hours == "02:00"
 
     @pytest.mark.django_db
     def test_method_for_carry_over_hours_next_month(
@@ -698,7 +698,7 @@ class TestReportApiEndpoint:
         carry_over_hours = prepared_ReportViewSet_view.calculate_carry_over_hours(
             report_object, next_month=True
         )
-        assert carry_over_hours == "-20:00:00"
+        assert carry_over_hours == "-20:00"
 
     @pytest.mark.django_db
     def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):

@@ -11,23 +11,34 @@ from dateutil.relativedelta import relativedelta
 
 def relativedelta_to_string(relative_time_delta):
     """
-    Format a relaativedelta object for string representation in the format +/- HH:MM:SS.
+    Format a relativedelta object for string representation in the format +/- HH:MM.
 
     Example:
 
-    relativedelta(days=-3, hours=-8) becomes -80:00:00.
+    relativedelta(days=-3, hours=-8) becomes -80:00.
 
-    relativedelta(days=-1, hours=-8, minutes=-30) becomes -32:30:00
+    relativedelta(days=-1, hours=-8, minutes=-30) becomes -32:30.
 
     :param relative_time_delta:
     :return:
     """
 
-    return "{hours:02g}:{minutes:02g}:{seconds:02g}".format(
+    return "{hours:02g}:{minutes:02g}".format(
         hours=relative_time_delta.days * 24 + relative_time_delta.hours,
         minutes=abs(relative_time_delta.minutes),
-        seconds=abs(relative_time_delta.seconds),
     )
+
+
+def timedelta_to_string(timedelta):
+    """
+    Format a timedelta object for string representation in the format HH:MM
+
+    :param timedelta:
+    :return:
+    """
+    hours, remainder = divmod(timedelta.total_seconds(), 3600)
+    minutes, _ = divmod(remainder, 60)
+    return "{hours:02g}:{minutes:02g}".format(hours=hours, minutes=minutes)
 
 
 def create_report_after_contract_save(sender, instance, created, **kwargs):
