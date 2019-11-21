@@ -1,5 +1,5 @@
 from api.models import Report, Contract, Shift
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.db.models import Sum, F, DurationField
 from django.db.models.functions import Coalesce
 from pytz import datetime
@@ -90,7 +90,7 @@ post_save.connect(
 )
 
 
-def update_report_after_shift_save(sender, instance, created, **kwargs):
+def update_report_after_shift_save(sender, instance, created=False, **kwargs):
     """
     After saving a Shift we need to update the corresponding Report to reflect the now
     possibly updated overall work time.
@@ -146,4 +146,9 @@ post_save.connect(
     update_report_after_shift_save,
     sender=Shift,
     dispatch_uid="update_report_after_shift_save",
+)
+post_delete.connect(
+    update_report_after_shift_save,
+    sender=Shift,
+    dispatch_uid="update_report_after_shift_delete",
 )
