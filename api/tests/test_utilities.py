@@ -149,3 +149,42 @@ class TestUpdateSignals:
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
         ).hours == datetime.timedelta(0)
+
+    @pytest.mark.django_db
+    def test_signal_updates_report_after_shift_deletion(
+        self, contract_object, user_object, shift_object
+    ):
+        """
+        Test that the Report get's updated after a Shift was deleted.
+        :param contract_object:
+        :param user_object:
+        :param shift_object:
+        :return:
+        """
+        # Sanity check
+        assert Report.objects.get(
+            contract=contract_object, month_year=datetime.date(2019, 1, 1)
+        ).hours == datetime.timedelta(hours=2)
+        shift_object.delete()
+        assert Report.objects.get(
+            contract=contract_object, month_year=datetime.date(2019, 1, 1)
+        ).hours == datetime.timedelta(0)
+
+    @pytest.mark.django_db
+    # @pytest.mark.freeze_time("2019-02-15")
+    def test_signal_updates_next_months_report_after_shift_deletion(
+        self, contract_ending_in_february, shift_object_february_contract
+    ):
+        """
+        Test that not only the Report in which the Shift takes place is updated
+        but also the next months Report.
+        :return:
+        """
+
+        assert Report.objects.get(
+            contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
+        ).hours == datetime.timedelta(hours=-18)
+        shift_object_february_contract.delete()
+        assert Report.objects.get(
+            contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
+        ).hours == datetime.timedelta(hours=-20)
