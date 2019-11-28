@@ -114,6 +114,32 @@ class TestContractSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    @pytest.mark.freeze_time("2019-02-01")
+    @pytest.mark.django_db
+    def test_start_date_update_invalid_if_shifts_exist_before(
+        self,
+        shifts_before_new_start_date_contract,
+        contract_ending_in_february,
+        start_date_after_months_with_shifts_contract_querydict,
+        plain_request_object,
+    ):
+        """
+        Test if it is allowed to change the start_date to a later month even though there exist
+        shifts previous to the new_start_date
+        :param shifts_before_new_start_date_contract:
+        :param contract_ending_in_february:
+        :param start_date_after_months_with_shifts_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
+
+        with pytest.raises(serializers.ValidationError) as e_info:
+            ContractSerializer(
+                instance=contract_ending_in_february,
+                data=start_date_after_months_with_shifts_contract_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
 
 class TestShiftSerializerValidation:
     """

@@ -636,3 +636,17 @@ def overlapping_shifts(user_object, contract_object, create_n_shift_objects):
         ]
     )
     return Shift.objects.filter(user=user_object, contract=contract_object)
+
+
+@pytest.fixture
+def shifts_before_new_start_date_contract(
+    contract_ending_in_february, user_object, create_n_shift_objects
+):
+    """
+    Create a shift in january for the contract which starts in january and ends in february.
+    :param contract_ending_in_february:
+    :param user_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+    return create_n_shift_objects((1,), user_object, contract_ending_in_february)[0]
