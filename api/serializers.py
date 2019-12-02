@@ -87,6 +87,13 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     "Es ist nicht möglich das Startdatum des Vertrages zu ändern, sofern dadurch\n"
                     "bereits gestochene Schichten außerhalb der Laufzeit liegen."
                 )
+            if Shift.objects.filter(
+                contract=self.instance, started__gt=end_date
+            ).exists():
+                raise serializers.ValidationError(
+                    "Es ist nicht möglich das Enddatum des Vertrages zu ändern, sofern dadurch\n"
+                    "bereits gestochene Schichten außerhalb der Laufzeit liegen."
+                )
 
         if start_date > end_date:
             raise serializers.ValidationError(
