@@ -348,3 +348,33 @@ def start_date_after_months_with_shifts_contract_querydict(
     qdict = QueryDict("", mutable=True)
     qdict.update(start_date_after_months_with_shifts_contract_json)
     return qdict
+
+
+@pytest.fixture
+def end_date_before_months_with_shifts_contract_json(valid_contract_json):
+    """
+    This fixture creates an invalid, according to the ContractSerializer, JSON dictionary.
+    Hereby the end_date is inccorect in such a way that after an update there would exist
+    shifts outside of the [start_date, end_date] interval.
+    :param valid_contract_json:
+    :return: Dict
+    """
+    start_date = datetime.date(2019, 1, 1)
+    end_date = datetime.date(2019, 1, 31)
+    valid_contract_json["start_date"] = start_date.isoformat()
+    valid_contract_json["end_date"] = end_date.isoformat()
+    return valid_contract_json
+
+
+@pytest.fixture
+def end_date_before_months_with_shifts_contract_querydict(
+    start_date_after_months_with_shifts_contract_json
+):
+    """
+    This fixture creates a QueryDict out of the end_date_before_start_date_contract_json.
+    :param start_date_after_months_with_shifts_contract_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(start_date_after_months_with_shifts_contract_json)
+    return qdict
