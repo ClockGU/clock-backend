@@ -368,13 +368,13 @@ def end_date_before_months_with_shifts_contract_json(valid_contract_json):
 
 @pytest.fixture
 def end_date_before_months_with_shifts_contract_querydict(
-    start_date_after_months_with_shifts_contract_json
+    end_date_before_months_with_shifts_contract_json
 ):
     """
     This fixture creates a QueryDict out of the end_date_before_start_date_contract_json.
-    :param start_date_after_months_with_shifts_contract_json:
+    :param end_date_before_months_with_shifts_contract_json:
     :return: QueryDict
     """
     qdict = QueryDict("", mutable=True)
-    qdict.update(start_date_after_months_with_shifts_contract_json)
+    qdict.update(end_date_before_months_with_shifts_contract_json)
     return qdict
