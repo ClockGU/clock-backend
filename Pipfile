@@ -44,7 +44,7 @@ pdfkit = "*"
 pytest = "*"
 pytest-django = "*"
 isort = "*"
-django = "==2.2"
+django = "==2.2.8"
 more-itertools = "*"
 
 [requires]
