@@ -3,7 +3,7 @@ from calendar import monthrange
 from pytz import datetime, utc
 from rest_framework import serializers, exceptions
 
-from api.models import Contract, Report, Shift, ClockedInShift
+from api.models import User, Contract, Report, Shift, ClockedInShift
 
 
 class TagsSerializerField(serializers.Field):
@@ -48,6 +48,16 @@ class RestrictModificationModelSerializer(serializers.ModelSerializer):
             data["modified_by"] = request.user.id
 
         return super(RestrictModificationModelSerializer, self).to_internal_value(data)
+
+
+class UserSerializer(RestrictModificationModelSerializer):
+    """
+    Serializer only needed for GDPR-Export of User data.
+    """
+
+    class Meta:
+        model = User
+        fields = "__all__"
 
 
 class ContractSerializer(RestrictModificationModelSerializer):
@@ -148,7 +158,6 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
 
 class ShiftSerializer(RestrictModificationModelSerializer):
-
     tags = TagsSerializerField()
 
     class Meta:
