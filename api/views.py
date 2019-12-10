@@ -11,9 +11,12 @@ from pdfkit import from_string as pdf_from_string
 from dateutil.relativedelta import relativedelta
 from math import modf
 from more_itertools import pairwise
+from rest_framework.renderers import JSONRenderer
+from drf_yasg.utils import swagger_auto_schema
 
-from api.models import Contract, Report, Shift, ClockedInShift
+from api.models import User, Contract, Report, Shift, ClockedInShift
 from api.serializers import (
+    UserSerializer,
     ContractSerializer,
     ReportSerializer,
     ShiftSerializer,
@@ -406,3 +409,48 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["general"] = general_content
 
         return content
+
+
+@swagger_auto_schema(content_type="text/json")
+class GDPRExportView(viewsets.ViewSet):
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Endpoint to download all saved Data associated with the requesting User.
+
+        The Response contains a JSON file as attachment!
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        user = request.user
+        json_object = self.construct_json_object(user)
+        rendered = self.render_json_object(json_object)
+        response = HttpResponse(rendered, content_type="text/json")
+        date = datetime.datetime.now().strftime("%d_%m_%Y")
+        response[
+            "Content-Disposition"
+        ] = "attachment; filename={0}_{1}_gdpr-export_{2}.json".format(
+            user.first_name, user.last_name, date
+        )
+        return response
+
+    def construct_json_object(self, user):
+        user_data = UserSerializer(user).data
+        contract_data = ContractSerializer(
+            Contract.objects.filter(user=user), many=True
+        ).data
+        shift_data = ShiftSerializer(Shift.objects.filter(user=user), many=True).data
+        report_data = ReportSerializer(Report.objects.filter(user=user), many=True).data
+
+        return {
+            "user_data": user_data,
+            "contracts_data": contract_data,
+            "shifts_data": shift_data,
+            "reports_data": report_data,
+        }
+
+    def render_json_object(self, json_object):
+        return JSONRenderer().render(
+            json_object, accepted_media_type="application/json; indent=4"
+        )
