@@ -7,6 +7,7 @@ from api.views import (
     ShiftViewSet,
     ClockedInShiftViewSet,
     index,
+    GDPRExportView,
 )
 
 app_name = "api"
@@ -26,5 +27,6 @@ urlpatterns = [
         list_month_year_shifts,
         name="list-shifts",
     ),
+    path("gdpr", GDPRExportView.as_view({"get": "retrieve"})),
     path("", include(router.urls)),
 ]
