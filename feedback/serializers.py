@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 class FeedBackSerializer(serializers.Serializer):
 
-    username = serializers.CharField()
-    userEmail = serializers.EmailField()
-    emailTitle = serializers.CharField()
-    emailContent = serializers.CharField()
+    user_name = serializers.CharField()
+    user_email = serializers.EmailField()
+    email_title = serializers.CharField()
+    email_content = serializers.CharField()
