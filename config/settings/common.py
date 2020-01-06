@@ -116,6 +116,9 @@ ANYMAIL = {
     "MAILJET_SECRET_KEY": env.str("MAILJET_SECRET_KEY", default=""),
 }
 
+# hardcoded as recommended by docs
+MAILJET_API_URL = "https://api.mailjet.com/v3"
+
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
