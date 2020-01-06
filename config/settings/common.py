@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "djoser",
     "corsheaders",
+    "anymail",
 ]
 
 MIDDLEWARE = [
@@ -107,6 +108,13 @@ REST_FRAMEWORK = {
 DJOSER = {"TOKEN_MODEL": None}
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
+
+ANYMAIL = {
+    "MAILJET_API_KEY": env.str("MAILJET_API_KEY", default=""),
+    "MAILJET_SECRET_KEY": env.str("MAILJET_SECRET_KEY", default=""),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
