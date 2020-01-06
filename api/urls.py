@@ -12,10 +12,10 @@ from api.views import (
 
 app_name = "api"
 router = DefaultRouter()
-router.register(r"contracts", ContractViewSet, base_name="contracts")
-router.register(r"shifts", ShiftViewSet, base_name="shifts")
-router.register(r"clockedinshifts", ClockedInShiftViewSet, base_name="clockedinshifts")
-router.register(r"reports", ReportViewSet, base_name="reports")
+router.register(r"contracts", ContractViewSet, basename="contracts")
+router.register(r"shifts", ShiftViewSet, basename="shifts")
+router.register(r"clockedinshifts", ClockedInShiftViewSet, basename="clockedinshifts")
+router.register(r"reports", ReportViewSet, basename="reports")
 
 list_month_year_shifts = ShiftViewSet.as_view({"get": "list_month_year"})
 

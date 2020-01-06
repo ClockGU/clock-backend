@@ -44,7 +44,7 @@ def test_report_creation_on_contract_creation(user_object):
 
 
 class TestUpdateSignals:
-    @freeze_time("2020-02-15")
+    @freeze_time("2019-02-15")
     @pytest.mark.django_db
     def test_signal_updates_with_prev_month_carry_over(
         self, report_update_user, report_update_contract

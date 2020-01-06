@@ -71,7 +71,8 @@ def create_report_after_contract_save(sender, instance, created, **kwargs):
         _month_year += relativedelta(months=1)
         # If today is inbetween start and end date create Reports for all months
         # between start and today.
-        while _month_year <= today:
+        limit_date = today if today < instance.end_date else instance.end_date
+        while _month_year <= limit_date:
             Report.objects.create(
                 month_year=_month_year,
                 hours=datetime.timedelta(0),
