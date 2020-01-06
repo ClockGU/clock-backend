@@ -12,17 +12,19 @@ class FeedBackView(generics.GenericAPIView):
 
     permission_classes = ()
 
-    @swagger_auto_schema(responses={200:"The Views response is 200 if mail is sent"})
+    @swagger_auto_schema(responses={200: "The Views response is 200 if mail is sent"})
     def post(self, request, *args, **kwargs):
         serializer = FeedBackSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer = serializer.data
+        data = serializer.data
 
-        message = send_mail(subject=serializer["email_title"],
-                            from_email="{0} <{1}>".format(serializer["user_name"], serializer["user_email"]),
-                            message=serializer["email_content"],
-                            recipient_list=[env.str("SYSTEM_EMAIL")],
-                            fail_silently=False)
+        message = send_mail(
+            subject=data["email_title"],
+            from_email="{0} <{1}>".format(serializer["user_name"], data["user_email"]),
+            message=data["email_content"],
+            recipient_list=[env.str("SYSTEM_EMAIL")],
+            fail_silently=False,
+        )
         if not message:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(data=serializer)
