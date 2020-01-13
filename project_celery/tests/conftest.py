@@ -18,7 +18,7 @@ def december_contract(user_object):
     return Contract.objects.create(
         name="Test Contract",
         hours=20.0,
-        start_date=datetime.date(2019, 1, 1),
+        start_date=datetime.date(2019, 12, 1),
         end_date=datetime.date(2020, 2, 29),
         user=user_object,
         created_by=user_object,

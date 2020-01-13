@@ -86,10 +86,11 @@ class TestCeleryBeats:
         :return:
         """
         freezer.move_to("2020-01-01")
+        print(datetime.now().date())
         create_reports_monthly()
         time.sleep(10)
 
-        print(Report.objects.filter(contract=december_contract))
+        print([f.month_year for f in Report.objects.filter(contract=december_contract)])
         assert Report.objects.get(
-            contract=december_contract, month_year=datetime(2020, 2, 1)
+            contract=december_contract, month_year=datetime(2020, 1, 1)
         ).hours == timedelta(hours=-20)
