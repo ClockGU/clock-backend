@@ -6,6 +6,7 @@ import time
 from django.contrib.auth.models import User
 from project_celery.celery import app
 from pytz import datetime
+from dateutil.relativedelta import relativedelta
 
 from api.models import User, Report
 
@@ -46,7 +47,7 @@ def create_reports_monthly(self):
         for contract in user.contracts.all():
             if contract.start_date < date_now <= contract.end_date:
                 last_report = Report.objects.get(
-                    contract=contract, month_year__month=date_now.month - 1
+                    contract=contract, month_year=date_now - relativedelta(months=1)
                 )
                 carry_over_hours = datetime.timedelta(0)
 

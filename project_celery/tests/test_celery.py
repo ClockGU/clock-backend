@@ -68,3 +68,29 @@ class TestCeleryBeats:
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year__month=2
         ).hours == timedelta(hours=-10)
+
+    @pytest.mark.freeze_time("2019-12-01")
+    @pytest.mark.django_db(transaction=True, reset_sequences=True)
+    def test_start_of_month_report_creation_year_change(
+        self,
+        celery_test_fixture_end_of_year_test,
+        user_object,
+        december_contract,
+        freezer,
+    ):
+        """
+        Test that the monthly Report creation also works correctly at the Beginning of a new Year (1. January).
+        :param celery_test_fixture_correct_hours:
+        :param user_object:
+        :param contract_ending_in_february:
+        :return:
+        """
+        freezer.move_to("2020-01-01")
+        print(datetime.now().date())
+        create_reports_monthly()
+        time.sleep(10)
+
+        print([f.month_year for f in Report.objects.filter(contract=december_contract)])
+        assert Report.objects.get(
+            contract=december_contract, month_year=datetime(2020, 1, 1)
+        ).hours == timedelta(hours=-20)
