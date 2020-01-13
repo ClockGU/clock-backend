@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
 import environ
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -96,7 +97,11 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = "api.User"
 
 # Simple_JWT
-SIMPLE_JWT = {"ALGORITHM": "HS256", "SIGNING_KEY": env.str("DJANGO_SECRET_KEY")}
+SIMPLE_JWT = {
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": env.str("DJANGO_SECRET_KEY"),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+}
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("api.permissions.AccessOwnDataPermission",),
