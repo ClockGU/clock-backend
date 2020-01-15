@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from .common import *  # noqa
 
@@ -89,9 +90,11 @@ LOGGING = {
     },
 }
 SENTRY_CELERY_LOGLEVEL = env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO)
+SHOULD_IGNORE_EXCEPTIONS = " ".join(sys.argv).endswith("run python manage.py shell")
 RAVEN_CONFIG = {
     "CELERY_LOGLEVEL": env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO),
     "DSN": SENTRY_DSN,
+    "ignore_exceptions": ["*"] if SHOULD_IGNORE_EXCEPTIONS else [],
 }
 RAVEN_MIDDLEWARE = [
     "raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware",
