@@ -168,8 +168,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :param kwargs:
         :return:
         """
-        shifts = self.get_shifts_to_export(self.get_object())
-        content = self.aggregate_shift_content(shifts)
+        content = self.aggregate_export_content(report_object=self.get_object())
         return Response(data=content)
 
     @action(detail=True, url_name="export", url_path="export")
