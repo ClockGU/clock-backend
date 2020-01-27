@@ -159,6 +159,19 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
+    @action(detail=True, url_name="preview", url_path="preview")
+    def export_preview(self, request, *args, **kwargs):
+        """
+        Endpoint to retrieve the cumulated Shifts of the given Report.
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        shifts = self.get_shifts_to_export(self.get_object())
+        content = self.aggregate_shift_content(shifts)
+        return Response(data=content)
+
     @action(detail=True, url_name="export", url_path="export")
     def export(self, request, *args, **kwargs):
         """
