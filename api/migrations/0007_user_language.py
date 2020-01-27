@@ -5,15 +5,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0006_creating_clockedinshift_model'),
-    ]
+    dependencies = [("api", "0006_creating_clockedinshift_model")]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='language',
-            field=models.CharField(choices=[('de', 'Deutsch'), ('en', 'Englisch')], default='en', max_length=2),
+            model_name="user",
+            name="language",
+            field=models.CharField(
+                choices=[("de", "Deutsch"), ("en", "Englisch")],
+                default="en",
+                max_length=2,
+            ),
             preserve_default=False,
-        ),
+        )
     ]
