@@ -126,6 +126,9 @@ class TestUserFields:
     def test_model_has_modified_at_field(self, user_model_class):
         assert hasattr(user_model_class, "modified_at")
 
+    def test_model_has_language_field(self, user_model_class):
+        assert hasattr(user_model_class, "language")
+
     def test_field_type_id(self, user_model_class):
         assert isinstance(user_model_class._meta.get_field("id"), models.UUIDField)
 
@@ -155,6 +158,11 @@ class TestUserFields:
     def test_field_type_modified_at(self, user_model_class):
         assert isinstance(
             user_model_class._meta.get_field("modified_at"), models.DateTimeField
+        )
+
+    def test_field_type_language(self, user_model_class):
+        assert isinstance(
+            user_model_class._meta.get_field("language"), models.CharField
         )
 
     def test_field_conf_id(self, user_model_class):
