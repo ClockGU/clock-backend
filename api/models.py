@@ -91,6 +91,7 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
 
+    LANGUAGE_CHOICES = (("de", "Deutsch"), ("en", "Englisch"))
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
@@ -99,6 +100,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=50)  # Firstname is required
     last_name = models.CharField(max_length=100)  # Lastname is required
     personal_number = models.CharField(max_length=100)
+    language = models.CharField(choices=LANGUAGE_CHOICES, max_length=2)
     date_joined = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
