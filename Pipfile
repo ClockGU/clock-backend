@@ -46,6 +46,7 @@ pytest-django = "*"
 isort = "*"
 django = "==2.2"
 more-itertools = "*"
+django-rosetta = "*"
 
 [requires]
 python_version = "3.6"

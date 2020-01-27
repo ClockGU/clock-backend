@@ -29,3 +29,7 @@ urlpatterns = [
     url(r"^auth/", include("djoser.urls"), name="djoser-auth"),
     url(r"^auth/", include("djoser.urls.jwt")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+if "rosetta" in settings.INSTALLED_APPS:
+    urlpatterns += [url(r"^rosetta/", include("rosetta.urls"))]
