@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.db.models import Sum, F, DurationField
 from django.db.models.functions import Coalesce
+from django.utils.translation import gettext as _
 from pytz import datetime
 from rest_framework import viewsets, serializers, mixins
 from rest_framework.decorators import action
@@ -351,7 +352,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         if e:
             raise serializers.ValidationError(
                 {
-                    "message": "Ein Export des Stundenzettels ist nicht möglich, da es Überschneidungen der Schichten gibt.",
+                    "message": _(
+                        "Ein Export des Stundenzettels ist nicht möglich, da es Überschneidungen der Schichten gibt."
+                    ),
                     "shifts": e,
                 }
             )

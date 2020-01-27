@@ -2,6 +2,7 @@ import json
 from calendar import monthrange
 from pytz import datetime, utc
 from rest_framework import serializers, exceptions
+from django.utils.translation import gettext as _
 
 from api.models import User, Contract, Report, Shift, ClockedInShift
 
@@ -94,25 +95,29 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 contract=self.instance, started__lt=start_date
             ).exists():
                 raise serializers.ValidationError(
-                    "Es ist nicht möglich das Startdatum des Vertrages zu ändern, sofern dadurch\n"
-                    "bereits gestochene Schichten außerhalb der Laufzeit liegen."
+                    _(
+                        "Es ist nicht möglich das Startdatum des Vertrages zu ändern, sofern dadurch\n"
+                        "bereits gestochene Schichten außerhalb der Laufzeit liegen."
+                    )
                 )
             if Shift.objects.filter(
                 contract=self.instance, started__gt=end_date
             ).exists():
                 raise serializers.ValidationError(
-                    "Es ist nicht möglich das Enddatum des Vertrages zu ändern, sofern dadurch\n"
-                    "bereits gestochene Schichten außerhalb der Laufzeit liegen."
+                    _(
+                        "Es ist nicht möglich das Enddatum des Vertrages zu ändern, sofern dadurch\n"
+                        "bereits gestochene Schichten außerhalb der Laufzeit liegen."
+                    )
                 )
 
         if start_date > end_date:
             raise serializers.ValidationError(
-                "Der Beginn eines Vertrages muss vor dessen Ende liegen."
+                _("Der Beginn eines Vertrages muss vor dessen Ende liegen.")
             )
 
         if end_date < today:
             raise serializers.ValidationError(
-                "Der Vertrag darf nicht bereits in der Vergangheit geendet haben."
+                _("Der Vertrag darf nicht bereits in der Vergangheit geendet haben.")
             )
 
         return attrs
@@ -125,7 +130,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         """
         if start_date.day not in (1, 15):
             raise serializers.ValidationError(
-                "Ein Vertrag darf nur am 1. oder 15. eines Monats beginnen."
+                _("Ein Vertrag darf nur am 1. oder 15. eines Monats beginnen.")
             )
 
         return start_date
@@ -138,7 +143,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         """
         if end_date.day not in (14, monthrange(end_date.year, end_date.month)[1]):
             raise serializers.ValidationError(
-                "Ein Vertrag darf nur am 14. oder letzten Tag eines Monats enden."
+                _("Ein Vertrag darf nur am 14. oder letzten Tag eines Monats enden.")
             )
 
         return end_date
@@ -151,7 +156,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         """
         if hours <= 0:
             raise serializers.ValidationError(
-                "Die Anzahl der Stunden muss größer 0 sein."
+                _("Die Anzahl der Stunden muss größer 0 sein.")
             )
 
         return hours
@@ -192,21 +197,27 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
             raise serializers.ValidationError(
-                "Eine Schicht muss an dem gleichen Tag enden an dem sie angefangen hat."
+                _(
+                    "Eine Schicht muss an dem gleichen Tag enden an dem sie angefangen hat."
+                )
             )
         if started > stopped:
             raise serializers.ValidationError(
-                "Der Beginn einer Schicht muss vor deren Ende leigen."
+                _("Der Beginn einer Schicht muss vor deren Ende leigen.")
             )
 
         if not (contract.start_date <= started.date() <= contract.end_date):
             raise serializers.ValidationError(
-                "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+                _(
+                    "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+                )
             )
 
         if not (contract.start_date <= stopped.date() <= contract.end_date):
             raise serializers.ValidationError(
-                "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+                _(
+                    "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+                )
             )
 
         # If Shift is considered as 'planned'
@@ -214,17 +225,23 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             # A planned Shift has to start in the future
             if not started > datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
-                    "Eine Schicht die geplant wird muss in der Zukunft starten/enden."
+                    _(
+                        "Eine Schicht die geplant wird muss in der Zukunft starten/enden."
+                    )
                 )
         else:
             if started > datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
-                    "Eine Schicht die in der Zukunft starte/endet muss als geplant gekenzeichnet sein."
+                    _(
+                        "Eine Schicht die in der Zukunft starte/endet muss als geplant gekenzeichnet sein."
+                    )
                 )
         # was_exported is read_only and marks whether a shift was exported and hence not modifyable anymore
         if was_exported:
             raise exceptions.PermissionDenied(
-                "Eine Schicht die bereits exportiert wurde darf nicht modifiziert werden."
+                _(
+                    "Eine Schicht die bereits exportiert wurde darf nicht modifiziert werden."
+                )
             )
 
         # try to get shifts for the given contract, in the given month which are allready exported
@@ -236,8 +253,10 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         # shifts in that month for that contract
         if exported_shifts:
             raise serializers.ValidationError(
-                "Für diesen Monat wurde bereits ein Stundenzettel exportiert.\n"
-                "Es ist nicht möglich Schichten in diesem Monat zu ändern oder neue zu erstellen. "
+                _(
+                    "Für diesen Monat wurde bereits ein Stundenzettel exportiert.\n"
+                    "Es ist nicht möglich Schichten in diesem Monat zu ändern oder neue zu erstellen. "
+                )
             )
 
         return attrs
@@ -245,7 +264,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
     def validate_contract(self, contract):
         if not (contract.user == self.context["request"].user):
             raise serializers.ValidationError(
-                "Das Vertragsobjekt muss dem User gehören der die Schicht erstellt."
+                _("Das Vertragsobjekt muss dem User gehören der die Schicht erstellt.")
             )
 
         return contract
@@ -259,13 +278,15 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         """
         if not isinstance(tags, list):
             raise serializers.ValidationError(
-                "Tags müssen als Liste und nicht als {} dargestellt werden.".format(
-                    type(tags)
+                _(
+                    "Tags müssen als Liste und nicht als {} dargestellt werden.".format(
+                        type(tags)
+                    )
                 )
             )
 
         if not all(map(lambda x: isinstance(x, str), tags)):
-            raise serializers.ValidationError("Tags dürfen nur strings sein.")
+            raise serializers.ValidationError(_("Tags dürfen nur strings sein."))
 
         return tags
 
@@ -324,7 +345,7 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
     def validate_contract(self, contract):
         if not (contract.user == self.context["request"].user):
             raise serializers.ValidationError(
-                "Das Vertragsobjekt muss dem User gehören der die Schicht erstellt."
+                _("Das Vertragsobjekt muss dem User gehören der die Schicht erstellt.")
             )
 
         return contract
