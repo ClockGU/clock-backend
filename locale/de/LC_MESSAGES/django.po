@@ -1,0 +1,105 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-28 21:23+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: BERTRAM BUEHNER <github@sheepyhollow.de>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: api/serializers.py:98
+msgid ""
+"Es ist nicht möglich das Startdatum des Vertrages zu ändern, sofern dadurch\n"
+"bereits gestochene Schichten außerhalb der Laufzeit liegen."
+msgstr ""
+
+#: api/serializers.py:105
+msgid ""
+"Es ist nicht möglich das Enddatum des Vertrages zu ändern, sofern dadurch\n"
+"bereits gestochene Schichten außerhalb der Laufzeit liegen."
+msgstr ""
+
+#: api/serializers.py:111
+msgid "Der Beginn eines Vertrages muss vor dessen Ende liegen."
+msgstr ""
+
+#: api/serializers.py:116
+msgid "Der Vertrag darf nicht bereits in der Vergangheit geendet haben."
+msgstr ""
+
+#: api/serializers.py:129
+msgid "Ein Vertrag darf nur am 1. oder 15. eines Monats beginnen."
+msgstr ""
+
+#: api/serializers.py:142
+msgid "Ein Vertrag darf nur am 14. oder letzten Tag eines Monats enden."
+msgstr ""
+
+#: api/serializers.py:155
+msgid "Die Anzahl der Stunden muss größer 0 sein."
+msgstr ""
+
+#: api/serializers.py:196
+msgid "Eine Schicht muss an dem gleichen Tag enden an dem sie angefangen hat."
+msgstr ""
+
+#: api/serializers.py:200
+msgid "Der Beginn einer Schicht muss vor deren Ende leigen."
+msgstr ""
+
+#: api/serializers.py:205 api/serializers.py:210
+msgid "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+msgstr ""
+
+#: api/serializers.py:218
+msgid "Eine Schicht die geplant wird muss in der Zukunft starten/enden."
+msgstr ""
+
+#: api/serializers.py:223
+msgid ""
+"Eine Schicht die in der Zukunft starte/endet muss als geplant gekenzeichnet "
+"sein."
+msgstr ""
+
+#: api/serializers.py:228
+msgid ""
+"Eine Schicht die bereits exportiert wurde darf nicht modifiziert werden."
+msgstr ""
+
+#: api/serializers.py:240
+msgid ""
+"Für diesen Monat wurde bereits ein Stundenzettel exportiert.\n"
+"Es ist nicht möglich Schichten in diesem Monat zu ändern oder neue zu "
+"erstellen. "
+msgstr ""
+
+#: api/serializers.py:249 api/serializers.py:328
+msgid "Das Vertragsobjekt muss dem User gehören der die Schicht erstellt."
+msgstr ""
+
+#: api/serializers.py:263
+msgid "Tags müssen als Liste und nicht als {} dargestellt werden."
+msgstr ""
+
+#: api/serializers.py:269
+msgid "Tags dürfen nur strings sein."
+msgstr ""
+
+#: config/settings/production.py:108
+msgid "German"
+msgstr ""
+
+#: config/settings/production.py:108
+msgid "English"
+msgstr ""
