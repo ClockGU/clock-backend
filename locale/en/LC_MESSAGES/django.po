@@ -20,86 +20,118 @@ msgstr ""
 
 #: api/serializers.py:98
 msgid ""
-"Es ist nicht möglich das Startdatum des Vertrages zu ändern, sofern dadurch\n"
-"bereits gestochene Schichten außerhalb der Laufzeit liegen."
+"A contract's start date can not be modified\n"
+"if shifts before this date exist."
 msgstr ""
+"A contract's start date can not be modified\n"
+"if shifts before this date exist."
 
 #: api/serializers.py:105
 msgid ""
-"Es ist nicht möglich das Enddatum des Vertrages zu ändern, sofern dadurch\n"
-"bereits gestochene Schichten außerhalb der Laufzeit liegen."
+"A contract's end date can not be modified\n"
+"if shifts after this date exist."
 msgstr ""
+"A contract's end date can not be modified\n"
+"if shifts after this date exist."
 
 #: api/serializers.py:111
-msgid "Der Beginn eines Vertrages muss vor dessen Ende liegen."
+msgid ""
+"The start date of a contract must be set before it's end date."
 msgstr ""
+"The start date of a contract must be set before it's end date."
 
 #: api/serializers.py:116
-msgid "Der Vertrag darf nicht bereits in der Vergangheit geendet haben."
+msgid ""
+"A contract's end date must not be set in the past."
 msgstr ""
+"A contract's end date must not be set in the past."
 
 #: api/serializers.py:129
-msgid "Ein Vertrag darf nur am 1. oder 15. eines Monats beginnen."
+msgid ""
+"A contract must start on the 1st or 15th of a month."
 msgstr ""
+"A contract must start on the 1st or 15th of a month."
 
 #: api/serializers.py:142
-msgid "Ein Vertrag darf nur am 14. oder letzten Tag eines Monats enden."
+msgid ""
+"A contract must end at the 14th or at the last day of a month."
 msgstr ""
+"A contract must end at the 14th or at the last day of a month."
 
 #: api/serializers.py:155
-msgid "Die Anzahl der Stunden muss größer 0 sein."
+msgid ""
+"A contract must end at the 14th or at the last day of a month."
 msgstr ""
+"A contract must end at the 14th or at the last day of a month."
 
 #: api/serializers.py:196
-msgid "Eine Schicht muss an dem gleichen Tag enden an dem sie angefangen hat."
+msgid ""
+"A contract must end at the 14th or at the last day of a month."
 msgstr ""
+"A contract must end at the 14th or at the last day of a month."
 
 #: api/serializers.py:200
-msgid "Der Beginn einer Schicht muss vor deren Ende leigen."
+msgid ""
+"The start of a shift must be set before it's end."
 msgstr ""
+"The start of a shift must be set before it's end."
 
 #: api/serializers.py:205 api/serializers.py:210
-msgid "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+msgid ""
+"A shift must belong to a contract which is active on the respective date."
+#alternativ: "This contract is not active on the respective date."
 msgstr ""
+"A shift must belong to a contract which is active on the respective date."
+#alternativ: "This contract is not active on the respective date."
 
 #: api/serializers.py:218
-msgid "Eine Schicht die geplant wird muss in der Zukunft starten/enden."
+msgid ""
+"A planned shift must start or end in the future."
 msgstr ""
+"A planned shift must start or end in the future."
 
 #: api/serializers.py:223
 msgid ""
-"Eine Schicht die in der Zukunft starte/endet muss als geplant gekenzeichnet "
-"sein."
+"A shift starting or ending in the future must be labeled as 'planned'."
 msgstr ""
+"A shift starting or ending in the future must be labeled as 'planned'."
 
 #: api/serializers.py:228
 msgid ""
-"Eine Schicht die bereits exportiert wurde darf nicht modifiziert werden."
-msgstr ""
+"An already exported shift can not be modified."
+msgstr 
+"An already exported shift can not be modified."
 
 #: api/serializers.py:240
 msgid ""
-"Für diesen Monat wurde bereits ein Stundenzettel exportiert.\n"
-"Es ist nicht möglich Schichten in diesem Monat zu ändern oder neue zu "
-"erstellen. "
+"A worktime-sheet for this month has already been exported.\n"
+"It is not possible to add or modify shifts in this month."
 msgstr ""
+"A worktime-sheet for this month has already been exported.\n"
+"It is not possible to add or modify shifts in this month."
 
 #: api/serializers.py:249 api/serializers.py:328
-msgid "Das Vertragsobjekt muss dem User gehören der die Schicht erstellt."
+msgid ""
+"The contract object must be owned by the user creating the shift."
 msgstr ""
+"The contract object must be owned by the user creating the shift."
 
 #: api/serializers.py:263
-msgid "Tags müssen als Liste und nicht als {} dargestellt werden."
+msgid ""
+"Tags must be represented by a list and not by {}."
 msgstr ""
+"Tags must be represented by a list and not by {}."
 
 #: api/serializers.py:269
-msgid "Tags dürfen nur strings sein."
+msgid ""
+"Tags must be strings."
 msgstr ""
+"Tags must be strings."
 
 #: config/settings/production.py:108
 msgid "German"
-msgstr ""
+msgstr "German"
 
 #: config/settings/production.py:108
 msgid "English"
-msgstr ""
+msgstr "English"
