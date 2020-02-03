@@ -78,7 +78,6 @@ msgstr ""
 #: api/serializers.py:205 api/serializers.py:210
 msgid ""
 "A shift must belong to a contract which is active on the respective date."
-#alternativ: "This contract is not active on the respective date."
 msgstr ""
 "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
 
@@ -97,7 +96,7 @@ msgstr ""
 #: api/serializers.py:228
 msgid ""
 "An already exported shift can not be modified."
-msgstr 
+msgstr ""
 "Eine Schicht die bereits exportiert wurde kann nicht mehr geändert werden."
 
 #: api/serializers.py:240
