@@ -104,7 +104,3 @@ MIDDLEWARE = RAVEN_MIDDLEWARE + MIDDLEWARE
 
 # ADMIN URL
 ADMIN_URL = env("DJANGO_ADMIN_URL")
-
-LANGUAGES = [("de", _("German")), ("en", _("English"))]
-
-LOCALE_PATHS = ["/locale"]

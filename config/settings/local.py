@@ -45,8 +45,4 @@ LOGGING = {
     },
 }
 
-LANGUAGES = [("de", "German"), ("en", "English")]
-
-LOCALE_PATHS = ["/locale"]
-
 ALLOWED_HOSTS = ["*"]
