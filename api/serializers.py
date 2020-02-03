@@ -227,7 +227,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             if not started > datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
                     _(
-                        "A 'planned' shift must start or end in the future.
+                        "A 'planned' shift must start or end in the future."
                     )
                 )
         else:
