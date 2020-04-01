@@ -91,7 +91,7 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
 
-    LANGUAGE_CHOICES = (("de", "Deutsch"), ("en", "Englisch"))
+    LANGUAGE_CHOICES = (("de", "Deutsch"), ("en", "English"))
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
