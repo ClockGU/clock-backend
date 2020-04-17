@@ -353,7 +353,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             raise serializers.ValidationError(
                 {
                     "message": _(
-                        "Ein Export des Stundenzettels ist nicht möglich, da es Überschneidungen der Schichten gibt."
+                        "An export of the worktime-sheet is not possible due to overlapping shifts."
                     ),
                     "shifts": e,
                 }
