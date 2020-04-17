@@ -143,7 +143,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         """
         if end_date.day not in (14, monthrange(end_date.year, end_date.month)[1]):
             raise serializers.ValidationError(
-                _("A contract must end at the 14th or at the last day of a month.")
+                _("A contract must end on the 14th or last day of a month.")
             )
 
         return end_date
