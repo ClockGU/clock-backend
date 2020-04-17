@@ -1,6 +1,6 @@
 from .common import *  # noqa
 
-INSTALLED_APPS += ["django_extensions"]
+INSTALLED_APPS += ["django_extensions", "rosetta"]
 
 # DEBUG
 DEBUG = env.bool("DJANGO_DEBUG", default=True)
