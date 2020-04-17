@@ -112,7 +112,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
         if start_date > end_date:
             raise serializers.ValidationError(
-                _("The start date of a contract must be set before it's end date.")
+                _("The start date of a contract must be set before its end date.")
             )
 
         if end_date < today:
