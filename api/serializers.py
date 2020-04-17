@@ -347,7 +347,7 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
     def validate_contract(self, contract):
         if not (contract.user == self.context["request"].user):
             raise serializers.ValidationError(
-                _("The contract object must be owned by the user creating the shift.")
+                _("The contract must be owned by the user creating the shift.")
             )
 
         return contract
