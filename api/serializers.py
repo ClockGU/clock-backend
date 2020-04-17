@@ -234,7 +234,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             if started > datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
                     _(
-                        "A shift set in the future must be labeled as 'planned'."
+                        "A shift set in the future must be labeled as scheduled."
                     )
                 )
         # was_exported is read_only and marks whether a shift was exported and hence not modifyable anymore
