@@ -204,7 +204,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             )
         if started > stopped:
             raise serializers.ValidationError(
-                _("The start of a shift must be set before it's end.")
+                _("The start of a shift must be set before its end.")
             )
 
         if not (contract.start_date <= started.date() <= contract.end_date):
