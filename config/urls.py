@@ -22,9 +22,9 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    url(r"^api/", include("api.urls"), name="api"),
-    url(r"^api/", include("api-docs.api_docs"), name="api_docs"),
-    url(r"^api/", include("feedback.urls"), name="feedback-app"),
+    url(r"", include("api.urls"), name="api"),
+    url(r"", include("api-docs.api_docs"), name="api_docs"),
+    url(r"", include("feedback.urls"), name="feedback-app"),
     url(r"^admin/", admin.site.urls),
     url(r"^auth/", include("djoser.urls"), name="djoser-auth"),
     url(r"^auth/", include("djoser.urls.jwt")),
