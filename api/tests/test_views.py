@@ -56,7 +56,7 @@ class TestContractApiEndpoint:
         :return:
         """
         response = client.get(
-            path=r"/api/contracts/",
+            path=r"/contracts/",
             args=[contract_object.id],
             content_type="application/json",
         )
@@ -70,7 +70,7 @@ class TestContractApiEndpoint:
         :return:
         """
         response = client.get(
-            path="http://localhost:8000/api/contracts/", content_type="application/json"
+            path="http://localhost:8000/contracts/", content_type="application/json"
         )
         assert response.status_code == 401
 
@@ -83,7 +83,7 @@ class TestContractApiEndpoint:
         :return:
         """
         response = client.post(
-            path="http://localhost:8000/api/contracts/",
+            path="http://localhost:8000/contracts/",
             data=json.dumps(valid_contract_json),
             content_type="application/json",
         )
@@ -99,7 +99,7 @@ class TestContractApiEndpoint:
         """
 
         response = client.put(
-            path="http://localhost:8000/api/contracts/",
+            path="http://localhost:8000/contracts/",
             data=json.dumps(valid_contract_json),
             content_type="application/json",
         )
@@ -120,7 +120,7 @@ class TestContractApiEndpoint:
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(
-            path="http://localhost:8000/api/contracts/", content_type="application/json"
+            path="http://localhost:8000/contracts/", content_type="application/json"
         )
         data = json.loads(response.content)
         assert response.status_code == 200
@@ -154,7 +154,7 @@ class TestContractApiEndpoint:
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.post(
-            path="/api/contracts/",
+            path="/contracts/",
             data=json.dumps(invalid_uuid_contract_json),
             content_type="application/json",
         )
@@ -263,7 +263,7 @@ class TestContractApiEndpoint:
         db_creation_shifts_list_endpoint,
     ):
         """
-        Test that the endpoint api/contracts/<uuid>/shifts exists and that it lists all shifts
+        Test that the endpoint contracts/<uuid>/shifts exists and that it lists all shifts
         corresponding to the contract with <uuid>.
         :param client:
         :param user_object_jwt:
@@ -307,7 +307,7 @@ class TestContractApiEndpoint:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.post(
-            path="/api/contracts/",
+            path="/contracts/",
             data=json.dumps(valid_contract_json),
             content_type="application/json",
         )
@@ -437,7 +437,7 @@ class TestShiftApiEndpoint:
         self, client, user_object_jwt, db_creation_list_month_year_endpoint
     ):
         """
-        Test that the endpoint api/list-shifts/<month>/<year>/ exists and that it lists all Shifts
+        Test that the endpoint list-shifts/<month>/<year>/ exists and that it lists all Shifts
         of the provided <month> in the provided <year> corresponding to the User issueing the request.
         :param client:
         :param user_object_jwt:
@@ -479,32 +479,28 @@ class TestClockedInShiftEndpoint:
         self, client, user_object_jwt, clockedinshift_object
     ):
         """
-        Test that the endpoint api/clockedinshifts/ returns a detail representation of the only existing
+        Test that the endpoint clockedinshifts/ returns a detail representation of the only existing
         ClockedInShift object.
         :param client:
         :param user_object_jwt:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(
-            path="/api/clockedinshifts/", content_type="application/json"
-        )
+        response = client.get(path="/clockedinshifts/", content_type="application/json")
         content = json.loads(response.content)
         assert content["id"] == str(clockedinshift_object.id)
 
     @pytest.mark.django_db
     def test_get_endpoint_returns_404(self, client, user_object_jwt):
         """
-        Test that the endpoint api/clockedinshifts/ returns a 404 status if no
+        Test that the endpoint clockedinshifts/ returns a 404 status if no
         ClockedInShift object exists.
         :param client:
         :param user_object_jwt:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(
-            path="/api/clockedinshifts/", content_type="application/json"
-        )
+        response = client.get(path="/clockedinshifts/", content_type="application/json")
         assert response.status_code == 404
 
     @pytest.mark.django_db
@@ -521,7 +517,7 @@ class TestClockedInShiftEndpoint:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.post(
-            path="/api/clockedinshifts/",
+            path="/clockedinshifts/",
             data=json.dumps(valid_clockedinshift_json),
             content_type="application/json",
         )
@@ -535,7 +531,7 @@ class TestReportApiEndpoint:
         self, client, user_object_jwt, db_get_current_endpoint, contract_object
     ):
         """
-        Test that the endpoint api/reports/get_current/ exists and that it retrieves the Report for the current
+        Test that the endpoint reports/get_current/ exists and that it retrieves the Report for the current
         month.
         :param client:
         :param user_object_jwt:
