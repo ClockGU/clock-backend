@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from pytz import datetime
 from rest_framework import viewsets, serializers, mixins
 from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ValidationError
 from rest_framework.response import Response
 from pdfkit import from_string as pdf_from_string
 from dateutil.relativedelta import relativedelta
@@ -412,6 +412,31 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["general"] = general_content
 
         return content
+
+    def check_for_not_locked_shifts(self, report_object):
+        """
+        Validate wether the creation of a Worktimesheet from a Report is allowed.
+        The criteria for this check to pass is, that there is no shift in the previous month which doesn't have
+        locked=False.
+        :param report_object:
+        :return:
+        """
+        previous_report_month_year = report_object.month_year - relativedelta(months=1)
+
+        # Check if there is a not-planned shift which hasn't been locked.
+        if Shift.objects.filter(
+            contract=report_object.contract,
+            started__year=previous_report_month_year.year,
+            started__month=previous_report_month_year.month,
+            user=report_object.user,
+            was_reviewed=True,
+            locked=False,
+        ).exists():
+            raise ValidationError(
+                _(
+                    "All Shifts of the previous month need to be locked before this Worktimesheet can be created."
+                )
+            )
 
 
 @swagger_auto_schema(content_type="text/json")
