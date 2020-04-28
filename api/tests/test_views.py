@@ -644,7 +644,7 @@ class TestReportApiEndpoint:
             started__year=2019,
         ).order_by("started")
 
-        assert all(s.was_exported for s in shifts)
+        assert all(s.locked for s in shifts)
 
     @pytest.mark.django_db
     def test_method_for_carryover_hours_previous_month_defualt(

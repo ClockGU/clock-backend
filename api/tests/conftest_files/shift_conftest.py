@@ -272,7 +272,7 @@ def create_n_shift_objects():
         started=_started,
         stopped=_stopped,
         was_reviewed=True,
-        was_exported=False,
+        locked=False,
         type="st",
     ):
         lst = []
@@ -289,7 +289,7 @@ def create_n_shift_objects():
                 modified_by=user,
                 contract=contract,
                 was_reviewed=was_reviewed,
-                was_exported=was_exported,
+                locked=locked,
             )
             shift.tags.add(*tags)
             lst.append(shift)
@@ -430,7 +430,7 @@ def db_creation_list_month_year_endpoint(
 
 @pytest.fixture
 def put_to_exported_shift_json(shift_object, valid_shift_json):
-    shift_object.was_exported = True
+    shift_object.locked = True
     shift_object.save()
     valid_shift_json["id"] = str(shift_object.id)
     valid_shift_json["tags"] = ["new_tag1", "new_tag2"]
@@ -580,7 +580,7 @@ def test_shift_creation_if_allready_exported(
         contract=contract_object,
         started=datetime.datetime(2019, 1, 26, 10, tzinfo=utc),
         stopped=datetime.datetime(2019, 1, 26, 12, tzinfo=utc),
-        was_exported=True,
+        locked=True,
     )
 
 
@@ -605,7 +605,7 @@ def overlapping_shifts(user_object, contract_object, create_n_shift_objects):
                 modified_by=user_object,
                 contract=contract_object,
                 was_reviewed=True,
-                was_exported=False,
+                locked=False,
             ),
             Shift(
                 started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
@@ -618,7 +618,7 @@ def overlapping_shifts(user_object, contract_object, create_n_shift_objects):
                 modified_by=user_object,
                 contract=contract_object,
                 was_reviewed=True,
-                was_exported=False,
+                locked=False,
             ),
             Shift(
                 started=datetime.datetime(2019, 1, 29, 15, tzinfo=utc),
@@ -631,7 +631,7 @@ def overlapping_shifts(user_object, contract_object, create_n_shift_objects):
                 modified_by=user_object,
                 contract=contract_object,
                 was_reviewed=True,
-                was_exported=False,
+                locked=False,
             ),
         ]
     )

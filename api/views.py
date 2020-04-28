@@ -229,12 +229,12 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
     def set_shifts_as_exported(self, report_object):
         """
-        Set all exported Shifts as was_exported=True.
+        Set all exported Shifts as locked=True.
         :param report_object:
         :return:
         """
         shifts = self.get_shifts_to_export(report_object)
-        shifts.update(was_exported=True)
+        shifts.update(locked=True)
 
     def aggregate_shift_content(self, shifts):
         """
