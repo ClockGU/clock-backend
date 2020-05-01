@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from pytz import datetime
 from rest_framework import viewsets, serializers, mixins
 from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404, ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from pdfkit import from_string as pdf_from_string
 from dateutil.relativedelta import relativedelta
@@ -405,6 +405,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         shift_queryset = self.get_shifts_to_export(report_object)
         # Check for overlapping Shifts
         self.check_for_overlapping_shifts(shift_queryset)
+        self.check_for_not_locked_shifts(report_object)
         shifts_content = self.aggregate_shift_content(shift_queryset)
         general_content = self.aggregate_general_content(report_object, shift_queryset)
         # Get all Days, as Dates, on which the user worked
@@ -432,7 +433,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             was_reviewed=True,
             locked=False,
         ).exists():
-            raise ValidationError(
+            raise serializers.ValidationError(
                 _(
                     "All Shifts of the previous month need to be locked before this Worktimesheet can be created."
                 )
