@@ -378,3 +378,15 @@ def end_date_before_months_with_shifts_contract_querydict(
     qdict = QueryDict("", mutable=True)
     qdict.update(end_date_before_months_with_shifts_contract_json)
     return qdict
+
+
+@pytest.fixture
+def contract_locked_shifts(create_n_contract_objects, user_object):
+    """
+    This fixture provides an a contract, which should have N unlocked not-planned shifts in the first month.
+    Those Shifts should trhow an ValidationError during Worktimesheet creation in the next month.
+    """
+    _start_date = datetime.date(2020, 1, 1)
+    _end_date = datetime.date(2020, 2, 29)
+    return create_n_contract_objects((1,), start_date=_start_date, end_date=_end_date, user=user_object)[0]
+

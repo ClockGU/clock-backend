@@ -672,3 +672,19 @@ def shifts_after_new_end_date_contract(
         stopped=_stopped,
         contract=contract_ending_in_february,
     )[0]
+
+@pytest.fixture
+def not_locked_shifts(contract_locked_shifts, create_n_shift_objects):
+    """
+    This fixture creates a Shift in the first month of the provided month, which is not planned and
+    unlocked.
+    """
+    _started = datetime.datetime(2020, 1, 14, 14, tzinfo=utc)
+    _stopped = datetime.datetime(2020, 1, 14, 16, tzinfo=utc)
+    return create_n_shift_objects(
+        (1,),
+        contract_locked_shifts.user,
+        started=_started,
+        stopped=_stopped,
+        contract=contract_locked_shifts,
+    )[0]

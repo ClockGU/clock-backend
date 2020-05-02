@@ -152,3 +152,11 @@ def db_get_current_endpoint(
     create_n_report_objects(
         (1,), user_object, contract_object, month_year=datetime.date(2019, 3, 1)
     )
+
+
+@pytest.fixture
+def second_months_report_locked_shifts(contract_locked_shifts):
+    """
+    This fixture retrieves the Report object of the second month of the provided contract.
+    """
+    return Report.objects.get(contract=contract_locked_shifts, month_year=datetime.date(2020, 2, 1))
