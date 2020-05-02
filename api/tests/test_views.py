@@ -753,12 +753,16 @@ class TestReportApiEndpoint:
 
     @pytest.mark.django_db
     def test_export_endpoint_validates_not_locked_shifts(
-            self, prepared_ReportViewSet_view, second_months_report_locked_shifts, not_locked_shifts
+        self,
+        prepared_ReportViewSet_view,
+        second_months_report_locked_shifts,
+        not_locked_shifts,
     ):
         """
         The provided Report belongs to a Contract which has unlocked, not planned shifts in the
         first month. The check_for_not_locked_shifts() Method should hence throw an ValidationError.
         """
         with pytest.raises(serializers.ValidationError) as e_info:
-            prepared_ReportViewSet_view.check_for_not_locked_shifts(second_months_report_locked_shifts)
-
+            prepared_ReportViewSet_view.check_for_not_locked_shifts(
+                second_months_report_locked_shifts
+            )

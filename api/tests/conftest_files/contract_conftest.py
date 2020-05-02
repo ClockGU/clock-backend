@@ -388,5 +388,6 @@ def contract_locked_shifts(create_n_contract_objects, user_object):
     """
     _start_date = datetime.date(2020, 1, 1)
     _end_date = datetime.date(2020, 2, 29)
-    return create_n_contract_objects((1,), start_date=_start_date, end_date=_end_date, user=user_object)[0]
-
+    return create_n_contract_objects(
+        (1,), start_date=_start_date, end_date=_end_date, user=user_object
+    )[0]

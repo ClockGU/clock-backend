@@ -673,6 +673,7 @@ def shifts_after_new_end_date_contract(
         contract=contract_ending_in_february,
     )[0]
 
+
 @pytest.fixture
 def not_locked_shifts(contract_locked_shifts, create_n_shift_objects):
     """

@@ -5,14 +5,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0008_auto_20200427_2107'),
-    ]
+    dependencies = [("api", "0008_auto_20200427_2107")]
 
     operations = [
         migrations.RenameField(
-            model_name='shift',
-            old_name='was_exported',
-            new_name='locked',
-        ),
+            model_name="shift", old_name="was_exported", new_name="locked"
+        )
     ]

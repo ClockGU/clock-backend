@@ -159,4 +159,6 @@ def second_months_report_locked_shifts(contract_locked_shifts):
     """
     This fixture retrieves the Report object of the second month of the provided contract.
     """
-    return Report.objects.get(contract=contract_locked_shifts, month_year=datetime.date(2020, 2, 1))
+    return Report.objects.get(
+        contract=contract_locked_shifts, month_year=datetime.date(2020, 2, 1)
+    )
