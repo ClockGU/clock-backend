@@ -67,6 +67,15 @@ class ContractViewSet(viewsets.ModelViewSet):
         serializer = ShiftSerializer(instance.shifts, many=True)
         return Response(serializer.data)
 
+    def lock_shifts(self, request, month=None, year=None, *args, **kwargs):
+
+        instance = self.get_object()
+        Shift.objects.filter(
+            contract=instance, started__month=month, started__year=year
+        ).update(locked=True)
+
+        return Response()
+
 
 class ShiftViewSet(viewsets.ModelViewSet):
     queryset = Shift.objects.all()
