@@ -183,14 +183,19 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         stopped = attrs.get("stopped")
         contract = attrs.get("contract")
         was_reviewed = attrs.get("was_reviewed", False)
-        locked = False
 
         if self.instance and (self.partial or self.context["request"].method == "PUT"):
             started = attrs.get("started", self.instance.started)
             stopped = attrs.get("stopped", self.instance.stopped)
             contract = attrs.get("contract", self.instance.contract)
             was_reviewed = attrs.get("was_reviewed", self.instance.was_reviewed)
-            locked = self.instance.locked
+
+        locked = Shift.objects.filter(
+            contract=contract,
+            started__month=started.month,
+            started__year=started.year,
+            locked=True,
+        ).exists()
 
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
@@ -231,7 +236,9 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         # locked is read_only and marks whether a shift was exported and hence not modifyable anymore
         if locked:
             raise exceptions.PermissionDenied(
-                _("An already exported shift can not be modified.")
+                _(
+                    "A Shift can't be created or changed if the month got locked already."
+                )
             )
 
         # try to get shifts for the given contract, in the given month which are allready exported
