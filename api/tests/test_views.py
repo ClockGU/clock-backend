@@ -320,6 +320,26 @@ class TestContractApiEndpoint:
             user=user_object, month_year=start_date, contract=contract_object
         )
 
+    @pytest.mark.django_db
+    def test_locking_shifts(
+        self, client, contract_object, shift_object, user_object_jwt
+    ):
+        assert not shift_object.locked
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path=reverse(
+                "api:contracts-lock-shifts",
+                args=[
+                    contract_object.id,
+                    shift_object.started.month,
+                    shift_object.started.year,
+                ],
+            ),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert Shift.objects.get(pk=shift_object.pk).locked
+
 
 class TestShiftApiEndpoint:
     @pytest.mark.django_db
