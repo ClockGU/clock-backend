@@ -27,6 +27,6 @@ urlpatterns = [
         list_month_year_shifts,
         name="list-shifts",
     ),
-    path("gdpr", GDPRExportView.as_view({"get": "retrieve"})),
+    path("gdpr/", GDPRExportView.as_view({"get": "retrieve"})),
     path("", include(router.urls)),
 ]
