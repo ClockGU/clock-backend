@@ -91,6 +91,43 @@ post_save.connect(
 )
 
 
+def update_reports(contract, month_year):
+
+    """
+    Update the Reports for the given contract starting with the given month/year.
+    :param contract:
+    :param month_year:
+    :return:
+    """
+
+    debit_worktime = datetime.timedelta(hours=contract.hours)
+    previous_report = Report.objects.filter(
+        contract=contract, month_year=month_year - relativedelta(months=1)
+    )
+    carry_over_hours = datetime.timedelta(0)
+    if previous_report.exists():
+        carry_over_hours = previous_report.first().hours - debit_worktime
+    # Loop over all Reports starting from month in which the created/update shift
+    # took place.
+    for report in Report.objects.filter(contract=contract, month_year__gte=month_year):
+        total_work_time = Shift.objects.filter(
+            contract=report.contract,
+            started__month=report.month_year.month,
+            started__year=report.month_year.year,
+            was_reviewed=True,
+        ).aggregate(
+            total_work_time=Coalesce(
+                Sum(F("stopped") - F("started"), output_field=DurationField()),
+                datetime.timedelta(0),
+            )
+        )[
+            "total_work_time"
+        ]
+        report.hours = carry_over_hours + total_work_time
+        report.save()
+        carry_over_hours = report.hours - debit_worktime
+
+
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):
     """
     After saving a Shift we need to update the corresponding Report to reflect the now
@@ -110,37 +147,8 @@ def update_report_after_shift_save(sender, instance, created=False, **kwargs):
     if not instance.was_reviewed:
         return None
 
-    debit_worktime = datetime.timedelta(hours=instance.contract.hours)
     current_month_year = instance.started.date().replace(day=1)
-
-    previous_report = Report.objects.filter(
-        contract=instance.contract,
-        month_year=current_month_year - relativedelta(months=1),
-    )
-    carry_over_hours = datetime.timedelta(0)
-    if previous_report.exists():
-        carry_over_hours = previous_report.first().hours - debit_worktime
-    # Loop over all Reports starting from month in which the created/update shift
-    # took place.
-    for report in Report.objects.filter(
-        contract=instance.contract, month_year__gte=current_month_year
-    ):
-        total_work_time = Shift.objects.filter(
-            contract=report.contract,
-            started__month=report.month_year.month,
-            started__year=report.month_year.year,
-            was_reviewed=True,
-        ).aggregate(
-            total_work_time=Coalesce(
-                Sum(F("stopped") - F("started"), output_field=DurationField()),
-                datetime.timedelta(0),
-            )
-        )[
-            "total_work_time"
-        ]
-        report.hours = carry_over_hours + total_work_time
-        report.save()
-        carry_over_hours = report.hours - debit_worktime
+    update_reports(instance.contract, current_month_year)
 
 
 post_save.connect(
