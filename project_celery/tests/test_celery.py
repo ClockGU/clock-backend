@@ -94,3 +94,20 @@ class TestCeleryBeats:
         assert Report.objects.get(
             contract=december_contract, month_year=datetime(2020, 1, 1)
         ).hours == timedelta(hours=-20)
+
+    @pytest.mark.freeze_time("2019-01-01")
+    @pytest.mark.django_db(transaction=True, reset_sequences=True)
+    def test_start_of_month_skips_if_report_exists(
+        self, user_object, contract_object, celery_test_fixture_end_of_year_test
+    ):
+        """
+        Test that the monthly report creation does not create a Report in the month where the Contract starts.
+
+        :param user_object:
+        :param contract_object:
+        :param celery_test_fixture_end_of_year_test:
+        :return:
+        """
+        create_reports_monthly()
+        time.sleep(10)
+        assert Contract.objects.get(pk=contract_object.pk).reports.count() == 1
