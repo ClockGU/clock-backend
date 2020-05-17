@@ -1,5 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from .auth_views import GitHubLogin
 
 from api.views import (
     ContractViewSet,
@@ -21,6 +22,7 @@ list_month_year_shifts = ShiftViewSet.as_view({"get": "list_month_year"})
 lock_shifts = ContractViewSet.as_view({"post": "lock_shifts"})
 
 urlpatterns = [
+    path("dj-rest-auth/github/", GitHubLogin.as_view(), name="github_login"),
     # Demonstration url for celery
     path("celery-dummy", index, name="index"),
     path(

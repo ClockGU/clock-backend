@@ -39,6 +39,13 @@ INSTALLED_APPS = [
     "djoser",
     "corsheaders",
     "anymail",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.github",
 ]
 
 MIDDLEWARE = [
@@ -110,10 +117,19 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("api.permissions.AccessOwnDataPermission",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "dj_rest_auth.utils.JWTCookieAuthentication",
     ),
 }
 
+AUTHENTICATION_BACKENDS = (
+    "social_core.backends.github.GithubOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
+)
+
 DJOSER = {"TOKEN_MODEL": None}
+
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = "clock"
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -139,6 +155,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+SITE_ID = 1
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/

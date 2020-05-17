@@ -1,3 +1,4 @@
+import logging
 from .common import *  # noqa
 
 INSTALLED_APPS += ["django_extensions", "rosetta"]
@@ -16,6 +17,8 @@ EMAIL_PORT = 1025
 EMAIL_BACKEND = env(
     "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
+
+MIDDLEWARE = ["request_logging.middleware.LoggingMiddleware"] + MIDDLEWARE
 
 # DATABASE
 DATABASES = {
@@ -41,8 +44,19 @@ LOGGING = {
     "disable_existing_loggers": False,
     "handlers": {"console": {"class": "logging.StreamHandler"}},
     "loggers": {
-        "werkzeug": {"handlers": ["console"], "level": "DEBUG", "propagate": True}
+        "": {"handlers": ["console"], "level": "NOTSET"},
+        "django.request": {
+            "handlers": ["console"],
+            "propagate": False,
+            "level": "DEBUG",
+        },
+        "werkzeug": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
     },
 }
+
+REQUEST_LOGGING_ENABLE_COLORIZE = True
+REQUEST_LOGGING_SENSITIVE_HEADERS = []
+REQUEST_LOGGING_HTTP_4XX_LOG_LEVEL = logging.DEBUG
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 
 ALLOWED_HOSTS = ["*"]
