@@ -22,7 +22,6 @@ APPS_DIR = ROOT_DIR.path("api")
 
 env = environ.Env()
 
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -121,13 +120,15 @@ REST_FRAMEWORK = {
     ),
 }
 
-AUTHENTICATION_BACKENDS = (
-    "social_core.backends.github.GithubOAuth2",
-    "django.contrib.auth.backends.ModelBackend",
-)
 
 DJOSER = {"TOKEN_MODEL": None}
 
+# django-allauth: Query for the users email,
+# but do not prompt for verification
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+
+# Return JWT and cookie after logging in
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = "clock"
 
