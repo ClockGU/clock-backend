@@ -1,10 +1,16 @@
-FROM python:3.6
-ENV PYTHONBUFFERED=1
+FROM python:3.7-slim
+ENV PYTHONBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 POETRY_VERSION=1.0.5 POETRY_VIRTUALENVS_CREATE=false
+
+RUN apt update \
+	&& apt install -y gettext git
+
+RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+COPY pyproject.toml poetry.lock /
+RUN PATH="$PATH:$HOME/.poetry/bin" && poetry install
+
+RUN useradd -ms /bin/bash celery-user
+
 ADD ./api/ /app/
 WORKDIR /app/
 
-COPY Pipfile Pipfile.lock /
-RUN pip install pipenv
-RUN LIBRARY_PATH=/lib:/usr/lib /bin/sh -c "pipenv install --dev --system"
-RUN useradd -ms /bin/bash celery-user
 ENTRYPOINT celery worker -A project_celery.celery -B --concurrency=3 --loglevel=WARNING --uid=celery-user
