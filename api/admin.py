@@ -57,14 +57,7 @@ admin.site.register(Contract, ContractAdmin)
 
 class ShiftAdmin(admin.ModelAdmin):
 
-    list_display = (
-        "id",
-        "link_user",
-        "started",
-        "stopped",
-        "was_exported",
-        "modified_at",
-    )
+    list_display = ("id", "link_user", "started", "stopped", "locked", "modified_at")
     list_per_page = 200
     ordering = ("-modified_at",)
 

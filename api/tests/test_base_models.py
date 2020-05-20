@@ -296,10 +296,10 @@ class TestShiftFields:
         assert hasattr(shift_model_class, "tags")
 
     def test_model_has_was_reviewed(self, shift_model_class):
-        assert hasattr(shift_model_class, "was_reviewed")
+        assert hasattr(shift_model_class, "locked")
 
-    def test_model_has_was_exported(self, shift_model_class):
-        assert hasattr(shift_model_class, "was_exported")
+    def test_model_has_locked(self, shift_model_class):
+        assert hasattr(shift_model_class, "locked")
 
     def test_model_has_created_at(self, shift_model_class):
         assert hasattr(shift_model_class, "created_at")
@@ -345,12 +345,12 @@ class TestShiftFields:
 
     def test_field_type_was_reviewed(self, shift_model_class):
         assert isinstance(
-            shift_model_class._meta.get_field("was_reviewed"), models.BooleanField
+            shift_model_class._meta.get_field("locked"), models.BooleanField
         )
 
-    def test_field_typ_was_exported(self, shift_model_class):
+    def test_field_typ_locked(self, shift_model_class):
         assert isinstance(
-            shift_model_class._meta.get_field("was_exported"), models.BooleanField
+            shift_model_class._meta.get_field("locked"), models.BooleanField
         )
 
     def test_field_type_created_at(self, shift_model_class):
@@ -398,8 +398,8 @@ class TestShiftFields:
             field.default == True
         )  # if no default is provided django returns an object which would be allways True
 
-    def test_field_conf_was_exported(self, shift_model_class):
-        field = shift_model_class._meta.get_field("was_exported")
+    def test_field_conf_locked(self, shift_model_class):
+        field = shift_model_class._meta.get_field("locked")
         assert not field.default
 
     def test_field_conf_created_at(self, shift_model_class):

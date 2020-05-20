@@ -67,6 +67,15 @@ class ContractViewSet(viewsets.ModelViewSet):
         serializer = ShiftSerializer(instance.shifts, many=True)
         return Response(serializer.data)
 
+    def lock_shifts(self, request, month=None, year=None, *args, **kwargs):
+
+        instance = self.get_object()
+        Shift.objects.filter(
+            contract=instance, started__month=month, started__year=year
+        ).update(locked=True)
+
+        return Response()
+
 
 class ShiftViewSet(viewsets.ModelViewSet):
     queryset = Shift.objects.all()
@@ -229,12 +238,12 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
     def set_shifts_as_exported(self, report_object):
         """
-        Set all exported Shifts as was_exported=True.
+        Set all exported Shifts as locked=True.
         :param report_object:
         :return:
         """
         shifts = self.get_shifts_to_export(report_object)
-        shifts.update(was_exported=True)
+        shifts.update(locked=True)
 
     def aggregate_shift_content(self, shifts):
         """
@@ -405,6 +414,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         shift_queryset = self.get_shifts_to_export(report_object)
         # Check for overlapping Shifts
         self.check_for_overlapping_shifts(shift_queryset)
+        self.check_for_not_locked_shifts(report_object)
         shifts_content = self.aggregate_shift_content(shift_queryset)
         general_content = self.aggregate_general_content(report_object, shift_queryset)
         # Get all Days, as Dates, on which the user worked
@@ -412,6 +422,31 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["general"] = general_content
 
         return content
+
+    def check_for_not_locked_shifts(self, report_object):
+        """
+        Validate wether the creation of a Worktimesheet from a Report is allowed.
+        The criteria for this check to pass is, that there is no shift in the previous month which doesn't have
+        locked=False.
+        :param report_object:
+        :return:
+        """
+        previous_report_month_year = report_object.month_year - relativedelta(months=1)
+
+        # Check if there is a not-planned shift which hasn't been locked.
+        if Shift.objects.filter(
+            contract=report_object.contract,
+            started__year=previous_report_month_year.year,
+            started__month=previous_report_month_year.month,
+            user=report_object.user,
+            was_reviewed=True,
+            locked=False,
+        ).exists():
+            raise serializers.ValidationError(
+                _(
+                    "All Shifts of the previous month need to be locked before this Worktimesheet can be created."
+                )
+            )
 
 
 @swagger_auto_schema(content_type="text/json")

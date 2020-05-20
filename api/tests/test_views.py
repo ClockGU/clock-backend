@@ -320,6 +320,26 @@ class TestContractApiEndpoint:
             user=user_object, month_year=start_date, contract=contract_object
         )
 
+    @pytest.mark.django_db
+    def test_locking_shifts(
+        self, client, contract_object, shift_object, user_object_jwt
+    ):
+        assert not shift_object.locked
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path=reverse(
+                "api:contracts-lock-shifts",
+                args=[
+                    contract_object.id,
+                    shift_object.started.month,
+                    shift_object.started.year,
+                ],
+            ),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert Shift.objects.get(pk=shift_object.pk).locked
+
 
 class TestShiftApiEndpoint:
     @pytest.mark.django_db
@@ -644,7 +664,7 @@ class TestReportApiEndpoint:
             started__year=2019,
         ).order_by("started")
 
-        assert all(s.was_exported for s in shifts)
+        assert all(s.locked for s in shifts)
 
     @pytest.mark.django_db
     def test_method_for_carryover_hours_previous_month_defualt(
@@ -750,3 +770,19 @@ class TestReportApiEndpoint:
         """
         with pytest.raises(serializers.ValidationError) as e_info:
             prepared_ReportViewSet_view.check_for_overlapping_shifts(overlapping_shifts)
+
+    @pytest.mark.django_db
+    def test_export_endpoint_validates_not_locked_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        second_months_report_locked_shifts,
+        not_locked_shifts,
+    ):
+        """
+        The provided Report belongs to a Contract which has unlocked, not planned shifts in the
+        first month. The check_for_not_locked_shifts() Method should hence throw an ValidationError.
+        """
+        with pytest.raises(serializers.ValidationError) as e_info:
+            prepared_ReportViewSet_view.check_for_not_locked_shifts(
+                second_months_report_locked_shifts
+            )

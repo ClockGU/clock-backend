@@ -1,5 +1,5 @@
 import pytest
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from freezegun import freeze_time
 
 from api.serializers import (
@@ -323,7 +323,7 @@ class TestShiftSerializerValidation:
         :param test_shift_creation_if_allready_exported:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(exceptions.PermissionDenied) as e_info:
             ShiftSerializer(
                 data=valid_shift_querydict, context={"request": plain_request_object}
             ).is_valid(raise_exception=True)

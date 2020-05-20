@@ -18,6 +18,7 @@ router.register(r"clockedinshifts", ClockedInShiftViewSet, basename="clockedinsh
 router.register(r"reports", ReportViewSet, basename="reports")
 
 list_month_year_shifts = ShiftViewSet.as_view({"get": "list_month_year"})
+lock_shifts = ContractViewSet.as_view({"post": "lock_shifts"})
 
 urlpatterns = [
     # Demonstration url for celery
@@ -27,6 +28,11 @@ urlpatterns = [
         list_month_year_shifts,
         name="list-shifts",
     ),
-    path("gdpr/", GDPRExportView.as_view({"get": "retrieve"})),
+    path(
+        "contracts/<str:pk>/<int:month>/<int:year>/lock",
+        lock_shifts,
+        name="contracts-lock-shifts",
+    ),
+    path("gdpr", GDPRExportView.as_view({"get": "retrieve"})),
     path("", include(router.urls)),
 ]

@@ -149,7 +149,7 @@ class Shift(models.Model):
     note = models.TextField(blank=True)
     tags = TaggableManager(blank=True, through=UUIDTaggedItem)
     was_reviewed = models.BooleanField(default=True)
-    was_exported = models.BooleanField(default=False)
+    locked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
