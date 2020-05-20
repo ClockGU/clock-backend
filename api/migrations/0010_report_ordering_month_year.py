@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [("api", "0008_auto_20200427_2107")]
+    dependencies = [("api", "0009_auto_20200427_2114")]
 
     operations = [
         migrations.AlterModelOptions(
