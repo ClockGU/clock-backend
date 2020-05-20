@@ -629,3 +629,6 @@ class TestReportFields:
     def test_field_conf_modified_by(self, report_model_class, user_model_class):
         field = report_model_class._meta.get_field("modified_by")
         assert issubclass(field.remote_field.model, user_model_class)
+
+    def test_ordering(self, report_model_class):
+        assert report_model_class._meta.ordering == ["month_year"]

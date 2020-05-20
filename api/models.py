@@ -189,3 +189,6 @@ class Report(models.Model):
     created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ["month_year"]
