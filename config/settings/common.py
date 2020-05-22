@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "api.oauth.providers.goetheuni",
     "allauth.socialaccount.providers.github",
 ]
 
@@ -134,6 +135,8 @@ JWT_AUTH_COOKIE = "clock"
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+CORS_ORIGIN_WHITELIST = ("https://preview.clock.uni-frankfurt.de",)
+
 EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 
 ANYMAIL = {
@@ -157,7 +160,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-SITE_ID = 1
+SITE_ID = 3
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
