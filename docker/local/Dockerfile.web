@@ -4,7 +4,7 @@ ENV PYTHONBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 INSIDE_DOCKER=1 POETRY_VERSION=1.
 
 # Install all dependencies needed to install our python requirements
 RUN apt update \
-	&& apt install -y gettext git
+	&& apt install -y gettext git wkhtmltopdf
 
 # Set the correct timezone
 RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime \

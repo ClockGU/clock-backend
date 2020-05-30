@@ -12,7 +12,7 @@ RUN adduser --ingroup app --home /app --disabled-password --gecos "" app
 
 # Install build dependencies
 RUN apt update \
-    && apt install -y gettext git
+    && apt install -y gettext git wkhtmltopdf
 
 # Set the correct timezone
 RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
