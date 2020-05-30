@@ -1,14 +1,12 @@
 .PHONY: init ci analyze build rebuild migrate lang-make lang-compile
 
 init:
-	pip install --upgrade pip
-	pip install pipenv --upgrade
-	pipenv install --dev --skip-lock
+	poetry install
 ci:
-	pipenv run pytest --cov=./
+	poetry run pytest --cov=./
 analyze:
-	pipenv run flake8 .
-	pipenv run isort -v
+	poetry run flake8 .
+	poetry run isort -v
 build:
 	docker-compose build
 rebuild:
@@ -16,9 +14,9 @@ rebuild:
 migrate:
 	docker-compose run --rm web python manage.py migrate
 lang-make:
-	pipenv run python manage.py makemessages --no-location --no-wrap
+	poetry run python manage.py makemessages --no-location --no-wrap
 lang-compile:
-	pipenv run python manage.py compilemessages
+	poetry run python manage.py compilemessages
 black-check:
 	docker-compose run --rm web black . --check
 black-format:

@@ -12,7 +12,7 @@ addons:
 
 language: python
 python:
-  - "3.6"
+  - "3.7"
 
 env:
   - TRAVIS_CI=True RABBITMQ_URL="amqp://broker_adm:broker_pass@localhost:5672/rabbit_broker" DJANGO_SECRET_KEY="h18i_1j3^d$e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)"
@@ -22,7 +22,8 @@ cache:
     - $HOME/.cache/pip
 
 install:
-  - make
+  - pip install poetry
+  - make init
 before_script:
   - sudo mkdir /app
   - sudo mv !(app) /app/
@@ -40,7 +41,6 @@ before_script:
   - sudo rabbitmqctl add_user broker_adm broker_pass
   - sudo rabbitmqctl add_vhost rabbit_broker
   - sudo rabbitmqctl set_permissions -p rabbit_broker broker_adm ".*" ".*" ".*"
-
 
 script:
   - make ci
