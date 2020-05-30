@@ -22,7 +22,8 @@ cache:
     - $HOME/.cache/pip
 
 install:
-  - make
+  - pip install poetry
+  - make init
 before_script:
   - sudo mkdir /app
   - sudo mv !(app) /app/
