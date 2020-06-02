@@ -1,5 +1,10 @@
 import logging
+
 from .common import *  # noqa
+
+# Try and read a local .env file
+# Required to define CORS_ORIGIN_WHITELIST on local machine
+env.read_env(env.str("ENV_PATH", ".env"))
 
 INSTALLED_APPS += ["django_extensions", "rosetta"]
 

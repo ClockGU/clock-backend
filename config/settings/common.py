@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
-import environ
 from datetime import timedelta
+
+import environ
 from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -133,9 +134,16 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = "clock"
 
-CORS_ORIGIN_ALLOW_ALL = True
+# Explicitly allow the frontend URL(s) that will be allowd to access the backend
+# Define them as a comma-separated list, i.e.
+# CORS_ORIGIN_WHITELIST=https://example.com,https://subdomain.example.com
+# A single domain without a trailing comma also works:
+# CORS_ORIGIN_WHITELIST=https://example.com
+CORS_ORIGIN_WHITELIST = env.tuple("CORS_ORIGIN_WHITELIST", default=())
 
-CORS_ORIGIN_WHITELIST = ("https://preview.clock.uni-frankfurt.de",)
+# The client must provide a `redirect_uri` query parameter when requesting the
+# authorization code URL. We retrieve it from the environment.
+GOETHE_OAUTH2_REDIRECT_URI = env.str("GOETHE_OAUTH2_REDIRECT_URI", default="")
 
 EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 

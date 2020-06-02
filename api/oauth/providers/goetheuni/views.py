@@ -1,27 +1,19 @@
-from rest_framework import permissions, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.views import (
-    OAuth2Adapter,
-    OAuth2LoginView,
-    OAuth2CallbackView,
-)
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from dj_rest_auth.registration.views import SocialLoginView
-
 from uuid import uuid4
 
 import requests
-
 from allauth.socialaccount import app_settings
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from allauth.socialaccount.providers.oauth2.views import (OAuth2Adapter,
+                                                          OAuth2CallbackView,
+                                                          OAuth2LoginView)
+from dj_rest_auth.registration.views import SocialLoginView
+from django.conf import settings
+from rest_framework import permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .provider import GoetheUniProvider
-
-
-import logging
-
-logger = logging.Logger(__name__)
 
 
 class GoetheUniOAuth2Adapter(OAuth2Adapter):
@@ -47,16 +39,6 @@ class GoetheUniOAuth2Adapter(OAuth2Adapter):
         extra_data["last_name"] = attributes["sn"]
         return self.get_provider().sociallogin_from_response(request, extra_data)
 
-    # def get_email(self, token):
-    #     email = None
-    #     params = {"access_token": token.token}
-    #     resp = requests.get(self.profile_url, params=params)
-    #     resp.raise_for_status()
-    #     json = resp.json()
-    #     if resp.status_code == 200 and json:
-    #         email = json["attributes"]["mailPrimaryAddress"]
-    #     return email
-
 
 class ProviderAuthView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -67,8 +49,7 @@ class ProviderAuthView(APIView):
         app = provider.get_app(request)
 
         redirect_uri = request.GET.get("redirect_uri")
-        # if redirect_uri != adapter.get_callback_url(request, app):
-        if redirect_uri != "https://clock.uni-frankfurt.de/login":
+        if redirect_uri != settings.GOETHE_OAUTH2_REDIRECT_URI:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         authorize_url = adapter.authorize_url
@@ -83,13 +64,7 @@ class ProviderAuthView(APIView):
 
 class GoetheUniLogin(SocialLoginView):
     adapter_class = GoetheUniOAuth2Adapter
-    callback_url = "https://clock.uni-frankfurt.de/login"
-    client_class = OAuth2Client
-
-
-class GitHubLogin(SocialLoginView):
-    adapter_class = GitHubOAuth2Adapter
-    callback_url = "http://localhost:8080/login"
+    callback_url = settings.GOETHE_OAUTH2_REDIRECT_URI
     client_class = OAuth2Client
 
 

@@ -2,10 +2,6 @@ from allauth.socialaccount import app_settings
 from allauth.socialaccount.providers.base import ProviderAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 
-import logging
-
-logger = logging.Logger(__name__)
-
 
 class GoetheUniAccount(ProviderAccount):
     def get_profile_url(self):
