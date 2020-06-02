@@ -4,12 +4,6 @@ from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 
 
 class GoetheUniAccount(ProviderAccount):
-    def get_profile_url(self):
-        return self.account.extra_data.get("html_url")
-
-    def get_avatar_url(self):
-        return self.account.extra_data.get("avatar_url")
-
     def to_str(self):
         dflt = super(GoetheUniAccount, self).to_str()
         return next(
