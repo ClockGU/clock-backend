@@ -243,7 +243,7 @@ description = "A high-level Python Web framework that encourages rapid developme
 name = "django"
 optional = false
 python-versions = ">=3.5"
-version = "2.2"
+version = "2.2.10"
 
 [package.dependencies]
 pytz = "*"
@@ -1195,7 +1195,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "e2d1de3ad28d573a49694a82d46c347cce7a92223d01f6b5162960f0b2df3b65"
+content-hash = "90637ddad209a699d49667ec226e3616105bb8272a24737f0a5ee15b6248a817"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1342,8 +1342,8 @@ decorator = [
     {file = "decorator-4.4.2.tar.gz", hash = "sha256:e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7"},
 ]
 django = [
-    {file = "Django-2.2-py3-none-any.whl", hash = "sha256:a2814bffd1f007805b19194eb0b9a331933b82bd5da1c3ba3d7b7ba16e06dc4b"},
-    {file = "Django-2.2.tar.gz", hash = "sha256:7c3543e4fb070d14e10926189a7fcf42ba919263b7473dceaefce34d54e8a119"},
+    {file = "Django-2.2.10-py3-none-any.whl", hash = "sha256:9a4635813e2d498a3c01b10c701fe4a515d76dd290aaa792ccb65ca4ccb6b038"},
+    {file = "Django-2.2.10.tar.gz", hash = "sha256:1226168be1b1c7efd0e66ee79b0e0b58b2caa7ed87717909cd8a57bb13a7079a"},
 ]
 django-anymail = [
     {file = "django-anymail-5.0.tar.gz", hash = "sha256:8a845b6daf398e266b323c551a087d61f08215119e67acb4b496843afe301988"},
