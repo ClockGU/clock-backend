@@ -33,6 +33,6 @@ urlpatterns = [
         lock_shifts,
         name="contracts-lock-shifts",
     ),
-    path("gdpr", GDPRExportView.as_view({"get": "retrieve"})),
+    path("gdpr/", GDPRExportView.as_view({"get": "retrieve"})),
     path("", include(router.urls)),
 ]
