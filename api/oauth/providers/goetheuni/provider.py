@@ -8,7 +8,8 @@ class GoetheUniProvider(OAuth2Provider):
     account_class = ProviderAccount
 
     def extract_uid(self, data):
-        return str(data["id"])
+        """Grab the uid from attributes and force it to lowercase."""
+        return str(data["attributes"]["uid"]).lower()
 
     def extract_common_fields(self, data):
         return dict(
