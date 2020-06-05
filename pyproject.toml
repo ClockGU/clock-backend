@@ -27,7 +27,7 @@ pdfkit = "*"
 pytest = "==5.3.5"
 pytest-django = "*"
 isort = "*"
-django = "==2.2"
+django = "==2.2.13"
 more-itertools = "*"
 django-rosetta = "*"
 
