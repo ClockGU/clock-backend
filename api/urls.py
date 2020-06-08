@@ -1,8 +1,14 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from api.views import (ClockedInShiftViewSet, ContractViewSet, GDPRExportView,
-                       ReportViewSet, ShiftViewSet, index)
+from api.views import (
+    ClockedInShiftViewSet,
+    ContractViewSet,
+    GDPRExportView,
+    ReportViewSet,
+    ShiftViewSet,
+    index,
+)
 
 from .oauth.providers.goetheuni.views import GoetheUniLogin, ProviderAuthView
 
