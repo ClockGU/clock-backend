@@ -19,9 +19,10 @@
     </style>
 
     <div class="flex h-full">
-      <div class="whitespace-no-wrap w-1/3 mt-6 pl-4 text-sm h-full">
-        <div class="w-full text-blue-600 capitalize text-2xl">
-          Arbeitszeitkonto
+      <div class="whitespace-no-wrap w-1/3 mt-2 pl-4 text-sm h-full">
+        <img class="mt-6" style="height: 100px"  src="/app/api/static/api/GU_Logo_blau_weiß_RGB.svg">
+        <div class="w-full mt-6 text-blue-600 text-xl font-bold">
+          Stundenzettel
         </div>
         <div class="flex flex-wrap mb-1 text-gray-700 text-xs">
           {{ general.long_month_name }} {{ general.year }}
@@ -41,9 +42,9 @@
         </div>
         <div class="mt-8">
           <div
-            class="w-full text-blue-600 mb-4 whitespace-normal capitalize text-2xl"
+            class="w-full text-blue-600 mb-4 whitespace-normal text-xl font-bold"
           >
-            Zeitkonto
+            Arbeitszeitkonto
           </div>
           <div class="flex flex-wrap mb-4">
             <span class="w-full font-bold text-blue-600">Übertrag Vormonat</span>
@@ -63,7 +64,7 @@
           <div class="flex flex-wrap mb-4">
             <span class="w-full font-bold text-blue-600">Übertrag Folgemonat</span>
             <br />
-            <span class="text-gray-700">{{ general.next_month_carry_over }}</span>
+            <span class="front-bold text-gray-700">{{ general.next_month_carry_over }}</span>
           </div>
         </div>
         <div class="absolute bottom-0">
@@ -86,7 +87,7 @@
               <th class="px-4 py-2">Abwesenheitsgrund</th>
               <th class="px-4 py-2">Pause</th>
               <th class="px-4 py-2">Netto-Arbeitszeit</th>
-              <th class="px-4 py-2">F / K / U</th>
+              <th class="px-4 py-2">F/K/U</th>
             </tr>
           </thead>
           <tbody class="text-center">
