@@ -214,7 +214,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :return:
         """
         template = get_template(template_name)
-        print(template)
         html = template.render(content_dict)
         pdf = pdf_from_string(html, False, options=pdf_options)
         return pdf
@@ -375,9 +374,24 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :param shifts:
         :return:
         """
+        month_names = {
+            1: "Januar",
+            2: "Februar",
+            3: "März",
+            4: "April",
+            5: "Mai",
+            6: "Juni",
+            7: "Juli",
+            8: "August",
+            9: "September",
+            10: "Oktober",
+            11: "November",
+            12: "Dezember",
+        }
         content = {}
         contract_hours_decimal, contract_hours = modf(report_object.contract.hours)
         user = report_object.user
+
         # Data for Header
         content["user_name"] = "{lastname}, {firstname}".format(
             lastname=user.last_name, firstname=user.first_name
@@ -386,6 +400,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["contract_name"] = report_object.contract.name
         content["month"] = report_object.month_year.month
         content["year"] = report_object.month_year.year
+        content["long_month_name"] = month_names[report_object.month_year.month]
 
         # Data for Footer
         content["debit_work_time"] = "{hours:02g}:{minutes:02g}".format(
