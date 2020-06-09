@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
-import environ
 from datetime import timedelta
+
+import environ
 from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -22,7 +23,6 @@ APPS_DIR = ROOT_DIR.path("api")
 
 env = environ.Env()
 
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -39,6 +39,14 @@ INSTALLED_APPS = [
     "djoser",
     "corsheaders",
     "anymail",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "api.oauth.providers.goetheuni",
+    "allauth.socialaccount.providers.github",
 ]
 
 MIDDLEWARE = [
@@ -110,12 +118,32 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("api.permissions.AccessOwnDataPermission",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "dj_rest_auth.utils.JWTCookieAuthentication",
     ),
 }
 
+
 DJOSER = {"TOKEN_MODEL": None}
 
-CORS_ORIGIN_ALLOW_ALL = True
+# django-allauth: Query for the users email,
+# but do not prompt for verification
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+
+# Return JWT and cookie after logging in
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = "clock"
+
+# Explicitly allow the frontend URL(s) that will be allowd to access the backend
+# Define them as a comma-separated list, i.e.
+# CORS_ORIGIN_WHITELIST=https://example.com,https://subdomain.example.com
+# A single domain without a trailing comma also works:
+# CORS_ORIGIN_WHITELIST=https://example.com
+CORS_ORIGIN_WHITELIST = env.tuple("CORS_ORIGIN_WHITELIST", default=())
+
+# The client must provide a `redirect_uri` query parameter when requesting the
+# authorization code URL. We retrieve it from the environment.
+GOETHE_OAUTH2_REDIRECT_URI = env.str("GOETHE_OAUTH2_REDIRECT_URI", default="")
 
 EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 
@@ -139,6 +167,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+SITE_ID = env.int("SITE_ID", default=1)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
