@@ -1,173 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
-{% load stundenzettel_utility %}
-{% get_calendar general.year general.month as calendar %}
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<html lang="de">
+  {% load stundenzettel_utility %}
+  {% get_calendar general.year general.month as calendar %}
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arbeitszeitkonto</title>
-    <link rel="stylesheet" href="/app/api/static/api/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
-    crossorigin="anonymous">
-    <script src="/app/api/static/api/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/app/api/static/api/css/tailwind.out.css">
+  </head>
+  <body>
     <style>
-        .row-grid+.row-grid {
-            margin-top: 5px;
-        }
-
-        .row-grid+table {
-            margin-top: 5px;
-        }
-
-        .table th,
-        .table td {
-            padding: .1rem .5rem;
-        }
-
-        /* .table th { */
-        /* background-color: #6c757d !important; */
-        /* } */
-
-        .table-bordered {
-            border-bottom: 0;
-            border-left: 0;
-        }
-
-        .table-bordered tfoot th,
-        .table-bordered tfoot td {
-            border: 0;
-        }
+      html {
+        background-color: white;
+        font-family: 'Lucida Grande', Verdana, sans-serif;
+        width: 210mm;
+        height: 296mm;
+      }
     </style>
-</head>
 
-<body>
-  <div class="container">
-    <div class="row">
-
-      <div class="col-8">
-        <h3 class="text-primary">Goethe-Universität Frankfurt am Main</h3>
-        <p class="text-primary">Arbeitszeitblatt zur Erfassung der Arbeitszeit von studentischen Hilfskräften nach § 17 MiLoG und Arbeitszeitkonto
-          i.S.v. § 2 Abs. 2 MiLoG</p>
+    <div class="flex h-full">
+      <div class="whitespace-no-wrap w-1/3 mt-2 pl-4 text-sm h-full">
+        <img class="mt-6" style="height: 100px"  src="/app/api/static/api/GU_Logo_blau_weiß_RGB.svg">
+        <div class="w-full mt-6 text-blue-600 text-xl font-bold">
+          Stundenzettel
+        </div>
+        <div class="flex flex-wrap mb-1 text-gray-700 text-xs">
+          {{ general.long_month_name }} {{ general.year }}
+        </div>
+        <div class="flex flex-wrap mb-4 whitespace-normal text-gray-700 text-xs">
+          {{ general.contract_name }}
+        </div>
+        <div class="flex flex-wrap mb-4">
+          <span class="w-full font-bold text-blue-600">Name</span>
+          <br />
+          <span class="w-full whitespace-normal text-gray-700">{{ general.user_name }}</span>
+        </div>
+        <div class="flex flex-wrap mb-4">
+          <span class="w-full font-bold text-blue-600">Personalnummer</span>
+          <br />
+          <span class="text-gray-700">{{ general.personal_number }}</span>
+        </div>
+        <div class="mt-8">
+          <div
+            class="w-full text-blue-600 mb-4 whitespace-normal text-xl font-bold"
+          >
+            Arbeitszeitkonto
+          </div>
+          <div class="flex flex-wrap mb-4">
+            <span class="w-full font-bold text-blue-600">Übertrag Vormonat</span>
+            <br />
+            <span class="text-gray-700">{{ general.last_month_carry_over }}</span>
+          </div>
+          <div class="flex flex-wrap mb-4">
+            <span class="w-full font-bold text-blue-600">Monatliche Arbeitszeit</span>
+            <br />
+            <span class="text-gray-700">{{ general.debit_work_time }}</span>
+          </div>
+          <div class="flex flex-wrap mb-4">
+            <span class="w-full font-bold text-blue-600">Geleistete Arbeitszeit</span>
+            <br />
+            <span class="text-gray-700">{{ general.debit_work_time }}</span>
+          </div>
+          <div class="flex flex-wrap mb-4">
+            <span class="w-full font-bold text-blue-600">Übertrag Folgemonat</span>
+            <br />
+            <span class="front-bold text-gray-700">{{ general.next_month_carry_over }}</span>
+          </div>
+        </div>
+        <div class="absolute bottom-0">
+          <span class="font-bold text-blue-600 text-xs">Legende</span>
+          <ul class="list-none text-xs">
+            <li>Feiertag (F)</li>
+            <li>Urlaub (U)</li>
+            <li>Krank (K)</li>
+          </ul>
+        </div>
       </div>
 
-      <div class="col-4 text-bottom">
-          <p class="text-primary text-right">Stand: 01.01.1970
-          <br /> HR / Personalservices</p>
-      </div>
-
-    </div>
-
-    <div class="row row-grid">
-      <div class="col-4"><strong>Name, Vorname</strong></div>
-      <div class="col-4">{{general.user_name}}</div>
-      <div class="col"><strong>Pers. Nr.</strong></div>
-      <div class="col-2">{{ general.personal_number }}</div>
-    </div>
-
-    <div class="row row-grid">
-      <div class="col"><strong>Fachbereich / Organisationseinheit</strong></div>
-      <div class="col-7">{{ general.contract_name }}</div>
-    </div>
-
-    <div class="row row-grid">
-      <div class="col-1"><strong>Monat</strong></div>
-      <div class="col-1">{{ general.month }}</div>
-      <div class="col-1"><strong>Jahr</strong></div>
-      <div class="col-2">{{ general.year }}</div>
-      <div class="col-6"><strong>Monatliche Sollarbeitszeit (hh:mm)</strong></div>
-      <div class="col-1">{{ general.debit_work_time }}</div>
-    </div>
-
-    <table class="table table-bordered text-center">
-      <thead class="bg-secondary2">
-        <tr>
-          <th scope="col">Datum</th>
-          <th scope="col">Beginn</th>
-          <th scope="col">Ende</th>
-          <th scope="col">Abwesenheitsgrund<sup>1</sup></th>
-          <th scope="col">Arbeitszeit</th>
-          <th scope="col">Pause</th>
-          <th scope="col">Netto-Arbeitszeit</th>
-          <th scope="col">F / K / U</th>
-        </tr>
-      </thead>
-      <tfoot>
-        <tr>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td>{{ general.total_worked_time }}</td>
-          <td>00:00</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td>
-            <strong>Summe</strong>
-          </td>
-          <td>
-            <strong>{{ general.total_worked_time }}</strong>
-          </td>
-          <td></td>
-        </tr>
-      </tfoot>
-      <tbody>
-      {% for date in calendar %}
-          {% get_dict_value shift_content date as content%}
-          {% if content %}
+      <div class="flex-auto w-2/3">
+        <table class="table-auto text-xxs">
+          <thead>
             <tr>
-              <th scope="row">{{ date }}</th>
-              <td>{{ content.started }}</td>
-              <td>{{ content.stopped }}</td>
-              <td>{{ content.type }}</td>
-              <td>{{ content.work_time }}</td>
-              <td>{{ content.break_time }}</td>
-              <td>{{ content.net_work_time }}</td>
-              <td>{{ content.sick_or_vac_time }}</td>
+              <th class="px-4 py-2">Datum</th>
+              <th class="px-4 py-2">Start</th>
+              <th class="px-4 py-2">Ende</th>
+              <th class="px-4 py-2">Abwesenheitsgrund</th>
+              <th class="px-4 py-2">Pause</th>
+              <th class="px-4 py-2">Netto-Arbeitszeit</th>
+              <th class="px-4 py-2">F/K/U</th>
             </tr>
-          {% else %}
-              <tr>
-              <th scope="row">{{ date }}</th>
-              <td>00:00</td>
-              <td>00:00</td>
-              <td></td>
-              <td>00:00</td>
-              <td>00:00</td>
-              <td>00:00</td>
-              <td>00:00</td>
-            </tr>
-          {% endif %}
-      {% endfor %}
-      </tbody>
-    </table>
+          </thead>
+          <tbody class="text-center">
+          {% for date in calendar %}
+            {% get_dict_value shift_content date as content%}
+              {% if content %}
+                <tr>
+                  <td class="border px-4 py-2">{{ date }}</td>
+                  <td class="border px-4 py-2">{{ content.started }}</td>
+                  <td class="border px-4 py-2">{{ content.stopped }}</td>
+                  <td class="border px-4 py-2">{{ content.type }}</td>
+                  <td class="border px-4 py-2">{{ content.break_time }}</td>
+                  <td class="border px-4 py-2">{{ content.net_work_time }}</td>
+                  <td class="border px-4 py-2">{{ content.sick_or_vac_time }}</td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td class="border px-4 py-2">&nbsp;</td>
+                  <td class="border px-4 py-2">&nbsp;</td>
+                  <td class="border px-4 py-2">&nbsp;</td>
+                  <td class="border px-4 py-2">&nbsp;</td>
+                  <td class="border px-4 py-2">&nbsp;</td>
+                  <td class="border px-4 py-2">&nbsp;</td>
+                  <td class="border px-4 py-2">&nbsp;</td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
 
-    <table class="table table-bordered text-center">
-      <caption>1) Feiertag (F), Urlaub (U), Krank (K) <br /> 2) AZK = Arbeitszeitkonto</caption>
-      <thead>
-        <tr>
-          <th></th>
-          <th>AZK<sup>2</sup>  Übertrag Vormonat</th>
-          <th>vertr. festgel. monatliche Arbeitszeit</th>
-          <th>AZK<sup>2</sup> Übertrag Folgemonat</th>
-        </tr>
-      </thead>
-      <tbody class="border">
-        <tr>
-          <td></td>
-          <td>{{ general.last_month_carry_over }}</td>
-          <td>{{ general.debit_work_time }}</td>
-          <td>{{ general.next_month_carry_over }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-  </div>
-</body>
-
+        <div class="flex mt-16 text-xs">
+          <div class="flex-none font-bold pb-10 mr-8 border-b w-48">
+            Datum / Ort
+          </div>
+          <div class="flex-none font-bold ml-10 border-b w-48">Unterschrift</div>
+        </div>
+        <footer class="mt-8 text-xs text-gray-600">
+          <div>Dieser Stundenzettel wurde maschinell mit Hilfe von <a class="text-blue-600" href="https://clockgu.netlify.com">Clock</a> erstellt.
+          </div>
+          <div>Stand: 08. Juni 2020</div>
+        </footer>
+      </div>
+    </div>
+  </body>
 </html>
