@@ -33,7 +33,7 @@ urlpatterns = [
         name="list-shifts",
     ),
     path(
-        "contracts/<str:pk>/<int:month>/<int:year>/lock",
+        "contracts/<str:pk>/<int:month>/<int:year>/lock/",
         lock_shifts,
         name="contracts-lock-shifts",
     ),
