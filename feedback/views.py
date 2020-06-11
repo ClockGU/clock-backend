@@ -5,22 +5,7 @@ from django.core.mail import EmailMessage
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from django.conf import settings
-
-
-def format_message(url, name, email, message):
-    text = (
-        f"Name: {name}",
-        f"E-Mail: {email}",
-        "Nachricht:",
-        "",
-        message,
-        "",
-        "---------",
-        "",
-        f"Das ist eine automatisch generierte Nachricht von Clock (System URL: {url})",
-    )
-
-    return "\n".join(text)
+from .utils import format_message
 
 
 class FeedBackView(generics.GenericAPIView):
