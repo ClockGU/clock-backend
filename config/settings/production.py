@@ -50,7 +50,6 @@ ANYMAIL = {
     "MAILJET_SECRET_KEY": env.str("MAILJET_SECRET_KEY"),
 }
 EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
-SYSTEM_EMAIL = env.str("SYSTEM_EMAIL")
 
 # Sentry Configuration
 SENTRY_DSN = env("DJANGO_SENTRY_DSN")

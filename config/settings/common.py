@@ -91,6 +91,12 @@ DATABASES = {
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
+# EMAIL
+SYSTEM_EMAILS = {
+    "RECEIVER": env.str("SYSTEM_EMAIL_RECEIVER", "hello@example.com"),
+    "SENDER": env.str("SYSTEM_EMAIL_SENDER", "noreply@example.com"),
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 

@@ -1,11 +1,26 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from feedback.serializers import FeedBackSerializer
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
-from config.settings.common import env
 from django.conf import settings
+
+
+def format_message(url, name, email, message):
+    text = (
+        f"Name: {name}",
+        f"E-Mail: {email}",
+        "Nachricht:",
+        "",
+        message,
+        "",
+        "---------",
+        "",
+        f"Das ist eine automatisch generierte Nachricht von Clock (System URL: {url})",
+    )
+
+    return "\n".join(text)
 
 
 class FeedBackView(generics.GenericAPIView):
@@ -21,15 +36,23 @@ class FeedBackView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.data
 
-        message = send_mail(
+        message = EmailMessage(
             subject=data["title"],
-            from_email="{name} <{email}>".format(
-                name=data["name"], email=data["email"]
+            body=format_message(
+                request.build_absolute_uri(),
+                data["name"],
+                data["email"],
+                data["message"],
             ),
-            message=data["message"],
-            recipient_list=[settings.SYSTEM_EMAIL],
-            fail_silently=False,
+            from_email="Clock Feedback <{email}>".format(
+                name=data["name"], email=settings.SYSTEM_EMAILS["SENDER"]
+            ),
+            to=[settings.SYSTEM_EMAILS["RECEIVER"]],
+            reply_to=[data["email"], settings.SYSTEM_EMAILS["RECEIVER"]],
         )
+        message.send(fail_silently=False)
+
         if not message:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
         return Response(data=serializer.data)
