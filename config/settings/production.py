@@ -38,11 +38,18 @@ ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS")
 INSTALLED_APPS += ("raven.contrib.django.raven_compat",)
 
 # APPS
-INSTALLED_APPS += ("gunicorn",)
+INSTALLED_APPS += ("gunicorn", "anymail")
 
 # DATABASE
 DATABASES = {"default": env.db("DATABASE_URL")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
+
+# EMAIL
+ANYMAIL = {
+    "MAILJET_API_KEY": env.str("MAILJET_API_KEY"),
+    "MAILJET_SECRET_KEY": env.str("MAILJET_SECRET_KEY"),
+}
+EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 
 # Sentry Configuration
 SENTRY_DSN = env("DJANGO_SENTRY_DSN")

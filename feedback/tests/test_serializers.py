@@ -2,54 +2,54 @@ from rest_framework import serializers
 
 
 class TestFeedbackSerializer:
-    def test_serializer_has_user_name(self, feedback_serializer_field_dict):
+    def test_serializer_has_name(self, feedback_serializer_field_dict):
         """
-        Test Serializer has a user_name field.
+        Test serializer has a name field.
         :param feedback_serializer_field_dict:
         :return:
         """
-        assert feedback_serializer_field_dict.get("user_name")
+        assert feedback_serializer_field_dict.get("name")
 
-    def test_serializer_has_user_email(self, feedback_serializer_field_dict):
+    def test_serializer_has_email(self, feedback_serializer_field_dict):
         """
-        Test Serializer has a user_mail field.
+        Test serializer has a mail field.
         :param feedback_serializer_field_dict:
         :return:
         """
-        assert feedback_serializer_field_dict.get("user_email")
+        assert feedback_serializer_field_dict.get("email")
 
-    def test_serializer_has_email_title(self, feedback_serializer_field_dict):
+    def test_serializer_has_title(self, feedback_serializer_field_dict):
         """
-        Test Serializer has a email_title field.
+        Test serializer has a title field.
         :param feedback_serializer_field_dict:
         :return:
         """
-        assert feedback_serializer_field_dict.get("email_title")
+        assert feedback_serializer_field_dict.get("title")
 
-    def test_serializer_has_email_content(self, feedback_serializer_field_dict):
+    def test_serializer_has_message(self, feedback_serializer_field_dict):
         """
-        Test Serializer has a email_content field.
+        Test serializer has a message field.
         :param feedback_serializer_field_dict:
         :return:
         """
-        assert feedback_serializer_field_dict.get("email_content")
+        assert feedback_serializer_field_dict.get("message")
 
-    def test_field_type_user_name(self, feedback_serializer_field_dict):
+    def test_field_type_name(self, feedback_serializer_field_dict):
         assert isinstance(
-            feedback_serializer_field_dict.get("user_name"), serializers.CharField
+            feedback_serializer_field_dict.get("name"), serializers.CharField
         )
 
-    def test_field_type_user_email(self, feedback_serializer_field_dict):
+    def test_field_type_email(self, feedback_serializer_field_dict):
         assert isinstance(
-            feedback_serializer_field_dict.get("user_email"), serializers.EmailField
+            feedback_serializer_field_dict.get("email"), serializers.EmailField
         )
 
-    def test_field_type_email_title(self, feedback_serializer_field_dict):
+    def test_field_type_title(self, feedback_serializer_field_dict):
         assert isinstance(
-            feedback_serializer_field_dict.get("email_title"), serializers.CharField
+            feedback_serializer_field_dict.get("title"), serializers.CharField
         )
 
-    def test_field_type_email_content(self, feedback_serializer_field_dict):
+    def test_field_type_message(self, feedback_serializer_field_dict):
         assert isinstance(
-            feedback_serializer_field_dict.get("email_content"), serializers.CharField
+            feedback_serializer_field_dict.get("message"), serializers.CharField
         )

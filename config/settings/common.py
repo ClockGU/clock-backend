@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     "drf_yasg",
     "djoser",
     "corsheaders",
-    "anymail",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "django.contrib.sites",
@@ -92,6 +91,12 @@ DATABASES = {
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
+# EMAIL
+SYSTEM_EMAILS = {
+    "RECEIVER": env.str("SYSTEM_EMAIL_RECEIVER", "hello@example.com"),
+    "SENDER": env.str("SYSTEM_EMAIL_SENDER", "noreply@example.com"),
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 
@@ -144,16 +149,6 @@ CORS_ORIGIN_WHITELIST = env.tuple("CORS_ORIGIN_WHITELIST", default=())
 # The client must provide a `redirect_uri` query parameter when requesting the
 # authorization code URL. We retrieve it from the environment.
 GOETHE_OAUTH2_REDIRECT_URI = env.str("GOETHE_OAUTH2_REDIRECT_URI", default="")
-
-EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
-
-ANYMAIL = {
-    "MAILJET_API_KEY": env.str("MAILJET_API_KEY", default=""),
-    "MAILJET_SECRET_KEY": env.str("MAILJET_SECRET_KEY", default=""),
-}
-
-# hardcoded as recommended by docs
-MAILJET_API_URL = "https://api.mailjet.com/v3"
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/

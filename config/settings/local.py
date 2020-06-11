@@ -22,6 +22,7 @@ EMAIL_PORT = 1025
 EMAIL_BACKEND = env(
     "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
+SYSTEM_EMAIL = env.str("SYSTEM_EMAIL", "no-reply@example.com")
 
 MIDDLEWARE = ["request_logging.middleware.LoggingMiddleware"] + MIDDLEWARE
 
