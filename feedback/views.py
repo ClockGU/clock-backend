@@ -27,4 +27,4 @@ class FeedBackView(generics.GenericAPIView):
         )
         if not message:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        return Response(data=serializer)
+        return Response(data=serializer.data)
