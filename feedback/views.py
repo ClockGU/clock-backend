@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from config.settings.common import env
+from django.conf import settings
 
 
 class FeedBackView(generics.GenericAPIView):
@@ -26,6 +27,7 @@ class FeedBackView(generics.GenericAPIView):
                 name=data["name"], email=data["email"]
             ),
             message=data["message"],
+            recipient_list=[settings.SYSTEM_EMAIL],
             fail_silently=False,
         )
         if not message:

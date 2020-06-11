@@ -44,6 +44,9 @@ INSTALLED_APPS += ("gunicorn",)
 DATABASES = {"default": env.db("DATABASE_URL")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
+# EMAIL
+SYSTEM_EMAIL = env.str("SYSTEM_EMAIL")
+
 # Sentry Configuration
 SENTRY_DSN = env("DJANGO_SENTRY_DSN")
 SENTRY_CLIENT = env(
