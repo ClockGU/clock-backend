@@ -12,7 +12,9 @@ class FeedBackView(generics.GenericAPIView):
 
     permission_classes = ()
 
-    @swagger_auto_schema(responses={200: "The Views response is 200 if mail is sent"})
+    @swagger_auto_schema(
+        responses={200: "The view responds with 200 after sending the email."}
+    )
     def post(self, request, *args, **kwargs):
         serializer = FeedBackSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
