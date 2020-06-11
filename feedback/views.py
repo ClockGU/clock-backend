@@ -21,10 +21,11 @@ class FeedBackView(generics.GenericAPIView):
         data = serializer.data
 
         message = send_mail(
-            subject=data["email_title"],
-            from_email="{0} <{1}>".format(serializer["user_name"], data["user_email"]),
-            message=data["email_content"],
-            recipient_list=[env.str("SYSTEM_EMAIL")],
+            subject=data["title"],
+            from_email="{name} <{email}>".format(
+                name=data["name"], email=data["email"]
+            ),
+            message=data["message"],
             fail_silently=False,
         )
         if not message:
