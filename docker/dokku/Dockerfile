@@ -14,7 +14,8 @@ RUN adduser --ingroup app --home /app --uid 32768 --disabled-password --gecos ""
 RUN apt update \
     && apt install -y gettext git wkhtmltopdf binutils
 
-
+# Patch libQt5Core to make wkhmtltopdf work
+# See: https://github.com/wkhtmltopdf/wkhtmltopdf/issues/4497#issuecomment-541370182
 RUN strip --remove-section=.note.ABI-tag /usr/lib/x86_64-linux-gnu/libQt5Core.so.5
 
 # Set the correct timezone
