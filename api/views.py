@@ -202,7 +202,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             month=aggregated_content["general"]["month"],
             year=aggregated_content["general"]["year"],
         )
-        self.set_shifts_as_exported(report)
         return response
 
     def compile_pdf(self, template_name, content_dict, pdf_options):
