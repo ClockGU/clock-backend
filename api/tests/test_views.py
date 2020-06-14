@@ -641,32 +641,6 @@ class TestReportApiEndpoint:
         assert content["26.01.2019"]["sick_or_vac_time"] == "04:00"
 
     @pytest.mark.django_db
-    def test_method_to_set_shifts_exported(
-        self,
-        prepared_ReportViewSet_view,
-        shift_content_aggregation_gather_all_shifts,
-        report_object,
-    ):
-        """
-        Test of the set_shifts_as_exported_method.
-
-        :param prepared_ReportViewSet_view:
-        :param shift_content_aggregation_gather_all_shifts:
-        :param report_object:
-        :return:
-        """
-        prepared_ReportViewSet_view.set_shifts_as_exported(report_object)
-
-        shifts = Shift.objects.filter(
-            user=report_object.user,
-            contract=report_object.contract,
-            started__month=1,
-            started__year=2019,
-        ).order_by("started")
-
-        assert all(s.locked for s in shifts)
-
-    @pytest.mark.django_db
     def test_method_for_carryover_hours_previous_month_defualt(
         self, prepared_ReportViewSet_view, report_object
     ):
