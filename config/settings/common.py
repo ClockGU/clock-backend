@@ -153,7 +153,7 @@ GOETHE_OAUTH2_REDIRECT_URI = env.str("GOETHE_OAUTH2_REDIRECT_URI", default="")
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "de-DE"
 
 TIME_ZONE = "Europe/Berlin"
 
