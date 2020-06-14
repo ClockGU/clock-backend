@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.db.models import Sum, F, DurationField
 from django.db.models.functions import Coalesce
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from pytz import datetime
 from rest_framework import viewsets, serializers, mixins
 from rest_framework.decorators import action

@@ -2,7 +2,7 @@ import json
 from calendar import monthrange
 from pytz import datetime, utc
 from rest_framework import serializers, exceptions
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from api.models import User, Contract, Report, Shift, ClockedInShift
 
