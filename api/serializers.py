@@ -61,6 +61,10 @@ class UserSerializer(RestrictModificationModelSerializer):
         fields = "__all__"
 
 
+class DjoserUserSerializer(serializers.Serializer):
+    pass
+
+
 class ContractSerializer(RestrictModificationModelSerializer):
     class Meta:
         model = Contract

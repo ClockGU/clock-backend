@@ -10,7 +10,7 @@ from django.urls import reverse
 from freezegun import freeze_time
 from rest_framework import status, serializers
 
-from api.models import Contract, Shift, Report
+from api.models import Contract, Shift, Report, User
 
 
 class TestContractApiEndpoint:
@@ -760,3 +760,20 @@ class TestReportApiEndpoint:
             prepared_ReportViewSet_view.check_for_not_locked_shifts(
                 second_months_report_locked_shifts
             )
+
+
+class TestDjoserCustomizing:
+    @pytest.mark.django_db
+    def test_delete_user_custom_serializer(self, user_object, user_object_jwt, client):
+        """
+        Test if the user-delete view works with the specified custom UserSerializer.
+        :param user_object:
+        :param user_object_jwt:
+        :param client:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.delete(path=reverse("user-me"))
+        print(response.content)
+        assert response.status_code == 204
+        assert not User.objects.filter(id=user_object.id).exists()
