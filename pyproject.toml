@@ -16,8 +16,7 @@ djoser = "*"
 python-dateutil = "==2.7.5"
 django-anymail = "==5.0"
 django-taggit = "==0.23.0"
-psycopg2 = "==2.7.7"
-psycopg2-binary = "==2.7.7"
+psycopg2-binary = "==2.8.5"
 djangorestframework = "*"
 djangorestframework-simplejwt = "==3.3"
 celery = "==4.2.1"
@@ -31,7 +30,7 @@ django = "==2.2.13"
 more-itertools = "*"
 django-rosetta = "*"
 django-allauth = "^0.41.0"
-dj-rest-auth = { git = "https://github.com/jazzband/dj-rest-auth.git", rev = "860c350" }
+dj-rest-auth = "1.0.7"
 
 [tool.poetry.dev-dependencies]
 coverage = "==5.0a4"
