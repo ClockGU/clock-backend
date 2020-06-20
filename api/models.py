@@ -99,8 +99,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50)  # Firstname is required
     last_name = models.CharField(max_length=100)  # Lastname is required
-    personal_number = models.CharField(max_length=100)
-    language = models.CharField(choices=LANGUAGE_CHOICES, max_length=2)
+    personal_number = models.CharField(max_length=100, default="")
+    language = models.CharField(choices=LANGUAGE_CHOICES, default="en", max_length=2)
     date_joined = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
