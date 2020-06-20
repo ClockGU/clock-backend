@@ -131,7 +131,10 @@ REST_FRAMEWORK = {
 # Djoser
 DJOSER = {
     "TOKEN_MODEL": None,
-    "SERIALIZERS": {"user_delete": "api.serializers.DjoserUserSerializer"},
+    "SERIALIZERS": {
+        "user_delete": "api.serializers.DjoserUserSerializer",
+        "current_user": "api.serializers.UserSerializer",
+    },
 }
 
 # django-allauth: Query for the users email,
