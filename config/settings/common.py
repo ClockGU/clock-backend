@@ -128,7 +128,11 @@ REST_FRAMEWORK = {
 }
 
 
-DJOSER = {"TOKEN_MODEL": None}
+# Djoser
+DJOSER = {
+    "TOKEN_MODEL": None,
+    "SERIALIZERS": {"user_delete": "api.serializers.DjoserUserSerializer"},
+}
 
 # django-allauth: Query for the users email,
 # but do not prompt for verification
