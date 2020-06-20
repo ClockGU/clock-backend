@@ -774,6 +774,49 @@ class TestDjoserCustomizing:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.delete(path=reverse("user-me"))
-        print(response.content)
         assert response.status_code == 204
         assert not User.objects.filter(id=user_object.id).exists()
+
+    @pytest.mark.django_db
+    def test_put_user_custom_serializer(
+        self, user_object, user_object_jwt, user_object_json, client
+    ):
+        """
+        Test if the user/me/ PUT view works with the specified custom UserSerializer.
+        :param user_object:
+        :param user_object_jwt:
+        :param client:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        put_data = user_object_json
+        put_data["language"] = "de"
+        put_data["personal_number"] = "66666666"
+        response = client.put(
+            path=reverse("user-me"),
+            data=json.dumps(put_data),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert User.objects.get(id=user_object.id).language == "de"
+        assert User.objects.get(id=user_object.id).personal_number == "66666666"
+
+    @pytest.mark.django_db
+    def test_patch_user_custom_serializer(self, user_object, user_object_jwt, client):
+        """
+        Test if the user/me/ PATCH view works with the specified custom UserSerializer.
+        :param user_object:
+        :param user_object_jwt:
+        :param client:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        put_data = {"language": "de", "personal_number": "66666666"}
+        response = client.patch(
+            path=reverse("user-me"),
+            data=json.dumps(put_data),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert User.objects.get(id=user_object.id).language == "de"
+        assert User.objects.get(id=user_object.id).personal_number == "66666666"
