@@ -141,7 +141,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         """
         Check that the day of the start_date is the 1st or 15th day of the month.
         :param start_date:
-        :return: hours
+        :return:
         """
         if start_date.day not in (1, 15):
             raise serializers.ValidationError(
@@ -163,16 +163,16 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
         return end_date
 
-    def validate_hours(self, hours):
+    def validate_minutes(self, minutes):
         """
-        Check that the provided value for hours is greater than zero.
-        :param hours:
-        :return: hours
+        Check that the provided value for minutes is greater than zero.
+        :param minutes:
+        :return: minutes
         """
-        if hours <= 0:
+        if minutes <= 0:
             raise serializers.ValidationError(_("The monthly work time must not be 0."))
 
-        return hours
+        return minutes
 
 
 class ShiftSerializer(RestrictModificationModelSerializer):

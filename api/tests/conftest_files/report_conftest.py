@@ -16,16 +16,18 @@ def create_n_report_objects():
     :return: Function
     """
     month_year = datetime.date(2019, 1, 1)
-    _hours = datetime.timedelta(0)
+    _minutes = datetime.timedelta(0)
     created_at = datetime.datetime(2019, 1, 1, 16).isoformat()
     modified_at = created_at
 
-    def create_reports(start_stop, user, contract, hours=_hours, month_year=month_year):
+    def create_reports(
+        start_stop, user, contract, minutes=_minutes, month_year=month_year
+    ):
         lst = []
         for i in range(*start_stop):
             report = Report.objects.create(
                 month_year=month_year,
-                hours=hours,
+                minutes=minutes,
                 contract=contract,
                 user=user,
                 created_by=user,
@@ -62,7 +64,7 @@ def report_update_february_report(
         (1,),
         report_update_user,
         report_update_contract,
-        hours=datetime.timedelta(hours=-20),
+        minutes=datetime.timedelta(minutes=-1200),
         month_year=datetime.date(2019, 2, 1),
     )[0]
 
@@ -70,18 +72,16 @@ def report_update_february_report(
 @pytest.fixture
 def previous_report_object(create_n_report_objects, user_object, contract_object):
     """
-    This fixture creates a report object for preceeding report_object with a resulting carry_over
-    of 2 hours
-    :param create_n_report_objects:
-    :param user_object:
-    :param contract_object:
+    This fixture creates a report object for preceeding report_object with a
+    carry_over of 120 minutes
+    :param create_n_report_objects: :param user_object: :param contract_object:
     :return:
     """
     return create_n_report_objects(
         (1,),
         user_object,
         contract_object,
-        hours=datetime.timedelta(hours=22),
+        minutes=datetime.timedelta(minutes=1320),
         month_year=datetime.date(2018, 12, 1),
     )[0]
 
@@ -102,7 +102,7 @@ def january_report_object(
         (1,),
         user_object,
         contract_ending_in_february,
-        hours=datetime.timedelta(hours=22),
+        minutes=datetime.timedelta(minutes=1320),
         month_year=datetime.date(2019, 1, 1),
     )[0]
 

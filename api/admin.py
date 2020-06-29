@@ -33,7 +33,7 @@ class ContractAdmin(admin.ModelAdmin):
         "id",
         "link_user",
         "name",
-        "hours",
+        "minutes",
         "start_date",
         "end_date",
         "modified_at",

@@ -305,7 +305,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             }
         return content
 
-    def calculate_carry_over_hours(self, report_object, next_month=True):
+    def calculate_carry_over_minutes(self, report_object, next_month=True):
 
         # Calculate carry over from last month
         report_to_carry = report_object
@@ -317,10 +317,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 )
             except Report.DoesNotExist:
                 # If no Report Object exists we are in the case of the first Report of a Contract
-                # Hence return 00:00 hours
+                # Hence return 00:00
                 return "00:00"
-        time_delta = report_to_carry.hours - datetime.timedelta(
-            hours=report_object.contract.hours
+        time_delta = report_to_carry.minutes - datetime.timedelta(
+            minutes=report_object.contract.minutes
         )
         relative_time = relativedelta(seconds=time_delta.total_seconds())
 
@@ -379,7 +379,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             12: "Dezember",
         }
         content = {}
-        contract_hours_decimal, contract_hours = modf(report_object.contract.hours)
         user = report_object.user
 
         # Data for Header
@@ -393,17 +392,19 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["long_month_name"] = month_names[report_object.month_year.month]
 
         # Data for Footer
-        content["debit_work_time"] = "{hours:02g}:{minutes:02g}".format(
-            hours=contract_hours, minutes=60 * round(contract_hours_decimal, 2)
+        td = datetime.timedelta(minutes=report_object.contract.minutes)
+        hours_minutes = str(td)[:-3].split(":")
+        content["debit_work_time"] = ":".join(
+            [f"{int(part):02d}" for part in hours_minutes]
         )
         content["total_worked_time"] = relativedelta_to_string(
-            relativedelta(seconds=report_object.hours.total_seconds())
+            relativedelta(seconds=report_object.minutes.total_seconds())
         )
 
-        content["last_month_carry_over"] = self.calculate_carry_over_hours(
+        content["last_month_carry_over"] = self.calculate_carry_over_minutes(
             report_object, next_month=False
         )
-        content["next_month_carry_over"] = self.calculate_carry_over_hours(
+        content["next_month_carry_over"] = self.calculate_carry_over_minutes(
             report_object
         )
 

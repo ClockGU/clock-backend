@@ -34,7 +34,7 @@ def test_report_creation_on_contract_creation(user_object):
     _contract = Contract.objects.create(
         user=user_object,
         name="Report Creation Test Contract",
-        hours=20.0,
+        minutes=1200,
         start_date=datetime.date(2020, 1, 1),
         end_date=datetime.date(2020, 7, 31),
         created_by=user_object,
@@ -50,7 +50,7 @@ class TestUpdateSignals:
         self, report_update_user, report_update_contract
     ):
         """
-        Test that on an update the Report Update signal takes the previous months hours - Contrac.hours as carry over.
+        Test that on an update the Report Update signal takes the previous months minutes - Contract.minutes as carry over.
         :param report_update_user:
         :param report_update_contract:
         :param report_update_february_report:
@@ -74,7 +74,7 @@ class TestUpdateSignals:
 
         assert Report.objects.get(
             contract=report_update_contract, month_year=datetime.date(2019, 2, 1)
-        ).hours == datetime.timedelta(hours=-16)
+        ).minutes == datetime.timedelta(minutes=-960)
 
     @pytest.mark.django_db
     def test_signal_updates_shifts_report(
@@ -87,7 +87,7 @@ class TestUpdateSignals:
         :param user_object:
         :return:
         """
-        # Create shift for 29.01. which is 2 hours long
+        # Create shift for 29.01. which is 120 minutes long
         Shift.objects.create(
             started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
             stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
@@ -103,7 +103,7 @@ class TestUpdateSignals:
 
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
-        ).hours == datetime.timedelta(hours=2)
+        ).minutes == datetime.timedelta(minutes=120)
 
     @freeze_time("2020-02-15")
     @pytest.mark.django_db
@@ -111,7 +111,7 @@ class TestUpdateSignals:
         self, contract_ending_in_february, user_object
     ):
 
-        # Create shift for 29.01. which is 2 hours long
+        # Create shift for 29.01. which is 120 minutes long
         Shift.objects.create(
             started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
             stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
@@ -127,7 +127,7 @@ class TestUpdateSignals:
 
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
-        ).hours == datetime.timedelta(hours=-18)
+        ).minutes == datetime.timedelta(minutes=-1080)
 
     @pytest.mark.django_db
     def test_signal_only_updates_reviewed_shifts(
@@ -148,7 +148,7 @@ class TestUpdateSignals:
         )
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
-        ).hours == datetime.timedelta(0)
+        ).minutes == datetime.timedelta(0)
 
     @pytest.mark.django_db
     def test_signal_updates_report_after_shift_deletion(
@@ -164,11 +164,11 @@ class TestUpdateSignals:
         # Sanity check
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
-        ).hours == datetime.timedelta(hours=2)
+        ).minutes == datetime.timedelta(minutes=120)
         shift_object.delete()
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
-        ).hours == datetime.timedelta(0)
+        ).minutes == datetime.timedelta(0)
 
     @pytest.mark.django_db
     # @pytest.mark.freeze_time("2019-02-15")
@@ -183,8 +183,8 @@ class TestUpdateSignals:
 
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
-        ).hours == datetime.timedelta(hours=-18)
+        ).minutes == datetime.timedelta(minutes=-1080)
         shift_object_february_contract.delete()
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
-        ).hours == datetime.timedelta(hours=-20)
+        ).minutes == datetime.timedelta(minutes=-1200)

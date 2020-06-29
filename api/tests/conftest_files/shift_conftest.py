@@ -495,7 +495,7 @@ def shift_content_aggregation_merges_shifts(
     user_object, contract_object, create_n_shift_objects
 ):
     """
-    This fixture creates 3 Shifts with a duration of 2 hours each and 1 hour break between each.
+    This fixture creates 3 Shifts with a duration of 120 minutes each and 60 minute break between each.
     :param user_object:
     :param contract_object:
     :param create_n_shift_objects:
@@ -534,7 +534,7 @@ def two_shifts_with_one_vacation_shift(
     """
     This fixture creates two shifts for a day.
     1. Shift is a regular 4 hour shift of type `st`.
-    2. Shift is a vacation shift of 4 hours (type=vn).
+    2. Shift is a vacation shift of 240 minutes (type=vn).
     :param user_object:
     :param contract_object:
     :param create_n_shift_objects:
