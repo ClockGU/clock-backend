@@ -224,7 +224,7 @@ class TestContractFields:
 
     def test_field_type_minutes(self, contract_model_class):
         assert isinstance(
-            contract_model_class._meta.get_field("minutes"), models.FloatField
+            contract_model_class._meta.get_field("minutes"), models.PositiveIntegerField
         )
 
     def test_field_type_start_date(self, contract_model_class):
