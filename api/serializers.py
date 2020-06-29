@@ -58,7 +58,18 @@ class UserSerializer(RestrictModificationModelSerializer):
 
     class Meta:
         model = User
-        fields = "__all__"
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "personal_number",
+            "language",
+            "date_joined",
+            "modified_at",
+            "last_login",
+        ]
 
 
 class DjoserUserSerializer(serializers.Serializer):
