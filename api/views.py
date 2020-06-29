@@ -10,7 +10,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from pdfkit import from_string as pdf_from_string
 from dateutil.relativedelta import relativedelta
-from math import modf
 from more_itertools import pairwise
 from rest_framework.renderers import JSONRenderer
 from drf_yasg.utils import swagger_auto_schema
@@ -305,7 +304,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             }
         return content
 
-    def calculate_carry_over_minutes(self, report_object, next_month=True):
+    def calculate_carry_over_worktime(self, report_object, next_month=True):
 
         # Calculate carry over from last month
         report_to_carry = report_object
@@ -319,7 +318,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 # If no Report Object exists we are in the case of the first Report of a Contract
                 # Hence return 00:00
                 return "00:00"
-        time_delta = report_to_carry.minutes - datetime.timedelta(
+        time_delta = report_to_carry.worktime - datetime.timedelta(
             minutes=report_object.contract.minutes
         )
         relative_time = relativedelta(seconds=time_delta.total_seconds())
@@ -398,13 +397,13 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             [f"{int(part):02d}" for part in hours_minutes]
         )
         content["total_worked_time"] = relativedelta_to_string(
-            relativedelta(seconds=report_object.minutes.total_seconds())
+            relativedelta(seconds=report_object.worktime.total_seconds())
         )
 
-        content["last_month_carry_over"] = self.calculate_carry_over_minutes(
+        content["last_month_carry_over"] = self.calculate_carry_over_worktime(
             report_object, next_month=False
         )
-        content["next_month_carry_over"] = self.calculate_carry_over_minutes(
+        content["next_month_carry_over"] = self.calculate_carry_over_worktime(
             report_object
         )
 

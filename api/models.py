@@ -180,7 +180,7 @@ class Report(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
     month_year = models.DateField()
-    minutes = models.DurationField()
+    worktime = models.DurationField()
     contract = models.ForeignKey(
         to=Contract, related_name="reports", on_delete=models.CASCADE
     )

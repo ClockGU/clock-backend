@@ -67,7 +67,7 @@ class TestCeleryBeats:
 
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year__month=2
-        ).minutes == timedelta(minutes=-600)
+        ).worktime == timedelta(minutes=-600)
 
     @pytest.mark.freeze_time("2019-12-01")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
@@ -93,4 +93,4 @@ class TestCeleryBeats:
         print([f.month_year for f in Report.objects.filter(contract=december_contract)])
         assert Report.objects.get(
             contract=december_contract, month_year=datetime(2020, 1, 1)
-        ).minutes == timedelta(minutes=-1200)
+        ).worktime == timedelta(minutes=-1200)

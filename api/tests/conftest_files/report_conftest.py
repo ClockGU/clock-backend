@@ -16,18 +16,18 @@ def create_n_report_objects():
     :return: Function
     """
     month_year = datetime.date(2019, 1, 1)
-    _minutes = datetime.timedelta(0)
+    _worktime = datetime.timedelta(0)
     created_at = datetime.datetime(2019, 1, 1, 16).isoformat()
     modified_at = created_at
 
     def create_reports(
-        start_stop, user, contract, minutes=_minutes, month_year=month_year
+        start_stop, user, contract, worktime=_worktime, month_year=month_year
     ):
         lst = []
         for i in range(*start_stop):
             report = Report.objects.create(
                 month_year=month_year,
-                minutes=minutes,
+                worktime=worktime,
                 contract=contract,
                 user=user,
                 created_by=user,
@@ -64,7 +64,7 @@ def report_update_february_report(
         (1,),
         report_update_user,
         report_update_contract,
-        minutes=datetime.timedelta(minutes=-1200),
+        worktime=datetime.timedelta(minutes=-1200),
         month_year=datetime.date(2019, 2, 1),
     )[0]
 
@@ -81,7 +81,7 @@ def previous_report_object(create_n_report_objects, user_object, contract_object
         (1,),
         user_object,
         contract_object,
-        minutes=datetime.timedelta(minutes=1320),
+        worktime=datetime.timedelta(minutes=1320),
         month_year=datetime.date(2018, 12, 1),
     )[0]
 
@@ -102,7 +102,7 @@ def january_report_object(
         (1,),
         user_object,
         contract_ending_in_february,
-        minutes=datetime.timedelta(minutes=1320),
+        worktime=datetime.timedelta(minutes=1320),
         month_year=datetime.date(2019, 1, 1),
     )[0]
 

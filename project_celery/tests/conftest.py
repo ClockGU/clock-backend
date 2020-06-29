@@ -53,7 +53,7 @@ def celery_test_fixture_correct_minutes(user_object, contract_ending_in_february
     :return:
     """
     january_report = contract_ending_in_february.reports.get(month_year__month=1)
-    january_report.minutes = datetime.timedelta(minutes=600)
+    january_report.worktime = datetime.timedelta(minutes=600)
     january_report.save()
     worker = start_worker(app)
     worker.__enter__()

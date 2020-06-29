@@ -652,13 +652,13 @@ class TestReportApiEndpoint:
         :return:
         """
 
-        carry_over_minutes = prepared_ReportViewSet_view.calculate_carry_over_minutes(
+        carry_over_worktime = prepared_ReportViewSet_view.calculate_carry_over_worktime(
             report_object, next_month=False
         )
-        assert carry_over_minutes == "00:00"
+        assert carry_over_worktime == "00:00"
 
     @pytest.mark.django_db
-    def test_method_for_carry_over_minutes_previous_month(
+    def test_method_for_carry_over_worktime_previous_month(
         self, prepared_ReportViewSet_view, report_object, previous_report_object
     ):
         """
@@ -669,13 +669,13 @@ class TestReportApiEndpoint:
         :param previous_report_object:
         :return:
         """
-        carry_over_minutes = prepared_ReportViewSet_view.calculate_carry_over_minutes(
+        carry_over_worktime = prepared_ReportViewSet_view.calculate_carry_over_worktime(
             report_object, next_month=False
         )
-        assert carry_over_minutes == "02:00"
+        assert carry_over_worktime == "02:00"
 
     @pytest.mark.django_db
-    def test_method_for_carry_over_minutes_next_month(
+    def test_method_for_carry_over_worktime_next_month(
         self, prepared_ReportViewSet_view, report_object
     ):
         """
@@ -685,10 +685,10 @@ class TestReportApiEndpoint:
         :param report_object:
         :return:
         """
-        carry_over_minutes = prepared_ReportViewSet_view.calculate_carry_over_minutes(
+        carry_over_worktime = prepared_ReportViewSet_view.calculate_carry_over_worktime(
             report_object, next_month=True
         )
-        assert carry_over_minutes == "-20:00"
+        assert carry_over_worktime == "-20:00"
 
     @pytest.mark.django_db
     def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):

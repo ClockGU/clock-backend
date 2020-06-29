@@ -541,8 +541,8 @@ class TestReportFields:
     def test_model_has_month_year(self, report_model_class):
         assert hasattr(report_model_class, "month_year")
 
-    def test_model_has_minutes(self, report_model_class):
-        assert hasattr(report_model_class, "minutes")
+    def test_model_has_worktime(self, report_model_class):
+        assert hasattr(report_model_class, "worktime")
 
     def test_model_has_contract(self, report_model_class):
         assert hasattr(report_model_class, "contract")
@@ -570,9 +570,9 @@ class TestReportFields:
             report_model_class._meta.get_field("month_year"), models.DateField
         )
 
-    def test_field_type_minutes(self, report_model_class):
+    def test_field_type_worktime(self, report_model_class):
         assert isinstance(
-            report_model_class._meta.get_field("minutes"), models.DurationField
+            report_model_class._meta.get_field("worktime"), models.DurationField
         )
 
     def test_field_type_contract(self, report_model_class):
