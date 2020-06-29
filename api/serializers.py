@@ -163,17 +163,6 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
         return end_date
 
-    def validate_minutes(self, minutes):
-        """
-        Check that the provided value for minutes is greater than zero.
-        :param minutes:
-        :return: minutes
-        """
-        if minutes <= 0:
-            raise serializers.ValidationError(_("The monthly work time must not be 0."))
-
-        return minutes
-
 
 class ShiftSerializer(RestrictModificationModelSerializer):
     tags = TagsSerializerField()
