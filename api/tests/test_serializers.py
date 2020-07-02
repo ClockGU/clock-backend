@@ -40,7 +40,7 @@ class TestContractSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ContractSerializer(
                 data=end_date_before_start_date_contract_querydict,
                 context={"request": plain_request_object},
@@ -57,7 +57,7 @@ class TestContractSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ContractSerializer(
                 data=start_date_day_incorrect_contract_querydict,
                 context={"request": plain_request_object},
@@ -74,7 +74,7 @@ class TestContractSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ContractSerializer(
                 data=end_date_day_incorrect_contract_querydict,
                 context={"request": plain_request_object},
@@ -91,7 +91,7 @@ class TestContractSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ContractSerializer(
                 data=negative_minutes_contract_querydict,
                 context={"request": plain_request_object},
@@ -108,7 +108,7 @@ class TestContractSerializerValidation:
         :param contract_ending_in_february_json:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ContractSerializer(
                 data=contract_ending_in_february_querydict,
                 context={"request": plain_request_object},
@@ -133,7 +133,7 @@ class TestContractSerializerValidation:
         :return:
         """
 
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ContractSerializer(
                 instance=contract_ending_in_february,
                 data=start_date_after_months_with_shifts_contract_querydict,
@@ -159,7 +159,7 @@ class TestContractSerializerValidation:
         :return:
         """
 
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ContractSerializer(
                 instance=contract_ending_in_february,
                 data=end_date_before_months_with_shifts_contract_querydict,
@@ -195,7 +195,7 @@ class TestShiftSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=stopped_before_started_querydict,
                 context={"request": plain_request_object},
@@ -212,7 +212,7 @@ class TestShiftSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=stopped_on_next_day_querydict,
                 context={"request": plain_request_object},
@@ -229,7 +229,7 @@ class TestShiftSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=shift_starts_before_contract_querydict,
                 context={"request": plain_request_object},
@@ -246,7 +246,7 @@ class TestShiftSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=shift_starts_ends_after_contract_json_querydict,
                 context={"request": plain_request_object},
@@ -263,7 +263,7 @@ class TestShiftSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=contract_not_belonging_to_user_querydict,
                 context={"request": plain_request_object},
@@ -278,7 +278,7 @@ class TestShiftSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=wrong_type_querydict, context={"request": plain_request_object}
             ).is_valid(raise_exception=True)
@@ -292,7 +292,7 @@ class TestShiftSerializerValidation:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=tags_not_string_querydict,
                 context={"request": plain_request_object},
@@ -303,7 +303,7 @@ class TestShiftSerializerValidation:
     def test_shift_in_past_as_planned_fails(
         self, shift_is_planned_but_started_in_past_json_querydict, plain_request_object
     ):
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=shift_is_planned_but_started_in_past_json_querydict,
                 context={"request": plain_request_object},
@@ -323,7 +323,7 @@ class TestShiftSerializerValidation:
         :param test_shift_creation_if_allready_exported:
         :return:
         """
-        with pytest.raises(exceptions.PermissionDenied) as e_info:
+        with pytest.raises(exceptions.PermissionDenied):
             ShiftSerializer(
                 data=valid_shift_querydict, context={"request": plain_request_object}
             ).is_valid(raise_exception=True)
@@ -333,7 +333,7 @@ class TestShiftSerializerValidation:
     def test_shift_in_future_was_reviewed_fails(
         self, shift_starting_in_future_was_reviewed_querydict, plain_request_object
     ):
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=shift_starting_in_future_was_reviewed_querydict,
                 context={"request": plain_request_object},
@@ -371,7 +371,7 @@ class TestClockedInShiftSerializer:
         :param plain_request_object:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=clockedinshift_invalid_contract_json,
                 context={"request": plain_request_object},

@@ -1,9 +1,8 @@
-from freezegun import freeze_time
 from datetime import datetime, timedelta
 
 import pytest
 import time
-from api.models import User, Report, Contract
+from api.models import Report
 from project_celery.tasks import create_reports_monthly
 from project_celery.celery import app
 
@@ -63,7 +62,6 @@ class TestCeleryBeats:
         freezer.move_to("2019-02-01")
         create_reports_monthly()
         time.sleep(10)
-        _month_year = datetime.now().date()
 
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year__month=2

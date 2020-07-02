@@ -742,7 +742,7 @@ class TestReportApiEndpoint:
         :param overlapping_shifts:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             prepared_ReportViewSet_view.check_for_overlapping_shifts(overlapping_shifts)
 
     @pytest.mark.django_db
@@ -756,7 +756,7 @@ class TestReportApiEndpoint:
         The provided Report belongs to a Contract which has unlocked, not planned shifts in the
         first month. The check_for_not_locked_shifts() Method should hence throw an ValidationError.
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             prepared_ReportViewSet_view.check_for_not_locked_shifts(
                 second_months_report_locked_shifts
             )

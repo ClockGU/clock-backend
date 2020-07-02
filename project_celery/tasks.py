@@ -10,9 +10,6 @@ from dateutil.relativedelta import relativedelta
 
 from api.models import User, Report
 
-#         crontab(0, 0, day_of_month="1")
-
-# Example Tasks
 
 # Task which creates 5 User DB-Entries
 @app.task(bind=True, default_retry_delay=10)

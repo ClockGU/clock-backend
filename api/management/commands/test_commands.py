@@ -45,5 +45,5 @@ class TestCreateReportsCommand:
         :return:
         """
         out = StringIO()
-        with pytest.raises(CommandError) as e_info:
+        with pytest.raises(CommandError):
             call_command("create_reports", "2", "2019", stdout=out)

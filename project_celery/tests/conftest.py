@@ -2,15 +2,11 @@
 # The conftest file is split up into these files for clarity and brevity.
 # Everything is handled according to the pytest documentiation
 # found here: https://docs.pytest.org/en/latest/fixture.html#conftest-py-sharing-fixture-functions
-#
+import datetime
 import pytest
 from celery.contrib.testing.worker import start_worker
 from project_celery.celery import app
-from api.tests.conftest_files.contract_conftest import *
-from api.tests.conftest_files.general_conftest import *
-from api.tests.conftest_files.report_conftest import *
-from api.tests.conftest_files.shift_conftest import *
-from api.tests.conftest_files.user_conftest import *
+from api.models import Contract
 
 
 @pytest.fixture

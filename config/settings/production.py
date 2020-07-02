@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from .common import *  # noqa
+from .common import INSTALLED_APPS, MIDDLEWARE, env
 
 # SECRET CONFIGURATION
 SECRET_KEY = env("DJANGO_SECRET_KEY")

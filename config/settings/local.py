@@ -1,6 +1,6 @@
 import logging
 
-from .common import *  # noqa
+from .common import INSTALLED_APPS, MIDDLEWARE, env
 
 # Try and read a local .env file
 # Required to define CORS_ORIGIN_WHITELIST on local machine
