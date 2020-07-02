@@ -623,7 +623,7 @@ python-versions = "*"
 version = "0.2.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "A Python utility / library to sort Python imports."
 name = "isort"
 optional = false
@@ -1274,7 +1274,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "65b0507b178ecf65c22b220a8e323256b1f5f248f6cc3f960f151a6dbecfd0d4"
+content-hash = "9f57e2f97983ad9692be25f194a602d666b78c525f0ad5e936cfc8f9c222c329"
 python-versions = "^3.7"
 
 [metadata.files]
