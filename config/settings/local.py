@@ -1,6 +1,7 @@
+# flake8: noqa
 import logging
 
-from .common import *  # noqa
+from .common import *
 
 # Try and read a local .env file
 # Required to define CORS_ORIGIN_WHITELIST on local machine

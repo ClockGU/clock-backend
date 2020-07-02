@@ -1,7 +1,9 @@
-from django.core.management.base import BaseCommand, CommandError
-from api.models import User, Contract, Report
 import datetime
+
 from dateutil.relativedelta import relativedelta
+from django.core.management.base import BaseCommand, CommandError
+
+from api.models import Contract, Report, User
 
 
 class Command(BaseCommand):

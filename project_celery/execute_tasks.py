@@ -1,4 +1,4 @@
-from .tasks import twenty_second_task, twenty_second_task
+from .tasks import twenty_second_task
 
 # Proof of concept, run this to see that celery is working
 

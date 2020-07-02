@@ -1,12 +1,11 @@
 import pytest
-from django.urls import reverse
+from dateutil.relativedelta import relativedelta
 from django.test import RequestFactory
+from django.urls import reverse
 from rest_framework.request import QueryDict, Request
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
-from dateutil.relativedelta import relativedelta
-
-from api.models import Contract, Report, Shift, User, ClockedInShift
+from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.views import ReportViewSet
 
 # This conftest file provides all necessary test data concerning project classes and auxiliary functions/classes.

@@ -17,6 +17,7 @@ app.conf.beat_schedule = {
 }
 app.autodiscover_tasks()
 
+
 # Needed for celery within tests.
 # This was mentioned in : https://stackoverflow.com/questions/46530784/make-django-test-case-database-visible-to-celery
 @app.task(name="celery.ping")

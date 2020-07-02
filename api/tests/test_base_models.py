@@ -395,7 +395,7 @@ class TestShiftFields:
     def test_field_conf_was_reviewed(self, shift_model_class):
         field = shift_model_class._meta.get_field("was_reviewed")
         assert (
-            field.default == True
+            field.default is True
         )  # if no default is provided django returns an object which would be allways True
 
     def test_field_conf_locked(self, shift_model_class):

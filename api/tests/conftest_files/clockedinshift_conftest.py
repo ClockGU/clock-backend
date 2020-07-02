@@ -4,7 +4,6 @@ from rest_framework.request import QueryDict
 
 from api.models import ClockedInShift
 
-
 # This conftest file provides all necessary test data concerning the ClockedInShift Model.
 # It will be imported by the conftest.py in the parent directory.
 

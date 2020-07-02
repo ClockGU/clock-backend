@@ -1,16 +1,16 @@
 # View tests come here
 
 import json
+import time
 from datetime import datetime
-from dateutil.parser import parse
 
 import pytest
-import time
+from dateutil.parser import parse
 from django.urls import reverse
 from freezegun import freeze_time
-from rest_framework import status, serializers
+from rest_framework import serializers, status
 
-from api.models import Contract, Shift, Report, User
+from api.models import Contract, Report, Shift, User
 
 
 class TestContractApiEndpoint:
@@ -742,7 +742,7 @@ class TestReportApiEndpoint:
         :param overlapping_shifts:
         :return:
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             prepared_ReportViewSet_view.check_for_overlapping_shifts(overlapping_shifts)
 
     @pytest.mark.django_db
@@ -756,7 +756,7 @@ class TestReportApiEndpoint:
         The provided Report belongs to a Contract which has unlocked, not planned shifts in the
         first month. The check_for_not_locked_shifts() Method should hence throw an ValidationError.
         """
-        with pytest.raises(serializers.ValidationError) as e_info:
+        with pytest.raises(serializers.ValidationError):
             prepared_ReportViewSet_view.check_for_not_locked_shifts(
                 second_months_report_locked_shifts
             )

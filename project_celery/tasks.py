@@ -3,16 +3,13 @@ from __future__ import absolute_import
 import random
 import time
 
-from django.contrib.auth.models import User
-from project_celery.celery import app
-from pytz import datetime
 from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import User
+from pytz import datetime
 
-from api.models import User, Report
+from api.models import Report, User
+from project_celery.celery import app
 
-#         crontab(0, 0, day_of_month="1")
-
-# Example Tasks
 
 # Task which creates 5 User DB-Entries
 @app.task(bind=True, default_retry_delay=10)

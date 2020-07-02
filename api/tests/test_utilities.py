@@ -1,13 +1,14 @@
 import json
+import time
 from datetime import datetime
 
 import pytest
-import time
 from django.urls import reverse
 from freezegun import freeze_time
-from rest_framework import status
 from pytz import datetime, utc
-from api.models import Contract, Shift, Report
+from rest_framework import status
+
+from api.models import Contract, Report, Shift
 from api.utilities import relativedelta_to_string
 
 
