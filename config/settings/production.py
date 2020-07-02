@@ -1,7 +1,8 @@
+# flake8: noqa
 import logging
 import sys
 
-from .common import INSTALLED_APPS, MIDDLEWARE, env
+from .common import *
 
 # SECRET CONFIGURATION
 SECRET_KEY = env("DJANGO_SECRET_KEY")
