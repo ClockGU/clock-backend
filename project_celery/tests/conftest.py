@@ -8,6 +8,7 @@ import pytest
 from celery.contrib.testing.worker import start_worker
 
 from api.models import Contract
+from api.tests.conftest import *  # noqa
 from project_celery.celery import app
 
 
