@@ -3,10 +3,12 @@
 # Everything is handled according to the pytest documentiation
 # found here: https://docs.pytest.org/en/latest/fixture.html#conftest-py-sharing-fixture-functions
 import datetime
+
 import pytest
 from celery.contrib.testing.worker import start_worker
-from project_celery.celery import app
+
 from api.models import Contract
+from project_celery.celery import app
 
 
 @pytest.fixture

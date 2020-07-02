@@ -1,26 +1,26 @@
+from dateutil.relativedelta import relativedelta
+from django.db.models import DurationField, F, Sum
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.template.loader import get_template
-from django.db.models import Sum, F, DurationField
-from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
+from drf_yasg.utils import swagger_auto_schema
+from more_itertools import pairwise
+from pdfkit import from_string as pdf_from_string
 from pytz import datetime
-from rest_framework import viewsets, serializers, mixins
+from rest_framework import mixins, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
-from pdfkit import from_string as pdf_from_string
-from dateutil.relativedelta import relativedelta
-from more_itertools import pairwise
 from rest_framework.renderers import JSONRenderer
-from drf_yasg.utils import swagger_auto_schema
+from rest_framework.response import Response
 
-from api.models import User, Contract, Report, Shift, ClockedInShift
+from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.serializers import (
-    UserSerializer,
+    ClockedInShiftSerializer,
     ContractSerializer,
     ReportSerializer,
     ShiftSerializer,
-    ClockedInShiftSerializer,
+    UserSerializer,
 )
 from api.utilities import relativedelta_to_string, timedelta_to_string
 from project_celery.tasks import async_5_user_creation

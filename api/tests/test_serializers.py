@@ -1,11 +1,11 @@
 import pytest
-from rest_framework import serializers, exceptions
 from freezegun import freeze_time
+from rest_framework import exceptions, serializers
 
 from api.serializers import (
+    ClockedInShiftSerializer,
     ContractSerializer,
     ShiftSerializer,
-    ClockedInShiftSerializer,
 )
 
 

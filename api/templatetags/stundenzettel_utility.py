@@ -1,6 +1,7 @@
-from django import template
 from calendar import monthrange
 from datetime import date
+
+from django import template
 
 register = template.Library()
 

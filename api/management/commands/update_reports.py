@@ -1,7 +1,9 @@
+import datetime
+
 from django.core.management.base import BaseCommand, CommandError
+
 from api.models import Contract
 from api.utilities import update_reports
-import datetime
 
 
 class Command(BaseCommand):

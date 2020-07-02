@@ -1,7 +1,8 @@
 from io import StringIO
+
+import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
-import pytest
 
 
 class TestCreateReportsCommand:

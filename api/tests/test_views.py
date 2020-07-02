@@ -1,16 +1,16 @@
 # View tests come here
 
 import json
+import time
 from datetime import datetime
-from dateutil.parser import parse
 
 import pytest
-import time
+from dateutil.parser import parse
 from django.urls import reverse
 from freezegun import freeze_time
-from rest_framework import status, serializers
+from rest_framework import serializers, status
 
-from api.models import Contract, Shift, Report, User
+from api.models import Contract, Report, Shift, User
 
 
 class TestContractApiEndpoint:

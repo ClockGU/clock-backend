@@ -1,10 +1,11 @@
+import time
 from datetime import datetime, timedelta
 
 import pytest
-import time
+
 from api.models import Report
-from project_celery.tasks import create_reports_monthly
 from project_celery.celery import app
+from project_celery.tasks import create_reports_monthly
 
 
 class TestCeleryBeats:

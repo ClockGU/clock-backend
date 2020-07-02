@@ -1,10 +1,11 @@
-from rest_framework import generics
-from rest_framework.response import Response
-from feedback.serializers import FeedBackSerializer
-from django.core.mail import EmailMessage
-from rest_framework import status
-from drf_yasg.utils import swagger_auto_schema
 from django.conf import settings
+from django.core.mail import EmailMessage
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import generics, status
+from rest_framework.response import Response
+
+from feedback.serializers import FeedBackSerializer
+
 from .utils import format_message
 
 

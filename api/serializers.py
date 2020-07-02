@@ -1,10 +1,11 @@
 import json
 from calendar import monthrange
-from pytz import datetime, utc
-from rest_framework import serializers, exceptions
-from django.utils.translation import gettext_lazy as _
 
-from api.models import User, Contract, Report, Shift, ClockedInShift
+from django.utils.translation import gettext_lazy as _
+from pytz import datetime, utc
+from rest_framework import exceptions, serializers
+
+from api.models import ClockedInShift, Contract, Report, Shift, User
 
 
 class TagsSerializerField(serializers.Field):

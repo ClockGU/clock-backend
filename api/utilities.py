@@ -1,9 +1,10 @@
-from api.models import Report, Contract, Shift
-from django.db.models.signals import post_save, post_delete
-from django.db.models import Sum, F, DurationField
-from django.db.models.functions import Coalesce
-from pytz import datetime
 from dateutil.relativedelta import relativedelta
+from django.db.models import DurationField, F, Sum
+from django.db.models.functions import Coalesce
+from django.db.models.signals import post_delete, post_save
+from pytz import datetime
+
+from api.models import Contract, Report, Shift
 
 # Receiver used for the main API
 
