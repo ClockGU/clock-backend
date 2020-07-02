@@ -14,13 +14,19 @@ def hours_to_minutes(apps, schema_editor):
         contract.save()
 
 
-class Migration(migrations.Migration):
+def minutes_to_hours(apps, schema_editor):
+    Contract = apps.get_model("api", "Contract")
+    for contract in Contract.objects.all():
+        contract.hours = contract.hours / 60
+        contract.save()
 
+
+class Migration(migrations.Migration):
     dependencies = [("api", "0012_auto_20200629_1902")]
 
     operations = [
         migrations.AlterField(
             model_name="contract", name="minutes", field=models.PositiveIntegerField()
         ),
-        migrations.RunPython(hours_to_minutes),
+        migrations.RunPython(hours_to_minutes, minutes_to_hours),
     ]
