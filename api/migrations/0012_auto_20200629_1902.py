@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
             model_name="contract", old_name="hours", new_name="minutes"
         ),
         migrations.RenameField(
-            model_name="report", old_name="hours", new_name="minutes"
+            model_name="report", old_name="hours", new_name="worktime"
         ),
     ]
