@@ -10,7 +10,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from pdfkit import from_string as pdf_from_string
 from dateutil.relativedelta import relativedelta
-from math import modf
 from more_itertools import pairwise
 from rest_framework.renderers import JSONRenderer
 from drf_yasg.utils import swagger_auto_schema
@@ -305,7 +304,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             }
         return content
 
-    def calculate_carry_over_hours(self, report_object, next_month=True):
+    def calculate_carry_over_worktime(self, report_object, next_month=True):
 
         # Calculate carry over from last month
         report_to_carry = report_object
@@ -317,10 +316,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 )
             except Report.DoesNotExist:
                 # If no Report Object exists we are in the case of the first Report of a Contract
-                # Hence return 00:00 hours
+                # Hence return 00:00
                 return "00:00"
-        time_delta = report_to_carry.hours - datetime.timedelta(
-            hours=report_object.contract.hours
+        time_delta = report_to_carry.worktime - datetime.timedelta(
+            minutes=report_object.contract.minutes
         )
         relative_time = relativedelta(seconds=time_delta.total_seconds())
 
@@ -379,7 +378,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             12: "Dezember",
         }
         content = {}
-        contract_hours_decimal, contract_hours = modf(report_object.contract.hours)
         user = report_object.user
 
         # Data for Header
@@ -393,17 +391,17 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["long_month_name"] = month_names[report_object.month_year.month]
 
         # Data for Footer
-        content["debit_work_time"] = "{hours:02g}:{minutes:02g}".format(
-            hours=contract_hours, minutes=60 * round(contract_hours_decimal, 2)
+        content["debit_work_time"] = relativedelta_to_string(
+            relativedelta(minutes=report_object.contract.minutes)
         )
         content["total_worked_time"] = relativedelta_to_string(
-            relativedelta(seconds=report_object.hours.total_seconds())
+            relativedelta(seconds=report_object.worktime.total_seconds())
         )
 
-        content["last_month_carry_over"] = self.calculate_carry_over_hours(
+        content["last_month_carry_over"] = self.calculate_carry_over_worktime(
             report_object, next_month=False
         )
-        content["next_month_carry_over"] = self.calculate_carry_over_hours(
+        content["next_month_carry_over"] = self.calculate_carry_over_worktime(
             report_object
         )
 

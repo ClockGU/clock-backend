@@ -19,7 +19,7 @@ def valid_contract_json(user_object):
     :return: Dict
     """
     name = "Test Contract"
-    hours = 20.0
+    minutes = 1200
     start_date = datetime.date(2019, 1, 1).isoformat()
     end_date = datetime.date(2019, 1, 31).isoformat()
     user = str(user_object.id)
@@ -29,7 +29,7 @@ def valid_contract_json(user_object):
 
     data = {
         "name": name,
-        "hours": hours,
+        "minutes": minutes,
         "start_date": start_date,
         "end_date": end_date,
         "user": user,
@@ -151,27 +151,27 @@ def end_date_day_incorrect_contract_querydict(end_date_day_incorrect_contract_js
 
 
 @pytest.fixture
-def negative_hours_contract_json(valid_contract_json):
+def negative_minutes_contract_json(valid_contract_json):
     """
     This fixture creates an invalid according to the ContractSerializer) JSON dictionary
-    where the hours are negative.
+    where the minutes are negative.
     :param valid_contract_json:
     :return:
     """
-    hours = -20.0
-    valid_contract_json["hours"] = hours
+    minutes = -1200
+    valid_contract_json["minutes"] = minutes
     return valid_contract_json
 
 
 @pytest.fixture
-def negative_hours_contract_querydict(negative_hours_contract_json):
+def negative_minutes_contract_querydict(negative_minutes_contract_json):
     """
-    This fixture creates a QueryDict out of the negative_hours_contract_json.
-    :param negative_hours_contract_json:
+    This fixture creates a QueryDict out of the negative_minutes_contract_json.
+    :param negative_minutes_contract_json:
     :return: QueryDict
     """
     qdict = QueryDict("", mutable=True)
-    qdict.update(negative_hours_contract_json)
+    qdict.update(negative_minutes_contract_json)
     return qdict
 
 
@@ -201,7 +201,7 @@ def create_n_contract_objects(user_object):
     :return: Function
     """
     name = "Test Contract{}"
-    hours = 20.0
+    minutes = 1200
     _start_date = datetime.date(2019, 1, 1)
     _end_date = datetime.date(2019, 1, 31)
 
@@ -209,7 +209,7 @@ def create_n_contract_objects(user_object):
         return [
             Contract.objects.create(
                 name=name.format(i),
-                hours=hours,
+                minutes=minutes,
                 start_date=start_date,
                 end_date=end_date,
                 user=user,

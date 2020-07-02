@@ -81,19 +81,19 @@ class TestContractSerializerValidation:
             ).is_valid(raise_exception=True)
 
     @pytest.mark.django_db
-    def test_negative_hours_validation(
-        self, negative_hours_contract_querydict, plain_request_object
+    def test_negative_minutes_validation(
+        self, negative_minutes_contract_querydict, plain_request_object
     ):
         """
         The  ContractSerializer is tested whether it raises a Validation
-        if the hours value is negative.
-        :param negative_hours_contract_querydict:
+        if the minutes value is negative.
+        :param negative_minutes_contract_querydict:
         :param plain_request_object:
         :return:
         """
         with pytest.raises(serializers.ValidationError) as e_info:
             ContractSerializer(
-                data=negative_hours_contract_querydict,
+                data=negative_minutes_contract_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
@@ -191,9 +191,9 @@ class TestShiftSerializerValidation:
         """
         The  ShiftSerializer is tested whether it raises a Validation
         if the started and ended datetimes are causally incorrect.
-        :param stopped_before_started_querydict: 
-        :param plain_request_object: 
-        :return: 
+        :param stopped_before_started_querydict:
+        :param plain_request_object:
+        :return:
         """
         with pytest.raises(serializers.ValidationError) as e_info:
             ShiftSerializer(

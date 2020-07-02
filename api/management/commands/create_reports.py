@@ -27,16 +27,16 @@ class Command(BaseCommand):
                 last_report = Report.objects.get(
                     contract=contract, month_year=date - relativedelta(months=1)
                 )
-                carry_over_hours = datetime.timedelta(0)
+                carry_over_worktime = datetime.timedelta(0)
 
                 if last_report:
-                    carry_over_hours = last_report.hours - datetime.timedelta(
-                        hours=contract.hours
+                    carry_over_worktime = last_report.worktime - datetime.timedelta(
+                        minutes=contract.minutes
                     )
 
                 Report.objects.create(
                     month_year=date,
-                    hours=carry_over_hours,
+                    worktime=carry_over_worktime,
                     contract=contract,
                     user=user,
                     created_by=user,

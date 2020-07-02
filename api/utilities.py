@@ -62,7 +62,7 @@ def create_report_after_contract_save(sender, instance, created, **kwargs):
         # This concerns Contracts starting in the future.
         Report.objects.create(
             month_year=_month_year,
-            hours=datetime.timedelta(0),
+            worktime=datetime.timedelta(0),
             contract=instance,
             user=instance.user,
             created_by=instance.user,
@@ -75,7 +75,7 @@ def create_report_after_contract_save(sender, instance, created, **kwargs):
         while _month_year <= limit_date:
             Report.objects.create(
                 month_year=_month_year,
-                hours=datetime.timedelta(0),
+                worktime=datetime.timedelta(0),
                 contract=instance,
                 user=instance.user,
                 created_by=instance.user,
@@ -100,13 +100,13 @@ def update_reports(contract, month_year):
     :return:
     """
 
-    debit_worktime = datetime.timedelta(hours=contract.hours)
+    debit_worktime = datetime.timedelta(minutes=contract.minutes)
     previous_report = Report.objects.filter(
         contract=contract, month_year=month_year - relativedelta(months=1)
     )
-    carry_over_hours = datetime.timedelta(0)
+    carry_over_worktime = datetime.timedelta(0)
     if previous_report.exists():
-        carry_over_hours = previous_report.first().hours - debit_worktime
+        carry_over_worktime = previous_report.first().worktime - debit_worktime
     # Loop over all Reports starting from month in which the created/update shift
     # took place.
     for report in Report.objects.filter(contract=contract, month_year__gte=month_year):
@@ -123,9 +123,9 @@ def update_reports(contract, month_year):
         )[
             "total_work_time"
         ]
-        report.hours = carry_over_hours + total_work_time
+        report.worktime = carry_over_worktime + total_work_time
         report.save()
-        carry_over_hours = report.hours - debit_worktime
+        carry_over_worktime = report.worktime - debit_worktime
 
 
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):

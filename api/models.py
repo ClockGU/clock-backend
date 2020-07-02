@@ -119,7 +119,7 @@ class Contract(models.Model):
         to=User, related_name="contracts", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
-    hours = models.FloatField()
+    minutes = models.PositiveIntegerField()
     start_date = models.DateField()
     end_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -180,7 +180,7 @@ class Report(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
     month_year = models.DateField()
-    hours = models.DurationField()
+    worktime = models.DurationField()
     contract = models.ForeignKey(
         to=Contract, related_name="reports", on_delete=models.CASCADE
     )
