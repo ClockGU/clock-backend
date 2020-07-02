@@ -391,10 +391,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["long_month_name"] = month_names[report_object.month_year.month]
 
         # Data for Footer
-        td = datetime.timedelta(minutes=report_object.contract.minutes)
-        hours_minutes = str(td)[:-3].split(":")
-        content["debit_work_time"] = ":".join(
-            [f"{int(part):02d}" for part in hours_minutes]
+        content["debit_work_time"] = relativedelta_to_string(
+            relativedelta(minutes=report_object.contract.minutes)
         )
         content["total_worked_time"] = relativedelta_to_string(
             relativedelta(seconds=report_object.worktime.total_seconds())
