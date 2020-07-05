@@ -4,10 +4,11 @@ from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 from more_itertools import pairwise
 from pdfkit import from_string as pdf_from_string
-from pytz import datetime
+from pytz import datetime, timezone
 from rest_framework import mixins, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -260,11 +261,13 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :return:
         """
         content = {}
-
-        dates = shifts.dates("started", "day")
-
+        # We have to use DateTime objects since Date objects ignore timezones.
+        # This causes problems with DateTimes which change the day on Localtime -> UTC conversion
+        # Only works for servertime
+        dates = [_datetime.date() for _datetime in shifts.datetimes("started", "day")]
         for date in dates:
             shifts_of_date = shifts.filter(started__date=date)
+
             worked_shifts = shifts_of_date.filter(type="st")
             vacation_or_sick_shifts = shifts_of_date.exclude(type="st")
             # calculate time worked
@@ -288,8 +291,12 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                     vacation_or_sick_shifts.first().get_type_display()
                 )
 
-            started = shifts_of_date.first().started
-            stopped = shifts_of_date.last().stopped
+            started = shifts_of_date.first().started.astimezone(
+                timezone(settings.TIME_ZONE)
+            )
+            stopped = shifts_of_date.last().stopped.astimezone(
+                timezone(settings.TIME_ZONE)
+            )
 
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().strftime("%H:%M"),
