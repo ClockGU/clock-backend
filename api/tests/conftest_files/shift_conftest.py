@@ -1,13 +1,17 @@
 import json
 
 import pytest
-from pytz import datetime, utc
+from pytz import timezone
+import datetime
 from rest_framework.request import QueryDict
+from django.conf import settings
 
 from api.models import Shift
 
 # This conftest file provides all necessary test data concerning the Shift Model.
 # It will be imported by the conftest.py in the parent directory.
+
+tz = timezone(settings.TIME_ZONE)
 
 
 @pytest.fixture
@@ -19,9 +23,9 @@ def valid_shift_json(user_object, contract_object):
     :param contract_object:
     :return: Dict
     """
-    started = datetime.datetime(2019, 1, 29, 14, tzinfo=utc).isoformat()
-    stopped = datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat()
-    created_at = datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat()
+    started = datetime.datetime(2019, 1, 29, 14).astimezone(tz).isoformat()
+    stopped = datetime.datetime(2019, 1, 29, 16).astimezone(tz).isoformat()
+    created_at = datetime.datetime(2019, 1, 29, 16).astimezone(tz).isoformat()
     modified_at = created_at
     user = str(user_object.id)
     contract = str(contract_object.id)
@@ -67,8 +71,8 @@ def stopped_before_started_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2019, 1, 29, 16, tzinfo=utc)
-    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 29, 14, tzinfo=utc)
+    valid_shift_json["started"] = datetime.datetime(2019, 1, 29, 16).astimezone(tz)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 29, 14).astimezone(tz)
     return valid_shift_json
 
 
@@ -92,7 +96,7 @@ def stopped_on_next_day_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 30, 1, tzinfo=utc)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 30, 1).astimezone(tz)
     return valid_shift_json
 
 
@@ -190,8 +194,8 @@ def shift_starts_before_contract_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2018, 12, 19, 14, tzinfo=utc)
-    valid_shift_json["stopped"] = datetime.datetime(2018, 12, 19, 16, tzinfo=utc)
+    valid_shift_json["started"] = datetime.datetime(2018, 12, 19, 14).astimezone(tz)
+    valid_shift_json["stopped"] = datetime.datetime(2018, 12, 19, 16).astimezone(tz)
     return valid_shift_json
 
 
@@ -216,8 +220,8 @@ def shift_starts_ends_after_contract_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2019, 2, 19, 14, tzinfo=utc)
-    valid_shift_json["stopped"] = datetime.datetime(2019, 2, 19, 16, tzinfo=utc)
+    valid_shift_json["started"] = datetime.datetime(2019, 2, 19, 14).astimezone(tz)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 2, 19, 16).astimezone(tz)
     return valid_shift_json
 
 
@@ -258,9 +262,9 @@ def create_n_shift_objects():
     Nonetheless in terms of consistency this mechanism is kept as in the user_conftest.py.
     :return: Function
     """
-    _started = datetime.datetime(2019, 1, 29, 14, tzinfo=utc)
-    _stopped = datetime.datetime(2019, 1, 29, 16, tzinfo=utc)
-    created_at = datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat()
+    _started = datetime.datetime(2019, 1, 29, 14).astimezone(tz)
+    _stopped = datetime.datetime(2019, 1, 29, 16).astimezone(tz)
+    created_at = datetime.datetime(2019, 1, 29, 16).astimezone(tz).isoformat()
     modified_at = created_at
     note = "something was strange"
     tags = ["tag1, tag2"]
@@ -417,8 +421,8 @@ def db_creation_list_month_year_endpoint(
     # dependency of db_creation_shifts_list_endpoint creates 2 shifts for user_object on 29th of January
     # and 2 shifts for diff user_object also on 29th of January
     # We now create 2 shift on 2nd of February for user_object
-    _started = datetime.datetime(2019, 2, 2, 14, tzinfo=utc)
-    _stopped = datetime.datetime(2019, 2, 2, 16, tzinfo=utc)
+    _started = datetime.datetime(2019, 2, 2, 14).astimezone(tz)
+    _stopped = datetime.datetime(2019, 2, 2, 16).astimezone(tz)
     create_n_shift_objects(
         (1, 3),
         user=user_object,
@@ -457,8 +461,8 @@ def shift_content_aggregation_gather_all_shifts(
             (1,),
             user=user_object,
             contract=contract_object,
-            started=datetime.datetime(2019, 1, i * 5, 14, tzinfo=utc),
-            stopped=datetime.datetime(2019, 1, i * 5, 16, tzinfo=utc),
+            started=datetime.datetime(2019, 1, i * 5, 14).astimezone(tz),
+            stopped=datetime.datetime(2019, 1, i * 5, 16).astimezone(tz),
         )
     return Shift.objects.filter(
         user=user_object, contract=contract_object, started__month=1, started__year=2019
@@ -484,8 +488,8 @@ def shift_content_aggregation_ignores_planned_shifts(
         (1,),
         user=user_object,
         contract=contract_object,
-        started=datetime.datetime(2019, 1, 26, 14, tzinfo=utc),
-        stopped=datetime.datetime(2019, 1, 26, 14, tzinfo=utc),
+        started=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
         was_reviewed=False,
     )
 
@@ -505,22 +509,22 @@ def shift_content_aggregation_merges_shifts(
         (1,),
         user=user_object,
         contract=contract_object,
-        started=datetime.datetime(2019, 1, 26, 10, tzinfo=utc),
-        stopped=datetime.datetime(2019, 1, 26, 12, tzinfo=utc),
+        started=datetime.datetime(2019, 1, 26, 10).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 12).astimezone(tz),
     )
     create_n_shift_objects(
         (1,),
         user=user_object,
         contract=contract_object,
-        started=datetime.datetime(2019, 1, 26, 13, tzinfo=utc),
-        stopped=datetime.datetime(2019, 1, 26, 15, tzinfo=utc),
+        started=datetime.datetime(2019, 1, 26, 13).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 15).astimezone(tz),
     )
     create_n_shift_objects(
         (1,),
         user=user_object,
         contract=contract_object,
-        started=datetime.datetime(2019, 1, 26, 16, tzinfo=utc),
-        stopped=datetime.datetime(2019, 1, 26, 18, tzinfo=utc),
+        started=datetime.datetime(2019, 1, 26, 16).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 18).astimezone(tz),
     )
     return Shift.objects.filter(
         user=user_object, contract=contract_object, started__month=1, started__year=2019
@@ -545,16 +549,16 @@ def two_shifts_with_one_vacation_shift(
         (1,),
         user=user_object,
         contract=contract_object,
-        started=datetime.datetime(2019, 1, 26, 10, tzinfo=utc),
-        stopped=datetime.datetime(2019, 1, 26, 14, tzinfo=utc),
+        started=datetime.datetime(2019, 1, 26, 10).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
     )
     # Vacation Shift
     create_n_shift_objects(
         (1,),
         user=user_object,
         contract=contract_object,
-        started=datetime.datetime(2019, 1, 26, 14, tzinfo=utc),
-        stopped=datetime.datetime(2019, 1, 26, 18, tzinfo=utc),
+        started=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 18).astimezone(tz),
         type="vn",
     )
     return Shift.objects.filter(
@@ -578,8 +582,8 @@ def test_shift_creation_if_allready_exported(
         (1,),
         user=user_object,
         contract=contract_object,
-        started=datetime.datetime(2019, 1, 26, 10, tzinfo=utc),
-        stopped=datetime.datetime(2019, 1, 26, 12, tzinfo=utc),
+        started=datetime.datetime(2019, 1, 26, 10).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 12).astimezone(tz),
         locked=True,
     )
 
@@ -595,10 +599,14 @@ def overlapping_shifts(user_object, contract_object, create_n_shift_objects):
     Shift.objects.bulk_create(
         [
             Shift(
-                started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
-                stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
-                created_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
-                modified_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+                started=datetime.datetime(2019, 1, 29, 14).astimezone(tz),
+                stopped=datetime.datetime(2019, 1, 29, 16).astimezone(tz),
+                created_at=datetime.datetime(2019, 1, 29, 16)
+                .astimezone(tz)
+                .isoformat(),
+                modified_at=datetime.datetime(2019, 1, 29, 16)
+                .astimezone(tz)
+                .isoformat(),
                 type="st",
                 user=user_object,
                 created_by=user_object,
@@ -608,10 +616,14 @@ def overlapping_shifts(user_object, contract_object, create_n_shift_objects):
                 locked=False,
             ),
             Shift(
-                started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
-                stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
-                created_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
-                modified_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+                started=datetime.datetime(2019, 1, 29, 14).astimezone(tz),
+                stopped=datetime.datetime(2019, 1, 29, 16).astimezone(tz),
+                created_at=datetime.datetime(2019, 1, 29, 16)
+                .astimezone(tz)
+                .isoformat(),
+                modified_at=datetime.datetime(2019, 1, 29, 16)
+                .astimezone(tz)
+                .isoformat(),
                 type="st",
                 user=user_object,
                 created_by=user_object,
@@ -621,10 +633,14 @@ def overlapping_shifts(user_object, contract_object, create_n_shift_objects):
                 locked=False,
             ),
             Shift(
-                started=datetime.datetime(2019, 1, 29, 15, tzinfo=utc),
-                stopped=datetime.datetime(2019, 1, 29, 18, tzinfo=utc),
-                created_at=datetime.datetime(2019, 1, 29, 18, tzinfo=utc).isoformat(),
-                modified_at=datetime.datetime(2019, 1, 29, 18, tzinfo=utc).isoformat(),
+                started=datetime.datetime(2019, 1, 29, 15).astimezone(tz),
+                stopped=datetime.datetime(2019, 1, 29, 18).astimezone(tz),
+                created_at=datetime.datetime(2019, 1, 29, 18)
+                .astimezone(tz)
+                .isoformat(),
+                modified_at=datetime.datetime(2019, 1, 29, 18)
+                .astimezone(tz)
+                .isoformat(),
                 type="st",
                 user=user_object,
                 created_by=user_object,
@@ -663,8 +679,8 @@ def shifts_after_new_end_date_contract(
     :param create_n_shift_objects:
     :return:
     """
-    _started = datetime.datetime(2019, 2, 14, 14, tzinfo=utc)
-    _stopped = datetime.datetime(2019, 2, 14, 16, tzinfo=utc)
+    _started = datetime.datetime(2019, 2, 14, 14).astimezone(tz)
+    _stopped = datetime.datetime(2019, 2, 14, 16).astimezone(tz)
     return create_n_shift_objects(
         (1,),
         user_object,
@@ -680,8 +696,8 @@ def not_locked_shifts(contract_locked_shifts, create_n_shift_objects):
     This fixture creates a Shift in the first month of the provided month, which is not planned and
     unlocked.
     """
-    _started = datetime.datetime(2020, 1, 14, 14, tzinfo=utc)
-    _stopped = datetime.datetime(2020, 1, 14, 16, tzinfo=utc)
+    _started = datetime.datetime(2020, 1, 14, 14).astimezone(tz)
+    _stopped = datetime.datetime(2020, 1, 14, 16).astimezone(tz)
     return create_n_shift_objects(
         (1,),
         contract_locked_shifts.user,
