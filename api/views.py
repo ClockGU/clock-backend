@@ -1,10 +1,10 @@
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 from more_itertools import pairwise
 from pdfkit import from_string as pdf_from_string

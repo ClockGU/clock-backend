@@ -1,10 +1,10 @@
+import datetime
 import json
 
 import pytest
-from pytz import timezone
-import datetime
-from rest_framework.request import QueryDict
 from django.conf import settings
+from pytz import timezone
+from rest_framework.request import QueryDict
 
 from api.models import Shift
 
