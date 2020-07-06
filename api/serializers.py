@@ -1,9 +1,11 @@
 import json
 from calendar import monthrange
 
-from rest_framework import serializers
+from django.utils.translation import gettext_lazy as _
+from pytz import datetime, utc
+from rest_framework import exceptions, serializers
 
-from api.models import Contract, Report, Shift
+from api.models import ClockedInShift, Contract, Report, Shift, User
 
 
 class TagsSerializerField(serializers.Field):
@@ -16,7 +18,7 @@ class TagsSerializerField(serializers.Field):
         return list(map(lambda x: x.name, obj.all()))
 
     def to_internal_value(self, data):
-        return json.loads(data)
+        return data
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -36,7 +38,7 @@ class RestrictModificationModelSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         request = self.context["request"]
-        data = data.dict()
+
         if request.method in ["POST", "PUT"]:
             data = self.add_user_id(request, data)
 
@@ -48,6 +50,33 @@ class RestrictModificationModelSerializer(serializers.ModelSerializer):
             data["modified_by"] = request.user.id
 
         return super(RestrictModificationModelSerializer, self).to_internal_value(data)
+
+
+class UserSerializer(RestrictModificationModelSerializer):
+    """
+    Serializer only needed for GDPR-Export of User data.
+    """
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "personal_number",
+            "language",
+            "date_joined",
+            "modified_at",
+            "last_login",
+        ]
+        ref_name = "user-gdpr-serializers"
+
+
+class DjoserUserSerializer(serializers.Serializer):
+    class Meta:
+        ref_name = "djoser-custom-serializer"
 
 
 class ContractSerializer(RestrictModificationModelSerializer):
@@ -73,14 +102,40 @@ class ContractSerializer(RestrictModificationModelSerializer):
         """
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
+        today = datetime.date.today()
 
-        if self.instance and self.partial:
-            start_date = attrs.get("start_date", self.instance.start_date)
-            end_date = attrs.get("end_date", self.instance.end_date)
+        if self.instance:
+            if self.partial:
+                start_date = attrs.get("start_date", self.instance.start_date)
+                end_date = attrs.get("end_date", self.instance.end_date)
+
+            if Shift.objects.filter(
+                contract=self.instance, started__lt=start_date
+            ).exists():
+                raise serializers.ValidationError(
+                    _(
+                        "A contract's start date can not be modified"
+                        "if shifts before this date exist."
+                    )
+                )
+            if Shift.objects.filter(
+                contract=self.instance, started__gt=end_date
+            ).exists():
+                raise serializers.ValidationError(
+                    _(
+                        "A contract's end date can not be modified"
+                        "if shifts after this date exist."
+                    )
+                )
 
         if start_date > end_date:
             raise serializers.ValidationError(
-                "Der Beginn eines Vertrages muss vor dessen Ende liegen."
+                _("The start date of a contract must be set before its end date.")
+            )
+
+        if end_date < today:
+            raise serializers.ValidationError(
+                _("A contract's end date must not be set in the past.")
             )
 
         return attrs
@@ -89,11 +144,11 @@ class ContractSerializer(RestrictModificationModelSerializer):
         """
         Check that the day of the start_date is the 1st or 15th day of the month.
         :param start_date:
-        :return: hours
+        :return:
         """
         if start_date.day not in (1, 15):
             raise serializers.ValidationError(
-                "Ein Vertrag darf nur am 1. oder 15. eines Monats beginnen."
+                _("A contract must start on the 1st or 15th of a month.")
             )
 
         return start_date
@@ -106,27 +161,13 @@ class ContractSerializer(RestrictModificationModelSerializer):
         """
         if end_date.day not in (14, monthrange(end_date.year, end_date.month)[1]):
             raise serializers.ValidationError(
-                "Ein Vertrag darf nur am 14. oder letzten Tag eines Monats enden."
+                _("A contract must end on the 14th or last day of a month.")
             )
 
         return end_date
 
-    def validate_hours(self, hours):
-        """
-        Check that the provided value for hours is greater than zero.
-        :param hours:
-        :return: hours
-        """
-        if hours <= 0:
-            raise serializers.ValidationError(
-                "Die Anzahl der Stunden muss größer 0 sein."
-            )
-
-        return hours
-
 
 class ShiftSerializer(RestrictModificationModelSerializer):
-
     tags = TagsSerializerField()
 
     class Meta:
@@ -140,34 +181,86 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "created_by": {"write_only": True},
             "modified_by": {"write_only": True},
             "user": {"write_only": True},
-            "was_reviewed": {"read_only": True},
-            "was_exported": {"read_only": True},
+            "was_reviewed": {"required": False},
+            "locked": {"read_only": True},
         }
 
     def validate(self, attrs):
-        assert attrs.get("tags")
         started = attrs.get("started")
         stopped = attrs.get("stopped")
         contract = attrs.get("contract")
+        was_reviewed = attrs.get("was_reviewed", False)
 
-        if self.instance and self.partial:
+        if self.instance and (self.partial or self.context["request"].method == "PUT"):
             started = attrs.get("started", self.instance.started)
             stopped = attrs.get("stopped", self.instance.stopped)
             contract = attrs.get("contract", self.instance.contract)
+            was_reviewed = attrs.get("was_reviewed", self.instance.was_reviewed)
+
+        locked = Shift.objects.filter(
+            contract=contract,
+            started__month=started.month,
+            started__year=started.year,
+            locked=True,
+        ).exists()
 
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
             raise serializers.ValidationError(
-                "Eine Schicht muss an dem gleichen Tag enden an dem sie angefangen hat."
+                _("A shift must start and end on the same day.")
             )
         if started > stopped:
             raise serializers.ValidationError(
-                "Der Beginn einer Schicht muss vor deren Ende leigen."
+                _("The start of a shift must be set before its end.")
             )
 
-        if not (contract.start_date < started.date() < contract.end_date):
+        if not (contract.start_date <= started.date() <= contract.end_date):
             raise serializers.ValidationError(
-                "Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+                _(
+                    "A shift must belong to a contract which is active on the respective date."
+                )
+            )
+
+        if not (contract.start_date <= stopped.date() <= contract.end_date):
+            raise serializers.ValidationError(
+                _(
+                    "A shift must belong to a contract which is active on the respective date."
+                )
+            )
+
+        # If Shift is considered as 'planned'
+        if not was_reviewed:
+            # A planned Shift has to start in the future
+            if not started > datetime.datetime.now().astimezone(utc):
+                raise serializers.ValidationError(
+                    _("A 'planned' shift must start or end in the future.")
+                )
+        else:
+            if started > datetime.datetime.now().astimezone(utc):
+                raise serializers.ValidationError(
+                    _("A shift set in the future must be labeled as scheduled.")
+                )
+        # locked is read_only and marks whether a shift was exported and hence not modifyable anymore
+        if locked:
+            raise exceptions.PermissionDenied(
+                _(
+                    "A Shift can't be created or changed if the month got locked already."
+                )
+            )
+
+        # try to get shifts for the given contract, in the given month which are allready exported
+        exported_shifts = Shift.objects.filter(
+            contract=contract, started__month=started.month, locked=True
+        ).first()
+        print(exported_shifts)
+        # if there is at least one exported shift it's not allowed to create or update any
+        # shifts in that month for that contract
+        if exported_shifts:
+            raise serializers.ValidationError(
+                _(
+                    "A worktime-sheet for this month has already been exported."
+                    "It is not possible to add or modify shifts."
+                )
             )
 
         return attrs
@@ -175,7 +268,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
     def validate_contract(self, contract):
         if not (contract.user == self.context["request"].user):
             raise serializers.ValidationError(
-                "Das Vertragsobjekt muss dem User gehören der die Schicht erstellt."
+                _("The contract object must be owned by the user creating the shift.")
             )
 
         return contract
@@ -189,13 +282,15 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         """
         if not isinstance(tags, list):
             raise serializers.ValidationError(
-                "Tags müssen als Liste und nicht als {} dargestellt werden.".format(
-                    type(tags)
+                _(
+                    "Tags must be represented by a list and not by {}.".format(
+                        type(tags)
+                    )
                 )
             )
 
         if not all(map(lambda x: isinstance(x, str), tags)):
-            raise serializers.ValidationError("Tags dürfen nur strings sein.")
+            raise serializers.ValidationError(_("Tags must be strings."))
 
         return tags
 
@@ -236,6 +331,28 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             assert isinstance(tags, list)
             updated_object.tags.set(*tags)
         return updated_object
+
+
+class ClockedInShiftSerializer(RestrictModificationModelSerializer):
+    class Meta:
+        model = ClockedInShift
+        fields = "__all__"
+        extra_kwargs = {
+            # Will be set automatically by the Model
+            "created_at": {"required": False},
+            "modified_at": {"required": False},
+            "created_by": {"write_only": True},
+            "modified_by": {"write_only": True},
+            "user": {"write_only": True},
+        }
+
+    def validate_contract(self, contract):
+        if not (contract.user == self.context["request"].user):
+            raise serializers.ValidationError(
+                _("The contract must be owned by the user creating the shift.")
+            )
+
+        return contract
 
 
 class ReportSerializer(RestrictModificationModelSerializer):

@@ -61,6 +61,24 @@ class TestShiftModelExists:
         assert issubclass(Shift, models.Model)
 
 
+class TestClockedInShiftModelExists:
+    def test_model_existence(self):
+        """
+        This Test test if an Object ClockedInShift can be imported.
+        :return:
+        """
+        from api.models import ClockedInShift
+
+    def test_model_is_model(self):
+        """
+        Test if the ClockedInShift Object is a Django Model.
+        :return:
+        """
+        from api.models import ClockedInShift
+
+        assert issubclass(ClockedInShift, models.Model)
+
+
 class TestReportModelExists:
     def test_model_existence(self):
         """
@@ -108,6 +126,9 @@ class TestUserFields:
     def test_model_has_modified_at_field(self, user_model_class):
         assert hasattr(user_model_class, "modified_at")
 
+    def test_model_has_language_field(self, user_model_class):
+        assert hasattr(user_model_class, "language")
+
     def test_field_type_id(self, user_model_class):
         assert isinstance(user_model_class._meta.get_field("id"), models.UUIDField)
 
@@ -139,6 +160,11 @@ class TestUserFields:
             user_model_class._meta.get_field("modified_at"), models.DateTimeField
         )
 
+    def test_field_type_language(self, user_model_class):
+        assert isinstance(
+            user_model_class._meta.get_field("language"), models.CharField
+        )
+
     def test_field_conf_id(self, user_model_class):
         field = user_model_class._meta.get_field("id")
         assert field.primary_key
@@ -162,8 +188,8 @@ class TestContractFields:
     def test_model_has_name(self, contract_model_class):
         assert hasattr(contract_model_class, "name")
 
-    def test_model_has_hours(self, contract_model_class):
-        assert hasattr(contract_model_class, "hours")
+    def test_model_has_minutes(self, contract_model_class):
+        assert hasattr(contract_model_class, "minutes")
 
     def test_model_has_start_date(self, contract_model_class):
         assert hasattr(contract_model_class, "start_date")
@@ -196,9 +222,9 @@ class TestContractFields:
             contract_model_class._meta.get_field("name"), models.CharField
         )
 
-    def test_field_type_hours(self, contract_model_class):
+    def test_field_type_minutes(self, contract_model_class):
         assert isinstance(
-            contract_model_class._meta.get_field("hours"), models.FloatField
+            contract_model_class._meta.get_field("minutes"), models.PositiveIntegerField
         )
 
     def test_field_type_start_date(self, contract_model_class):
@@ -238,7 +264,7 @@ class TestContractFields:
         assert not field.editable
 
 
-class TestShiftields:
+class TestShiftFields:
     """
     This Testsuit summerizes the basic field tests:
     1. Do all fields exist
@@ -270,10 +296,10 @@ class TestShiftields:
         assert hasattr(shift_model_class, "tags")
 
     def test_model_has_was_reviewed(self, shift_model_class):
-        assert hasattr(shift_model_class, "was_reviewed")
+        assert hasattr(shift_model_class, "locked")
 
-    def test_model_has_was_exported(self, shift_model_class):
-        assert hasattr(shift_model_class, "was_exported")
+    def test_model_has_locked(self, shift_model_class):
+        assert hasattr(shift_model_class, "locked")
 
     def test_model_has_created_at(self, shift_model_class):
         assert hasattr(shift_model_class, "created_at")
@@ -319,12 +345,12 @@ class TestShiftields:
 
     def test_field_type_was_reviewed(self, shift_model_class):
         assert isinstance(
-            shift_model_class._meta.get_field("was_reviewed"), models.BooleanField
+            shift_model_class._meta.get_field("locked"), models.BooleanField
         )
 
-    def test_field_typ_was_exported(self, shift_model_class):
+    def test_field_typ_locked(self, shift_model_class):
         assert isinstance(
-            shift_model_class._meta.get_field("was_exported"), models.BooleanField
+            shift_model_class._meta.get_field("locked"), models.BooleanField
         )
 
     def test_field_type_created_at(self, shift_model_class):
@@ -369,11 +395,11 @@ class TestShiftields:
     def test_field_conf_was_reviewed(self, shift_model_class):
         field = shift_model_class._meta.get_field("was_reviewed")
         assert (
-            field.default == True
+            field.default is True
         )  # if no default is provided django returns an object which would be allways True
 
-    def test_field_conf_was_exported(self, shift_model_class):
-        field = shift_model_class._meta.get_field("was_exported")
+    def test_field_conf_locked(self, shift_model_class):
+        field = shift_model_class._meta.get_field("locked")
         assert not field.default
 
     def test_field_conf_created_at(self, shift_model_class):
@@ -393,6 +419,112 @@ class TestShiftields:
         assert issubclass(field.remote_field.model, user_model_class)
 
 
+class TestClockedInShiftFields:
+    """
+    This Testsuit summerizes the basic field tests:
+    1. Do all fields exist
+    2. Do all fields have the correct format/class instance
+    """
+
+    def test_model_has_id(self, clockedinshift_model_class):
+        assert hasattr(clockedinshift_model_class, "id")
+
+    def test_model_has_user(self, clockedinshift_model_class):
+        assert hasattr(clockedinshift_model_class, "user")
+
+    def test_model_has_started(self, clockedinshift_model_class):
+        assert hasattr(clockedinshift_model_class, "started")
+
+    def test_model_has_contract(self, clockedinshift_model_class):
+        assert hasattr(clockedinshift_model_class, "contract")
+
+    def test_model_has_created_at(self, clockedinshift_model_class):
+        assert hasattr(clockedinshift_model_class, "created_at")
+
+    def test_model_has_created_by(self, clockedinshift_model_class):
+        assert hasattr(clockedinshift_model_class, "created_by")
+
+    def test_model_has_modified_at(self, clockedinshift_model_class):
+        assert hasattr(clockedinshift_model_class, "modified_at")
+
+    def test_model_has_modified_by(self, clockedinshift_model_class):
+        assert hasattr(clockedinshift_model_class, "modified_by")
+
+    def test_field_type_id(self, clockedinshift_model_class):
+        assert isinstance(
+            clockedinshift_model_class._meta.get_field("id"), models.UUIDField
+        )
+
+    def test_field_type_user(self, clockedinshift_model_class):
+        assert isinstance(
+            clockedinshift_model_class._meta.get_field("user"), models.ForeignKey
+        )
+
+    def test_field_type_started(self, clockedinshift_model_class):
+        assert isinstance(
+            clockedinshift_model_class._meta.get_field("started"), models.DateTimeField
+        )
+
+    def test_field_type_contract(self, clockedinshift_model_class):
+        assert isinstance(
+            clockedinshift_model_class._meta.get_field("contract"), models.ForeignKey
+        )
+
+    def test_field_type_created_at(self, clockedinshift_model_class):
+        assert isinstance(
+            clockedinshift_model_class._meta.get_field("created_at"),
+            models.DateTimeField,
+        )
+
+    def test_field_type_created_by(self, clockedinshift_model_class):
+        assert isinstance(
+            clockedinshift_model_class._meta.get_field("created_by"), models.ForeignKey
+        )
+
+    def test_field_type_modified_at(self, clockedinshift_model_class):
+        assert isinstance(
+            clockedinshift_model_class._meta.get_field("modified_at"),
+            models.DateTimeField,
+        )
+
+    def test_field_type_modified_by(self, clockedinshift_model_class):
+        assert isinstance(
+            clockedinshift_model_class._meta.get_field("modified_by"), models.ForeignKey
+        )
+
+    def test_field_conf_id(self, clockedinshift_model_class):
+        field = clockedinshift_model_class._meta.get_field("id")
+        assert field.primary_key
+        assert field.default == uuid.uuid4
+        assert not field.editable
+
+    def test_field_conf_user(self, clockedinshift_model_class, user_model_class):
+        field = clockedinshift_model_class._meta.get_field("user")
+        assert issubclass(field.remote_field.model, user_model_class)
+
+    def test_field_conf_contract(
+        self, clockedinshift_model_class, contract_model_class
+    ):
+        field = clockedinshift_model_class._meta.get_field("contract")
+        assert issubclass(field.remote_field.model, contract_model_class)
+
+    def test_field_conf_created_at(self, clockedinshift_model_class):
+        field = clockedinshift_model_class._meta.get_field("created_at")
+        assert field.auto_now_add
+
+    def test_field_conf_created_by(self, clockedinshift_model_class, user_model_class):
+        field = clockedinshift_model_class._meta.get_field("created_by")
+        assert issubclass(field.remote_field.model, user_model_class)
+
+    def test_field_conf_modified_at(self, clockedinshift_model_class):
+        field = clockedinshift_model_class._meta.get_field("modified_at")
+        assert field.auto_now
+
+    def test_field_conf_modified_by(self, clockedinshift_model_class, user_model_class):
+        field = clockedinshift_model_class._meta.get_field("modified_by")
+        assert issubclass(field.remote_field.model, user_model_class)
+
+
 class TestReportFields:
     """
     This Testsuit summerizes the basic field tests:
@@ -409,8 +541,8 @@ class TestReportFields:
     def test_model_has_month_year(self, report_model_class):
         assert hasattr(report_model_class, "month_year")
 
-    def test_model_has_hours(self, report_model_class):
-        assert hasattr(report_model_class, "hours")
+    def test_model_has_worktime(self, report_model_class):
+        assert hasattr(report_model_class, "worktime")
 
     def test_model_has_contract(self, report_model_class):
         assert hasattr(report_model_class, "contract")
@@ -438,9 +570,9 @@ class TestReportFields:
             report_model_class._meta.get_field("month_year"), models.DateField
         )
 
-    def test_field_type_hours(self, report_model_class):
+    def test_field_type_worktime(self, report_model_class):
         assert isinstance(
-            report_model_class._meta.get_field("hours"), models.DurationField
+            report_model_class._meta.get_field("worktime"), models.DurationField
         )
 
     def test_field_type_contract(self, report_model_class):
@@ -497,3 +629,6 @@ class TestReportFields:
     def test_field_conf_modified_by(self, report_model_class, user_model_class):
         field = report_model_class._meta.get_field("modified_by")
         assert issubclass(field.remote_field.model, user_model_class)
+
+    def test_ordering(self, report_model_class):
+        assert report_model_class._meta.ordering == ["month_year"]

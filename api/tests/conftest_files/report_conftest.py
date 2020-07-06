@@ -16,16 +16,18 @@ def create_n_report_objects():
     :return: Function
     """
     month_year = datetime.date(2019, 1, 1)
-    hours = datetime.timedelta(0)
+    _worktime = datetime.timedelta(0)
     created_at = datetime.datetime(2019, 1, 1, 16).isoformat()
     modified_at = created_at
 
-    def create_reports(start_stop, user, contract, month_year=month_year):
+    def create_reports(
+        start_stop, user, contract, worktime=_worktime, month_year=month_year
+    ):
         lst = []
         for i in range(*start_stop):
             report = Report.objects.create(
                 month_year=month_year,
-                hours=hours,
+                worktime=worktime,
                 contract=contract,
                 user=user,
                 created_by=user,
@@ -43,13 +45,92 @@ def create_n_report_objects():
 @pytest.fixture
 def report_object(create_n_report_objects, user_object, contract_object):
     """
-    This fixture creates one report object.
+    This fixture creates one report object for January.
     :param create_n_report_objects:
     :param user_object:
     :param contract_object:
     :return:
     """
+    # Clear all previously created Reports which might have been created
+    Report.objects.all().delete()
     return create_n_report_objects((1,), user_object, contract_object)[0]
+
+
+@pytest.fixture
+def report_update_february_report(
+    create_n_report_objects, report_update_user, report_update_contract
+):
+    return create_n_report_objects(
+        (1,),
+        report_update_user,
+        report_update_contract,
+        worktime=datetime.timedelta(minutes=-1200),
+        month_year=datetime.date(2019, 2, 1),
+    )[0]
+
+
+@pytest.fixture
+def previous_report_object(create_n_report_objects, user_object, contract_object):
+    """
+    This fixture creates a report object for preceeding report_object with a
+    carry_over of 120 minutes
+    :param create_n_report_objects: :param user_object: :param contract_object:
+    :return:
+    """
+    return create_n_report_objects(
+        (1,),
+        user_object,
+        contract_object,
+        worktime=datetime.timedelta(minutes=1320),
+        month_year=datetime.date(2018, 12, 1),
+    )[0]
+
+
+@pytest.fixture
+def january_report_object(
+    create_n_report_objects, user_object, contract_ending_in_february
+):
+    """
+    This fixture creates one report object for February.
+    :param create_n_report_objects:
+    :param user_object:
+    :param contract_ending_in_february:
+    :return:
+    """
+
+    return create_n_report_objects(
+        (1,),
+        user_object,
+        contract_ending_in_february,
+        worktime=datetime.timedelta(minutes=1320),
+        month_year=datetime.date(2019, 1, 1),
+    )[0]
+
+
+@pytest.fixture
+def february_report_object(
+    create_n_report_objects, user_object, contract_ending_in_february
+):
+    """
+    This fixture creates one report object for February.
+    :param create_n_report_objects:
+    :param user_object:
+    :param contract_ending_in_february:
+    :return:
+    """
+    return create_n_report_objects(
+        (1,),
+        user_object,
+        contract_ending_in_february,
+        month_year=datetime.date(2019, 2, 1),
+    )[0]
+
+
+@pytest.fixture
+def delete_report_object_afterwards():
+
+    yield
+    Report.objects.all().delete()
 
 
 @pytest.fixture
@@ -70,4 +151,14 @@ def db_get_current_endpoint(
     )
     create_n_report_objects(
         (1,), user_object, contract_object, month_year=datetime.date(2019, 3, 1)
+    )
+
+
+@pytest.fixture
+def second_months_report_locked_shifts(contract_locked_shifts):
+    """
+    This fixture retrieves the Report object of the second month of the provided contract.
+    """
+    return Report.objects.get(
+        contract=contract_locked_shifts, month_year=datetime.date(2020, 2, 1)
     )

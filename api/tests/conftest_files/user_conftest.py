@@ -48,6 +48,18 @@ def user_object(create_n_user_objects):
 
 
 @pytest.fixture
+def user_object_json(user_object):
+    data = {
+        "email": user_object.email,
+        "first_name": user_object.first_name,
+        "last_name": user_object.last_name,
+        "personal_number": user_object.personal_number,
+        "password": user_object.password,
+    }
+    return data
+
+
+@pytest.fixture
 def diff_user_object(create_n_user_objects):
     """
     This fixture creates a user object which resembles a user which tries to eploit the system by accessing other
@@ -56,6 +68,11 @@ def diff_user_object(create_n_user_objects):
     :return:
     """
     return create_n_user_objects((1, 2))[0]
+
+
+@pytest.fixture
+def report_update_user(create_n_user_objects):
+    return create_n_user_objects((10, 11))[0]
 
 
 @pytest.fixture

@@ -15,13 +15,20 @@ Including another URLconf
     url(r'^admin/', admin.site.urls),
 ]"""
 
+from django.conf import settings
 from django.conf.urls import include, url
+from django.conf.urls.static import static
 from django.contrib import admin
 
 urlpatterns = [
-    url(r"^api/", include("api.urls"), name="api"),
-    url(r"^api/", include("api-docs.api_docs"), name="api_docs"),
+    url(r"", include("api.urls"), name="api"),
+    url(r"", include("api-docs.api_docs"), name="api_docs"),
+    url(r"", include("feedback.urls"), name="feedback-app"),
     url(r"^admin/", admin.site.urls),
     url(r"^auth/", include("djoser.urls"), name="djoser-auth"),
     url(r"^auth/", include("djoser.urls.jwt")),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+if "rosetta" in settings.INSTALLED_APPS:
+    urlpatterns += [url(r"^rosetta/", include("rosetta.urls"))]

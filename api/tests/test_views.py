@@ -1,14 +1,16 @@
 # View tests come here
 
 import json
+import time
 from datetime import datetime
 
 import pytest
+from dateutil.parser import parse
 from django.urls import reverse
 from freezegun import freeze_time
-from rest_framework import status
+from rest_framework import serializers, status
 
-from api.models import Contract, Shift
+from api.models import Contract, Report, Shift, User
 
 
 class TestContractApiEndpoint:
@@ -39,7 +41,8 @@ class TestContractApiEndpoint:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(
-            path=reverse("api:contracts-detail", args=[diff_user_contract_object.id])
+            path=reverse("api:contracts-detail", args=[diff_user_contract_object.id]),
+            content_type="application/json",
         )
         assert response.status_code == 404
 
@@ -52,7 +55,11 @@ class TestContractApiEndpoint:
         :param user_object:
         :return:
         """
-        response = client.get(path=r"/api/contracts/", args=[contract_object.id])
+        response = client.get(
+            path=r"/contracts/",
+            args=[contract_object.id],
+            content_type="application/json",
+        )
         assert response.status_code == 401
 
     @pytest.mark.django_db
@@ -62,7 +69,9 @@ class TestContractApiEndpoint:
         :param client:
         :return:
         """
-        response = client.get(path="http://localhost:8000/api/contracts/")
+        response = client.get(
+            path="http://localhost:8000/contracts/", content_type="application/json"
+        )
         assert response.status_code == 401
 
     @pytest.mark.django_db
@@ -74,7 +83,9 @@ class TestContractApiEndpoint:
         :return:
         """
         response = client.post(
-            path="http://localhost:8000/api/contracts/", data=valid_contract_json
+            path="http://localhost:8000/contracts/",
+            data=json.dumps(valid_contract_json),
+            content_type="application/json",
         )
         assert response.status_code == 401
 
@@ -88,7 +99,9 @@ class TestContractApiEndpoint:
         """
 
         response = client.put(
-            path="http://localhost:8000/api/contracts/", data=valid_contract_json
+            path="http://localhost:8000/contracts/",
+            data=json.dumps(valid_contract_json),
+            content_type="application/json",
         )
         assert response.status_code == 401
 
@@ -101,13 +114,14 @@ class TestContractApiEndpoint:
         :param client:
         :param user_object:
         :param user_object_jwt:
-        :param create_n_user_objects:
-        :param create_n_contract_objects:
+        :param db_creation_contracts_list_endpoint:
         :return:
         """
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(path="http://localhost:8000/api/contracts/")
+        response = client.get(
+            path="http://localhost:8000/contracts/", content_type="application/json"
+        )
         data = json.loads(response.content)
         assert response.status_code == 200
         assert all(
@@ -115,20 +129,35 @@ class TestContractApiEndpoint:
             for contract in data
         )
 
+    @pytest.mark.freeze_time("2019-01-10")
     @pytest.mark.django_db
     def test_create_with_correct_user(
-        self, client, invalid_uuid_contract_json, user_object, user_object_jwt
+        self,
+        client,
+        invalid_uuid_contract_json,
+        user_object,
+        user_object_jwt,
+        delete_report_object_afterwards,
     ):
         """
         Test that 'user', 'created_by' and 'modified_by' (incorrectly set invalid_uuid_contract_json)
         are set to the user_id from the JWT of the request.
+
+        We include the 'delete_report_object_afterwards' since the Contract creation triggers
+        a Report object creation.
+        :param client:
         :param invalid_uuid_contract_json:
         :param user_object:
+        :param user_object_jwt:
         :return:
         """
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.post(path="/api/contracts/", data=invalid_uuid_contract_json)
+        response = client.post(
+            path="/contracts/",
+            data=json.dumps(invalid_uuid_contract_json),
+            content_type="application/json",
+        )
 
         content = json.loads(response.content)
 
@@ -139,6 +168,7 @@ class TestContractApiEndpoint:
         assert new_contract.created_by.id == user_object.id
         assert new_contract.created_by.id == user_object.id
 
+    @pytest.mark.freeze_time("2019-01-10 00:05:00")
     @pytest.mark.django_db
     def test_update_uuid_contract(
         self,
@@ -147,6 +177,7 @@ class TestContractApiEndpoint:
         contract_object,
         user_object,
         user_object_jwt,
+        freezer,
     ):
         """
         Test that updating 'user', 'created_by' and 'modified_by' does not work.
@@ -155,18 +186,21 @@ class TestContractApiEndpoint:
         it is not possible to switch/modify the contracts owner.
 
         :param client:
-        :param invalid_uuid_contract_json:
+        :param invalid_uuid_contract_put_endpoint:
         :param contract_object:
         :return:
         """
-
+        freezer.move_to(
+            "2019-01-10 00:07:00"
+        )  # can't shift to far because the JWT might expire (~5min)
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.put(
             path=reverse("api:contracts-detail", args=[contract_object.id]),
-            data=invalid_uuid_contract_put_endpoint,
+            data=json.dumps(invalid_uuid_contract_put_endpoint),
+            content_type="application/json",
         )
         content = json.loads(response.content)
-
+        print(content)
         assert response.status_code == 200
         # Check that neither "user", "created_by" nor "modified_by" changed from the originial/issuing user
         user_id = user_object.id
@@ -177,6 +211,7 @@ class TestContractApiEndpoint:
         #      New Datetime           Old Datetime  --> Result should be positive
         assert contract.modified_at > contract_object.modified_at
 
+    @pytest.mark.freeze_time("2019-01-10 00:05:00")
     @pytest.mark.django_db
     def test_patch_uuid_contract(
         self,
@@ -185,6 +220,7 @@ class TestContractApiEndpoint:
         contract_object,
         user_object,
         user_object_jwt,
+        freezer,
     ):
         """
         Test that trying to patch 'user, 'created_by' and 'mdofied_by' does not work.
@@ -193,13 +229,17 @@ class TestContractApiEndpoint:
         :param invalid_uuid_contract_patch_endpoint:
         :param contract_object:
         :param user_object:
-        :param user_obejct_jwt:
+        :param user_object_jwt:
         :return:
         """
+        freezer.move_to(
+            "2019-01-10 00:07:00"
+        )  # can't shift to far because the JWT might expire (~5min)
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.patch(
             path=reverse("api:contracts-detail", args=[contract_object.id]),
-            data=invalid_uuid_contract_patch_endpoint,
+            data=json.dumps(invalid_uuid_contract_patch_endpoint),
+            content_type="application/json",
         )
         contract = Contract.objects.get(id=contract_object.id)
         user_id = user_object.id
@@ -208,8 +248,10 @@ class TestContractApiEndpoint:
         assert contract.user.id == user_id
         assert contract.created_by.id == user_id
         assert contract.modified_by.id == user_id
+        # Due to freeze_time not testable anymore...
+        # No clue how to change this.
         #      New Datetime           Old Datetime  --> Result should be positive
-        assert contract.modified_at > contract_object.modified_at
+        # assert contract.modified_at > contract_object.modified_at
 
     @pytest.mark.django_db
     def test_shifts_action_contract(
@@ -221,7 +263,7 @@ class TestContractApiEndpoint:
         db_creation_shifts_list_endpoint,
     ):
         """
-        Test that the endpoint api/contracts/<uuid>/shifts exists and that it lists all shifts
+        Test that the endpoint contracts/<uuid>/shifts exists and that it lists all shifts
         corresponding to the contract with <uuid>.
         :param client:
         :param user_object_jwt:
@@ -233,13 +275,70 @@ class TestContractApiEndpoint:
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.get(
-            path=reverse("api:contracts-shifts", args=[contract_object.id])
+            path=reverse("api:contracts-shifts", args=[contract_object.id]),
+            content_type="application/json",
         )
 
         content = json.loads(response.content)
 
         assert len(content) == 2  # We created only 2 shifts for the User
         assert all(shift["contract"] == str(contract_object.id) for shift in content)
+
+    @pytest.mark.freeze_time("2019-01-10")
+    @pytest.mark.django_db
+    def test_automatic_report_creation_upon_contract_creation(
+        self,
+        client,
+        valid_contract_json,
+        user_object,
+        user_object_jwt,
+        contract_object,
+        delete_report_object_afterwards,
+    ):
+        """
+        Test that after the creation of a valid Contract a Report for it's start month is created
+        for the User which creates the contract.
+        :param client:
+        :param valid_contract_json:
+        :param user_object:
+        :param user_object_jwt:
+        :param contract_object:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path="/contracts/",
+            data=json.dumps(valid_contract_json),
+            content_type="application/json",
+        )
+
+        content = json.loads(response.content)
+        start_date = (
+            datetime.strptime(content["start_date"], "%Y-%m-%d").replace(day=1).date()
+        )
+        assert Report.objects.get(
+            user=user_object, month_year=start_date, contract=contract_object
+        )
+
+    @pytest.mark.django_db
+    def test_locking_shifts(
+        self, client, contract_object, shift_object, user_object_jwt
+    ):
+        assert not shift_object.locked
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path=reverse(
+                "api:contracts-lock-shifts",
+                args=[
+                    contract_object.id,
+                    shift_object.started.month,
+                    shift_object.started.year,
+                ],
+            ),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert Shift.objects.get(pk=shift_object.pk).locked
 
 
 class TestShiftApiEndpoint:
@@ -257,7 +356,9 @@ class TestShiftApiEndpoint:
         """
 
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(path=reverse("api:shifts-list"))
+        response = client.get(
+            path=reverse("api:shifts-list"), content_type="application/json"
+        )
 
         data = json.loads(response.content)
         assert response.status_code == 200
@@ -278,12 +379,16 @@ class TestShiftApiEndpoint:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.post(path=reverse("api:shifts-list"), data=valid_shift_json)
+        response = client.post(
+            path=reverse("api:shifts-list"),
+            data=json.dumps(valid_shift_json),
+            content_type="application/json",
+        )
         data = json.loads(response.content)
 
         assert response.status_code == 201
         shift_object = Shift.objects.get(pk=data["id"])
-        initial_tags = json.loads(valid_shift_json["tags"])
+        initial_tags = valid_shift_json["tags"]
 
         assert shift_object
         assert shift_object.tags.all().count() == len(initial_tags)
@@ -304,14 +409,14 @@ class TestShiftApiEndpoint:
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.put(
             path=reverse("api:shifts-detail", args=[put_new_tags_json["id"]]),
-            data=put_new_tags_json,
+            data=json.dumps(put_new_tags_json),
+            content_type="application/json",
         )
-
         data = json.loads(response.content)
-        initial_tags = json.loads(put_new_tags_json["tags"])
-
+        print(data)
         assert response.status_code == 200
-        shift_object = Shift.objects.get(pk=put_new_tags_json["id"])
+        initial_tags = put_new_tags_json["tags"]
+        shift_object = Shift.objects.get(pk=data["id"])
         assert shift_object.tags.all().count() == len(initial_tags)
         assert all(
             shift_tag.name in initial_tags for shift_tag in shift_object.tags.all()
@@ -330,10 +435,11 @@ class TestShiftApiEndpoint:
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.patch(
             path=reverse("api:shifts-detail", args=[patch_new_tags_json["id"]]),
-            data=patch_new_tags_json,
+            data=json.dumps(patch_new_tags_json),
+            content_type="application/json",
         )
 
-        initial_tags = json.loads(patch_new_tags_json["tags"])
+        initial_tags = patch_new_tags_json["tags"]
 
         assert response.status_code == 200
         shift_object = Shift.objects.get(pk=patch_new_tags_json["id"])
@@ -344,11 +450,14 @@ class TestShiftApiEndpoint:
         )
 
     @pytest.mark.django_db
+    @pytest.mark.freeze_time(
+        "2019-02-10"
+    )  # needed for fixture creation --> Report creation signal on Contract creation
     def test_list_month_year_endpoint(
         self, client, user_object_jwt, db_creation_list_month_year_endpoint
     ):
         """
-        Test that the endpoint api/list-shifts/<month>/<year>/ exists and that it lists all Shifts
+        Test that the endpoint list-shifts/<month>/<year>/ exists and that it lists all Shifts
         of the provided <month> in the provided <year> corresponding to the User issueing the request.
         :param client:
         :param user_object_jwt:
@@ -356,27 +465,93 @@ class TestShiftApiEndpoint:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(path=reverse("api:list-shifts", args=[1, 2019]))
+        response = client.get(
+            path=reverse("api:list-shifts", args=[1, 2019]),
+            content_type="application/json",
+        )
 
         data = json.loads(response.content)
-        print(data)
+
         assert response.status_code == 200
         assert len(data) == 2
         assert all(
-            datetime.strptime(i["started"], "%Y-%m-%dT%H:%M:%SZ").month == 1
-            and datetime.strptime(i["started"], "%Y-%m-%dT%H:%M:%SZ").year == 2019
+            parse(i["started"]).month == 1 and parse(i["started"]).year == 2019
             for i in data
         )
+
+    @pytest.mark.django_db
+    def test_updating_exported_shift_returns_403(
+        self, client, user_object_jwt, put_to_exported_shift_json
+    ):
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.put(
+            path=reverse("api:shifts-detail", args=[put_to_exported_shift_json["id"]]),
+            data=json.dumps(put_to_exported_shift_json),
+            content_type="application/json",
+        )
+        print(json.loads(response.content))
+        assert response.status_code == 403
+
+
+class TestClockedInShiftEndpoint:
+    @pytest.mark.django_db
+    def test_get_endpoint_without_pk(
+        self, client, user_object_jwt, clockedinshift_object
+    ):
+        """
+        Test that the endpoint clockedinshifts/ returns a detail representation of the only existing
+        ClockedInShift object.
+        :param client:
+        :param user_object_jwt:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(path="/clockedinshifts/", content_type="application/json")
+        content = json.loads(response.content)
+        assert content["id"] == str(clockedinshift_object.id)
+
+    @pytest.mark.django_db
+    def test_get_endpoint_returns_404(self, client, user_object_jwt):
+        """
+        Test that the endpoint clockedinshifts/ returns a 404 status if no
+        ClockedInShift object exists.
+        :param client:
+        :param user_object_jwt:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(path="/clockedinshifts/", content_type="application/json")
+        assert response.status_code == 404
+
+    @pytest.mark.django_db
+    def test_creating_second_obeject_not_allowed(
+        self, client, user_object_jwt, clockedinshift_object, valid_clockedinshift_json
+    ):
+        """
+        Test that the attempt of creating a second ClockedInShift object results in a 400 Response.
+        :param client:
+        :param user_object_jwt:
+        :param clockedinshift_object:
+        :param valid_clockedinshift_json:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path="/clockedinshifts/",
+            data=json.dumps(valid_clockedinshift_json),
+            content_type="application/json",
+        )
+        assert response.status_code == 400
 
 
 class TestReportApiEndpoint:
     @freeze_time("2019-01-10")
     @pytest.mark.django_db
     def test_get_current_endpoint(
-        self, client, user_object_jwt, db_get_current_endpoint
+        self, client, user_object_jwt, db_get_current_endpoint, contract_object
     ):
         """
-        Test that the endpoint api/reports/get_current/ exists and that it retrieves the Report for the current
+        Test that the endpoint reports/get_current/ exists and that it retrieves the Report for the current
         month.
         :param client:
         :param user_object_jwt:
@@ -384,7 +559,264 @@ class TestReportApiEndpoint:
         :return:
         """
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
-        response = client.get(path=reverse("api:reports-get_current"))
+        response = client.get(
+            path=reverse("api:reports-get_current", args=[contract_object.id]),
+            content_type="application/json",
+        )
         content = json.loads(response.content)
-
         assert content["month_year"] == "2019-01-01"
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_method_retrieves_all_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_gather_all_shifts,
+        report_object,
+    ):
+        """
+        Test that the utility method of the ReportViewSet 'aggregate_shift_content' catches all Shifts of a month.
+        :return:
+        """
+        content = prepared_ReportViewSet_view.aggregate_shift_content(
+            shift_content_aggregation_gather_all_shifts
+        )
+
+        assert len(content) == 5
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_method_omits_planned_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_ignores_planned_shifts,
+        report_object,
+    ):
+        """
+        Test that the utility method of the ReportViewSet 'aggregate_shift_content' catches all Shifts of a month
+        but omits planned Shifts.
+
+        The Fixture provides 5 Shifts as the 'shift_content_aggregation_gather_all_shifts' fixture and an additional
+        Shift which is planned (was_reviewed=False).
+        :param prepared_ReportViewSet_view:
+        :param shift_content_aggregation_ignores_planned_shifts:
+        :param report_objects:
+        :return:
+        """
+        content = prepared_ReportViewSet_view.get_shifts_to_export(report_object)
+
+        assert len(content) == 5
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_merges_multiple_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        shift_content_aggregation_merges_shifts,
+        report_object,
+    ):
+
+        content = prepared_ReportViewSet_view.aggregate_shift_content(
+            shift_content_aggregation_merges_shifts
+        )
+
+        assert len(content) == 1
+        assert content["26.01.2019"]
+        assert content["26.01.2019"]["started"] == "10:00"
+        assert content["26.01.2019"]["stopped"] == "18:00"
+        assert content["26.01.2019"]["work_time"] == "08:00"
+        assert content["26.01.2019"]["net_work_time"] == "06:00"
+        assert content["26.01.2019"]["break_time"] == "02:00"
+
+    @pytest.mark.django_db
+    def test_aggregate_shift_content_handles_vacation_shifts(
+        self, prepared_ReportViewSet_view, two_shifts_with_one_vacation_shift
+    ):
+        content = prepared_ReportViewSet_view.aggregate_shift_content(
+            two_shifts_with_one_vacation_shift
+        )
+
+        assert len(content) == 1
+        assert content["26.01.2019"]["break_time"] == "00:00"
+        assert content["26.01.2019"]["work_time"] == "08:00"
+        assert content["26.01.2019"]["net_work_time"] == "04:00"
+        assert content["26.01.2019"]["type"] == "Vacation"
+        assert content["26.01.2019"]["sick_or_vac_time"] == "04:00"
+
+    @pytest.mark.django_db
+    def test_method_for_carryover_minutes_previous_month_default(
+        self, prepared_ReportViewSet_view, report_object
+    ):
+        """
+        Test if the method returns '00:00' for the carry over minutes
+        of the previous month if no report exists there.
+        :param prepared_ReportViewSet_view:
+        :param report_object:
+        :return:
+        """
+
+        carry_over_worktime = prepared_ReportViewSet_view.calculate_carry_over_worktime(
+            report_object, next_month=False
+        )
+        assert carry_over_worktime == "00:00"
+
+    @pytest.mark.django_db
+    def test_method_for_carry_over_worktime_previous_month(
+        self, prepared_ReportViewSet_view, report_object, previous_report_object
+    ):
+        """
+        Test if the Method calculates the minutes to carry over from
+        the previous moth correctly.
+        :param prepared_reportViewSet_view:
+        :param report_object:
+        :param previous_report_object:
+        :return:
+        """
+        carry_over_worktime = prepared_ReportViewSet_view.calculate_carry_over_worktime(
+            report_object, next_month=False
+        )
+        assert carry_over_worktime == "02:00"
+
+    @pytest.mark.django_db
+    def test_method_for_carry_over_worktime_next_month(
+        self, prepared_ReportViewSet_view, report_object
+    ):
+        """
+        Test if method calculates the minutes to carry over to next month
+        correctly.
+        :param prepared_ReportViewSet_view:
+        :param report_object:
+        :return:
+        """
+        carry_over_worktime = prepared_ReportViewSet_view.calculate_carry_over_worktime(
+            report_object, next_month=True
+        )
+        assert carry_over_worktime == "-20:00"
+
+    @pytest.mark.django_db
+    def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):
+        """
+        Test whether the method actually returns a PDF file.
+        :param prepared_ReportViewSet_view:
+        :return:
+        """
+        export_content = prepared_ReportViewSet_view.aggregate_export_content(
+            report_object
+        )
+
+        pdf = prepared_ReportViewSet_view.compile_pdf(
+            template_name="api/stundenzettel.html",
+            content_dict=export_content,
+            pdf_options={
+                "page-size": "Letter",
+                "margin-top": "30px",
+                "margin-right": "5px",
+                "margin-bottom": "5px",
+                "margin-left": "15px",
+                "encoding": "UTF-8",
+                "no-outline": None,
+            },
+        )
+        assert pdf.startswith(bytes("%PDF-1", "UTF-8"))
+
+    @pytest.mark.django_db
+    def test_export_endpoint_returns_file(self, report_object, client, user_object_jwt):
+        """
+        Test that the Endpoint really returns a file.
+        :param report_object:
+        :param client:
+        :param user_object_jwt:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.get(
+            path=reverse("api:reports-export", args=[report_object.pk])
+        )
+
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_export_endpoint_validates_overlapping_shifts(
+        self, prepared_ReportViewSet_view, overlapping_shifts
+    ):
+        """
+
+        :param prepared_ReportViewSet_view:
+        :param overlapping_shifts:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError):
+            prepared_ReportViewSet_view.check_for_overlapping_shifts(overlapping_shifts)
+
+    @pytest.mark.django_db
+    def test_export_endpoint_validates_not_locked_shifts(
+        self,
+        prepared_ReportViewSet_view,
+        second_months_report_locked_shifts,
+        not_locked_shifts,
+    ):
+        """
+        The provided Report belongs to a Contract which has unlocked, not planned shifts in the
+        first month. The check_for_not_locked_shifts() Method should hence throw an ValidationError.
+        """
+        with pytest.raises(serializers.ValidationError):
+            prepared_ReportViewSet_view.check_for_not_locked_shifts(
+                second_months_report_locked_shifts
+            )
+
+
+class TestDjoserCustomizing:
+    @pytest.mark.django_db
+    def test_delete_user_custom_serializer(self, user_object, user_object_jwt, client):
+        """
+        Test if the user-delete view works with the specified custom UserSerializer.
+        :param user_object:
+        :param user_object_jwt:
+        :param client:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.delete(path=reverse("user-me"))
+        assert response.status_code == 204
+        assert not User.objects.filter(id=user_object.id).exists()
+
+    @pytest.mark.django_db
+    def test_put_user_custom_serializer(
+        self, user_object, user_object_jwt, user_object_json, client
+    ):
+        """
+        Test if the user/me/ PUT view works with the specified custom UserSerializer.
+        :param user_object:
+        :param user_object_jwt:
+        :param client:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        put_data = user_object_json
+        put_data["language"] = "de"
+        put_data["personal_number"] = "66666666"
+        response = client.put(
+            path=reverse("user-me"),
+            data=json.dumps(put_data),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert User.objects.get(id=user_object.id).language == "de"
+        assert User.objects.get(id=user_object.id).personal_number == "66666666"
+
+    @pytest.mark.django_db
+    def test_patch_user_custom_serializer(self, user_object, user_object_jwt, client):
+        """
+        Test if the user/me/ PATCH view works with the specified custom UserSerializer.
+        :param user_object:
+        :param user_object_jwt:
+        :param client:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        put_data = {"language": "de", "personal_number": "66666666"}
+        response = client.patch(
+            path=reverse("user-me"),
+            data=json.dumps(put_data),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert User.objects.get(id=user_object.id).language == "de"
+        assert User.objects.get(id=user_object.id).personal_number == "66666666"

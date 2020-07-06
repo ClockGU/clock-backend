@@ -19,17 +19,17 @@ def valid_contract_json(user_object):
     :return: Dict
     """
     name = "Test Contract"
-    hours = 20.0
+    minutes = 1200
     start_date = datetime.date(2019, 1, 1).isoformat()
     end_date = datetime.date(2019, 1, 31).isoformat()
-    user = user_object.id
+    user = str(user_object.id)
 
     created_at = datetime.datetime(2018, 12, 31, hour=10).isoformat()
     modified_at = created_at
 
     data = {
         "name": name,
-        "hours": hours,
+        "minutes": minutes,
         "start_date": start_date,
         "end_date": end_date,
         "user": user,
@@ -51,6 +51,25 @@ def valid_contract_querydict(valid_contract_json):
     """
     qdict = QueryDict("", mutable=True)
     qdict.update(valid_contract_json)
+    return qdict
+
+
+@pytest.fixture
+def contract_ending_in_february_json(valid_contract_json):
+    """
+    Change the enddate to Februaray 28th.
+    Testing that the creation of this contract in March won't work.
+    :param valid_contract_json:
+    :return:
+    """
+    valid_contract_json["end_date"] = datetime.date(2019, 2, 28)
+    return valid_contract_json
+
+
+@pytest.fixture
+def contract_ending_in_february_querydict(contract_ending_in_february_json):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(contract_ending_in_february_json)
     return qdict
 
 
@@ -132,27 +151,27 @@ def end_date_day_incorrect_contract_querydict(end_date_day_incorrect_contract_js
 
 
 @pytest.fixture
-def negative_hours_contract_json(valid_contract_json):
+def negative_minutes_contract_json(valid_contract_json):
     """
     This fixture creates an invalid according to the ContractSerializer) JSON dictionary
-    where the hours are negative.
+    where the minutes are negative.
     :param valid_contract_json:
     :return:
     """
-    hours = -20.0
-    valid_contract_json["hours"] = hours
+    minutes = -1200
+    valid_contract_json["minutes"] = minutes
     return valid_contract_json
 
 
 @pytest.fixture
-def negative_hours_contract_querydict(negative_hours_contract_json):
+def negative_minutes_contract_querydict(negative_minutes_contract_json):
     """
-    This fixture creates a QueryDict out of the negative_hours_contract_json.
-    :param negative_hours_contract_json:
+    This fixture creates a QueryDict out of the negative_minutes_contract_json.
+    :param negative_minutes_contract_json:
     :return: QueryDict
     """
     qdict = QueryDict("", mutable=True)
-    qdict.update(negative_hours_contract_json)
+    qdict.update(negative_minutes_contract_json)
     return qdict
 
 
@@ -164,7 +183,7 @@ def invalid_uuid_contract_json(valid_contract_json):
     :param valid_contract_json:
     :return: Dict
     """
-    random_uuid = uuid.uuid4()
+    random_uuid = str(uuid.uuid4())
     valid_contract_json["user"] = random_uuid
     valid_contract_json["created_by"] = random_uuid
     valid_contract_json["modified_by"] = random_uuid
@@ -182,15 +201,15 @@ def create_n_contract_objects(user_object):
     :return: Function
     """
     name = "Test Contract{}"
-    hours = 20.0
-    start_date = datetime.date(2019, 1, 1)
-    end_date = datetime.date(2019, 1, 31)
+    minutes = 1200
+    _start_date = datetime.date(2019, 1, 1)
+    _end_date = datetime.date(2019, 1, 31)
 
-    def create_contracts(start_stop, user):
+    def create_contracts(start_stop, user, start_date=_start_date, end_date=_end_date):
         return [
             Contract.objects.create(
                 name=name.format(i),
-                hours=hours,
+                minutes=minutes,
                 start_date=start_date,
                 end_date=end_date,
                 user=user,
@@ -213,6 +232,30 @@ def contract_object(user_object, create_n_contract_objects):
     :return:
     """
     return create_n_contract_objects((1,), user_object)[0]
+
+
+@pytest.fixture
+def report_update_contract(create_n_contract_objects, report_update_user):
+    return create_n_contract_objects(
+        (1,),
+        report_update_user,
+        start_date=datetime.date(2019, 1, 1),
+        end_date=datetime.date(2019, 2, 28),
+    )[0]
+
+
+@pytest.fixture
+def contract_ending_in_february(create_n_contract_objects, user_object):
+    end_date = datetime.date(2019, 2, 28)
+    return create_n_contract_objects((1,), user_object, end_date=end_date)[0]
+
+
+@pytest.fixture
+def contract_ending_in_february_test_update_version(
+    create_n_contract_objects, user_object
+):
+    end_date = datetime.date(2019, 2, 28)
+    return create_n_contract_objects((1,), user_object, end_date=end_date)[0]
 
 
 @pytest.fixture
@@ -254,7 +297,7 @@ def invalid_uuid_contract_put_endpoint(invalid_uuid_contract_json, contract_obje
     :param contract_object:
     :return: Dict
     """
-    invalid_uuid_contract_json["id"] = contract_object.id
+    invalid_uuid_contract_json["id"] = str(contract_object.id)
     return invalid_uuid_contract_json
 
 
@@ -267,11 +310,84 @@ def invalid_uuid_contract_patch_endpoint(contract_object):
     :param contract_object:
     :return: Dict
     """
-    random_uuid = uuid.uuid4()
+    random_uuid = str(uuid.uuid4())
     _dict = {
-        "id": contract_object.id,
+        "id": str(contract_object.id),
         "user": random_uuid,
         "created_by": random_uuid,
         "modified_by": random_uuid,
     }
     return _dict
+
+
+@pytest.fixture
+def start_date_after_months_with_shifts_contract_json(valid_contract_json):
+    """
+    This fixture creates an invalid according to the ContractSerializer JSON dictionary.
+    Hereby the start_date is inccorect in such a way that after an update there would exist
+    shifts outside of the [start_date, end_date] interval.
+    :param valid_contract_json:
+    :return: Dict
+    """
+    start_date = datetime.date(2019, 2, 1)
+    end_date = datetime.date(2019, 2, 28)
+    valid_contract_json["start_date"] = start_date.isoformat()
+    valid_contract_json["end_date"] = end_date.isoformat()
+    return valid_contract_json
+
+
+@pytest.fixture
+def start_date_after_months_with_shifts_contract_querydict(
+    start_date_after_months_with_shifts_contract_json
+):
+    """
+    This fixture creates a QueryDict out of the end_date_before_start_date_contract_json.
+    :param start_date_after_months_with_shifts_contract_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(start_date_after_months_with_shifts_contract_json)
+    return qdict
+
+
+@pytest.fixture
+def end_date_before_months_with_shifts_contract_json(valid_contract_json):
+    """
+    This fixture creates an invalid, according to the ContractSerializer, JSON dictionary.
+    Hereby the end_date is inccorect in such a way that after an update there would exist
+    shifts outside of the [start_date, end_date] interval.
+    :param valid_contract_json:
+    :return: Dict
+    """
+    start_date = datetime.date(2019, 1, 1)
+    end_date = datetime.date(2019, 1, 31)
+    valid_contract_json["start_date"] = start_date.isoformat()
+    valid_contract_json["end_date"] = end_date.isoformat()
+    return valid_contract_json
+
+
+@pytest.fixture
+def end_date_before_months_with_shifts_contract_querydict(
+    end_date_before_months_with_shifts_contract_json
+):
+    """
+    This fixture creates a QueryDict out of the end_date_before_start_date_contract_json.
+    :param end_date_before_months_with_shifts_contract_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(end_date_before_months_with_shifts_contract_json)
+    return qdict
+
+
+@pytest.fixture
+def contract_locked_shifts(create_n_contract_objects, user_object):
+    """
+    This fixture provides an a contract, which should have N unlocked not-planned shifts in the first month.
+    Those Shifts should trhow an ValidationError during Worktimesheet creation in the next month.
+    """
+    _start_date = datetime.date(2020, 1, 1)
+    _end_date = datetime.date(2020, 2, 29)
+    return create_n_contract_objects(
+        (1,), start_date=_start_date, end_date=_end_date, user=user_object
+    )[0]

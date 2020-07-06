@@ -7,16 +7,14 @@ from rest_framework import permissions
 
 # This is the documentation for the API, generated for swagger and Redoc standart
 env = environ.Env()
-base_url = "https://{}/api".format(
-    env("DJANGO_ALLOWED_HOSTS", default="localhost:8000")
-)
+base_url = "https://{}".format(env("DJANGO_ALLOWED_HOSTS", default="localhost:8000"))
 contact_mail = env("CONTACT_MAIL", default="")
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="GeoMat API",
+        title="Clock API",
         default_version="v1.0",
-        description="This is the API for the elearning project GeoMat",
+        description="This is the API for the project Clock",
         contact=openapi.Contact(email=contact_mail),
     ),
     # validators=['ssv', 'flex'],

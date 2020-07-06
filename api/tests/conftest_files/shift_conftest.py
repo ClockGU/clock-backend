@@ -1,7 +1,9 @@
+import datetime
 import json
 
 import pytest
-from pytz import datetime
+from django.conf import settings
+from pytz import timezone
 from rest_framework.request import QueryDict
 
 from api.models import Shift
@@ -9,24 +11,28 @@ from api.models import Shift
 # This conftest file provides all necessary test data concerning the Shift Model.
 # It will be imported by the conftest.py in the parent directory.
 
+tz = timezone(settings.TIME_ZONE)
+
 
 @pytest.fixture
 def valid_shift_json(user_object, contract_object):
     """
-    This fixture provides a valid (according to the ShiftSerializer) JSON dictionary.
+    This fixture provides a valid (according to the ShiftSerializer) JSON dictionary for a shift
+    which is created manually (for the past) or was 'gestochen'.
     :param user_object:
     :param contract_object:
     :return: Dict
     """
-    started = datetime.datetime(2019, 1, 29, 14).isoformat()
-    stopped = datetime.datetime(2019, 1, 29, 16).isoformat()
-    created_at = datetime.datetime(2019, 1, 29, 16).isoformat()
+    started = datetime.datetime(2019, 1, 29, 14).astimezone(tz).isoformat()
+    stopped = datetime.datetime(2019, 1, 29, 16).astimezone(tz).isoformat()
+    created_at = datetime.datetime(2019, 1, 29, 16).astimezone(tz).isoformat()
     modified_at = created_at
-    user = user_object.id
-    contract = contract_object.id
+    user = str(user_object.id)
+    contract = str(contract_object.id)
     _type = "st"
     note = "something was strange"
-    tags = json.dumps(["tag1", "tag2"])
+    tags = ["tag1", "tag2"]
+    was_reviewed = True
 
     data = {
         "started": started,
@@ -40,6 +46,7 @@ def valid_shift_json(user_object, contract_object):
         "modified_by": user,
         "created_at": created_at,
         "modified_at": modified_at,
+        "was_reviewed": was_reviewed,
     }
     return data
 
@@ -64,8 +71,8 @@ def stopped_before_started_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2019, 1, 29, 16)
-    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 29, 14)
+    valid_shift_json["started"] = datetime.datetime(2019, 1, 29, 16).astimezone(tz)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 29, 14).astimezone(tz)
     return valid_shift_json
 
 
@@ -89,7 +96,7 @@ def stopped_on_next_day_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 30, 1)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 30, 1).astimezone(tz)
     return valid_shift_json
 
 
@@ -114,7 +121,7 @@ def contract_not_belonging_to_user_json(valid_shift_json, diff_user_contract_obj
     :param diff_user_contract_object:
     :return:Dict
     """
-    valid_shift_json["contract"] = diff_user_contract_object.id
+    valid_shift_json["contract"] = str(diff_user_contract_object.id)
     return valid_shift_json
 
 
@@ -162,7 +169,7 @@ def tags_not_strings_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["tags"] = json.dumps([1, [], "a"])
+    valid_shift_json["tags"] = [1, [], "a"]
     return valid_shift_json
 
 
@@ -187,8 +194,8 @@ def shift_starts_before_contract_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2018, 12, 19, 14)
-    valid_shift_json["stopped"] = datetime.datetime(2018, 12, 19, 16)
+    valid_shift_json["started"] = datetime.datetime(2018, 12, 19, 14).astimezone(tz)
+    valid_shift_json["stopped"] = datetime.datetime(2018, 12, 19, 16).astimezone(tz)
     return valid_shift_json
 
 
@@ -213,8 +220,8 @@ def shift_starts_ends_after_contract_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2019, 2, 19, 14)
-    valid_shift_json["stopped"] = datetime.datetime(2019, 2, 19, 16)
+    valid_shift_json["started"] = datetime.datetime(2019, 2, 19, 14).astimezone(tz)
+    valid_shift_json["stopped"] = datetime.datetime(2019, 2, 19, 16).astimezone(tz)
     return valid_shift_json
 
 
@@ -233,6 +240,21 @@ def shift_starts_ends_after_contract_json_querydict(
 
 
 @pytest.fixture
+def shift_is_planned_but_started_in_past_json(valid_shift_json):
+    valid_shift_json["was_reviewed"] = False
+    return valid_shift_json
+
+
+@pytest.fixture
+def shift_is_planned_but_started_in_past_json_querydict(
+    shift_is_planned_but_started_in_past_json
+):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(shift_is_planned_but_started_in_past_json)
+    return qdict
+
+
+@pytest.fixture
 def create_n_shift_objects():
     """
     This fixture resembles a shift object factory.
@@ -240,15 +262,23 @@ def create_n_shift_objects():
     Nonetheless in terms of consistency this mechanism is kept as in the user_conftest.py.
     :return: Function
     """
-    _started = datetime.datetime(2019, 1, 29, 14)
-    _stopped = datetime.datetime(2019, 1, 29, 16)
-    created_at = datetime.datetime(2019, 1, 29, 16).isoformat()
+    _started = datetime.datetime(2019, 1, 29, 14).astimezone(tz)
+    _stopped = datetime.datetime(2019, 1, 29, 16).astimezone(tz)
+    created_at = datetime.datetime(2019, 1, 29, 16).astimezone(tz).isoformat()
     modified_at = created_at
-    _type = "st"
     note = "something was strange"
     tags = ["tag1, tag2"]
 
-    def create_shifts(start_stop, user, contract, started=_started, stopped=_stopped):
+    def create_shifts(
+        start_stop,
+        user,
+        contract,
+        started=_started,
+        stopped=_stopped,
+        was_reviewed=True,
+        locked=False,
+        type="st",
+    ):
         lst = []
         for i in range(*start_stop):
             shift = Shift.objects.create(
@@ -256,12 +286,14 @@ def create_n_shift_objects():
                 stopped=stopped,
                 created_at=created_at,
                 modified_at=modified_at,
-                type=_type,
+                type=type,
                 note=note,
                 user=user,
                 created_by=user,
                 modified_by=user,
                 contract=contract,
+                was_reviewed=was_reviewed,
+                locked=locked,
             )
             shift.tags.add(*tags)
             lst.append(shift)
@@ -283,8 +315,24 @@ def shift_object(create_n_shift_objects, user_object, contract_object):
 
 
 @pytest.fixture
+def shift_object_february_contract(
+    create_n_shift_objects, user_object, contract_ending_in_february
+):
+    """
+    A Shift belonging to the Contract which starts in January and ends in February and takes place
+    in January.
+    :param create_n_shift_objects:
+    :param user_object:
+    :param contract_ending_in_february:
+    :return:
+    """
+    return create_n_shift_objects((1,), user_object, contract_ending_in_february)[0]
+
+
+@pytest.fixture
 def db_creation_shifts_list_endpoint(
     user_object,
+    report_object,
     diff_user_object,
     contract_object,
     diff_user_contract_object,
@@ -315,8 +363,8 @@ def put_new_tags_json(valid_shift_json, shift_object):
     :param shift_object:
     :return: Dict
     """
-    valid_shift_json["id"] = shift_object.id
-    valid_shift_json["tags"] = json.dumps(["new_tag1", "new_tag2"])
+    valid_shift_json["id"] = str(shift_object.id)
+    valid_shift_json["tags"] = ["new_tag1", "new_tag2"]
     return valid_shift_json
 
 
@@ -327,15 +375,39 @@ def patch_new_tags_json(shift_object):
     :param shift_object:
     :return: Dict
     """
-    _dict = {"id": shift_object.id, "tags": json.dumps(["new_tag1", "new_tag2"])}
+    _dict = {"id": str(shift_object.id), "tags": ["new_tag1", "new_tag2"]}
     return _dict
+
+
+@pytest.fixture
+def shift_starting_in_future_was_reviewed_json(valid_shift_json):
+    """
+    This fixture is used to test whether it is possible to create a shift in the future which
+    was already flagged as reviewed.
+    Shift on 29.01.2019
+    """
+    return valid_shift_json
+
+
+@pytest.fixture
+def shift_starting_in_future_was_reviewed_querydict(
+    shift_starting_in_future_was_reviewed_json
+):
+    """
+    Create QueryDict instance.
+    :param shift_starting_in_future_was_reviewed_json:
+    :return:
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(shift_starting_in_future_was_reviewed_json)
+    return qdict
 
 
 @pytest.fixture
 def db_creation_list_month_year_endpoint(
     db_creation_shifts_list_endpoint,
     user_object,
-    contract_object,
+    contract_ending_in_february,
     create_n_shift_objects,
 ):
     """
@@ -349,12 +421,287 @@ def db_creation_list_month_year_endpoint(
     # dependency of db_creation_shifts_list_endpoint creates 2 shifts for user_object on 29th of January
     # and 2 shifts for diff user_object also on 29th of January
     # We now create 2 shift on 2nd of February for user_object
-    _started = datetime.datetime(2019, 2, 2, 14)
-    _stopped = datetime.datetime(2019, 2, 2, 16)
+    _started = datetime.datetime(2019, 2, 2, 14).astimezone(tz)
+    _stopped = datetime.datetime(2019, 2, 2, 16).astimezone(tz)
     create_n_shift_objects(
         (1, 3),
         user=user_object,
-        contract=contract_object,
+        contract=contract_ending_in_february,
         started=_started,
         stopped=_stopped,
     )
+
+
+@pytest.fixture
+def put_to_exported_shift_json(shift_object, valid_shift_json):
+    shift_object.locked = True
+    shift_object.save()
+    valid_shift_json["id"] = str(shift_object.id)
+    valid_shift_json["tags"] = ["new_tag1", "new_tag2"]
+
+    return valid_shift_json
+
+
+@pytest.fixture
+def shift_content_aggregation_gather_all_shifts(
+    report_object, user_object, contract_object, create_n_shift_objects
+):
+    """
+    This fixture creates 5 Shifts scatterd over the month.
+    On 5., 10., 15., 20., and 25. of February.
+    :param report_object:
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+
+    for i in range(1, 6):
+        create_n_shift_objects(
+            (1,),
+            user=user_object,
+            contract=contract_object,
+            started=datetime.datetime(2019, 1, i * 5, 14).astimezone(tz),
+            stopped=datetime.datetime(2019, 1, i * 5, 16).astimezone(tz),
+        )
+    return Shift.objects.filter(
+        user=user_object, contract=contract_object, started__month=1, started__year=2019
+    ).order_by("started")
+
+
+@pytest.fixture
+def shift_content_aggregation_ignores_planned_shifts(
+    user_object,
+    contract_object,
+    create_n_shift_objects,
+    shift_content_aggregation_gather_all_shifts,
+):
+    """
+    This fixture Creates a additional Shift which is marked as planned (was_reviewd=False) on 26. of February.
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :param shift_content_aggregation_gather_all_shifts:
+    :return:
+    """
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
+        was_reviewed=False,
+    )
+
+
+@pytest.fixture
+def shift_content_aggregation_merges_shifts(
+    user_object, contract_object, create_n_shift_objects
+):
+    """
+    This fixture creates 3 Shifts with a duration of 120 minutes each and 60 minute break between each.
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 10).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 12).astimezone(tz),
+    )
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 13).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 15).astimezone(tz),
+    )
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 16).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 18).astimezone(tz),
+    )
+    return Shift.objects.filter(
+        user=user_object, contract=contract_object, started__month=1, started__year=2019
+    ).order_by("started")
+
+
+@pytest.fixture
+def two_shifts_with_one_vacation_shift(
+    user_object, contract_object, create_n_shift_objects
+):
+    """
+    This fixture creates two shifts for a day.
+    1. Shift is a regular 4 hour shift of type `st`.
+    2. Shift is a vacation shift of 240 minutes (type=vn).
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+    # Regular Shift
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 10).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
+    )
+    # Vacation Shift
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 18).astimezone(tz),
+        type="vn",
+    )
+    return Shift.objects.filter(
+        user=user_object, contract=contract_object, started__month=1, started__year=2019
+    ).order_by("started")
+
+
+@pytest.fixture
+def test_shift_creation_if_allready_exported(
+    user_object, contract_object, create_n_shift_objects
+):
+    """
+    This fixture creates a Shift Object which is allready marked as exported.
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :param shift_object:
+    :return:
+    """
+    return create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 26, 10).astimezone(tz),
+        stopped=datetime.datetime(2019, 1, 26, 12).astimezone(tz),
+        locked=True,
+    )
+
+
+@pytest.fixture
+def overlapping_shifts(user_object, contract_object, create_n_shift_objects):
+    """
+
+    :param user_object:
+    :param contract_object:
+    :return:
+    """
+    Shift.objects.bulk_create(
+        [
+            Shift(
+                started=datetime.datetime(2019, 1, 29, 14).astimezone(tz),
+                stopped=datetime.datetime(2019, 1, 29, 16).astimezone(tz),
+                created_at=datetime.datetime(2019, 1, 29, 16)
+                .astimezone(tz)
+                .isoformat(),
+                modified_at=datetime.datetime(2019, 1, 29, 16)
+                .astimezone(tz)
+                .isoformat(),
+                type="st",
+                user=user_object,
+                created_by=user_object,
+                modified_by=user_object,
+                contract=contract_object,
+                was_reviewed=True,
+                locked=False,
+            ),
+            Shift(
+                started=datetime.datetime(2019, 1, 29, 14).astimezone(tz),
+                stopped=datetime.datetime(2019, 1, 29, 16).astimezone(tz),
+                created_at=datetime.datetime(2019, 1, 29, 16)
+                .astimezone(tz)
+                .isoformat(),
+                modified_at=datetime.datetime(2019, 1, 29, 16)
+                .astimezone(tz)
+                .isoformat(),
+                type="st",
+                user=user_object,
+                created_by=user_object,
+                modified_by=user_object,
+                contract=contract_object,
+                was_reviewed=True,
+                locked=False,
+            ),
+            Shift(
+                started=datetime.datetime(2019, 1, 29, 15).astimezone(tz),
+                stopped=datetime.datetime(2019, 1, 29, 18).astimezone(tz),
+                created_at=datetime.datetime(2019, 1, 29, 18)
+                .astimezone(tz)
+                .isoformat(),
+                modified_at=datetime.datetime(2019, 1, 29, 18)
+                .astimezone(tz)
+                .isoformat(),
+                type="st",
+                user=user_object,
+                created_by=user_object,
+                modified_by=user_object,
+                contract=contract_object,
+                was_reviewed=True,
+                locked=False,
+            ),
+        ]
+    )
+    return Shift.objects.filter(user=user_object, contract=contract_object)
+
+
+@pytest.fixture
+def shifts_before_new_start_date_contract(
+    contract_ending_in_february, user_object, create_n_shift_objects
+):
+    """
+    Create a shift in january for the contract which starts in january and ends in february.
+    :param contract_ending_in_february:
+    :param user_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+    return create_n_shift_objects((1,), user_object, contract_ending_in_february)[0]
+
+
+@pytest.fixture
+def shifts_after_new_end_date_contract(
+    contract_ending_in_february, user_object, create_n_shift_objects
+):
+    """
+    Create a shift in january for the contract which starts in january and ends in february.
+    :param contract_ending_in_february:
+    :param user_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+    _started = datetime.datetime(2019, 2, 14, 14).astimezone(tz)
+    _stopped = datetime.datetime(2019, 2, 14, 16).astimezone(tz)
+    return create_n_shift_objects(
+        (1,),
+        user_object,
+        started=_started,
+        stopped=_stopped,
+        contract=contract_ending_in_february,
+    )[0]
+
+
+@pytest.fixture
+def not_locked_shifts(contract_locked_shifts, create_n_shift_objects):
+    """
+    This fixture creates a Shift in the first month of the provided month, which is not planned and
+    unlocked.
+    """
+    _started = datetime.datetime(2020, 1, 14, 14).astimezone(tz)
+    _stopped = datetime.datetime(2020, 1, 14, 16).astimezone(tz)
+    return create_n_shift_objects(
+        (1,),
+        contract_locked_shifts.user,
+        started=_started,
+        stopped=_stopped,
+        contract=contract_locked_shifts,
+    )[0]

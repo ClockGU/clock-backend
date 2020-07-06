@@ -91,6 +91,7 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
 
+    LANGUAGE_CHOICES = (("de", "Deutsch"), ("en", "English"))
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
@@ -98,7 +99,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50)  # Firstname is required
     last_name = models.CharField(max_length=100)  # Lastname is required
-    personal_number = models.CharField(max_length=100)
+    personal_number = models.CharField(max_length=100, default="")
+    language = models.CharField(choices=LANGUAGE_CHOICES, default="de", max_length=2)
     date_joined = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
@@ -117,7 +119,7 @@ class Contract(models.Model):
         to=User, related_name="contracts", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
-    hours = models.FloatField()
+    minutes = models.PositiveIntegerField()
     start_date = models.DateField()
     end_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -147,7 +149,25 @@ class Shift(models.Model):
     note = models.TextField(blank=True)
     tags = TaggableManager(blank=True, through=UUIDTaggedItem)
     was_reviewed = models.BooleanField(default=True)
-    was_exported = models.BooleanField(default=False)
+    locked = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
+    modified_at = models.DateTimeField(auto_now=True)
+    modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
+
+
+class ClockedInShift(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    user = models.OneToOneField(
+        to=User, related_name="clocked_in_shift", on_delete=models.CASCADE
+    )
+    started = models.DateTimeField()
+    contract = models.OneToOneField(
+        to=Contract, related_name="clocked_in_shift", on_delete=models.CASCADE
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
@@ -160,7 +180,7 @@ class Report(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
     month_year = models.DateField()
-    hours = models.DurationField()
+    worktime = models.DurationField()
     contract = models.ForeignKey(
         to=Contract, related_name="reports", on_delete=models.CASCADE
     )
@@ -169,3 +189,6 @@ class Report(models.Model):
     created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ["month_year"]

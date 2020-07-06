@@ -1,27 +1,42 @@
-.PHONY: init ci analyze build rebuild migrate lang-make lang-compile
+.PHONY: init ci build rebuild migrate lang-make lang-compile reformat reformat-check flake8 isort isort-check lint
 
 init:
-	pip install --upgrade pip
-	pip install pipenv --upgrade
-	pipenv install --dev --skip-lock
+	poetry install
+
 ci:
-	pipenv run pytest --cov=./
-analyze:
-	pipenv run flake8 .
-	pipenv run isort -v
+	poetry run pytest --cov=./
+
 build:
 	docker-compose build
+
 rebuild:
 	docker-compose build --force-rm --no-cache
+
 migrate:
 	docker-compose run --rm web python manage.py migrate
+
 lang-make:
-	pipenv run python manage.py makemessages --no-location --no-wrap
+	poetry run python manage.py makemessages --no-location --no-wrap
+
 lang-compile:
-	pipenv run python manage.py compilemessages
-black-check:
-	docker-compose run --rm web black . --check
-black-format:
-	docker-compose run --rm web black .
+	poetry run python manage.py compilemessages
+
 pytest:
 	docker-compose run --rm web pytest
+
+reformat:
+	black .
+
+reformat-check:
+	black --check .
+
+flake8:
+	flake8 .
+
+isort:
+	isort -y
+
+isort-check:
+	isort --check-only --diff
+
+lint: reformat-check flake8 isort-check
