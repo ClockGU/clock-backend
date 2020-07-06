@@ -71,10 +71,12 @@ class UserSerializer(RestrictModificationModelSerializer):
             "modified_at",
             "last_login",
         ]
+        ref_name = "user-gdpr-serializers"
 
 
 class DjoserUserSerializer(serializers.Serializer):
-    pass
+    class Meta:
+        ref_name = "djoser-custom-serializer"
 
 
 class ContractSerializer(RestrictModificationModelSerializer):
