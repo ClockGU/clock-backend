@@ -1,11 +1,13 @@
 import json
 from calendar import monthrange
 
+from dateutil.relativedelta import relativedelta
 from django.utils.translation import gettext_lazy as _
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
+from api.utilities import timedelta_to_string
 
 
 class TagsSerializerField(serializers.Field):
@@ -19,6 +21,14 @@ class TagsSerializerField(serializers.Field):
 
     def to_internal_value(self, data):
         return data
+
+
+class TimedeltaSerializerMethodField(serializers.SerializerMethodField):
+    def to_representation(self, value):
+        return_value = super(TimedeltaSerializerMethodField, self).to_representation(
+            value
+        )
+        return timedelta_to_string(return_value)
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -361,6 +371,10 @@ class ReportSerializer(RestrictModificationModelSerializer):
     ReadOnlyViewSet and therefore will never perform a create or update.
     """
 
+    net_worktime = TimedeltaSerializerMethodField()
+    carry_over_last_month = TimedeltaSerializerMethodField()
+    carry_over_next_month = TimedeltaSerializerMethodField()
+
     class Meta:
         model = Report
         fields = "__all__"
@@ -372,3 +386,26 @@ class ReportSerializer(RestrictModificationModelSerializer):
             "modified_by": {"write_only": True},
             "user": {"write_only": True},
         }
+
+    def calculate_carryover(self, report_object):
+        return report_object.worktime - datetime.timedelta(
+            minutes=report_object.contract.minutes
+        )
+
+    def get_carry_over_last_month(self, obj):
+        try:
+            last_mon_report_object = Report.objects.get(
+                contract=obj.contract,
+                month_year=obj.month_year - relativedelta(months=1),
+            )
+            return self.calculate_carryover(last_mon_report_object)
+
+        except Report.DoesNotExist:
+            return datetime.timedelta(0)
+
+    # TODO: We are currently calculating the carry_over from the previous month twice.
+    def get_net_worktime(self, obj):
+        return obj.worktime - self.get_carry_over_last_month(obj)
+
+    def get_carry_over_next_month(self, obj):
+        return self.calculate_carryover(obj)
