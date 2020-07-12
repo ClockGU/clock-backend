@@ -209,6 +209,12 @@ class TestContractFields:
     def test_model_has_modified_by(self, contract_model_class):
         assert hasattr(contract_model_class, "modified_by")
 
+    def test_model_has_start_carry_over(self, contract_model_class):
+        assert hasattr(contract_model_class, "start_carry_over")
+
+    def test_model_has_month_start_clocking(self, contract_model_class):
+        assert hasattr(contract_model_class, "month_start_clocking")
+
     def test_field_type_id(self, contract_model_class):
         assert isinstance(contract_model_class._meta.get_field("id"), models.UUIDField)
 
@@ -262,6 +268,18 @@ class TestContractFields:
         assert field.primary_key
         assert field.default == uuid.uuid4
         assert not field.editable
+
+    def test_field_type_start_carry_over(self, contract_model_class):
+        assert isinstance(
+            contract_model_class._meta.get_field("start_carry_over"),
+            models.DurationField,
+        )
+
+    def test_field_type_month_start_clocking(self, contract_model_class):
+        assert isinstance(
+            contract_model_class._meta.get_field("month_start_clocking"),
+            models.DateField,
+        )
 
 
 class TestShiftFields:

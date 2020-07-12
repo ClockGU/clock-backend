@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timedelta
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
@@ -120,8 +121,10 @@ class Contract(models.Model):
     )
     name = models.CharField(max_length=100)
     minutes = models.PositiveIntegerField()
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+    initial_carryover = models.DurationField()
+    carryover_target_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE
