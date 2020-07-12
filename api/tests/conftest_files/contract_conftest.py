@@ -37,6 +37,8 @@ def valid_contract_json(user_object):
         "modified_by": user,
         "created_at": created_at,
         "modified_at": modified_at,
+        "carryover_target_date": start_date,
+        "initial_carryover": str(datetime.timedelta(0)),
     }
 
     return data
@@ -176,6 +178,116 @@ def negative_minutes_contract_querydict(negative_minutes_contract_json):
 
 
 @pytest.fixture
+def incorrect_carryover_target_date_contract_json(valid_contract_json):
+    """
+    This fixture creates an invalid (according to the ContractSerializer) JSON dictionary
+    where month_start_clocking date is not in-between start_date and end_date.
+    :param valid_contract_json:
+    :return:
+    """
+    valid_contract_json["carryover_target_date"] = datetime.date(2019, 2, 1).isoformat()
+    return valid_contract_json
+
+
+@pytest.fixture
+def incorrect_carryover_target_date_contract_querydict(
+    incorrect_carryover_target_date_contract_json
+):
+    """
+    This fixture creates a QueryDict out of the incorrect_month_start_clocking_contract_json.
+    :param incorrect_carryover_target_date_contract_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(incorrect_carryover_target_date_contract_json)
+    return qdict
+
+
+@pytest.fixture
+def incorrect_date_carryover_target_date_contract_json(valid_contract_json):
+    """
+    This fixture creates an invalid (according to the ContractSerializer) JSON dictionary
+    where month_start_clocking date is not the first of a month.
+    :param valid_contract_json:
+    :return:
+    """
+    valid_contract_json["carryover_target_date"] = datetime.date(
+        2019, 1, 12
+    ).isoformat()
+    return valid_contract_json
+
+
+@pytest.fixture
+def incorrect_date_carryover_target_date_contract_querydict(
+    incorrect_date_carryover_target_date_contract_json
+):
+    """
+    This fixture creates a QueryDict out of the incorrect_date_month_start_clocking_contract_json.
+    :param incorrect_date_carryover_target_date_contract_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(incorrect_date_carryover_target_date_contract_json)
+    return qdict
+
+
+@pytest.fixture
+def incorrect_carryover_target_date_for_future_contract_json(valid_contract_json):
+    """
+    This fixture creates an invalid (according to the ContractSerializer) JSON dictionary
+    where month_start_clocking date is 1.1.2019 while the contract starts on 1.2.2019.
+    :param valid_contract_json:
+    :return:
+    """
+    valid_contract_json["start_date"] = datetime.date(2019, 2, 1).isoformat()
+    valid_contract_json["end_date"] = datetime.date(2019, 3, 31).isoformat()
+    return valid_contract_json
+
+
+@pytest.fixture
+def incorrect_carryover_target_date_for_future_contract_querydict(
+    incorrect_carryover_target_date_for_future_contract_json
+):
+    """
+    This fixture creates a QueryDict out of the incorrect_month_start_clocking_for_future_contract_json.
+    :param incorrect_month_start_clocking_for_future_contract_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(incorrect_carryover_target_date_for_future_contract_json)
+    return qdict
+
+
+@pytest.fixture
+def non_zero_initial_carryover_for_future_contract_json(valid_contract_json):
+    """
+    This fixture creates an invalid (according to the ContractSerializer) JSON dictionary
+    where start_carry_over is not timedelta(0) for the contract starting in the future.
+    :param valid_contract_json:
+    :return:
+    """
+    valid_contract_json["start_date"] = datetime.date(2019, 2, 1).isoformat()
+    valid_contract_json["end_date"] = datetime.date(2019, 3, 31).isoformat()
+    valid_contract_json["carryover_target_date"] = datetime.date(2019, 2, 1).isoformat()
+    valid_contract_json["initial_carryover"] = str(datetime.timedelta(hours=5))
+    return valid_contract_json
+
+
+@pytest.fixture
+def non_zero_initial_carryover_for_future_contract_querydict(
+    non_zero_initial_carryover_for_future_contract_json
+):
+    """
+    This fixture creates a QueryDict out of the incorrect_date_month_start_clocking_contract_json.
+    :param non_zero_initial_carryover_for_future_contract_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(non_zero_initial_carryover_for_future_contract_json)
+    return qdict
+
+
+@pytest.fixture
 def invalid_uuid_contract_json(valid_contract_json):
     """
     This fixture creates an invalid according to the ContractSerializer) JSON dictionary
@@ -212,6 +324,8 @@ def create_n_contract_objects(user_object):
                 minutes=minutes,
                 start_date=start_date,
                 end_date=end_date,
+                initial_carryover=datetime.timedelta(0),
+                carryover_target_date=start_date,
                 user=user,
                 created_by=user,
                 modified_by=user,

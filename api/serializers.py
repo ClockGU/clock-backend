@@ -113,11 +113,21 @@ class ContractSerializer(RestrictModificationModelSerializer):
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
         today = datetime.date.today()
+        carryover_target_date = attrs.get("carryover_target_date")
+        initial_carryover = attrs.get("initial_carryover")
 
+        # Catches PUT
         if self.instance:
+            # Catches PATCH
             if self.partial:
                 start_date = attrs.get("start_date", self.instance.start_date)
                 end_date = attrs.get("end_date", self.instance.end_date)
+                carryover_target_date = attrs.get(
+                    "month_start_clocking", self.instance.carryover_target_date
+                )
+                initial_carryover = attrs.get(
+                    "start_carry_over", self.instance.initial_carryover
+                )
 
             if Shift.objects.filter(
                 contract=self.instance, started__lt=start_date
@@ -146,6 +156,29 @@ class ContractSerializer(RestrictModificationModelSerializer):
         if end_date < today:
             raise serializers.ValidationError(
                 _("A contract's end date must not be set in the past.")
+            )
+
+        if start_date > today:
+
+            if not initial_carryover == datetime.timedelta(0):
+                raise serializers.ValidationError(
+                    _(
+                        "The carry over for a contract starting in the future may only be 00:00."
+                    )
+                )
+
+        if not start_date.replace(day=1) <= carryover_target_date < end_date:
+            raise serializers.ValidationError(
+                _(
+                    "The month in which you want to start clocking must be set in-between the start and end date."
+                )
+            )
+
+        if not carryover_target_date.day == 1:
+            raise serializers.ValidationError(
+                _(
+                    "The date on which you want to start clocking must be the first of a month."
+                )
             )
 
         return attrs

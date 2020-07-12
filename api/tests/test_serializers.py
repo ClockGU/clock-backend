@@ -166,6 +166,84 @@ class TestContractSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    @pytest.mark.freeze_time("2019-01-01")
+    @pytest.mark.django_db
+    def test_carryover_target_date_not_in_month_range(
+        self, incorrect_carryover_target_date_contract_querydict, plain_request_object
+    ):
+        """
+        Test if it is allowed to have a month_start_clocking not in-between start_date
+        and end_date.
+        :param incorrect_month_start_clocking_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                data=incorrect_carryover_target_date_contract_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.freeze_time("2019-01-01")
+    @pytest.mark.django_db
+    def test_carryover_target_date_incorrect_date(
+        self,
+        incorrect_date_carryover_target_date_contract_querydict,
+        plain_request_object,
+    ):
+        """
+        Test if it is allowed to have a month_start_clocking which is not the first of a
+        month.
+        :param incorrect_date_month_start_clocking_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                data=incorrect_date_carryover_target_date_contract_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.freeze_time("2019-01-01")
+    @pytest.mark.django_db
+    def test_month_start_clocking_incorrect_for_future_contract(
+        self,
+        incorrect_carryover_target_date_for_future_contract_querydict,
+        plain_request_object,
+    ):
+        """
+        Test if is allowed to set month_start_clock to a different date then start_date.replace(day=1)
+        if contract starts in the future.
+        :param incorrect_month_start_clocking_for_future_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                data=incorrect_carryover_target_date_for_future_contract_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.freeze_time("2019-01-01")
+    @pytest.mark.django_db
+    def test_start_carry_over_non_zerofuture_contract(
+        self,
+        non_zero_initial_carryover_for_future_contract_querydict,
+        plain_request_object,
+    ):
+        """
+        Test if is allowed to set start_carry_over to a non-zero timedelta for contracts
+        starting in the future.
+        :param non_zero_initial_carryover_for_future_contract_querydict:
+        :param plain_request_object:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                data=non_zero_initial_carryover_for_future_contract_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
 
 class TestShiftSerializerValidation:
     """
