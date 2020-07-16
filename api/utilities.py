@@ -57,23 +57,22 @@ def create_report_after_contract_save(sender, instance, created, **kwargs):
     :return:
     """
     if created:
-        _month_year = instance.start_date.replace(day=1)
+        _month_year = instance.carryover_target_date
         today = datetime.date.today()
-        # Always create a Report for the month it start.
-        # This concerns Contracts starting in the future.
+        # Always create a Report for the month the user specified he starts using clock.
+        # This also concerns Contracts starting in the future.
         Report.objects.create(
             month_year=_month_year,
-            worktime=datetime.timedelta(0),
+            worktime=instance.initial_carryover,
             contract=instance,
             user=instance.user,
             created_by=instance.user,
             modified_by=instance.user,
         )
         _month_year += relativedelta(months=1)
-        # If today is inbetween start and end date create Reports for all months
-        # between start and today.
-        limit_date = today if today < instance.end_date else instance.end_date
-        while _month_year <= limit_date:
+
+        # Create Reports for all months between carryover_target_date and now
+        while _month_year <= today:
             Report.objects.create(
                 month_year=_month_year,
                 worktime=datetime.timedelta(0),
