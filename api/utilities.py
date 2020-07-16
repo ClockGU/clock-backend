@@ -104,7 +104,7 @@ def update_reports(contract, month_year):
     previous_report = Report.objects.filter(
         contract=contract, month_year=month_year - relativedelta(months=1)
     )
-    carry_over_worktime = datetime.timedelta(0)
+    carry_over_worktime = contract.initial_carryover
     if previous_report.exists():
         carry_over_worktime = previous_report.first().worktime - debit_worktime
     # Loop over all Reports starting from month in which the created/update shift

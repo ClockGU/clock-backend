@@ -157,6 +157,37 @@ class TestUpdateSignals:
             contract=report_update_contract, month_year=datetime.date(2019, 2, 1)
         ).worktime == datetime.timedelta(minutes=-960)
 
+    @freeze_time("2019-02-05")
+    @pytest.mark.django_db
+    def test_signal_uses_initial_carryover(self, user_object):
+
+        _contract = Contract.objects.create(
+            user=user_object,
+            name="Report Creation Test Contract",
+            minutes=1200,
+            start_date=datetime.date(2019, 1, 1),
+            end_date=datetime.date(2019, 7, 31),
+            carryover_target_date=datetime.date(2019, 2, 1),
+            initial_carryover=datetime.timedelta(hours=5),
+            created_by=user_object,
+            modified_by=user_object,
+        )
+        shift = Shift.objects.create(
+            started=datetime.datetime(2019, 2, 11, 14, tzinfo=utc),
+            stopped=datetime.datetime(2019, 2, 11, 16, tzinfo=utc),
+            created_at=datetime.datetime(2019, 2, 11, 16, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 2, 11, 16, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=user_object,
+            created_by=user_object,
+            modified_by=user_object,
+            contract=_contract,
+        )
+        assert Report.objects.get(
+            contract=_contract, month_year=datetime.date(2019, 2, 1)
+        ).worktime == datetime.timedelta(minutes=420)
+
     @pytest.mark.django_db
     def test_signal_updates_shifts_report(
         self, report_object, contract_object, user_object
