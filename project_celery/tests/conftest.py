@@ -19,6 +19,8 @@ def december_contract(user_object):
         minutes=1200,
         start_date=datetime.date(2019, 12, 1),
         end_date=datetime.date(2020, 2, 29),
+        initial_carryover=datetime.timedelta(0),
+        carryover_target_date=datetime.date(2019, 12, 1),
         user=user_object,
         created_by=user_object,
         modified_by=user_object,
