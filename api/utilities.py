@@ -41,12 +41,44 @@ def timedelta_to_string(timedelta):
     return "{hours:02g}:{minutes:02g}".format(hours=hours, minutes=minutes)
 
 
-def create_report_after_contract_save(sender, instance, created, **kwargs):
+# TODO: This function needs a different, more phony name.
+def create_reports_for_contract(contract):
+    """
+    Function used to create all Reports from carryover_target_date to date.today().
+    :param contract:
+    :return:
+    """
+    _month_year = contract.carryover_target_date
+    today = datetime.date.today()
+    Report.objects.create(
+        month_year=_month_year,
+        worktime=contract.initial_carryover,
+        contract=contract,
+        user=contract.user,
+        created_by=contract.user,
+        modified_by=contract.user,
+    )
+    _month_year += relativedelta(months=1)
+
+    # Create Reports for all months between carryover_target_date and now
+    while _month_year <= today:
+        Report.objects.create(
+            month_year=_month_year,
+            worktime=datetime.timedelta(0),
+            contract=contract,
+            user=contract.user,
+            created_by=contract.user,
+            modified_by=contract.user,
+        )
+        _month_year += relativedelta(months=1)
+
+
+def create_report_after_contract_creation(sender, instance, created, **kwargs):
     """
     Receiver Function to be called by the post_save signal of a Contract object.
     It creates a Report object for the month when the Contract starts.
     The User might create a Contract after it already started so we also create
-    all Report objects for the months between the start month and 'now".
+    all Report objects for the months between the carryover_target_date month and 'now".
 
     State: 14. April 2019
 
@@ -57,36 +89,11 @@ def create_report_after_contract_save(sender, instance, created, **kwargs):
     :return:
     """
     if created:
-        _month_year = instance.start_date.replace(day=1)
-        today = datetime.date.today()
-        # Always create a Report for the month it start.
-        # This concerns Contracts starting in the future.
-        Report.objects.create(
-            month_year=_month_year,
-            worktime=datetime.timedelta(0),
-            contract=instance,
-            user=instance.user,
-            created_by=instance.user,
-            modified_by=instance.user,
-        )
-        _month_year += relativedelta(months=1)
-        # If today is inbetween start and end date create Reports for all months
-        # between start and today.
-        limit_date = today if today < instance.end_date else instance.end_date
-        while _month_year <= limit_date:
-            Report.objects.create(
-                month_year=_month_year,
-                worktime=datetime.timedelta(0),
-                contract=instance,
-                user=instance.user,
-                created_by=instance.user,
-                modified_by=instance.user,
-            )
-            _month_year += relativedelta(months=1)
+        create_reports_for_contract(contract=instance)
 
 
 post_save.connect(
-    create_report_after_contract_save,
+    create_report_after_contract_creation,
     sender=Contract,
     dispatch_uid="create_report_after_contract_save",
 )
@@ -105,7 +112,7 @@ def update_reports(contract, month_year):
     previous_report = Report.objects.filter(
         contract=contract, month_year=month_year - relativedelta(months=1)
     )
-    carry_over_worktime = datetime.timedelta(0)
+    carry_over_worktime = contract.initial_carryover
     if previous_report.exists():
         carry_over_worktime = previous_report.first().worktime - debit_worktime
     # Loop over all Reports starting from month in which the created/update shift
