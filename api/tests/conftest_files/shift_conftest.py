@@ -705,3 +705,16 @@ def not_locked_shifts(contract_locked_shifts, create_n_shift_objects):
         stopped=_stopped,
         contract=contract_locked_shifts,
     )[0]
+
+
+@pytest.fixture
+def shift_contract_ending_in_april(create_n_shift_objects, contract_ending_in_april):
+    _started = datetime.datetime(2019, 3, 1, 10).astimezone(tz)
+    _stopped = datetime.datetime(2019, 3, 1, 15).astimezone(tz)
+    return create_n_shift_objects(
+        (1,),
+        contract_ending_in_april.user,
+        started=_started,
+        stopped=_stopped,
+        contract=contract_ending_in_april,
+    )[0]

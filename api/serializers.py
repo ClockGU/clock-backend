@@ -7,7 +7,11 @@ from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
-from api.utilities import timedelta_to_string
+from api.utilities import (
+    create_reports_for_contract,
+    timedelta_to_string,
+    update_reports,
+)
 
 
 class TagsSerializerField(serializers.Field):
@@ -113,11 +117,21 @@ class ContractSerializer(RestrictModificationModelSerializer):
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
         today = datetime.date.today()
+        carryover_target_date = attrs.get("carryover_target_date")
+        initial_carryover = attrs.get("initial_carryover")
 
+        # Catches PUT
         if self.instance:
+            # Catches PATCH
             if self.partial:
                 start_date = attrs.get("start_date", self.instance.start_date)
                 end_date = attrs.get("end_date", self.instance.end_date)
+                carryover_target_date = attrs.get(
+                    "month_start_clocking", self.instance.carryover_target_date
+                )
+                initial_carryover = attrs.get(
+                    "start_carry_over", self.instance.initial_carryover
+                )
 
             if Shift.objects.filter(
                 contract=self.instance, started__lt=start_date
@@ -148,6 +162,29 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 _("A contract's end date must not be set in the past.")
             )
 
+        if start_date > today:
+
+            if not initial_carryover == datetime.timedelta(0):
+                raise serializers.ValidationError(
+                    _(
+                        "The carry over for a contract starting in the future may only be 00:00."
+                    )
+                )
+
+        if not start_date.replace(day=1) <= carryover_target_date < end_date:
+            raise serializers.ValidationError(
+                _(
+                    "The month in which you want to start clocking must be set in-between the start and end date."
+                )
+            )
+
+        if not carryover_target_date.day == 1:
+            raise serializers.ValidationError(
+                _(
+                    "The date on which you want to start clocking must be the first of a month."
+                )
+            )
+
         return attrs
 
     def validate_start_date(self, start_date):
@@ -175,6 +212,36 @@ class ContractSerializer(RestrictModificationModelSerializer):
             )
 
         return end_date
+
+    def update(self, instance, validated_data):
+
+        carryover_target_date_changed = bool(
+            validated_data.get("carryover_target_date")
+        )
+        initial_carryover_changed = bool(validated_data.get("initial_carryover"))
+        if not self.partial:
+            carryover_target_date_changed = (
+                validated_data.get("carryover_target_date")
+                != instance.carryover_target_date
+            )
+            initial_carryover_changed = (
+                validated_data.get("initial_carryover") != instance.initial_carryover
+            )
+
+        return_instance = super(ContractSerializer, self).update(
+            instance, validated_data
+        )
+
+        if carryover_target_date_changed:
+            # Delete all existing Reports
+            Report.objects.filter(contract=instance).delete()
+            # Recreate them.
+            create_reports_for_contract(contract=instance)
+
+        if carryover_target_date_changed or initial_carryover_changed:
+            update_reports(instance, instance.carryover_target_date)
+
+        return return_instance
 
 
 class ShiftSerializer(RestrictModificationModelSerializer):
