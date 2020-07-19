@@ -1,7 +1,10 @@
+import datetime
+
 import pytest
 from freezegun import freeze_time
 from rest_framework import exceptions, serializers
 
+from api.models import Report
 from api.serializers import (
     ClockedInShiftSerializer,
     ContractSerializer,
@@ -243,6 +246,124 @@ class TestContractSerializerValidation:
                 data=non_zero_initial_carryover_for_future_contract_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
+
+    @pytest.mark.freeze_time("2019-3-1")
+    @pytest.mark.django_db
+    def test_update_initial_carryover_updates_reports(
+        self,
+        contract_ending_in_april,
+        shift_contract_ending_in_april,
+        plain_request_object,
+    ):
+        """
+        Test wether the serializers update method also updates the Reports when we change the initial_carryover.
+        :param contract_ending_in_april:
+        :param shift_contract_ending_in_april:
+        :return:
+        """
+        assert Report.objects.get(
+            contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
+        ).worktime == datetime.timedelta(hours=10)
+
+        seri = ContractSerializer(
+            instance=contract_ending_in_april,
+            data={"initial_carryover": datetime.timedelta(hours=10)},
+            partial=True,
+            context={"request": plain_request_object},
+        )
+        seri.is_valid(raise_exception=True)
+        seri.save()
+
+        assert Report.objects.get(
+            contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
+        ).worktime == datetime.timedelta(hours=15)
+
+    @pytest.mark.freeze_time("2019-3-1")
+    @pytest.mark.django_db
+    def test_update_carryover_target_date_recreates_reports(
+        self,
+        contract_ending_in_april,
+        shift_contract_ending_in_april,
+        plain_request_object,
+    ):
+        """
+        Test wether the serializers update method deletes existing reports and recreates them when
+        the carryover_target_date is updated.
+        :param contract_ending_in_april:
+        :param shift_contract_ending_in_april:
+        :return:
+        """
+
+        assert Report.objects.filter(contract=contract_ending_in_april).count() == 1
+        old_report_pk = Report.objects.filter(contract=contract_ending_in_april)[0].pk
+        seri = ContractSerializer(
+            instance=contract_ending_in_april,
+            data={"carryover_target_date": datetime.date(2019, 2, 1)},
+            partial=True,
+            context={"request": plain_request_object},
+        )
+        seri.is_valid(raise_exception=True)
+        seri.save()
+
+        assert Report.objects.filter(contract=contract_ending_in_april).count() == 2
+        assert not Report.objects.filter(pk=old_report_pk).exists()
+        assert Report.objects.get(
+            contract=contract_ending_in_april, month_year=datetime.date(2019, 2, 1)
+        ).worktime == datetime.timedelta(hours=5)
+        assert Report.objects.get(
+            contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
+        ).worktime == datetime.timedelta(hours=-10)
+
+    @pytest.mark.freeze_time("2019-3-1")
+    @pytest.mark.django_db
+    def test_update_carryover_and_target_date_correct_evaluated(
+        self,
+        user_object,
+        contract_ending_in_april,
+        shift_contract_ending_in_april,
+        plain_request_object,
+    ):
+        """
+        By the tests 'test_update_carryover_target_date_recreates_reports' and
+        'test_update_initial_carryover_updates_reports' we allready checked that PATCH'ing
+        (parital updates) works. In order to not bother checking the Reports etc. for PUT'ing
+        we just test the logic which determines whether or not either carryover_target_date and/or
+        initial_carryover change (see update method of ContractSerializer).
+        :param contract_ending_in_april:
+        :param shift_contract_ending_in_april:
+        :param plain_request_object:
+        :return:
+        """
+        data = {
+            "name": "Test Contract1",
+            "minutes": 1200,
+            "start_date": datetime.date(2019, 1, 1),
+            "end_date": datetime.date(2019, 4, 30),
+            "user": str(user_object.id),
+            "created_by": str(user_object.id),
+            "modified_by": str(user_object.id),
+            "created_at": contract_ending_in_april.created_at,
+            "modified_at": contract_ending_in_april.modified_at,
+            "carryover_target_date": datetime.date(2019, 2, 1),
+            "initial_carryover": str(datetime.timedelta(10)),
+        }
+        seri = ContractSerializer(
+            instance=contract_ending_in_april,
+            data=data,
+            context={"request": plain_request_object},
+        )
+        seri.is_valid()
+        validated_data = seri.validated_data
+        carryover_target_date_changed = (
+            validated_data.get("carryover_target_date")
+            != contract_ending_in_april.carryover_target_date
+        )
+        initial_carryover_changed = (
+            validated_data.get("initial_carryover")
+            != contract_ending_in_april.initial_carryover
+        )
+        assert carryover_target_date_changed
+        assert initial_carryover_changed
 
 
 class TestShiftSerializerValidation:

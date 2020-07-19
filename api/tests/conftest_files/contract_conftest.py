@@ -317,15 +317,22 @@ def create_n_contract_objects(user_object):
     _start_date = datetime.date(2019, 1, 1)
     _end_date = datetime.date(2019, 1, 31)
 
-    def create_contracts(start_stop, user, start_date=_start_date, end_date=_end_date):
+    def create_contracts(
+        start_stop,
+        user,
+        start_date=_start_date,
+        end_date=_end_date,
+        initial_carryover=datetime.timedelta(0),
+        carryover_target_date=_start_date,
+    ):
         return [
             Contract.objects.create(
                 name=name.format(i),
                 minutes=minutes,
                 start_date=start_date,
                 end_date=end_date,
-                initial_carryover=datetime.timedelta(0),
-                carryover_target_date=start_date,
+                initial_carryover=initial_carryover,
+                carryover_target_date=carryover_target_date,
                 user=user,
                 created_by=user,
                 modified_by=user,
@@ -370,6 +377,18 @@ def contract_ending_in_february_test_update_version(
 ):
     end_date = datetime.date(2019, 2, 28)
     return create_n_contract_objects((1,), user_object, end_date=end_date)[0]
+
+
+@pytest.fixture
+def contract_ending_in_april(create_n_contract_objects, user_object):
+    return create_n_contract_objects(
+        (1,),
+        user_object,
+        start_date=datetime.date(2019, 1, 1),
+        end_date=datetime.date(2019, 4, 30),
+        initial_carryover=datetime.timedelta(hours=5),
+        carryover_target_date=datetime.date(2019, 3, 1),
+    )[0]
 
 
 @pytest.fixture

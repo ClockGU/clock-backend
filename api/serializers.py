@@ -7,7 +7,11 @@ from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
-from api.utilities import timedelta_to_string
+from api.utilities import (
+    create_reports_for_contract,
+    timedelta_to_string,
+    update_reports,
+)
 
 
 class TagsSerializerField(serializers.Field):
@@ -208,6 +212,36 @@ class ContractSerializer(RestrictModificationModelSerializer):
             )
 
         return end_date
+
+    def update(self, instance, validated_data):
+
+        carryover_target_date_changed = bool(
+            validated_data.get("carryover_target_date")
+        )
+        initial_carryover_changed = bool(validated_data.get("initial_carryover"))
+        if not self.partial:
+            carryover_target_date_changed = (
+                validated_data.get("carryover_target_date")
+                != instance.carryover_target_date
+            )
+            initial_carryover_changed = (
+                validated_data.get("initial_carryover") != instance.initial_carryover
+            )
+
+        return_instance = super(ContractSerializer, self).update(
+            instance, validated_data
+        )
+
+        if carryover_target_date_changed:
+            # Delete all existing Reports
+            Report.objects.filter(contract=instance).delete()
+            # Recreate them.
+            create_reports_for_contract(contract=instance)
+
+        if carryover_target_date_changed or initial_carryover_changed:
+            update_reports(instance, instance.carryover_target_date)
+
+        return return_instance
 
 
 class ShiftSerializer(RestrictModificationModelSerializer):
