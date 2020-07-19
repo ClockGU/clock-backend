@@ -45,10 +45,8 @@ def timedelta_to_string(timedelta):
 def create_reports_for_contract(contract):
     """
     Function used to create all Reports from carryover_target_date to date.today().
-    :param contract: 
-    :param from_month: 
-    :param till_month: 
-    :return: 
+    :param contract:
+    :return:
     """
     _month_year = contract.carryover_target_date
     today = datetime.date.today()

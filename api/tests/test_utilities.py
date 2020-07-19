@@ -172,7 +172,7 @@ class TestUpdateSignals:
             created_by=user_object,
             modified_by=user_object,
         )
-        shift = Shift.objects.create(
+        Shift.objects.create(
             started=datetime.datetime(2019, 2, 11, 14, tzinfo=utc),
             stopped=datetime.datetime(2019, 2, 11, 16, tzinfo=utc),
             created_at=datetime.datetime(2019, 2, 11, 16, tzinfo=utc).isoformat(),
