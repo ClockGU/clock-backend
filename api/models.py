@@ -123,7 +123,7 @@ class Contract(models.Model):
     minutes = models.PositiveIntegerField()
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
-    initial_carryover = models.DurationField()
+    initial_carryover_minutes = models.IntegerField()
     carryover_target_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(

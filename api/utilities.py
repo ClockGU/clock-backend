@@ -52,7 +52,7 @@ def create_reports_for_contract(contract):
     today = datetime.date.today()
     Report.objects.create(
         month_year=_month_year,
-        worktime=contract.initial_carryover,
+        worktime=datetime.timedelta(minutes=contract.initial_carryover_minutes),
         contract=contract,
         user=contract.user,
         created_by=contract.user,
@@ -112,7 +112,7 @@ def update_reports(contract, month_year):
     previous_report = Report.objects.filter(
         contract=contract, month_year=month_year - relativedelta(months=1)
     )
-    carry_over_worktime = contract.initial_carryover
+    carry_over_worktime = datetime.timedelta(minutes=contract.initial_carryover_minutes)
     if previous_report.exists():
         carry_over_worktime = previous_report.first().worktime - debit_worktime
     # Loop over all Reports starting from month in which the created/update shift

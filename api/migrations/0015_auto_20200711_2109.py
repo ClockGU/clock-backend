@@ -18,8 +18,8 @@ def revert_populate_month_start_clocking(apps, schema_editor):
 
 def populate_start_carry_over(apps, schema_editor):
     Contract = apps.get_model("api", "Contract")
-    for contract in Contract.objects.filter(initial_carryover__isnull=True):
-        contract.initial_carryover = timedelta(0)
+    for contract in Contract.objects.filter(initial_carryover_minutes__isnull=True):
+        contract.initial_carryover_minutes = 0
         contract.save()
 
 
@@ -40,8 +40,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='contract',
-            name='initial_carryover',
-            field=models.DurationField(),
+            name='initial_carryover_minutes',
+            field=models.IntegerField(),
         )
     ]
     database_operations = [
@@ -56,8 +56,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='contract',
-            name='initial_carryover',
-            field=models.DurationField(null=True),
+            name='initial_carryover_minutes',
+            field=models.IntegerField(null=True),
         ),
         migrations.SeparateDatabaseAndState(
             database_operations=database_operations,

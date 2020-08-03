@@ -118,7 +118,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         end_date = attrs.get("end_date")
         today = datetime.date.today()
         carryover_target_date = attrs.get("carryover_target_date")
-        initial_carryover = attrs.get("initial_carryover")
+        initial_carryover_minutes = attrs.get("initial_carryover_minutes")
 
         # Catches PUT
         if self.instance:
@@ -127,10 +127,10 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 start_date = attrs.get("start_date", self.instance.start_date)
                 end_date = attrs.get("end_date", self.instance.end_date)
                 carryover_target_date = attrs.get(
-                    "month_start_clocking", self.instance.carryover_target_date
+                    "carryover_target_date", self.instance.carryover_target_date
                 )
-                initial_carryover = attrs.get(
-                    "start_carry_over", self.instance.initial_carryover
+                initial_carryover_minutes = attrs.get(
+                    "initial_carryover_minutes", self.instance.initial_carryover_minutes
                 )
 
             if Shift.objects.filter(
@@ -164,7 +164,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
         if start_date > today:
 
-            if not initial_carryover == datetime.timedelta(0):
+            if not initial_carryover_minutes == 0:
                 raise serializers.ValidationError(
                     _(
                         "The carry over for a contract starting in the future may only be 00:00."
@@ -218,14 +218,17 @@ class ContractSerializer(RestrictModificationModelSerializer):
         carryover_target_date_changed = bool(
             validated_data.get("carryover_target_date")
         )
-        initial_carryover_changed = bool(validated_data.get("initial_carryover"))
+        initial_carryover_minutes_changed = bool(
+            validated_data.get("initial_carryover_minutes")
+        )
         if not self.partial:
             carryover_target_date_changed = (
                 validated_data.get("carryover_target_date")
                 != instance.carryover_target_date
             )
-            initial_carryover_changed = (
-                validated_data.get("initial_carryover") != instance.initial_carryover
+            initial_carryover_minutes_changed = (
+                validated_data.get("initial_carryover_minutes")
+                != instance.initial_carryover_minutes
             )
 
         return_instance = super(ContractSerializer, self).update(
@@ -238,7 +241,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
             # Recreate them.
             create_reports_for_contract(contract=instance)
 
-        if carryover_target_date_changed or initial_carryover_changed:
+        if carryover_target_date_changed or initial_carryover_minutes_changed:
             update_reports(instance, instance.carryover_target_date)
 
         return return_instance
@@ -335,7 +338,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         if exported_shifts:
             raise serializers.ValidationError(
                 _(
-                    "A worktime-sheet for this month has already been exported."
+                    "A iniworktime-sheet for this month has already been exported."
                     "It is not possible to add or modify shifts."
                 )
             )
