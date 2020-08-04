@@ -2,6 +2,9 @@
 import logging
 import sys
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 from .common import *
 
 # SECRET CONFIGURATION
@@ -54,61 +57,66 @@ EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 
 # Sentry Configuration
 SENTRY_DSN = env("DJANGO_SENTRY_DSN")
-SENTRY_CLIENT = env(
-    "DJANGO_SENTRY_CLIENT", default="raven.contrib.django.raven_compat.DjangoClient"
+
+sentry_sdk.init(
+    dsn=SENTRY_DSN, integrations=[DjangoIntegration()], send_default_pii=True
 )
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": True,
-    "root": {"level": "WARNING", "handlers": ["sentry"]},
-    "formatters": {
-        "verbose": {
-            "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
-        }
-    },
-    "handlers": {
-        "sentry": {
-            "level": "ERROR",
-            "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
-        },
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "django.db.backends": {
-            "level": "ERROR",
-            "handlers": ["console"],
-            "propagate": False,
-        },
-        "raven": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
-        "sentry.errors": {
-            "level": "DEBUG",
-            "handlers": ["console"],
-            "propagate": False,
-        },
-        "django.security.DisallowedHost": {
-            "level": "ERROR",
-            "handlers": ["console", "sentry"],
-            "propagate": False,
-        },
-    },
-}
-SENTRY_CELERY_LOGLEVEL = env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO)
-SHOULD_IGNORE_EXCEPTIONS = " ".join(sys.argv).endswith("run python manage.py shell")
-RAVEN_CONFIG = {
-    "CELERY_LOGLEVEL": env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO),
-    "DSN": SENTRY_DSN,
-    "ignore_exceptions": ["*"] if SHOULD_IGNORE_EXCEPTIONS else [],
-}
-RAVEN_MIDDLEWARE = [
-    "raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware",
-    "raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware",
-]
-MIDDLEWARE = RAVEN_MIDDLEWARE + MIDDLEWARE
+
+# SENTRY_CLIENT = env(
+#     "DJANGO_SENTRY_CLIENT", default="raven.contrib.django.raven_compat.DjangoClient"
+# )
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": True,
+#     "root": {"level": "WARNING", "handlers": ["sentry"]},
+#     "formatters": {
+#         "verbose": {
+#             "format": "%(levelname)s %(asctime)s %(module)s "
+#             "%(process)d %(thread)d %(message)s"
+#         }
+#     },
+#     "handlers": {
+#         "sentry": {
+#             "level": "ERROR",
+#             "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
+#         },
+#         "console": {
+#             "level": "DEBUG",
+#             "class": "logging.StreamHandler",
+#             "formatter": "verbose",
+#         },
+#     },
+#     "loggers": {
+#         "django.db.backends": {
+#             "level": "ERROR",
+#             "handlers": ["console"],
+#             "propagate": False,
+#         },
+#         "raven": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
+#         "sentry.errors": {
+#             "level": "DEBUG",
+#             "handlers": ["console"],
+#             "propagate": False,
+#         },
+#         "django.security.DisallowedHost": {
+#             "level": "ERROR",
+#             "handlers": ["console", "sentry"],
+#             "propagate": False,
+#         },
+#     },
+# }
+# SENTRY_CELERY_LOGLEVEL = env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO)
+# SHOULD_IGNORE_EXCEPTIONS = " ".join(sys.argv).endswith("run python manage.py shell")
+# RAVEN_CONFIG = {
+#     "CELERY_LOGLEVEL": env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO),
+#     "DSN": SENTRY_DSN,
+#     "ignore_exceptions": ["*"] if SHOULD_IGNORE_EXCEPTIONS else [],
+# }
+# RAVEN_MIDDLEWARE = [
+#     "raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware",
+#     "raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware",
+# ]
+# MIDDLEWARE = RAVEN_MIDDLEWARE + MIDDLEWARE
 
 # ADMIN URL
 ADMIN_URL = env("DJANGO_ADMIN_URL")
