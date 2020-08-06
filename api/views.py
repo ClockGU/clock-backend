@@ -323,9 +323,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                     month_year=report_object.month_year - relativedelta(months=1),
                 )
             except Report.DoesNotExist:
-                # We are looking at the first report of a contract. Return a
-                # 0-second timedelta.
-                return relativedelta(seconds=0)
+                # We are looking at the first report of a contract. Return the
+                # initial_carryover_minutes as relativedelta.
+                return relativedelta(
+                    minutes=report_object.contract.initial_carryover_minutes
+                )
 
         td = report_to_carry.worktime - datetime.timedelta(
             minutes=report_object.contract.minutes

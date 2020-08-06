@@ -9,7 +9,7 @@ from rest_framework import exceptions, serializers
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
     create_reports_for_contract,
-    timedelta_to_string,
+    relativedelta_to_string,
     update_reports,
 )
 
@@ -32,7 +32,9 @@ class TimedeltaSerializerMethodField(serializers.SerializerMethodField):
         return_value = super(TimedeltaSerializerMethodField, self).to_representation(
             value
         )
-        return timedelta_to_string(return_value)
+        return relativedelta_to_string(
+            relativedelta(seconds=return_value.total_seconds())
+        )
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -193,7 +195,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         :param start_date:
         :return:
         """
-        if start_date.day not in (1, 15):
+        if start_date.day not in (1, 16):
             raise serializers.ValidationError(
                 _("A contract must start on the 1st or 15th of a month.")
             )
@@ -206,7 +208,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         :param end_date:
         :return:
         """
-        if end_date.day not in (14, monthrange(end_date.year, end_date.month)[1]):
+        if end_date.day not in (15, monthrange(end_date.year, end_date.month)[1]):
             raise serializers.ValidationError(
                 _("A contract must end on the 14th or last day of a month.")
             )
@@ -471,7 +473,7 @@ class ReportSerializer(RestrictModificationModelSerializer):
             return self.calculate_carryover(last_mon_report_object)
 
         except Report.DoesNotExist:
-            return datetime.timedelta(0)
+            return datetime.timedelta(minutes=obj.contract.initial_carryover_minutes)
 
     # TODO: We are currently calculating the carry_over from the previous month twice.
     def get_net_worktime(self, obj):

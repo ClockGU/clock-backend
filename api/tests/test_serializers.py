@@ -49,13 +49,14 @@ class TestContractSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    # TODO: Add test which explicitly verifies that contract with 1. or 16. as start_date is allowed.
     @pytest.mark.django_db
     def test_start_date_day_validation(
         self, start_date_day_incorrect_contract_querydict, plain_request_object
     ):
         """
         The  ContractSerializer is tested whether it raises a Validation
-        if the start_date day is not the 1. or 15. of a month.
+        if the start_date day is not the 1. or 16. of a month.
         :param start_date_day_incorrect_contract_querydict:
         :param plain_request_object:
         :return:
@@ -66,13 +67,14 @@ class TestContractSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    # TODO: Add test which explicitly verifies that contract with 15. or end of month as end_date is allowed.
     @pytest.mark.django_db
     def test_end_date_day_validation(
         self, end_date_day_incorrect_contract_querydict, plain_request_object
     ):
         """
         The  ContractSerializer is tested whether it raises a Validation
-        if the start_date day is not the 14. or last day of a month.
+        if the start_date day is not the 15. or last day of a month.
         :param end_date_day_incorrect_contract_querydict:
         :param plain_request_object:
         :return:
