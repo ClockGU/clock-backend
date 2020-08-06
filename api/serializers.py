@@ -9,7 +9,7 @@ from rest_framework import exceptions, serializers
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
     create_reports_for_contract,
-    timedelta_to_string,
+    relativedelta_to_string,
     update_reports,
 )
 
@@ -32,7 +32,9 @@ class TimedeltaSerializerMethodField(serializers.SerializerMethodField):
         return_value = super(TimedeltaSerializerMethodField, self).to_representation(
             value
         )
-        return timedelta_to_string(return_value)
+        return relativedelta_to_string(
+            relativedelta(seconds=return_value.total_seconds())
+        )
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -471,7 +473,7 @@ class ReportSerializer(RestrictModificationModelSerializer):
             return self.calculate_carryover(last_mon_report_object)
 
         except Report.DoesNotExist:
-            return datetime.timedelta(0)
+            return datetime.timedelta(minutes=obj.contract.initial_carryover_minutes)
 
     # TODO: We are currently calculating the carry_over from the previous month twice.
     def get_net_worktime(self, obj):
