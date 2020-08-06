@@ -195,7 +195,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         :param start_date:
         :return:
         """
-        if start_date.day not in (1, 15):
+        if start_date.day not in (1, 16):
             raise serializers.ValidationError(
                 _("A contract must start on the 1st or 15th of a month.")
             )
@@ -208,7 +208,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         :param end_date:
         :return:
         """
-        if end_date.day not in (14, monthrange(end_date.year, end_date.month)[1]):
+        if end_date.day not in (15, monthrange(end_date.year, end_date.month)[1]):
             raise serializers.ValidationError(
                 _("A contract must end on the 14th or last day of a month.")
             )
