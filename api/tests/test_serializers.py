@@ -49,13 +49,14 @@ class TestContractSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    # TODO: Add test which explicitly verifies that contract with 1. or 16. as start_date is allowed.
     @pytest.mark.django_db
     def test_start_date_day_validation(
         self, start_date_day_incorrect_contract_querydict, plain_request_object
     ):
         """
         The  ContractSerializer is tested whether it raises a Validation
-        if the start_date day is not the 1. or 15. of a month.
+        if the start_date day is not the 1. or 16. of a month.
         :param start_date_day_incorrect_contract_querydict:
         :param plain_request_object:
         :return:
@@ -66,13 +67,14 @@ class TestContractSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    # TODO: Add test which explicitly verifies that contract with 15. or end of month as end_date is allowed.
     @pytest.mark.django_db
     def test_end_date_day_validation(
         self, end_date_day_incorrect_contract_querydict, plain_request_object
     ):
         """
         The  ContractSerializer is tested whether it raises a Validation
-        if the start_date day is not the 14. or last day of a month.
+        if the start_date day is not the 15. or last day of a month.
         :param end_date_day_incorrect_contract_querydict:
         :param plain_request_object:
         :return:
@@ -231,32 +233,32 @@ class TestContractSerializerValidation:
     @pytest.mark.django_db
     def test_start_carry_over_non_zerofuture_contract(
         self,
-        non_zero_initial_carryover_for_future_contract_querydict,
+        non_zero_initial_carryover_minutes_for_future_contract_querydict,
         plain_request_object,
     ):
         """
         Test if is allowed to set start_carry_over to a non-zero timedelta for contracts
         starting in the future.
-        :param non_zero_initial_carryover_for_future_contract_querydict:
+        :param non_zero_initial_carryover_minutes_for_future_contract_querydict:
         :param plain_request_object:
         :return:
         """
         with pytest.raises(serializers.ValidationError):
             ContractSerializer(
-                data=non_zero_initial_carryover_for_future_contract_querydict,
+                data=non_zero_initial_carryover_minutes_for_future_contract_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
     @pytest.mark.freeze_time("2019-3-1")
     @pytest.mark.django_db
-    def test_update_initial_carryover_updates_reports(
+    def test_update_initial_carryover_minutes_updates_reports(
         self,
         contract_ending_in_april,
         shift_contract_ending_in_april,
         plain_request_object,
     ):
         """
-        Test wether the serializers update method also updates the Reports when we change the initial_carryover.
+        Test wether the serializers update method also updates the Reports when we change the initial_carryover_minutes.
         :param contract_ending_in_april:
         :param shift_contract_ending_in_april:
         :return:
@@ -267,7 +269,7 @@ class TestContractSerializerValidation:
 
         seri = ContractSerializer(
             instance=contract_ending_in_april,
-            data={"initial_carryover": datetime.timedelta(hours=10)},
+            data={"initial_carryover_minutes": 600},
             partial=True,
             context={"request": plain_request_object},
         )
@@ -325,10 +327,10 @@ class TestContractSerializerValidation:
     ):
         """
         By the tests 'test_update_carryover_target_date_recreates_reports' and
-        'test_update_initial_carryover_updates_reports' we allready checked that PATCH'ing
+        'test_update_initial_carryover_minutes_updates_reports' we allready checked that PATCH'ing
         (parital updates) works. In order to not bother checking the Reports etc. for PUT'ing
         we just test the logic which determines whether or not either carryover_target_date and/or
-        initial_carryover change (see update method of ContractSerializer).
+        initial_carryover_minutes change (see update method of ContractSerializer).
         :param contract_ending_in_april:
         :param shift_contract_ending_in_april:
         :param plain_request_object:
@@ -345,7 +347,7 @@ class TestContractSerializerValidation:
             "created_at": contract_ending_in_april.created_at,
             "modified_at": contract_ending_in_april.modified_at,
             "carryover_target_date": datetime.date(2019, 2, 1),
-            "initial_carryover": str(datetime.timedelta(10)),
+            "initial_carryover_minutes": 600,
         }
         seri = ContractSerializer(
             instance=contract_ending_in_april,
@@ -358,12 +360,12 @@ class TestContractSerializerValidation:
             validated_data.get("carryover_target_date")
             != contract_ending_in_april.carryover_target_date
         )
-        initial_carryover_changed = (
-            validated_data.get("initial_carryover")
-            != contract_ending_in_april.initial_carryover
+        initial_carryover_minutes_changed = (
+            validated_data.get("initial_carryover_minutes")
+            != contract_ending_in_april.initial_carryover_minutes
         )
         assert carryover_target_date_changed
-        assert initial_carryover_changed
+        assert initial_carryover_minutes_changed
 
 
 class TestShiftSerializerValidation:

@@ -1,11 +1,9 @@
-# View tests come here
-
 import json
-import time
 from datetime import datetime
 
 import pytest
 from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
 from django.urls import reverse
 from freezegun import freeze_time
 from rest_framework import serializers, status
@@ -16,15 +14,21 @@ from api.models import Contract, Report, Shift, User
 class TestContractApiEndpoint:
     """
     This TestCase includes:
-       - tests which try accesing an Endpoint without a provided JWT
-           --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same
-               permission_class and authentication_class
-       - tests which try to change the values for user, created_by and modified by
-           --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same base
-               serializer which provides this provides this Functionality
-       - tests which try to create a Contract for a different user than who is issueing the request
-           --> These tests will not be repeated for other Endpoints since in V1 every endpoint shares the same base
-               serializer which provides this provides this Functionality
+    - tests which try accesing an Endpoint without a provided JWT
+        --> These tests will not be repeated for other Endpoints since in V1
+            every endpoint shares the same permission_class and
+            authentication_class
+
+    - tests which try to change the values for user, created_by and modified by
+        --> These tests will not be repeated for other Endpoints since in V1
+            every endpoint shares the same base serializer which provides this
+            provides this Functionality
+
+    - tests which try to create a Contract for a different user than who is
+    issueing the request
+        --> These tests will not be repeated for other Endpoints since in V1
+            every endpoint shares the same base serializer which provides this
+            provides this Functionality
     """
 
     @pytest.mark.django_db
@@ -645,50 +649,52 @@ class TestReportApiEndpoint:
         self, prepared_ReportViewSet_view, report_object
     ):
         """
-        Test if the method returns '00:00' for the carry over minutes
-        of the previous month if no report exists there.
+        Test that the method returns a 0 second timedelta if no Report exists
+        for the previous month.
+
         :param prepared_ReportViewSet_view:
         :param report_object:
         :return:
         """
 
-        carry_over_worktime = prepared_ReportViewSet_view.calculate_carry_over_worktime(
+        carryover_worktime = prepared_ReportViewSet_view.calculate_carryover_worktime(
             report_object, next_month=False
         )
-        assert carry_over_worktime == "00:00"
+        assert carryover_worktime == relativedelta(seconds=0)
 
     @pytest.mark.django_db
-    def test_method_for_carry_over_worktime_previous_month(
+    def test_method_for_carryover_worktime_previous_month(
         self, prepared_ReportViewSet_view, report_object, previous_report_object
     ):
         """
-        Test if the Method calculates the minutes to carry over from
-        the previous moth correctly.
+        Test that the method returns the carryover from the previous month.
+
         :param prepared_reportViewSet_view:
         :param report_object:
         :param previous_report_object:
         :return:
         """
-        carry_over_worktime = prepared_ReportViewSet_view.calculate_carry_over_worktime(
+        carryover_worktime = prepared_ReportViewSet_view.calculate_carryover_worktime(
             report_object, next_month=False
         )
-        assert carry_over_worktime == "02:00"
+        assert carryover_worktime == relativedelta(minutes=120)
 
     @pytest.mark.django_db
-    def test_method_for_carry_over_worktime_next_month(
+    def test_method_for_carryover_worktime_next_month(
         self, prepared_ReportViewSet_view, report_object
     ):
         """
-        Test if method calculates the minutes to carry over to next month
-        correctly.
+        Test that the method returns the carryover into the next month.
+
+
         :param prepared_ReportViewSet_view:
         :param report_object:
         :return:
         """
-        carry_over_worktime = prepared_ReportViewSet_view.calculate_carry_over_worktime(
+        carry_over_worktime = prepared_ReportViewSet_view.calculate_carryover_worktime(
             report_object, next_month=True
         )
-        assert carry_over_worktime == "-20:00"
+        assert carry_over_worktime == relativedelta(minutes=-1200)
 
     @pytest.mark.django_db
     def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.db.models import DurationField, F, Sum
@@ -311,9 +313,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             }
         return content
 
-    def calculate_carry_over_worktime(self, report_object, next_month=True):
-
-        # Calculate carry over from last month
+    def calculate_carryover_worktime(self, report_object, next_month=True):
+        # Calculate carryover from last month
         report_to_carry = report_object
         if not next_month:
             try:
@@ -322,17 +323,16 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                     month_year=report_object.month_year - relativedelta(months=1),
                 )
             except Report.DoesNotExist:
-                # If no Report Object exists we are in the case of the first Report of a Contract
-                # Hence return 00:00
-                return "00:00"
-        time_delta = report_to_carry.worktime - datetime.timedelta(
+                # We are looking at the first report of a contract. Return the
+                # initial_carryover_minutes as relativedelta.
+                return relativedelta(
+                    minutes=report_object.contract.initial_carryover_minutes
+                )
+
+        td = report_to_carry.worktime - datetime.timedelta(
             minutes=report_object.contract.minutes
         )
-        relative_time = relativedelta(seconds=time_delta.total_seconds())
-
-        # relativedelta will in this case maximally convert the seconds into days we use this
-        # to format a string
-        return relativedelta_to_string(relative_time)
+        return relativedelta(seconds=td.total_seconds())
 
     def check_for_overlapping_shifts(self, shift_queryset):
         """
@@ -387,7 +387,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content = {}
         user = report_object.user
 
-        # Data for Header
+        # User data
         content["user_name"] = "{lastname}, {firstname}".format(
             lastname=user.last_name, firstname=user.first_name
         )
@@ -397,19 +397,27 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["year"] = report_object.month_year.year
         content["long_month_name"] = month_names[report_object.month_year.month]
 
-        # Data for Footer
+        # Working time account (AZK)
         content["debit_work_time"] = relativedelta_to_string(
             relativedelta(minutes=report_object.contract.minutes)
         )
-        content["total_worked_time"] = relativedelta_to_string(
-            relativedelta(seconds=report_object.worktime.total_seconds())
-        )
+        time_worked = relativedelta(seconds=report_object.worktime.total_seconds())
+        content["total_worked_time"] = relativedelta_to_string(time_worked)
 
-        content["last_month_carry_over"] = self.calculate_carry_over_worktime(
-            report_object, next_month=False
+        carryover = {
+            "previous_month": self.calculate_carryover_worktime(
+                report_object, next_month=False
+            ),
+            "next_month": self.calculate_carryover_worktime(report_object),
+        }
+        content["last_month_carry_over"] = relativedelta_to_string(
+            carryover["previous_month"]
         )
-        content["next_month_carry_over"] = self.calculate_carry_over_worktime(
-            report_object
+        content["next_month_carry_over"] = relativedelta_to_string(
+            carryover["next_month"]
+        )
+        content["net_worktime"] = relativedelta_to_string(
+            time_worked - carryover["previous_month"]
         )
 
         return content
@@ -422,14 +430,16 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         """
         content = {}
         shift_queryset = self.get_shifts_to_export(report_object)
-        # Check for overlapping Shifts
+
+        # Check for overlapping shifts
         self.check_for_overlapping_shifts(shift_queryset)
         self.check_for_not_locked_shifts(report_object)
-        shifts_content = self.aggregate_shift_content(shift_queryset)
-        general_content = self.aggregate_general_content(report_object, shift_queryset)
-        # Get all Days, as Dates, on which the user worked
-        content["shift_content"] = shifts_content
-        content["general"] = general_content
+
+        # Get all dates the user has worked on
+        content["shift_content"] = self.aggregate_shift_content(shift_queryset)
+        content["general"] = self.aggregate_general_content(
+            report_object, shift_queryset
+        )
 
         return content
 
