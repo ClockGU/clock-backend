@@ -121,8 +121,8 @@ class Contract(models.Model):
     )
     name = models.CharField(max_length=100)
     minutes = models.PositiveIntegerField()
-    start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
     initial_carryover_minutes = models.IntegerField()
     carryover_target_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -195,3 +195,4 @@ class Report(models.Model):
 
     class Meta:
         ordering = ["month_year"]
+        unique_together = ["month_year", "contract"]

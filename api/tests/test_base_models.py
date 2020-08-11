@@ -650,3 +650,6 @@ class TestReportFields:
 
     def test_ordering(self, report_model_class):
         assert report_model_class._meta.ordering == ["month_year"]
+
+    def test_unique_together(self, report_model_class):
+        assert report_model_class._meta.unique_together == (("month_year", "contract"),)
