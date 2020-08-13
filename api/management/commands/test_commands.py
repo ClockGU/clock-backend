@@ -1,8 +1,10 @@
+from datetime import datetime
 from io import StringIO
 
 import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from pytz import utc
 
 
 class TestCreateReportsCommand:
@@ -48,3 +50,21 @@ class TestCreateReportsCommand:
         out = StringIO()
         with pytest.raises(CommandError):
             call_command("create_reports", "2", "2019", stdout=out)
+
+
+class TestUpdateReportsCommand:
+    @pytest.mark.django_db
+    @pytest.mark.freeze_time("2019-04-01")
+    def test_all_reports_updated(self, contract_ending_in_april, contract_model_class):
+        """
+        Test that the command updates all Reports of contracts for which
+        start_date <= date(year, month, 1) <= end_date is True.
+        :param contract_ending_in_april:
+        :return:
+        """
+        out = StringIO()
+        call_command("update_reports", "3", "2019", stdout=out)
+        contract = contract_model_class.objects.get(pk=contract_ending_in_april.pk)
+        now = datetime.now(tz=utc)
+
+        assert all([rep.modified_at == now for rep in contract.reports.all()])
