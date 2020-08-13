@@ -25,7 +25,10 @@ class Command(BaseCommand):
             options["start_year"], options["start_month"], 1
         )
         contract_qs = Contract.objects.filter(
-            user__is_active=True, user__is_staff=False, start_date__gte=start_month_year
+            user__is_active=True,
+            user__is_staff=False,
+            start_date__lte=start_month_year,
+            end_date__gte=start_month_year,
         )
         contract_cnt = 0
         for contract in contract_qs:
