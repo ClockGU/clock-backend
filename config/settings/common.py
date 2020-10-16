@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "project_celery",
     "taggit",
     "rest_framework",
+    "django_filters",
     "drf_yasg",
     "djoser",
     "corsheaders",
@@ -125,6 +126,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "dj_rest_auth.utils.JWTCookieAuthentication",
     ),
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
 
