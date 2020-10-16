@@ -129,6 +129,9 @@ class TestUserFields:
     def test_model_has_language_field(self, user_model_class):
         assert hasattr(user_model_class, "language")
 
+    def test_model_has_dsgvo_accepted_field(self, user_model_class):
+        assert hasattr(user_model_class, "dsgvo_accepted")
+
     def test_field_type_id(self, user_model_class):
         assert isinstance(user_model_class._meta.get_field("id"), models.UUIDField)
 
@@ -163,6 +166,11 @@ class TestUserFields:
     def test_field_type_language(self, user_model_class):
         assert isinstance(
             user_model_class._meta.get_field("language"), models.CharField
+        )
+
+    def test_field_type_dsgvo_accepted(self, user_model_class):
+        assert isinstance(
+            user_model_class._meta.get_field("dsgvo_accepted"), models.BooleanField
         )
 
     def test_field_conf_id(self, user_model_class):

@@ -104,6 +104,7 @@ class User(AbstractUser):
     language = models.CharField(choices=LANGUAGE_CHOICES, default="de", max_length=2)
     date_joined = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+    dsgvo_accepted = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "personal_number"]
