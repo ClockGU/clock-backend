@@ -83,6 +83,7 @@ class UserSerializer(RestrictModificationModelSerializer):
             "last_name",
             "personal_number",
             "language",
+            "dsgvo_accepted",
             "date_joined",
             "modified_at",
             "last_login",
