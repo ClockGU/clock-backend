@@ -17,6 +17,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
+from api.filters import ShiftFilterSet
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.serializers import (
     ClockedInShiftSerializer,
@@ -82,6 +83,7 @@ class ContractViewSet(viewsets.ModelViewSet):
 class ShiftViewSet(viewsets.ModelViewSet):
     queryset = Shift.objects.all()
     serializer_class = ShiftSerializer
+    filterset_class = ShiftFilterSet
     name = "shifts"
 
     def get_queryset(self):
