@@ -344,6 +344,23 @@ class TestContractApiEndpoint:
         assert response.status_code == 200
         assert Shift.objects.get(pk=shift_object.pk).locked
 
+    @pytest.mark.django_db
+    def test_queryset_ordering(
+        self,
+        user_object,
+        create_n_contract_objects,
+        freezer,
+        prepared_ContractViewSet_view,
+    ):
+        freezer.move_to(datetime(2019, 1, 1, 1))
+        for i in range(2, 6):
+            create_n_contract_objects((1,), user_object)
+            freezer.move_to(datetime(2019, 1, 1, i))
+        qs = prepared_ContractViewSet_view.get_queryset()
+        # Check a) ordering b) ascending
+        assert qs.ordered
+        assert all(qs[i].last_used > qs[i + 1].last_used for i in range(len(qs) - 1))
+
 
 class TestShiftApiEndpoint:
     @pytest.mark.django_db
