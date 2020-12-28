@@ -130,6 +130,7 @@ class Contract(models.Model):
     created_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE
     )  # No backwards relation to these Fields
+    last_used = models.DateTimeField(default=datetime.now)
     modified_at = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE

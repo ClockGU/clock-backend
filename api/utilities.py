@@ -169,3 +169,30 @@ post_delete.connect(
     sender=Shift,
     dispatch_uid="update_report_after_shift_delete",
 )
+
+
+def update_last_used_on_contract(sender, instance, created=False, **kwargs):
+    """
+    After saving or deleting a shift set the `last_used` field of the corresponding
+    contract.
+    :param sender:
+    :param instance:
+    :param created:
+    :param kwargs:
+    :return:
+    """
+    contract = instance.contract
+    contract.last_used = datetime.datetime.now()
+    contract.save()
+
+
+post_save.connect(
+    update_last_used_on_contract,
+    sender=Shift,
+    dispatch_uid="update_last_used_on_contract_save",
+)
+post_delete.connect(
+    update_last_used_on_contract,
+    sender=Shift,
+    dispatch_uid="update_last_used_on_contract_delete",
+)

@@ -55,7 +55,7 @@ class ContractViewSet(viewsets.ModelViewSet):
         :return:
         """
         queryset = super(ContractViewSet, self).get_queryset()
-        return queryset.filter(user__id=self.request.user.id)
+        return queryset.filter(user__id=self.request.user.id).order_by("-last_used")
 
     @action(detail=True, url_name="shifts", url_path="shifts", methods=["get"])
     def get_shifts_list(self, request, *args, **kwargs):
