@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "api.apps.APIConfig",
+    "message.apps.MessageConfig",
     "project_celery",
     "taggit",
     "rest_framework",
