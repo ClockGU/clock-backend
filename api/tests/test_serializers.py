@@ -3,12 +3,14 @@ import datetime
 import pytest
 from freezegun import freeze_time
 from rest_framework import exceptions, serializers
+from dateutil.relativedelta import relativedelta
 
 from api.models import Report
 from api.serializers import (
     ClockedInShiftSerializer,
     ContractSerializer,
     ShiftSerializer,
+    ReportSerializer,
 )
 
 
@@ -577,3 +579,51 @@ class TestClockedInShiftSerializer:
                 data=clockedinshift_invalid_contract_json,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
+
+
+class TestReportSerializer:
+    @pytest.mark.django_db
+    @pytest.mark.freeze_time("2020-02-01")
+    def test_carry_over_next_month(self, contract_start_mid_january):
+        """
+        Testing that the carryover for the next month is only half the debit worktime for a full
+        month.
+        :param contract_start_mid_january:
+        :return:
+        """
+        rep = Report.objects.get(
+            contract=contract_start_mid_january,
+            month_year=contract_start_mid_january.start_date.replace(day=1),
+        )
+        assert ReportSerializer(rep).data["carry_over_next_month"] == "-10:19"
+
+    @pytest.mark.django_db
+    @pytest.mark.freeze_time("2020-02-01")
+    def test_carry_over_last_month(self, contract_start_mid_january):
+        """
+        Testing that the carryover for of the last month, is half the actual debit_worktime if the contract
+        started in the middle of the last month.
+        :param contract_start_mid_january:
+        :return:
+        """
+        rep = Report.objects.get(
+            contract=contract_start_mid_january,
+            month_year=contract_start_mid_january.end_date.replace(day=1),
+        )
+        assert ReportSerializer(rep).data["carry_over_last_month"] == "-10:19"
+
+    @pytest.mark.django_db
+    @pytest.mark.freeze_time("2020-02-01")
+    def test_net_worktime(self, contract_start_mid_january):
+        """
+        Testing that the net_worktime for the next month after the start in the middle of the month is
+        1+(16/31) times the debit_worktime (assuming no shifts in both months).
+        :param contract_start_mid_january:
+        :return:
+        """
+        rep = Report.objects.get(
+            contract=contract_start_mid_january,
+            month_year=contract_start_mid_january.end_date.replace(day=1),
+        )
+
+        assert ReportSerializer(rep).data["net_worktime"] == "00:00"
