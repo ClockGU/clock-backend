@@ -5,6 +5,7 @@ from pytz import datetime
 from rest_framework.request import QueryDict
 
 from api.models import Contract
+from api.utilities import update_reports
 
 # This conftest file provides all necessary test data concerning the Contract Model.
 # It will be imported by the conftest.py in the parent directory.
@@ -524,3 +525,23 @@ def contract_locked_shifts(create_n_contract_objects, user_object):
     return create_n_contract_objects(
         (1,), start_date=_start_date, end_date=_end_date, user=user_object
     )[0]
+
+
+@pytest.fixture
+def contract_start_mid_january(create_n_contract_objects, user_object):
+    """
+    Provide contract which starts at the 16. of January and ends in february.
+    :param create_n_contract_objects:
+    :param user_object:
+    :return:
+    """
+    cont = create_n_contract_objects(
+        (1,),
+        start_date=datetime.date(2020, 1, 16),
+        end_date=datetime.date(2020, 2, 29),
+        user=user_object,
+        carryover_target_date=datetime.date(2020, 1, 1),
+    )[0]
+
+    update_reports(cont, datetime.date(2020, 2, 1))  # bring second Report up to date
+    return cont

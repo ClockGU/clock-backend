@@ -662,6 +662,25 @@ class TestReportApiEndpoint:
         assert content["26.01.2019"]["sick_or_vac_time"] == "04:00"
 
     @pytest.mark.django_db
+    def test_general_content_debit_worktime_mid_month(
+        self, prepared_ReportViewSet_view_mid_january, contract_start_mid_january
+    ):
+        """
+        Test wether the debit_worktime of the general_content is correct for start/end months of a contract
+        whcih start/end in the middle.
+        :param prepared_ReportViewSet_view_mid_january:
+        :return:
+        """
+        rep = contract_start_mid_january.reports.get(
+            month_year=contract_start_mid_january.start_date.replace(day=1)
+        )
+        content = prepared_ReportViewSet_view_mid_january.aggregate_general_content(
+            rep, None
+        )
+
+        assert content["debit_work_time"] == "10:19"
+
+    @pytest.mark.django_db
     def test_method_for_carryover_minutes_previous_month_default(
         self, prepared_ReportViewSet_view, report_object
     ):
@@ -712,6 +731,54 @@ class TestReportApiEndpoint:
             report_object, next_month=True
         )
         assert carry_over_worktime == relativedelta(minutes=-1200)
+
+    @pytest.mark.django_db
+    def test_method_for_carryover_worktime_next_month_for_midmonth_start(
+        self, prepared_ReportViewSet_view_mid_january, contract_start_mid_january
+    ):
+        """
+        Test that the method returns the carryover into for the next month is
+        16/31 * debit_worktime .
+
+        :param prepared_ReportViewSet_view:
+        :param report_object:
+        :return:
+        """
+        rep = contract_start_mid_january.reports.get(
+            month_year=contract_start_mid_january.start_date.replace(day=1)
+        )
+        carry_over_worktime = prepared_ReportViewSet_view_mid_january.calculate_carryover_worktime(
+            rep, next_month=True
+        )
+
+        assert (
+            carry_over_worktime.normalized()
+            == relativedelta(minutes=-16 / 31 * 1200).normalized()
+        )
+
+    @pytest.mark.django_db
+    def test_method_for_carryover_worktime_last_month_for_midmonth_start(
+        self, prepared_ReportViewSet_view_mid_january, contract_start_mid_january
+    ):
+        """
+        Test that the method returns the carryover from the previous month is
+        16/31 * debit_worktime .
+
+        :param prepared_ReportViewSet_view:
+        :param report_object:
+        :return:
+        """
+        rep = contract_start_mid_january.reports.get(
+            month_year=contract_start_mid_january.end_date.replace(day=1)
+        )
+        carry_over_worktime = prepared_ReportViewSet_view_mid_january.calculate_carryover_worktime(
+            rep, next_month=False
+        )
+
+        assert (
+            carry_over_worktime.normalized()
+            == relativedelta(minutes=-16 / 31 * 1200).normalized()
+        )
 
     @pytest.mark.django_db
     def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):
