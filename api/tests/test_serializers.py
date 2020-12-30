@@ -1,16 +1,16 @@
 import datetime
 
 import pytest
+from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import exceptions, serializers
-from dateutil.relativedelta import relativedelta
 
 from api.models import Report
 from api.serializers import (
     ClockedInShiftSerializer,
     ContractSerializer,
-    ShiftSerializer,
     ReportSerializer,
+    ShiftSerializer,
 )
 
 

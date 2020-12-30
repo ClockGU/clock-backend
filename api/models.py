@@ -1,11 +1,12 @@
 import uuid
 from calendar import monthrange
+from datetime import timedelta
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
-from datetime import timedelta
 
 
 class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
