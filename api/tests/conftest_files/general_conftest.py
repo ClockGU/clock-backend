@@ -85,6 +85,21 @@ def prepared_ContractViewSet_view(user_object):
     request.user = user_object
     return setup_view(ContractViewSet(), request)
 
+@pytest.fixture
+def prepared_ReportViewSet_view_mid_january(contract_start_mid_january):
+    """
+    Prepare
+    :param report_object:
+    :return:
+    """
+    report_object = contract_start_mid_january.reports.get(
+        month_year=contract_start_mid_january.start_date.replace(day=1)
+    )
+    factory = RequestFactory()
+    request = factory.get(
+        reverse("api:reports-export", args=["{}".format(report_object.id)])
+    )
+    return setup_view(ReportViewSet(), request)
 
 @pytest.fixture
 def positive_relativedelta_object():
