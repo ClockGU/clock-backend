@@ -22,9 +22,17 @@ def relativedelta_to_string(relative_time_delta):
     :param relative_time_delta:
     :return:
     """
+    time_data = (
+        relative_time_delta.days,
+        relative_time_delta.hours,
+        relative_time_delta.minutes,
+    )
+    format_string = "{hours:02g}:{minutes:02g}"
+    if any(map(lambda x: x < 0, time_data)):
+        format_string = "-{hours:02g}:{minutes:02g}"
 
-    return "{hours:02g}:{minutes:02g}".format(
-        hours=relative_time_delta.days * 24 + relative_time_delta.hours,
+    return format_string.format(
+        hours=abs(relative_time_delta.days * 24 + relative_time_delta.hours),
         minutes=abs(relative_time_delta.minutes),
     )
 
