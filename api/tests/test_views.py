@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 import pytest
+from datetime import timedelta
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
 from django.urls import reverse
@@ -696,7 +697,7 @@ class TestReportApiEndpoint:
         carryover_worktime = prepared_ReportViewSet_view.calculate_carryover_worktime(
             report_object, next_month=False
         )
-        assert carryover_worktime == relativedelta(seconds=0)
+        assert carryover_worktime == timedelta(0)
 
     @pytest.mark.django_db
     def test_method_for_carryover_worktime_previous_month(
@@ -713,7 +714,8 @@ class TestReportApiEndpoint:
         carryover_worktime = prepared_ReportViewSet_view.calculate_carryover_worktime(
             report_object, next_month=False
         )
-        assert carryover_worktime == relativedelta(minutes=120)
+
+        assert carryover_worktime == timedelta(minutes=120)
 
     @pytest.mark.django_db
     def test_method_for_carryover_worktime_next_month(
@@ -730,7 +732,7 @@ class TestReportApiEndpoint:
         carry_over_worktime = prepared_ReportViewSet_view.calculate_carryover_worktime(
             report_object, next_month=True
         )
-        assert carry_over_worktime == relativedelta(minutes=-1200)
+        assert carry_over_worktime == timedelta(minutes=-1200)
 
     @pytest.mark.django_db
     def test_method_for_carryover_worktime_next_month_for_midmonth_start(
@@ -751,10 +753,7 @@ class TestReportApiEndpoint:
             rep, next_month=True
         )
 
-        assert (
-            carry_over_worktime.normalized()
-            == relativedelta(minutes=-16 / 31 * 1200).normalized()
-        )
+        assert carry_over_worktime == timedelta(minutes=-16 / 31 * 1200)
 
     @pytest.mark.django_db
     def test_method_for_carryover_worktime_last_month_for_midmonth_start(
@@ -775,10 +774,7 @@ class TestReportApiEndpoint:
             rep, next_month=False
         )
 
-        assert (
-            carry_over_worktime.normalized()
-            == relativedelta(minutes=-16 / 31 * 1200).normalized()
-        )
+        assert carry_over_worktime == timedelta(minutes=-16 / 31 * 1200)
 
     @pytest.mark.django_db
     def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):

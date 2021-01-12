@@ -327,7 +327,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             except Report.DoesNotExist:
                 # We are looking at the first report of a contract. Return the
                 # initial_carryover_minutes as relativedelta.
-                return relativedelta(
+                return timedelta(
                     minutes=report_object.contract.initial_carryover_minutes
                 )
 
