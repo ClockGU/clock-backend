@@ -1,8 +1,7 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
-from datetime import timedelta
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
 from django.urls import reverse
