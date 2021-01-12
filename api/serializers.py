@@ -444,6 +444,7 @@ class ReportSerializer(RestrictModificationModelSerializer):
     ReadOnlyViewSet and therefore will never perform a create or update.
     """
 
+    debit_worktime = TimedeltaSerializerMethodField()
     net_worktime = TimedeltaSerializerMethodField()
     carry_over_last_month = TimedeltaSerializerMethodField()
     carry_over_next_month = TimedeltaSerializerMethodField()
@@ -461,9 +462,10 @@ class ReportSerializer(RestrictModificationModelSerializer):
         }
 
     def calculate_carryover(self, report_object):
-        return report_object.worktime - datetime.timedelta(
-            minutes=report_object.contract.minutes
-        )
+        return report_object.worktime - report_object.debit_worktime
+
+    def get_debit_worktime(self, obj):
+        return obj.debit_worktime
 
     def get_carry_over_last_month(self, obj):
         try:
@@ -471,10 +473,11 @@ class ReportSerializer(RestrictModificationModelSerializer):
                 contract=obj.contract,
                 month_year=obj.month_year - relativedelta(months=1),
             )
-            return self.calculate_carryover(last_mon_report_object)
 
         except Report.DoesNotExist:
             return datetime.timedelta(minutes=obj.contract.initial_carryover_minutes)
+
+        return self.calculate_carryover(last_mon_report_object)
 
     # TODO: We are currently calculating the carry_over from the previous month twice.
     def get_net_worktime(self, obj):

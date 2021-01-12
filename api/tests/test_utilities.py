@@ -300,3 +300,25 @@ class TestUpdateSignals:
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
         ).worktime == datetime.timedelta(minutes=-1200)
+
+
+class TestContractSignals:
+    @pytest.mark.django_db
+    def test_update_last_used(self, user_object, contract_object, freezer):
+        time_stamp = datetime.datetime(2019, 2, 15, 1, 0, 0)
+        assert contract_object.last_used != time_stamp
+        freezer.move_to(time_stamp)
+        Shift.objects.create(
+            started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
+            stopped=datetime.datetime(2019, 1, 29, 16, tzinfo=utc),
+            created_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 1, 29, 16, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=user_object,
+            created_by=user_object,
+            modified_by=user_object,
+            contract=contract_object,
+            was_reviewed=False,
+        )
+        assert contract_object.last_used == time_stamp

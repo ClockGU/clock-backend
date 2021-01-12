@@ -1,2 +1,3 @@
 web: gunicorn config.wsgi:application
-worker: /usr/local/bin/celery -A api worker -B --workdir .
+worker: /usr/local/bin/celery -A api worker --workdir .
+beat: /usr/local/bin/celery -l INFO -A api beat

@@ -1,4 +1,5 @@
 import uuid
+from calendar import monthrange
 from datetime import datetime, timedelta
 
 from django.contrib.auth.base_user import BaseUserManager
@@ -130,6 +131,7 @@ class Contract(models.Model):
     created_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE
     )  # No backwards relation to these Fields
+    last_used = models.DateTimeField(default=datetime.now)
     modified_at = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE
@@ -193,6 +195,38 @@ class Report(models.Model):
     created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
     modified_at = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
+
+    @property
+    def debit_worktime(self):
+        """
+        Calculate the actual debit worktime for a report.
+
+        The actual debitworktime can be lower than the provided value from the contract due to:
+        incomplete months (contract starts not at first, or end not on the last of a month.)
+        """
+        month = self.month_year.month
+        year = self.month_year.year
+        end_day = monthrange(year, month)[1]
+
+        if (
+            self.contract.start_date.month == month
+            and self.contract.start_date.year == year
+        ):
+            minutes = (
+                (end_day - self.contract.start_date.day + 1)
+                / end_day
+                * self.contract.minutes
+            )
+            return timedelta(minutes=minutes)
+
+        if (
+            self.contract.end_date.month == month
+            and self.contract.end_date.year == year
+        ):
+            minutes = self.contract.end_date.day / end_day * self.contract.minutes
+            return timedelta(minutes=minutes)
+
+        return timedelta(minutes=self.contract.minutes)
 
     class Meta:
         ordering = ["month_year"]

@@ -22,9 +22,17 @@ def relativedelta_to_string(relative_time_delta):
     :param relative_time_delta:
     :return:
     """
+    time_data = (
+        relative_time_delta.days,
+        relative_time_delta.hours,
+        relative_time_delta.minutes,
+    )
+    format_string = "{hours:02g}:{minutes:02g}"
+    if any(map(lambda x: x < 0, time_data)):
+        format_string = "-{hours:02g}:{minutes:02g}"
 
-    return "{hours:02g}:{minutes:02g}".format(
-        hours=relative_time_delta.days * 24 + relative_time_delta.hours,
+    return format_string.format(
+        hours=abs(relative_time_delta.days * 24 + relative_time_delta.hours),
         minutes=abs(relative_time_delta.minutes),
     )
 
@@ -108,13 +116,14 @@ def update_reports(contract, month_year):
     :return:
     """
 
-    debit_worktime = datetime.timedelta(minutes=contract.minutes)
     previous_report = Report.objects.filter(
         contract=contract, month_year=month_year - relativedelta(months=1)
     )
     carry_over_worktime = datetime.timedelta(minutes=contract.initial_carryover_minutes)
     if previous_report.exists():
-        carry_over_worktime = previous_report.first().worktime - debit_worktime
+        carry_over_worktime = (
+            previous_report.first().worktime - previous_report.first().debit_worktime
+        )
     # Loop over all Reports starting from month in which the created/update shift
     # took place.
     for report in Report.objects.filter(contract=contract, month_year__gte=month_year):
@@ -133,7 +142,7 @@ def update_reports(contract, month_year):
         ]
         report.worktime = carry_over_worktime + total_work_time
         report.save()
-        carry_over_worktime = report.worktime - debit_worktime
+        carry_over_worktime = report.worktime - report.debit_worktime
 
 
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):
@@ -168,4 +177,31 @@ post_delete.connect(
     update_report_after_shift_save,
     sender=Shift,
     dispatch_uid="update_report_after_shift_delete",
+)
+
+
+def update_last_used_on_contract(sender, instance, created=False, **kwargs):
+    """
+    After saving or deleting a shift set the `last_used` field of the corresponding
+    contract.
+    :param sender:
+    :param instance:
+    :param created:
+    :param kwargs:
+    :return:
+    """
+    contract = instance.contract
+    contract.last_used = datetime.datetime.now()
+    contract.save()
+
+
+post_save.connect(
+    update_last_used_on_contract,
+    sender=Shift,
+    dispatch_uid="update_last_used_on_contract_save",
+)
+post_delete.connect(
+    update_last_used_on_contract,
+    sender=Shift,
+    dispatch_uid="update_last_used_on_contract_delete",
 )

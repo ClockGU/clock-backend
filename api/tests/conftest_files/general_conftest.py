@@ -6,7 +6,7 @@ from rest_framework.request import QueryDict, Request
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
-from api.views import ReportViewSet
+from api.views import ContractViewSet, ReportViewSet
 
 # This conftest file provides all necessary test data concerning project classes and auxiliary functions/classes.
 # It will be imported by the conftest.py in the parent directory.
@@ -71,6 +71,31 @@ def setup_view(view, request, *args, **kwargs):
 
 @pytest.fixture
 def prepared_ReportViewSet_view(report_object):
+    factory = RequestFactory()
+    request = factory.get(
+        reverse("api:reports-export", args=["{}".format(report_object.id)])
+    )
+    return setup_view(ReportViewSet(), request)
+
+
+@pytest.fixture
+def prepared_ContractViewSet_view(user_object):
+    factory = RequestFactory()
+    request = factory.get(reverse("api:contracts-list"))
+    request.user = user_object
+    return setup_view(ContractViewSet(), request)
+
+
+@pytest.fixture
+def prepared_ReportViewSet_view_mid_january(contract_start_mid_january):
+    """
+    Prepare
+    :param report_object:
+    :return:
+    """
+    report_object = contract_start_mid_january.reports.get(
+        month_year=contract_start_mid_january.start_date.replace(day=1)
+    )
     factory = RequestFactory()
     request = factory.get(
         reverse("api:reports-export", args=["{}".format(report_object.id)])

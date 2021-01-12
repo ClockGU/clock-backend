@@ -55,7 +55,7 @@ class ContractViewSet(viewsets.ModelViewSet):
         :return:
         """
         queryset = super(ContractViewSet, self).get_queryset()
-        return queryset.filter(user__id=self.request.user.id)
+        return queryset.filter(user__id=self.request.user.id).order_by("-last_used")
 
     @action(detail=True, url_name="shifts", url_path="shifts", methods=["get"])
     def get_shifts_list(self, request, *args, **kwargs):
@@ -326,15 +326,12 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 )
             except Report.DoesNotExist:
                 # We are looking at the first report of a contract. Return the
-                # initial_carryover_minutes as relativedelta.
-                return relativedelta(
+                # initial_carryover_minutes as timedelta.
+                return timedelta(
                     minutes=report_object.contract.initial_carryover_minutes
                 )
-
-        td = report_to_carry.worktime - datetime.timedelta(
-            minutes=report_object.contract.minutes
-        )
-        return relativedelta(seconds=td.total_seconds())
+        td = report_to_carry.worktime - report_to_carry.debit_worktime
+        return td
 
     def check_for_overlapping_shifts(self, shift_queryset):
         """
@@ -400,11 +397,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["long_month_name"] = month_names[report_object.month_year.month]
 
         # Working time account (AZK)
-        content["debit_work_time"] = relativedelta_to_string(
-            relativedelta(minutes=report_object.contract.minutes)
+        content["debit_work_time"] = timedelta_to_string(report_object.debit_worktime)
+        time_worked_seconds = report_object.worktime.total_seconds()
+        content["total_worked_time"] = relativedelta_to_string(
+            relativedelta(seconds=time_worked_seconds)
         )
-        time_worked = relativedelta(seconds=report_object.worktime.total_seconds())
-        content["total_worked_time"] = relativedelta_to_string(time_worked)
 
         carryover = {
             "previous_month": self.calculate_carryover_worktime(
@@ -413,13 +410,16 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             "next_month": self.calculate_carryover_worktime(report_object),
         }
         content["last_month_carry_over"] = relativedelta_to_string(
-            carryover["previous_month"]
+            relativedelta(seconds=carryover["previous_month"].total_seconds())
         )
         content["next_month_carry_over"] = relativedelta_to_string(
-            carryover["next_month"]
+            relativedelta(seconds=carryover["next_month"].total_seconds())
         )
         content["net_worktime"] = relativedelta_to_string(
-            time_worked - carryover["previous_month"]
+            relativedelta(
+                seconds=time_worked_seconds
+                - carryover["previous_month"].total_seconds()
+            )
         )
 
         return content

@@ -12,5 +12,3 @@ RUN useradd -ms /bin/bash celery-user
 
 ADD ./api/ /app/
 WORKDIR /app/
-
-ENTRYPOINT celery worker -A project_celery.celery -B --concurrency=3 --loglevel=WARNING --uid=celery-user
