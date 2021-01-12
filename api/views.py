@@ -332,8 +332,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 )
 
         td = report_to_carry.worktime - report_to_carry.debit_worktime
-
-        return relativedelta(seconds=td.total_seconds())
+        return td
 
     def check_for_overlapping_shifts(self, shift_queryset):
         """
@@ -400,8 +399,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
         # Working time account (AZK)
         content["debit_work_time"] = timedelta_to_string(report_object.debit_worktime)
-        time_worked = relativedelta(seconds=report_object.worktime.total_seconds())
-        content["total_worked_time"] = relativedelta_to_string(time_worked)
+        time_worked_seconds = report_object.worktime.total_seconds()
+        content["total_worked_time"] = relativedelta_to_string(
+            relativedelta(seconds=time_worked_seconds)
+        )
 
         carryover = {
             "previous_month": self.calculate_carryover_worktime(
@@ -410,13 +411,16 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             "next_month": self.calculate_carryover_worktime(report_object),
         }
         content["last_month_carry_over"] = relativedelta_to_string(
-            carryover["previous_month"]
+            relativedelta(seconds=carryover["previous_month"].total_seconds())
         )
         content["next_month_carry_over"] = relativedelta_to_string(
-            carryover["next_month"]
+            relativedelta(seconds=carryover["next_month"].total_seconds())
         )
         content["net_worktime"] = relativedelta_to_string(
-            time_worked - carryover["previous_month"]
+            relativedelta(
+                seconds=time_worked_seconds
+                - carryover["previous_month"].total_seconds()
+            )
         )
 
         return content
