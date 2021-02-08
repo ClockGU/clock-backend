@@ -8,7 +8,13 @@ class Message(models.Model):
     Model for a message that is displayed to the users when the app starts.
     """
 
-    MTYPE_CHOICES = [("NO", "Notice"), ("UD", "Update"), ("CL", "Changelog"), ("WN","Warning"), ("TP", "Tipp")]
+    MTYPE_CHOICES = [
+        ("NO", "Notice"),
+        ("UD", "Update"),
+        ("CL", "Changelog"),
+        ("WN", "Warning"),
+        ("TP", "Tipp"),
+    ]
 
     type = models.CharField(max_length=2, choices=MTYPE_CHOICES)
     title = models.CharField(max_length=100)
