@@ -192,26 +192,26 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
     def validate_start_date(self, start_date):
         """
-        Check that the day of the start_date is the 1st or 15th day of the month.
+        Check that the day of the start_date is the 1st or 16th day of the month.
         :param start_date:
         :return:
         """
         if start_date.day not in (1, 16):
             raise serializers.ValidationError(
-                _("A contract must start on the 1st or 15th of a month.")
+                _("A contract must start on the 1st or 16th of a month.")
             )
 
         return start_date
 
     def validate_end_date(self, end_date):
         """
-        Check that the contract ends either on the 14. or last day of a month.
+        Check that the contract ends either on the 15th or last day of a month.
         :param end_date:
         :return:
         """
         if end_date.day not in (15, monthrange(end_date.year, end_date.month)[1]):
             raise serializers.ValidationError(
-                _("A contract must end on the 14th or last day of a month.")
+                _("A contract must end on the 15th or last day of a month.")
             )
 
         return end_date
@@ -311,12 +311,12 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )
 
-        # If Shift is considered as 'planned'
+        # If Shift is considered as scheduled
         if not was_reviewed:
-            # A planned Shift has to start in the future
+            # A scheduled Shift has to start in the future
             if not started > datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
-                    _("A 'planned' shift must start or end in the future.")
+                    _("A scheduled shift must start or end in the future.")
                 )
         else:
             if started > datetime.datetime.now().astimezone(utc):
@@ -327,7 +327,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         if locked:
             raise exceptions.PermissionDenied(
                 _(
-                    "A Shift can't be created or changed if the month got locked already."
+                    "A Shift can't be created or changed if the month has already been locked."
                 )
             )
 
