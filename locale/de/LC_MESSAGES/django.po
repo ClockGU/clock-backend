@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-05-04 15:58+0200\n"
-"PO-Revision-Date: 2020-05-04 16:00+0053\n"
-"Last-Translator: b'Maximilian Lampe <chgad.games@web.de>'\n"
+"PO-Revision-Date: 2021-02-08 10:45+0053\n"
+"Last-Translator: B. Buehner <buehner@em.uni-frankfurt.de>'\n"
 "Language-Team: German\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgstr ""
 #| "A contract's start date can not be modified\n"
 #| "if shifts before this date exist."
 msgid ""
-"A contract's start date can not be modifiedif shifts before this date exist."
+"A contract's start date can not be modified if shifts before this date exist."
 msgstr ""
 "Das Startdatum des Vertrags kann nicht geändert werden\n"
 "wenn bereits ältere Schichten existieren."
@@ -36,7 +36,7 @@ msgstr ""
 #| "A contract's end date can not be modified\n"
 #| "if shifts after this date exist."
 msgid ""
-"A contract's end date can not be modifiedif shifts after this date exist."
+"A contract's end date can not be modified if shifts after this date exist."
 msgstr ""
 "Das Enddatum des Vertrags kann nicht geändert werden\n"
 "wenn es Schichten nach diesem Datum gibt."
@@ -50,18 +50,18 @@ msgstr "Der Beginn eines Vertrages muss vor dessen Ende liegen."
 
 #: api/serializers.py:120
 msgid "A contract's end date must not be set in the past."
-msgstr "Der Vertrag darf nicht bereits in der Vergangheit geendet haben."
+msgstr "Das Enddatum eines Vertrags darf nicht in der Vergangenheit liegen."
 
 #: api/serializers.py:133
-msgid "A contract must start on the 1st or 15th of a month."
-msgstr "Ein Vertrag darf nur am 1. oder 15. eines Monats beginnen."
+msgid "A contract must start on the 1st or 16th of a month."
+msgstr "Ein Vertrag darf nur am 1. oder 16. eines Monats beginnen."
 
 #: api/serializers.py:146
 #, fuzzy
 #| msgid ""
-#| "A contract must end at the 14th or at the last day of a month."
-msgid "A contract must end on the 14th or last day of a month."
-msgstr "Ein Vertrag darf nur am 14. oder am letzten Tag eines Monats enden."
+#| "A contract must end at the 15th or at the last day of a month."
+msgid "A contract must end on the 15th or last day of a month."
+msgstr "Ein Vertrag darf nur am 15. oder am letzten Tag eines Monats enden."
 
 #: api/serializers.py:158
 msgid "The monthly work time must not be 0."
@@ -70,7 +70,7 @@ msgstr "Die monatliche Arbeitszeit darf nicht 0 sein."
 #: api/serializers.py:203
 msgid "A shift must start and end on the same day."
 msgstr ""
-"Eine Schicht muss an dem gleichen Tag enden an dem sie angefangen hat."
+"Eine Schicht muss am gleichen Tag enden an dem sie angefangen hat."
 
 #: api/serializers.py:207
 #, fuzzy
@@ -82,25 +82,25 @@ msgstr "Der Beginn einer Schicht muss vor deren Ende liegen."
 msgid ""
 "A shift must belong to a contract which is active on the respective date."
 msgstr ""
-"Eine Schicht muss zu einem zu dem Zeitpunkt laufenden Vertrag gehören."
+"Eine Schicht muss zu einem zum entsprechenden Zeitpunkt laufenden Vertrag gehören."
 
 #: api/serializers.py:229
 #, fuzzy
-#| msgid "A planned shift must start or end in the future."
-msgid "A 'planned' shift must start or end in the future."
-msgstr "Eine geplamte Schicht die muss in der Zukunft starten/enden."
+#| msgid "A scheduled shift must start or end in the future."
+msgid "A scheduled shift must start or end in the future."
+msgstr "Eine geplante Schicht muss in der Zukunft starten/enden."
 
 #: api/serializers.py:234
 #, fuzzy
 #| msgid ""
 #| "A shift starting or ending in the future must be labeled as 'planned'."
-msgid "A shift set in the future must be labeled as scheduled."
+msgid "A shift set in the future must be labeled as 'scheduled'."
 msgstr ""
-"Eine Schicht die in der Zukunft starte/endet muss als 'geplant' "
+"Eine Schicht die in der Zukunft startet/endet muss als geplant "
 "gekenzeichnet sein."
 
 #: api/serializers.py:239
-msgid "A Shift can't be created or changed if the month got locked already."
+msgid "A Shift can't be created or changed if the month has already been locked."
 msgstr ""
 "Eine Schicht kann nicht erstellt oder verändert werden wenn der betreffende "
 "Monat bereits gesperrt wurde."
@@ -111,8 +111,8 @@ msgstr ""
 #| "A worktime-sheet for this month has already been exported.\n"
 #| "It is not possible to add or modify shifts in this month."
 msgid ""
-"A worktime-sheet for this month has already been exported.It is not possible"
-" to add or modify shifts."
+"A worktime-sheet for this month has already been exported.\n"
+"It is not possible to add or modify shifts."
 msgstr ""
 "Für diesen Monat wurde bereits ein Stundenzettel exportiert.\n"
 "Es ist nicht möglich, Schichten in diesem Monat zu ändern oder neue zu erstellen."
@@ -140,14 +140,16 @@ msgstr "Das Vertragsobjekt muss dem User gehören, der die Schicht erstellt."
 msgid ""
 "An export of the worktime-sheet is not possible due to overlapping shifts."
 msgstr ""
-"Ein Export des Stundenzettels ist nicht möglich, da es Überschneidungen der "
-"Schichten gibt."
+"Ein Export des Stundenzettels ist nicht möglich, da es Überschneidungen von"
+" Schichten gibt."
 
 #: api/views.py:438
 msgid ""
 "All Shifts of the previous month need to be locked before this Worktimesheet"
 " can be created."
 msgstr ""
+"Alle Schichten des vorangegangenen Monats müssen gesperrt werden bevor dieser"
+" Stundenzettel erstellt werden kann."
 
 #: config/settings/common.py:166
 msgid "German"

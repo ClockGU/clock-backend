@@ -12,9 +12,13 @@ class MessageEndpoint(ReadOnlyModelViewSet):
     Provide database table of currently valid messages.
     """
 
-    queryset = Message.objects.filter(
-        Q(valid_from__lte=date.today(), valid_to__gte=date.today())
-        | Q(valid_from__lte=date.today(), valid_to__isnull=True)
-    )
+    queryset = Message.objects.all()
     serializer_class = MessageSerializer
     name = "message"
+
+    def get_queryset(self):
+        qs = super(MessageEndpoint, self).get_queryset()
+        return qs.filter(
+            Q(valid_from__lte=date.today(), valid_to__gte=date.today())
+            | Q(valid_from__lte=date.today(), valid_to__isnull=True)
+        )
