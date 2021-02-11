@@ -267,7 +267,7 @@ def create_n_shift_objects():
     created_at = datetime.datetime(2019, 1, 29, 16).astimezone(tz).isoformat()
     modified_at = created_at
     note = "something was strange"
-    tags = ["tag1, tag2"]
+    tags = ["tag1", "tag2"]
 
     def create_shifts(
         start_stop,
@@ -376,6 +376,17 @@ def patch_new_tags_json(shift_object):
     :return: Dict
     """
     _dict = {"id": str(shift_object.id), "tags": ["new_tag1", "new_tag2"]}
+    return _dict
+
+
+@pytest.fixture
+def patch_empty_tags_json(shift_object):
+    """
+    This fixture prepares a JSON dictionary to PATCH new tags in a shift.
+    :param shift_object:
+    :return: Dict
+    """
+    _dict = {"id": str(shift_object.id), "tags": []}
     return _dict
 
 

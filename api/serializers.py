@@ -410,9 +410,10 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         """
         tags = validated_data.pop("tags", None)
         updated_object = super(ShiftSerializer, self).update(instance, validated_data)
-        if tags:
-            assert isinstance(tags, list)
+
+        if isinstance(tags, list):
             updated_object.tags.set(*tags)
+
         return updated_object
 
 
