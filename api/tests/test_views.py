@@ -471,6 +471,28 @@ class TestShiftApiEndpoint:
         )
 
     @pytest.mark.django_db
+    def test_patch_empty_tags(self, client, user_object_jwt, patch_empty_tags_json):
+        """
+        Test that the PATCH-endpoint updates the Tags correctly.
+        Here it is worth noteing that all Tags, even those who are kept, are needed within the payload.
+        :param client:
+        :param user_object_jwt:
+        :param patch_new_tags_json:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.patch(
+            path=reverse("api:shifts-detail", args=[patch_empty_tags_json["id"]]),
+            data=json.dumps(patch_empty_tags_json),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 200
+        shift_object = Shift.objects.get(pk=patch_empty_tags_json["id"])
+
+        assert shift_object.tags.all().count() == 0
+
+    @pytest.mark.django_db
     @pytest.mark.freeze_time(
         "2019-02-10"
     )  # needed for fixture creation --> Report creation signal on Contract creation
