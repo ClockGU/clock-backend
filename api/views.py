@@ -16,6 +16,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from unidecode import unidecode
 
 from api.filters import ShiftFilterSet
 from api.models import ClockedInShift, Contract, Report, Shift, User
@@ -491,7 +492,7 @@ class GDPRExportView(viewsets.ViewSet):
         response[
             "Content-Disposition"
         ] = "attachment; filename={0}_{1}_gdpr-export_{2}.json".format(
-            user.first_name, user.last_name, date
+            unidecode(user.first_name), unidecode(user.last_name), date
         )
         return response
 
