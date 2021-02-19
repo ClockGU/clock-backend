@@ -408,11 +408,24 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         :param validated_data:
         :return:
         """
+
+        # To update the old report if we change the contract we need
+        # to check this
+        contract_changed = bool(validated_data.get("contract"))
+        if not self.partial:
+            contract_changed = validated_data.get("contract") != instance.contract
+        # keep track of possibly old contract
+        # and old started value
+        orig_contract = instance.contract
+        orig_started = instance.started
         tags = validated_data.pop("tags", None)
         updated_object = super(ShiftSerializer, self).update(instance, validated_data)
 
         if isinstance(tags, list):
             updated_object.tags.set(*tags)
+
+        if contract_changed:
+            update_reports(orig_contract, orig_started.date().replace(day=1))
 
         return updated_object
 
