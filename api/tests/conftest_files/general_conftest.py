@@ -111,3 +111,12 @@ def positive_relativedelta_object():
 @pytest.fixture
 def negative_relativedelta_object():
     return relativedelta(days=-6, hours=-4, minutes=-23, seconds=-15)
+
+
+@pytest.fixture
+def test_contract_change(
+    create_n_contract_objects, create_n_shift_objects, user_object
+):
+    contracts = create_n_contract_objects((1, 3), user_object)
+    create_n_shift_objects((1,), user=user_object, contract=contracts[0])
+    return contracts

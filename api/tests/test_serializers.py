@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import exceptions, serializers
 
-from api.models import Report
+from api.models import Report, Shift
 from api.serializers import (
     ClockedInShiftSerializer,
     ContractSerializer,
@@ -541,6 +541,29 @@ class TestShiftSerializerValidation:
                 data=shift_starting_in_future_was_reviewed_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    @pytest.mark.freeze_time("2019-01-30")
+    def test_report_update_called_on_update(
+        self, plain_request_object, test_contract_change
+    ):
+        """
+        Test if we change the contract of a shift wether the reports of both contracts are updated.
+
+        We start with fresh 00:00 Reports
+        :param test_contract_change:
+        :return:
+        """
+
+        shift = Shift.objects.get(contract=test_contract_change[0])
+        ShiftSerializer().update(shift, {"contract": test_contract_change[1]})
+
+        assert Report.objects.get(
+            contract=test_contract_change[0], month_year=datetime.date(2019, 1, 1)
+        ).worktime == datetime.timedelta(0)
+        assert Report.objects.get(
+            contract=test_contract_change[1], month_year=datetime.date(2019, 1, 1)
+        ).worktime == datetime.timedelta(hours=2)
 
 
 class TestClockedInShiftSerializer:
