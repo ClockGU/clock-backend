@@ -141,7 +141,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
             ).exists():
                 raise serializers.ValidationError(
                     _(
-                        "A contract's start date can not be modified"
+                        "A contract's start date can not be modified "
                         "if shifts before this date exist."
                     )
                 )
@@ -150,7 +150,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
             ).exists():
                 raise serializers.ValidationError(
                     _(
-                        "A contract's end date can not be modified"
+                        "A contract's end date can not be modified "
                         "if shifts after this date exist."
                     )
                 )
@@ -170,7 +170,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
             if not initial_carryover_minutes == 0:
                 raise serializers.ValidationError(
                     _(
-                        "The carry over for a contract starting in the future may only be 00:00."
+                        "You can not set a carryover for a contract starting in the future."
                     )
                 )
 
@@ -341,7 +341,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         if exported_shifts:
             raise serializers.ValidationError(
                 _(
-                    "A iniworktime-sheet for this month has already been exported."
+                    "A worktime-sheet for this month has already been exported. "
                     "It is not possible to add or modify shifts."
                 )
             )

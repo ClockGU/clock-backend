@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-05-04 15:58+0200\n"
-"PO-Revision-Date: 2021-02-08 10:45+0053\n"
+"PO-Revision-Date: 2021-03-05 13:00+0053\n"
 "Last-Translator: B. Buehner <buehner@em.uni-frankfurt.de>'\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -27,7 +27,7 @@ msgstr ""
 msgid ""
 "A contract's start date can not be modified if shifts before this date exist."
 msgstr ""
-"Das Startdatum des Vertrags kann nicht geändert werden\n"
+"Das Startdatum des Vertrags kann nicht geändert werden "
 "wenn bereits ältere Schichten existieren."
 
 #: api/serializers.py:108
@@ -38,7 +38,7 @@ msgstr ""
 msgid ""
 "A contract's end date can not be modified if shifts after this date exist."
 msgstr ""
-"Das Enddatum des Vertrags kann nicht geändert werden\n"
+"Das Enddatum des Vertrags kann nicht geändert werden "
 "wenn es Schichten nach diesem Datum gibt."
 
 #: api/serializers.py:115
@@ -66,6 +66,16 @@ msgstr "Ein Vertrag darf nur am 15. oder am letzten Tag eines Monats enden."
 #: api/serializers.py:158
 msgid "The monthly work time must not be 0."
 msgstr "Die monatliche Arbeitszeit darf nicht 0 sein."
+
+#: api/serializers.py:173
+msgid "You can not set a carryover for a contract starting in the future."
+msgstr "Ein Übertrag kann nicht angegeben wenn der Vertrag in der Zukunft beginnt."
+
+msgid "The month in which you want to start clocking must be set in-between the start and end date."
+msgstr "Der Monat, in dem Du beginnen möchtest, zu clocken, muss zwischen Start und Enddatum liegen."
+
+msgid "The date on which you want to start clocking must be the first of a month."
+msgstr "Das Datum, an dem der Übertrag berücksichtigt werden soll, muss der 1. eines Monats sein.""
 
 #: api/serializers.py:203
 msgid "A shift must start and end on the same day."
@@ -111,10 +121,10 @@ msgstr ""
 #| "A worktime-sheet for this month has already been exported.\n"
 #| "It is not possible to add or modify shifts in this month."
 msgid ""
-"A worktime-sheet for this month has already been exported.\n"
+"A worktime-sheet for this month has already been exported. "
 "It is not possible to add or modify shifts."
 msgstr ""
-"Für diesen Monat wurde bereits ein Stundenzettel exportiert.\n"
+"Für diesen Monat wurde bereits ein Stundenzettel exportiert. "
 "Es ist nicht möglich, Schichten in diesem Monat zu ändern oder neue zu erstellen."
 
 #: api/serializers.py:262
