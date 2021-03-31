@@ -155,6 +155,14 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     )
                 )
 
+            # check if new end date is more than 6 month apart from the old one
+            if relativedelta(end_date, self.instance.end_date).months >= 6:
+
+                raise serializers.ValidationError(
+                    "A contract's end date can not be modified"
+                    "extended for more than 6 months."
+                )
+
         if start_date > end_date:
             raise serializers.ValidationError(
                 _("The start date of a contract must be set before its end date.")
