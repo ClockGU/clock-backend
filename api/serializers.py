@@ -297,14 +297,14 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 _("The start of a shift must be set before its end.")
             )
 
-        if not (contract.start_date <= started.date() <= contract.end_date):
+        if not (contract.carryover_target_date <= started.date() <= contract.end_date):
             raise serializers.ValidationError(
                 _(
                     "A shift must belong to a contract which is active on the respective date."
                 )
             )
 
-        if not (contract.start_date <= stopped.date() <= contract.end_date):
+        if not (contract.carryover_target_date <= stopped.date() <= contract.end_date):
             raise serializers.ValidationError(
                 _(
                     "A shift must belong to a contract which is active on the respective date."
@@ -328,21 +328,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             raise exceptions.PermissionDenied(
                 _(
                     "A Shift can't be created or changed if the month has already been locked."
-                )
-            )
-
-        # try to get shifts for the given contract, in the given month which are allready exported
-        exported_shifts = Shift.objects.filter(
-            contract=contract, started__month=started.month, locked=True
-        ).first()
-        print(exported_shifts)
-        # if there is at least one exported shift it's not allowed to create or update any
-        # shifts in that month for that contract
-        if exported_shifts:
-            raise serializers.ValidationError(
-                _(
-                    "A iniworktime-sheet for this month has already been exported."
-                    "It is not possible to add or modify shifts."
                 )
             )
 
