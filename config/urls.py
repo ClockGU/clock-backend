@@ -25,6 +25,7 @@ urlpatterns = [
     url(r"", include("api-docs.api_docs"), name="api_docs"),
     url(r"", include("feedback.urls"), name="feedback-app"),
     url(r"", include("message.urls"), name="message-app"),
+    url(r"", include("faq.urls"), name="faq-app"),
     url(r"^admin/", admin.site.urls),
     url(r"^auth/", include("djoser.urls"), name="djoser-auth"),
     url(r"^auth/", include("djoser.urls.jwt")),
