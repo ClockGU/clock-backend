@@ -110,12 +110,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class ClockedInShiftViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
+class ClockedInShiftViewSet(viewsets.ModelViewSet):
     queryset = ClockedInShift.objects.all()
     serializer_class = ClockedInShiftSerializer
     name = "clockedinshift"
