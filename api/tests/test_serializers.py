@@ -379,7 +379,7 @@ class TestContractSerializerValidation:
     ):
 
         with pytest.raises(serializers.ValidationError):
-            seri = ContractSerializer(
+            ContractSerializer(
                 instance=contract_object,
                 data=contract_end_date_7_months_apart_json,
                 context={"request": plain_request_object},
