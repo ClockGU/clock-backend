@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 
@@ -140,7 +141,12 @@ class Contract(models.Model):
 
 class Shift(models.Model):
 
-    TYPE_CHOICES = (("st", "Shift"), ("sk", "Sick"), ("vn", "Vacation"))
+    TYPE_CHOICES = (
+        ("st", _("Shift")),
+        ("sk", _("Sick")),
+        ("vn", _("Vacation")),
+        ("bh", _("Bank Holiday")),
+    )
 
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
