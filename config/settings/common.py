@@ -14,6 +14,7 @@ from datetime import timedelta
 
 import environ
 from django.utils.translation import gettext_lazy as _
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -156,6 +157,9 @@ JWT_AUTH_COOKIE = "clock"
 # A single domain without a trailing comma also works:
 # CORS_ORIGIN_WHITELIST=https://example.com
 CORS_ORIGIN_WHITELIST = env.tuple("CORS_ORIGIN_WHITELIST", default=())
+
+
+CORS_ALLOW_HEADERS = list(default_headers) + ["checkoutuser"]
 
 # The client must provide a `redirect_uri` query parameter when requesting the
 # authorization code URL. We retrieve it from the environment.

@@ -87,6 +87,7 @@ class UserSerializer(RestrictModificationModelSerializer):
             "date_joined",
             "modified_at",
             "last_login",
+            "is_superuser",
         ]
         ref_name = "user-gdpr-serializers"
 
@@ -94,6 +95,21 @@ class UserSerializer(RestrictModificationModelSerializer):
 class DjoserUserSerializer(serializers.Serializer):
     class Meta:
         ref_name = "djoser-custom-serializer"
+
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "personal_number",
+            "language",
+            "dsgvo_accepted",
+            "date_joined",
+            "modified_at",
+            "last_login",
+            "is_superuser",
+        ]
 
 
 class ContractSerializer(RestrictModificationModelSerializer):
