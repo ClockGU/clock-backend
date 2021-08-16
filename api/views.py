@@ -55,8 +55,13 @@ class ContractViewSet(viewsets.ModelViewSet):
         Customized method to only retrieve Objects owned by the User issueing the request.
         :return:
         """
+        user = self.request.user
+        if self.request.user.is_superuser and self.request.headers.get(
+            "checkoutuser", False
+        ):
+            user = User.objects.get(id=self.request.headers["checkoutuser"])
         queryset = super(ContractViewSet, self).get_queryset()
-        return queryset.filter(user__id=self.request.user.id).order_by("-last_used")
+        return queryset.filter(user__id=user.id).order_by("-last_used")
 
     @action(detail=True, url_name="shifts", url_path="shifts", methods=["get"])
     def get_shifts_list(self, request, *args, **kwargs):
@@ -92,8 +97,13 @@ class ShiftViewSet(viewsets.ModelViewSet):
         Customized method to only retrieve Objects owned by the User issueing the request.
         :return:
         """
+        user = self.request.user
+        if self.request.user.is_superuser and self.request.headers.get(
+            "checkoutuser", False
+        ):
+            user = User.objects.get(id=self.request.headers["checkoutuser"])
         queryset = super(ShiftViewSet, self).get_queryset()
-        return queryset.filter(user__id=self.request.user.id)
+        return queryset.filter(user__id=user.id)
 
     def list_month_year(self, request, month=None, year=None, *args, **kwargs):
         """
@@ -125,7 +135,12 @@ class ClockedInShiftViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         """
-        instance = get_object_or_404(self.get_queryset(), user__id=self.request.user.id)
+        user = self.request.user
+        if self.request.user.is_superuser and self.request.headers.get(
+            "checkoutuser", False
+        ):
+            user = User.objects.get(id=self.request.headers["checkoutuser"])
+        instance = get_object_or_404(self.get_queryset(), user__id=user.id)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -140,8 +155,13 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         Customized method to only retrieve Objects owned by the User issueing the request.
         :return:
         """
+        user = self.request.user
+        if self.request.user.is_superuser and self.request.headers.get(
+            "checkoutuser", False
+        ):
+            user = User.objects.get(id=self.request.headers["checkoutuser"])
         queryset = super(ReportViewSet, self).get_queryset()
-        return queryset.filter(user__id=self.request.user.id)
+        return queryset.filter(user__id=user.id)
 
     @action(
         detail=False,
