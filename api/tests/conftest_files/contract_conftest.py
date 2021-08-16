@@ -515,6 +515,17 @@ def end_date_before_months_with_shifts_contract_querydict(
 
 
 @pytest.fixture
+def contract_end_date_7_months_apart_json(valid_contract_json):
+    """
+    Set the end_date to be more than 6 months apart from the initial end_date.
+    :param valid_contract_json:
+    :return:
+    """
+    valid_contract_json["end_date"] = datetime.date(2019, 7, 31).isoformat()
+    return valid_contract_json
+
+
+@pytest.fixture
 def contract_locked_shifts(create_n_contract_objects, user_object):
     """
     This fixture provides an a contract, which should have N unlocked not-planned shifts in the first month.

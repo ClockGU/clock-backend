@@ -68,6 +68,14 @@ def clockedinshift_invalid_contract_querydict(clockedinshift_invalid_contract_js
 
 
 @pytest.fixture
+def update_clockedinshift_json(valid_clockedinshift_json):
+    valid_clockedinshift_json["started"] = datetime.datetime(
+        2019, 1, 29, 16, tzinfo=utc
+    ).isoformat()
+    return valid_clockedinshift_json
+
+
+@pytest.fixture
 def clockedinshift_object(user_object, contract_object):
     return ClockedInShift.objects.create(
         started=datetime.datetime(2019, 2, 11, 14, tzinfo=utc),

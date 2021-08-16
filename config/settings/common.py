@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 from datetime import timedelta
 
 import environ
+from corsheaders.defaults import default_headers
 from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "api.apps.APIConfig",
     "message.apps.MessageConfig",
+    "faq.apps.FaqConfig",
     "project_celery",
     "taggit",
     "rest_framework",
@@ -155,6 +157,9 @@ JWT_AUTH_COOKIE = "clock"
 # A single domain without a trailing comma also works:
 # CORS_ORIGIN_WHITELIST=https://example.com
 CORS_ORIGIN_WHITELIST = env.tuple("CORS_ORIGIN_WHITELIST", default=())
+
+
+CORS_ALLOW_HEADERS = list(default_headers) + ["checkoutuser"]
 
 # The client must provide a `redirect_uri` query parameter when requesting the
 # authorization code URL. We retrieve it from the environment.

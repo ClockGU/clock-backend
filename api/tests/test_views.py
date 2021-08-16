@@ -586,6 +586,47 @@ class TestClockedInShiftEndpoint:
         )
         assert response.status_code == 400
 
+    @pytest.mark.django_db
+    def test_put_action_allowed(
+        self, client, user_object_jwt, clockedinshift_object, update_clockedinshift_json
+    ):
+        """
+        Test that the attempt of creating a second ClockedInShift object results in a 400 Response.
+        :param client:
+        :param user_object_jwt:
+        :param clockedinshift_object:
+        :param valid_clockedinshift_json:
+        :return:
+        """
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.put(
+            path=reverse("api:clockedinshifts-detail", args=[clockedinshift_object.id]),
+            data=json.dumps(update_clockedinshift_json),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_patch_action_allowed(
+        self, client, user_object_jwt, clockedinshift_object, update_clockedinshift_json
+    ):
+        """
+        Test that the attempt of creating a second ClockedInShift object results in a 400 Response.
+        :param client:
+        :param user_object_jwt:
+        :param clockedinshift_object:
+        :param valid_clockedinshift_json:
+        :return:
+        """
+        update_clockedinshift_json["id"] = str(clockedinshift_object.id)
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.patch(
+            path=reverse("api:clockedinshifts-detail", args=[clockedinshift_object.id]),
+            data=json.dumps(update_clockedinshift_json),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+
 
 class TestReportApiEndpoint:
     @freeze_time("2019-01-10")
