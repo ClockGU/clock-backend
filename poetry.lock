@@ -255,7 +255,7 @@ with_social = ["django-allauth (>=0.25.0)"]
 
 [[package]]
 name = "django"
-version = "2.2.18"
+version = "2.2.27"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
@@ -1291,7 +1291,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "c9bb25fe0bd123f9b0bfecb98ac518297137dfc0ad5164bb11472a4e9eeb476c"
+content-hash = "5a6c04c0ea07b55a3d86863a702d735d2bb8d229b9ba7e52f11131bfc3365c41"
 
 [metadata.files]
 amqp = [
@@ -1444,8 +1444,8 @@ dj-rest-auth = [
     {file = "dj-rest-auth-1.0.7.tar.gz", hash = "sha256:6005de13c2de921e61e40f54f20bbeca17164b9471e3b38ccff79e06fceadf49"},
 ]
 django = [
-    {file = "Django-2.2.18-py3-none-any.whl", hash = "sha256:0eaca08f236bf502a9773e53623f766cc3ceee6453cc41e6de1c8b80f07d2364"},
-    {file = "Django-2.2.18.tar.gz", hash = "sha256:c9c994f5e0a032cbd45089798b52e4080f4dea7241c58e3e0636c54146480bb4"},
+    {file = "Django-2.2.27-py3-none-any.whl", hash = "sha256:90763c764738586b11d7e1f44828032c153366e43ad7f782908193a1bb2d6d92"},
+    {file = "Django-2.2.27.tar.gz", hash = "sha256:1ee37046b0bf2b61e83b3a01d067323516ec3b6f2b17cd49b1326dd4ba9dc913"},
 ]
 django-allauth = [
     {file = "django-allauth-0.41.0.tar.gz", hash = "sha256:7ab91485b80d231da191d5c7999ba93170ef1bf14ab6487d886598a1ad03e1d8"},
