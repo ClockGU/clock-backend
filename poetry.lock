@@ -570,14 +570,14 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "ipdb"
-version = "0.11"
+version = "0.13.0"
 description = "IPython-enabled pdb"
 category = "dev"
 optional = false
 python-versions = ">=2.7"
 
 [package.dependencies]
-ipython = {version = ">=5.0.0", markers = "python_version >= \"3.3\""}
+ipython = {version = ">=5.1.0", markers = "python_version >= \"3.4\""}
 
 [[package]]
 name = "ipython"
@@ -1291,7 +1291,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "ac306a431aa17d707001d11c1039308db54f95759f7b483c1b23b51ab15ad7e7"
+content-hash = "c9bb25fe0bd123f9b0bfecb98ac518297137dfc0ad5164bb11472a4e9eeb476c"
 
 [metadata.files]
 amqp = [
@@ -1586,7 +1586,7 @@ inflection = [
     {file = "inflection-0.4.0.tar.gz", hash = "sha256:32a5c3341d9583ec319548b9015b7fbdf8c429cbcb575d326c33ae3a0e90d52c"},
 ]
 ipdb = [
-    {file = "ipdb-0.11.tar.gz", hash = "sha256:7081c65ed7bfe7737f83fa4213ca8afd9617b42ff6b3f1daf9a3419839a2a00a"},
+    {file = "ipdb-0.13.0.tar.gz", hash = "sha256:b90f1f661028af17c5043b4ea4534bc2f303d1f23b0c762a08923c7c454d7a59"},
 ]
 ipython = [
     {file = "ipython-7.2.0-py3-none-any.whl", hash = "sha256:f69932b1e806b38a7818d9a1e918e5821b685715040b48e59c657b3c7961b742"},
