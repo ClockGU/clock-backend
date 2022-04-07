@@ -14,6 +14,20 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import os
+import sys
+import django
+sys.path.append("/home/sgrieger/code/clock/clock-backend")
+print(sys.path)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.local'
+os.environ['DJANGO_SECRET_KEY'] = "h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)"
+os.environ["POSTGRES_HOST"] = "db"
+os.environ["POSTGRES_PORT"] = "5432"
+os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.local"
+os.environ["RABBITMQ_URL"] = "amqp://broker_adm:broker_pass@rabbit_broker:5672/"
+
+
+django.setup()
 
 # -- Project information -----------------------------------------------------
 
@@ -28,7 +42,12 @@ author = 'Christian Grossmüller'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
 ]
+autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
