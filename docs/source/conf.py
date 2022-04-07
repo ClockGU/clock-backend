@@ -10,24 +10,24 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
 import os
 import sys
 import django
-sys.path.append("/home/sgrieger/code/clock/clock-backend")
-print(sys.path)
+sys.path.insert(0, os.path.abspath('.'))
+FILE_PATH = os.path.dirname(__file__)
+path = FILE_PATH[:FILE_PATH.rfind("/")]
+prev_path = path[:path.rfind("/")]
+
+sys.path.append(prev_path)
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.local'
 os.environ['DJANGO_SECRET_KEY'] = "h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)"
 os.environ["POSTGRES_HOST"] = "db"
 os.environ["POSTGRES_PORT"] = "5432"
 os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.local"
 os.environ["RABBITMQ_URL"] = "amqp://broker_adm:broker_pass@rabbit_broker:5672/"
-
-
 django.setup()
+
 
 # -- Project information -----------------------------------------------------
 
@@ -45,10 +45,10 @@ extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
+    "sphinx.ext.autosummary",
 ]
+autodoc_default_flags = ['members']
 autosummary_generate = True
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
