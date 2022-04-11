@@ -6,10 +6,22 @@
 Welcome to Clock-Backend's documentation!
 =========================================
 
-.. autosummary::
-     :toctree: stubs
+This is the Docu for Clock-Backend.
 
-      api
+.. automodule:: api
+   :members:
+
+.. automodule:: faq
+   :members:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   api
+   faq
+   feedback
+   message
+   project_celery
 
 
 Indices and tables

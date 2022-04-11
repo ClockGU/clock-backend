@@ -20,6 +20,8 @@ prev_path = path[:path.rfind("/")]
 
 sys.path.append(prev_path)
 
+sys.path.insert(0, os.path.abspath('..'))
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.local'
 os.environ['DJANGO_SECRET_KEY'] = "h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)"
 os.environ["POSTGRES_HOST"] = "db"
@@ -55,7 +57,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['**/migrations*', ]
 
 
 # -- Options for HTML output -------------------------------------------------

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "clock-backend"
+name = "api"
 version = "0.1.0"
 description = ""
 authors = ["Christian Grossmüller <chgad.games@gmail.com>", "Michael Gecht <gecht.m@gmail.com>"]
