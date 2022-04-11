@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   api.migrations
    api.oauth
    api.templatetags
    api.tests

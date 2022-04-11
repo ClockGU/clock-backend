@@ -18,9 +18,11 @@ Contents
 
 .. toctree::
 
-   api.oauth.providers.goetheuni
    api
-   api.templatetags
+   faq
+   feedback
+   message
+   project_celery
 
 
 
