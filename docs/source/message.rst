@@ -7,8 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   message.migrations
-   message.tests
+   message
 
 Submodules
 ----------

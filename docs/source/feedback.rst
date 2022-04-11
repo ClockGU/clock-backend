@@ -7,8 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   feedback.migrations
-   feedback.tests
+   feedback
 
 Submodules
 ----------

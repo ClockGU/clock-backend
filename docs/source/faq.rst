@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   faq.migrations
+   faq
 
 Submodules
 ----------

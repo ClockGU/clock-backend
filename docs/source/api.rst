@@ -7,9 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   api.oauth
-   api.templatetags
-   api.tests
+   api
 
 Submodules
 ----------
