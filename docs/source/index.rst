@@ -8,25 +8,25 @@ Welcome to Clock-Backend's documentation!
 
 This is the Docu for Clock-Backend.
 
-.. automodule:: api
-   :members:
 
-.. automodule:: faq
-   :members:
+.. note::
+
+   This project is under active development.
+
+Contents
+--------
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+
+   api.oauth.providers.goetheuni
    api
-   faq
-   feedback
-   message
-   project_celery
+   api.templatetags
 
 
-Indices and tables
-==================
 
+Search and Stuff
+________
+
+* :ref:`search`
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
