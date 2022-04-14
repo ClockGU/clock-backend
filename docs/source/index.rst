@@ -17,10 +17,10 @@ Diese Seiten enthalten die technische Spezifikation vom zugehörigen Backend.
 This page shows the technical specs for the backend.
 
 
-:ref:`development`
+:doc:`development`
 -----------
 
-Please read the:ref:`development` :ref:`development` Documentation, to implement a Development environment locally.
+Please read the :doc:`development` :ref:`development` Documentation, to implement a Development environment locally.
 
 
 
