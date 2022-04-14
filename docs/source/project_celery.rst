@@ -1,4 +1,4 @@
-project\_celery package
+project\_celery
 =======================
 
 Submodules

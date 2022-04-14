@@ -1,4 +1,4 @@
-faq package
+faq
 ===========
 
 Subpackages

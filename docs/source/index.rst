@@ -1,19 +1,30 @@
-.. Clock-Backend documentation master file, created by
-   sphinx-quickstart on Thu Apr  7 17:28:05 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 Welcome to Clock-Backend's documentation!
 =========================================
-
-This is the Docu for Clock-Backend.
-
 
 .. note::
 
    This project is under active development.
 
-Contents
+Das Projekt ClockGU verfolgt die Bereitstellung einer Softwarelösung (Clock), die Hilfskräften an der Goethe-Universität die Führung des Arbeitszeitkontos (AZK) nach den Maßgaben der aktuellen gesetzlichen Regelungen im Rahmen des Gesetz zur Regelung eines allgemeinen Mindestlohns (MiLoG) erleichtern soll.
+
+The project ClockGU wants to provide a software (Clock) for (student) assitense  of the Goethe-Universität Fraknfurt a.M. (Germany) to reduce the effort of documenting there working time account (WTA, german: Arbeitszeitkonto -> AZK) in the actual statutory rule of the minimum wage law (german: Mindestlohngesetz -> MiLoG).
+
+Diese Seiten enthalten die technische Spezifikation vom zugehörigen Backend.
+
+This page shows the technical specs for the backend.
+
+:ref:`search` | :ref:`genindex` | :ref:`modindex`
+
+:ref:`Development`
+-----------
+
+Please read the ref:`Development` Documentation, to implement a Development environment locally.
+
+
+
+
+Packages
 --------
 
 .. toctree::
@@ -26,9 +37,3 @@ Contents
 
 
 
-Search and Stuff
-________
-
-* :ref:`search`
-* :ref:`genindex`
-* :ref:`modindex`

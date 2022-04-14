@@ -1,4 +1,4 @@
-message package
+message
 ===============
 
 Subpackages

@@ -1,4 +1,4 @@
-api package
+api
 ===========
 
 Subpackages

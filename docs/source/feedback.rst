@@ -1,4 +1,4 @@
-feedback package
+feedback
 ================
 
 Subpackages
