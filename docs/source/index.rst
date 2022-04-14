@@ -2,6 +2,9 @@
 Welcome to Clock's Backend documentation!
 =========================================
 
+
+:ref:`search` | :ref:`genindex` | :ref:`modindex`
+
 .. note::
 
    This docu is under active development.
@@ -14,12 +17,11 @@ Diese Seiten enthalten die technische Spezifikation vom zugehörigen Backend.
 
 This page shows the technical specs for the backend.
 
-:ref:`search` | :ref:`genindex` | :ref:`modindex`
 
 :ref:`development`
 -----------
 
-Please read the ref:`development` Documentation, to implement a Development environment locally.
+Please read the :ref:`development` Documentation, to implement a Development environment locally.
 
 
 

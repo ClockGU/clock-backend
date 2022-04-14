@@ -71,3 +71,12 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# prolog:
+# A string of reStructuredText that will be included at the beginning of every
+# source file that is read. This is a possible place to add substitutions that
+# should be available in every file (another being rst_epilog).
+rst_prolog = """
+.. |psf| replace:: Python Software Foundation
+"""
+
