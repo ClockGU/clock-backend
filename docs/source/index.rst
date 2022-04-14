@@ -31,6 +31,7 @@ Packages
 
 .. toctree::
 
+   development
    api
    faq
    feedback
