@@ -20,7 +20,7 @@ This page shows the technical specs for the backend.
 :ref:`development`
 -----------
 
-Please read the :ref:`development` Documentation, to implement a Development environment locally.
+Please read the:ref:`development` :ref:`development` Documentation, to implement a Development environment locally.
 
 
 
