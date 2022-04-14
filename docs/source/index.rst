@@ -1,4 +1,3 @@
-
 Welcome to Clock's Backend documentation!
 =========================================
 
@@ -26,7 +25,7 @@ Please read the :ref:`development` Documentation, to implement a Development env
 
 
 
-Packages
+Table of Contents
 --------
 
 .. toctree::

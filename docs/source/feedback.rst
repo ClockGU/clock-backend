@@ -1,4 +1,4 @@
-feedback
+feedback package
 ================
 
 .. toctree::

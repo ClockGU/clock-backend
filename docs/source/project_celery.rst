@@ -1,4 +1,4 @@
-project\_celery
+project\_celery package
 =======================
 
 .. toctree::

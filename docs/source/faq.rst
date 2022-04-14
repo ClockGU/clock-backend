@@ -1,4 +1,4 @@
-faq
+faq package
 ===========
 
 .. toctree::
