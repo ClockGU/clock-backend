@@ -1,37 +1,32 @@
 project\_celery
 =======================
 
-Submodules
-----------
+.. toctree::
+   :maxdepth: 4
 
-project\_celery.celery module
+   project\_celery
+
+celery
 -----------------------------
 
-.. automodule:: project_celery.celery
+.. automodule:: project\_celery.celery
    :members:
    :undoc-members:
    :show-inheritance:
 
-project\_celery.execute\_tasks module
+execute\_tasks
 -------------------------------------
 
-.. automodule:: project_celery.execute_tasks
+.. automodule:: project\_celery.execute\_tasks
    :members:
    :undoc-members:
    :show-inheritance:
 
-project\_celery.tasks module
+tasks
 ----------------------------
 
-.. automodule:: project_celery.tasks
+.. automodule:: project\_celery.tasks
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: project_celery
-   :members:
-   :undoc-members:
-   :show-inheritance:

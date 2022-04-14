@@ -7,7 +7,7 @@ api
    api
 
 
-admin module
+admin
 ----------------
 
 .. automodule:: api.admin
@@ -15,7 +15,7 @@ admin module
    :undoc-members:
    :show-inheritance:
 
-apps module
+apps
 ---------------
 
 .. automodule:: api.apps
@@ -23,7 +23,7 @@ apps module
    :undoc-members:
    :show-inheritance:
 
-filters module
+filters
 ------------------
 
 .. automodule:: api.filters
@@ -31,7 +31,7 @@ filters module
    :undoc-members:
    :show-inheritance:
 
-models module
+models
 -----------------
 
 .. automodule:: api.models
@@ -39,7 +39,7 @@ models module
    :undoc-members:
    :show-inheritance:
 
-permissions module
+permissions
 ----------------------
 
 .. automodule:: api.permissions
@@ -47,7 +47,7 @@ permissions module
    :undoc-members:
    :show-inheritance:
 
-serializers module
+serializers
 ----------------------
 
 .. automodule:: api.serializers
@@ -55,7 +55,7 @@ serializers module
    :undoc-members:
    :show-inheritance:
 
-urls module
+urls
 ---------------
 
 .. automodule:: api.urls
@@ -63,7 +63,7 @@ urls module
    :undoc-members:
    :show-inheritance:
 
-utilities module
+utilities
 --------------------
 
 .. automodule:: api.utilities
@@ -71,7 +71,7 @@ utilities module
    :undoc-members:
    :show-inheritance:
 
-views module
+views
 ----------------
 
 .. automodule:: api.views

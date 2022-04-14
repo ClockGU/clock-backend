@@ -1,18 +1,13 @@
 faq
 ===========
 
-Subpackages
------------
-
 .. toctree::
    :maxdepth: 4
 
    faq
 
-Submodules
-----------
 
-faq.admin module
+admin
 ----------------
 
 .. automodule:: faq.admin
@@ -20,7 +15,7 @@ faq.admin module
    :undoc-members:
    :show-inheritance:
 
-faq.apps module
+apps
 ---------------
 
 .. automodule:: faq.apps
@@ -28,7 +23,7 @@ faq.apps module
    :undoc-members:
    :show-inheritance:
 
-faq.models module
+models
 -----------------
 
 .. automodule:: faq.models
@@ -36,7 +31,7 @@ faq.models module
    :undoc-members:
    :show-inheritance:
 
-faq.serializers module
+serializers
 ----------------------
 
 .. automodule:: faq.serializers
@@ -44,7 +39,7 @@ faq.serializers module
    :undoc-members:
    :show-inheritance:
 
-faq.tests module
+tests
 ----------------
 
 .. automodule:: faq.tests
@@ -52,7 +47,7 @@ faq.tests module
    :undoc-members:
    :show-inheritance:
 
-faq.urls module
+urls
 ---------------
 
 .. automodule:: faq.urls
@@ -60,7 +55,7 @@ faq.urls module
    :undoc-members:
    :show-inheritance:
 
-faq.views module
+views
 ----------------
 
 .. automodule:: faq.views
@@ -68,10 +63,3 @@ faq.views module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: faq
-   :members:
-   :undoc-members:
-   :show-inheritance:

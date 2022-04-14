@@ -1,18 +1,13 @@
 feedback
 ================
 
-Subpackages
------------
-
 .. toctree::
    :maxdepth: 4
 
    feedback
 
-Submodules
-----------
 
-feedback.apps module
+apps
 --------------------
 
 .. automodule:: feedback.apps
@@ -20,7 +15,7 @@ feedback.apps module
    :undoc-members:
    :show-inheritance:
 
-feedback.serializers module
+serializers
 ---------------------------
 
 .. automodule:: feedback.serializers
@@ -28,7 +23,7 @@ feedback.serializers module
    :undoc-members:
    :show-inheritance:
 
-feedback.urls module
+urls
 --------------------
 
 .. automodule:: feedback.urls
@@ -36,7 +31,7 @@ feedback.urls module
    :undoc-members:
    :show-inheritance:
 
-feedback.utils module
+utils
 ---------------------
 
 .. automodule:: feedback.utils
@@ -44,7 +39,7 @@ feedback.utils module
    :undoc-members:
    :show-inheritance:
 
-feedback.views module
+views
 ---------------------
 
 .. automodule:: feedback.views
@@ -52,10 +47,3 @@ feedback.views module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: feedback
-   :members:
-   :undoc-members:
-   :show-inheritance:

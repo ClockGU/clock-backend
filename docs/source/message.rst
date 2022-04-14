@@ -1,18 +1,12 @@
 message
 ===============
 
-Subpackages
------------
-
 .. toctree::
    :maxdepth: 4
 
    message
 
-Submodules
-----------
-
-message.admin module
+admin
 --------------------
 
 .. automodule:: message.admin
@@ -20,7 +14,7 @@ message.admin module
    :undoc-members:
    :show-inheritance:
 
-message.apps module
+apps
 -------------------
 
 .. automodule:: message.apps
@@ -28,7 +22,7 @@ message.apps module
    :undoc-members:
    :show-inheritance:
 
-message.models module
+models
 ---------------------
 
 .. automodule:: message.models
@@ -36,7 +30,7 @@ message.models module
    :undoc-members:
    :show-inheritance:
 
-message.serializers module
+serializers
 --------------------------
 
 .. automodule:: message.serializers
@@ -44,7 +38,7 @@ message.serializers module
    :undoc-members:
    :show-inheritance:
 
-message.urls module
+urls
 -------------------
 
 .. automodule:: message.urls
@@ -52,18 +46,10 @@ message.urls module
    :undoc-members:
    :show-inheritance:
 
-message.views module
+views
 --------------------
 
 .. automodule:: message.views
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: message
    :members:
    :undoc-members:
    :show-inheritance:

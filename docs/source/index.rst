@@ -16,10 +16,10 @@ This page shows the technical specs for the backend.
 
 :ref:`search` | :ref:`genindex` | :ref:`modindex`
 
-:ref:`Development`
+:ref:`development`
 -----------
 
-Please read the ref:`Development` Documentation, to implement a Development environment locally.
+Please read the ref:`development` Documentation, to implement a Development environment locally.
 
 
 
