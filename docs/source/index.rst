@@ -1,10 +1,10 @@
 
-Welcome to Clock-Backend's documentation!
+Welcome to Clock's Backend documentation!
 =========================================
 
 .. note::
 
-   This project is under active development.
+   This docu is under active development.
 
 Das Projekt ClockGU verfolgt die Bereitstellung einer Softwarelösung (Clock), die Hilfskräften an der Goethe-Universität die Führung des Arbeitszeitkontos (AZK) nach den Maßgaben der aktuellen gesetzlichen Regelungen im Rahmen des Gesetz zur Regelung eines allgemeinen Mindestlohns (MiLoG) erleichtern soll.
 

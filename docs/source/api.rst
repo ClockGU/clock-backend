@@ -1,18 +1,13 @@
 api
 ===========
 
-Subpackages
------------
-
 .. toctree::
    :maxdepth: 4
 
    api
 
-Submodules
-----------
 
-api.admin module
+admin module
 ----------------
 
 .. automodule:: api.admin
@@ -20,7 +15,7 @@ api.admin module
    :undoc-members:
    :show-inheritance:
 
-api.apps module
+apps module
 ---------------
 
 .. automodule:: api.apps
@@ -28,7 +23,7 @@ api.apps module
    :undoc-members:
    :show-inheritance:
 
-api.filters module
+filters module
 ------------------
 
 .. automodule:: api.filters
@@ -36,7 +31,7 @@ api.filters module
    :undoc-members:
    :show-inheritance:
 
-api.models module
+models module
 -----------------
 
 .. automodule:: api.models
@@ -44,7 +39,7 @@ api.models module
    :undoc-members:
    :show-inheritance:
 
-api.permissions module
+permissions module
 ----------------------
 
 .. automodule:: api.permissions
@@ -52,7 +47,7 @@ api.permissions module
    :undoc-members:
    :show-inheritance:
 
-api.serializers module
+serializers module
 ----------------------
 
 .. automodule:: api.serializers
@@ -60,7 +55,7 @@ api.serializers module
    :undoc-members:
    :show-inheritance:
 
-api.urls module
+urls module
 ---------------
 
 .. automodule:: api.urls
@@ -68,7 +63,7 @@ api.urls module
    :undoc-members:
    :show-inheritance:
 
-api.utilities module
+utilities module
 --------------------
 
 .. automodule:: api.utilities
@@ -76,7 +71,7 @@ api.utilities module
    :undoc-members:
    :show-inheritance:
 
-api.views module
+views module
 ----------------
 
 .. automodule:: api.views
@@ -84,10 +79,3 @@ api.views module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: api
-   :members:
-   :undoc-members:
-   :show-inheritance:
