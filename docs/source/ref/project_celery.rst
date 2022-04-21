@@ -1,10 +1,10 @@
+.. _project-celery-package:
+
 project\_celery package
 =======================
 
-.. toctree::
-   :maxdepth: 4
 
-   project\_celery
+.. _project-celery-celery:
 
 celery
 -----------------------------
@@ -14,6 +14,9 @@ celery
    :undoc-members:
    :show-inheritance:
 
+
+.. _project-celery-execute_tasks:
+
 execute\_tasks
 -------------------------------------
 
@@ -21,6 +24,9 @@ execute\_tasks
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+.. _project-celery-tasks:
 
 tasks
 ----------------------------

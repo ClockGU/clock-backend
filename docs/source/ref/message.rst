@@ -1,10 +1,10 @@
+.. _message-package:
+
 message package
 ===============
 
-.. toctree::
-   :maxdepth: 4
 
-   message
+.. _message-admin:
 
 admin
 --------------------
@@ -14,6 +14,9 @@ admin
    :undoc-members:
    :show-inheritance:
 
+
+.. _message-apps:
+
 apps
 -------------------
 
@@ -21,6 +24,9 @@ apps
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+.. _message-models:
 
 models
 ---------------------
@@ -30,6 +36,9 @@ models
    :undoc-members:
    :show-inheritance:
 
+
+.. _message-serializers:
+
 serializers
 --------------------------
 
@@ -38,6 +47,9 @@ serializers
    :undoc-members:
    :show-inheritance:
 
+
+.. _message-urls:
+
 urls
 -------------------
 
@@ -45,6 +57,9 @@ urls
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+.. _message-views:
 
 views
 --------------------

@@ -8,39 +8,42 @@ Welcome to Clock's Backend documentation!
 
    This docu is under active development.
 
-Das Projekt ClockGU verfolgt die Bereitstellung einer Softwarelösung (Clock), die Hilfskräften an der Goethe-Universität die Führung des Arbeitszeitkontos (AZK) nach den Maßgaben der aktuellen gesetzlichen Regelungen im Rahmen des Gesetz zur Regelung eines allgemeinen Mindestlohns (MiLoG) erleichtern soll.
+The project ClockGU wants to provide a software (Clock) for (student) assitense  of the Goethe-Universität
+Frankfurt a.M. (Germany) to reduce the effort of documenting there working time account (WTA,
+german: Arbeitszeitkonto -> AZK) in the actual statutory rule of the minimum wage law
+(german: Mindestlohngesetz -> MiLoG).
 
-The project ClockGU wants to provide a software (Clock) for (student) assitense  of the Goethe-Universität Fraknfurt a.M. (Germany) to reduce the effort of documenting there working time account (WTA, german: Arbeitszeitkonto -> AZK) in the actual statutory rule of the minimum wage law (german: Mindestlohngesetz -> MiLoG).
+Here you can find the technical specs for the backend.
 
-Diese Seiten enthalten die technische Spezifikation vom zugehörigen Backend.
-
-This page shows the technical specs for the backend.
-
-
-:doc:`development`
------------
-
-Please read the :doc:`development` :ref:`development` Documentation, to implement a Development environment locally.
-
-
-
-
-Table of Contents
---------
 
 .. toctree::
+   :caption: Developer Guide
+   :name: dev_guide_toc
+   :maxdepth: 2
 
-   Developer Guide
-      Installation
-      Structure
-      Deployment
-   Reference Guide
-      api
-      faq
-      feedback
-      message
-      project_celery
-   API
+   guide/development
+   guide/installation
+   guide/deployment
+
+
+.. toctree::
+   :caption: Reference Guide
+   :name: reference_guide_toc
+   :maxdepth: 1
+
+   ref/api
+   ref/faq
+   ref/feedback
+   ref/message
+   ref/project_celery
+
+
+.. toctree::
+   :caption: API Documentation
+   :name: api_doc_toc
+   :maxdepth: 2
+
+   api/howto
 
 
 

@@ -6,7 +6,9 @@
 <a href="https://travis-ci.org/ClockGU/clock-backend"><img alt="Build Status" src="https://travis-ci.org/ClockGU/clock-backend.svg?branch=master"></a>
 <a href="https://github.com/ambv/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <a href="https://codecov.io/github/ClockGU/clock-backend?branch=master"><img alt="Coverage" src="https://codecov.io/github/ClockGU/clock-backend/coverage.svg?branch=master"></a>
+<a href="https://clock-backend.readthedocs.io/en/latest/index.html#"><img alt="docs: in progress" src="https://img.shields.io/static/v1?label=docs&message=in%20progress&color=yellow"></a>
 </p>
+
 
 ## Development
 

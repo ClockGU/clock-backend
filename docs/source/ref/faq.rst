@@ -1,80 +1,81 @@
-api package
+.. _faq-package:
+
+faq package
 ===========
 
-.. toctree::
-   :maxdepth: 4
 
-   api
-
+.. _faq-admin:
 
 admin
 ----------------
 
-.. automodule:: api.admin
+.. automodule:: faq.admin
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+.. _faq-apps:
 
 apps
 ---------------
 
-.. automodule:: api.apps
+.. automodule:: faq.apps
    :members:
    :undoc-members:
    :show-inheritance:
 
-filters
-------------------
 
-.. automodule:: api.filters
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. _faq-models:
 
 models
 -----------------
 
-.. automodule:: api.models
+.. automodule:: faq.models
    :members:
    :undoc-members:
    :show-inheritance:
 
-permissions
-----------------------
 
-.. automodule:: api.permissions
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. _faq-serializers:
 
 serializers
 ----------------------
 
-.. automodule:: api.serializers
+.. automodule:: faq.serializers
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+.. _faq-tests:
+
+tests
+----------------
+
+.. automodule:: faq.tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+.. _faq-urls:
 
 urls
 ---------------
 
-.. automodule:: api.urls
+.. automodule:: faq.urls
    :members:
    :undoc-members:
    :show-inheritance:
 
-utilities
---------------------
 
-.. automodule:: api.utilities
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. _faq-views:
 
 views
 ----------------
 
-.. automodule:: api.views
+.. automodule:: faq.views
    :members:
    :undoc-members:
    :show-inheritance:

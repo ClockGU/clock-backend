@@ -1,11 +1,10 @@
+.. _feedback-package:
+
 feedback package
 ================
 
-.. toctree::
-   :maxdepth: 4
 
-   feedback
-
+.. _fedback-apps:
 
 apps
 --------------------
@@ -15,6 +14,9 @@ apps
    :undoc-members:
    :show-inheritance:
 
+
+.. _fedback-serializers:
+
 serializers
 ---------------------------
 
@@ -22,6 +24,9 @@ serializers
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+.. _fedback-urls:
 
 urls
 --------------------
@@ -31,6 +36,9 @@ urls
    :undoc-members:
    :show-inheritance:
 
+
+.. _fedback-utils:
+
 utils
 ---------------------
 
@@ -38,6 +46,9 @@ utils
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+.. _fedback-views:
 
 views
 ---------------------
