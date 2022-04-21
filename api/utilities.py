@@ -83,6 +83,7 @@ def create_reports_for_contract(contract):
 
 def create_report_after_contract_creation(sender, instance, created, **kwargs):
     """
+    Reciever function:
     Receiver Function to be called by the post_save signal of a Contract object.
     It creates a Report object for the month when the Contract starts.
     The User might create a Contract after it already started so we also create
@@ -108,7 +109,6 @@ post_save.connect(
 
 
 def update_reports(contract, month_year):
-
     """
     Update the Reports for the given contract starting with the given month/year.
     :param contract:
@@ -147,6 +147,7 @@ def update_reports(contract, month_year):
 
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):
     """
+    Reciever function:
     After saving a Shift we need to update the corresponding Report to reflect the now
     possibly updated overall work time.
 
@@ -182,6 +183,7 @@ post_delete.connect(
 
 def update_last_used_on_contract(sender, instance, created=False, **kwargs):
     """
+    Reciever functions:
     After saving or deleting a shift set the `last_used` field of the corresponding
     contract.
     :param sender:

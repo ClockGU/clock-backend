@@ -30,12 +30,17 @@ Table of Contents
 
 .. toctree::
 
-   development
-   api
-   faq
-   feedback
-   message
-   project_celery
+   Developer Guide
+      Installation
+      Structure
+      Deployment
+   Reference Guide
+      api
+      faq
+      feedback
+      message
+      project_celery
+   API
 
 
 
