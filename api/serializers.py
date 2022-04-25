@@ -88,6 +88,7 @@ class UserSerializer(RestrictModificationModelSerializer):
             "modified_at",
             "last_login",
             "is_superuser",
+            "onboarding_passed",
         ]
         ref_name = "user-gdpr-serializers"
 
@@ -109,6 +110,7 @@ class DjoserUserSerializer(serializers.Serializer):
             "modified_at",
             "last_login",
             "is_superuser",
+            "onboarding_passed",
         ]
 
 
