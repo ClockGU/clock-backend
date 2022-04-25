@@ -107,6 +107,7 @@ class User(AbstractUser):
     date_joined = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     dsgvo_accepted = models.BooleanField(default=False)
+    onboarding_passed = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "personal_number"]
