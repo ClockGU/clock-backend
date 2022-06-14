@@ -1,7 +1,9 @@
 from datetime import timedelta
 
+import weasyprint
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
@@ -234,7 +236,13 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         """
         template = get_template(template_name)
         html = template.render(content_dict)
-        pdf = pdf_from_string(html, False, options=pdf_options)
+        # pdf = pdf_from_string(html, False, options=pdf_options)
+        css_tailwind = finders.find("api/css/tailwind.out.css")
+        picture = finders.find("api/GU_Logo_blau_weiß_RGB.png")
+        pdf = weasyprint.HTML(string=html).write_pdf(stylesheets=[css_tailwind],
+                                                     attachments=[picture],
+                                                     presentational_hints=True,
+                                                     optimize_size=('fonts', 'images'))
         return pdf
 
     def get_shifts_to_export(self, report_object):
