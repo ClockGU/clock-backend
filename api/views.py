@@ -60,7 +60,7 @@ class ContractViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         if self.request.user.is_superuser and self.request.headers.get(
-                "checkoutuser", False
+            "checkoutuser", False
         ):
             user = User.objects.get(id=self.request.headers["checkoutuser"])
         queryset = super(ContractViewSet, self).get_queryset()
@@ -101,7 +101,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         if self.request.user.is_superuser and self.request.headers.get(
-                "checkoutuser", False
+            "checkoutuser", False
         ):
             user = User.objects.get(id=self.request.headers["checkoutuser"])
         queryset = super(ShiftViewSet, self).get_queryset()
@@ -139,7 +139,7 @@ class ClockedInShiftViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         if self.request.user.is_superuser and self.request.headers.get(
-                "checkoutuser", False
+            "checkoutuser", False
         ):
             user = User.objects.get(id=self.request.headers["checkoutuser"])
         instance = get_object_or_404(self.get_queryset(), user__id=user.id)
@@ -159,7 +159,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         """
         user = self.request.user
         if self.request.user.is_superuser and self.request.headers.get(
-                "checkoutuser", False
+            "checkoutuser", False
         ):
             user = User.objects.get(id=self.request.headers["checkoutuser"])
         queryset = super(ReportViewSet, self).get_queryset()
@@ -239,11 +239,14 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         # pdf = pdf_from_string(html, False, options=pdf_options)
         css_tailwind = finders.find("api/css/tailwind.out.css")
         picture = finders.find("api/GU_Logo_blau_weiß_RGB.png")
-        pdf = weasyprint.HTML(string=html, base_url=self.request.build_absolute_uri()).write_pdf(
+        pdf = weasyprint.HTML(
+            string=html, base_url=self.request.build_absolute_uri()
+        ).write_pdf(
             stylesheets=[css_tailwind],
             attachments=[picture],
             presentational_hints=True,
-            optimize_size=('fonts', 'images'))
+            optimize_size=("fonts", "images"),
+        )
         return pdf
 
     def get_shifts_to_export(self, report_object):
@@ -443,7 +446,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["net_worktime"] = relativedelta_to_string(
             relativedelta(
                 seconds=time_worked_seconds
-                        - carryover["previous_month"].total_seconds()
+                - carryover["previous_month"].total_seconds()
             )
         )
 
@@ -482,12 +485,12 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
         # Check if there is a not-planned shift which hasn't been locked.
         if Shift.objects.filter(
-                contract=report_object.contract,
-                started__year=previous_report_month_year.year,
-                started__month=previous_report_month_year.month,
-                user=report_object.user,
-                was_reviewed=True,
-                locked=False,
+            contract=report_object.contract,
+            started__year=previous_report_month_year.year,
+            started__month=previous_report_month_year.month,
+            user=report_object.user,
+            was_reviewed=True,
+            locked=False,
         ).exists():
             raise serializers.ValidationError(
                 _(
