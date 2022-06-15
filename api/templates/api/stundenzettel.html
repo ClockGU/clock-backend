@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="de">
 {% load stundenzettel_utility %}
+{% load static %}
 {% get_calendar general.year general.month as calendar %}
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arbeitszeitkonto</title>
-    <link rel="stylesheet" href="/app/api/static/api/css/tailwind.out.css">
+    <link rel="stylesheet" href="{% static 'api/css/tailwind.out.css' %}">
 </head>
 <body>
 <style>
@@ -35,7 +36,7 @@
 
 <div class="flex h-full">
     <div class="whitespace-no-wrap w-1/3 mt-2 pl-4 text-sm h-full">
-        <img class="mt-6" style="height: 100px" src="/api/static/api/GU_Logo_blau_weiß_RGB.png">
+        <img class="mt-6" style="height: 100px" src="{% static '/api/GU_Logo_blau_weiß_RGB.png' %}">
         <div class="w-full mt-6 text-blue-600 text-xl font-bold">
             Stundenzettel
         </div>
@@ -76,8 +77,11 @@
                 <span class="front-bold text-gray-700">{{ general.next_month_carry_over }}</span>
             </div>
         </div>
-        <div class="absolute bottom-0">
-            <span class="font-bold text-blue-600 text-xs">Legende</span>
+        <div class="absolute text-xs" style="bottom: 95px">
+            <div class="flex-none font-bold text-blue-600">
+                Legende
+            </div>
+            {#            <span class="font-bold text-blue-600 text-xs">Legende</span>#}
             <ul class="list-none text-xs">
                 <li>Feiertag (F)</li>
                 <li>Urlaub (U)</li>
