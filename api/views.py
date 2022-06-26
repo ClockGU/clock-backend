@@ -200,22 +200,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :param kwargs:
         :return:
         """
-
-        options = {
-            "page-size": "Letter",
-            "margin-top": "30px",
-            "margin-right": "5px",
-            "margin-bottom": "5px",
-            "margin-left": "15px",
-            "encoding": "UTF-8",
-            "no-outline": None,
-        }
         report = self.get_object()
         aggregated_content = self.aggregate_export_content(report_object=report)
         pdf = self.compile_pdf(
             template_name="api/stundenzettel.html",
             content_dict=aggregated_content,
-            pdf_options=options,
         )
         response = HttpResponse(pdf, content_type="application/pdf")
         response[
@@ -226,17 +215,15 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return response
 
-    def compile_pdf(self, template_name, content_dict, pdf_options):
+    def compile_pdf(self, template_name, content_dict):
         """
         Compile a PDF given a Django HTML-Tmeplate name as string, a content dictionary and possible options.
         :param template_name:
         :param content_dict:
-        :param pdf_options:
         :return:
         """
         template = get_template(template_name)
         html = template.render(content_dict)
-        # pdf = pdf_from_string(html, False, options=pdf_options)
         css_tailwind = finders.find("api/css/tailwind.out.css")
         picture = finders.find("api/GU_Logo_blau_weiß_RGB.png")
         pdf = weasyprint.HTML(
