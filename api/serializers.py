@@ -1,4 +1,3 @@
-import itertools
 import json
 from calendar import monthrange
 
@@ -323,17 +322,17 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         # new shift is in between old shifts
         return total_break - (stopped - started)
 
-    def validate(self, attrs):
-        started = attrs.get("started")
-        stopped = attrs.get("stopped")
-        contract = attrs.get("contract")
-        was_reviewed = attrs.get("was_reviewed", False)
+    def validate(self, data):
+        started = data.get("started")
+        stopped = data.get("stopped")
+        contract = data.get("contract")
+        was_reviewed = data.get("was_reviewed", False)
 
         if self.instance and (self.partial or self.context["request"].method == "PUT"):
-            started = attrs.get("started", self.instance.started)
-            stopped = attrs.get("stopped", self.instance.stopped)
-            contract = attrs.get("contract", self.instance.contract)
-            was_reviewed = attrs.get("was_reviewed", self.instance.was_reviewed)
+            started = data.get("started", self.instance.started)
+            stopped = data.get("stopped", self.instance.stopped)
+            contract = data.get("contract", self.instance.contract)
+            was_reviewed = data.get("was_reviewed", self.instance.was_reviewed)
 
         this_day = Shift.objects.filter(
             contract=contract,
@@ -402,6 +401,27 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     f"Total worktime ({total_worktime}) is > 6h and therefor is a break >= 30min needed, "
                     f"currently total break is {total_break}")
 
+        # all shifts of one day are not greater than 10h
+        if this_day.exists():
+            # this_day.objects.all().aggregate(Sum('started'))
+            new_worktime = stopped - started
+            old_worktime = this_day.aggregate(
+                total_work_time=Coalesce(
+                    Sum(F("stopped") - F("started"), output_field=DurationField()),
+                    datetime.timedelta(0),
+                )
+            )[
+                "total_work_time"
+            ]
+            # raise Exception(worktime, datetime.timedelta(hours=10))
+            if new_worktime + old_worktime > datetime.timedelta(hours=10):
+                raise exceptions.ValidationError(
+                    _(
+                        f"It is only allowed to save 10h shifts per day "
+                        f"(clocked: {new_worktime + old_worktime} vs allowed: {datetime.timedelta(hours=10)})"
+                    )
+                )
+
         # If Shift is considered as scheduled
         if not was_reviewed:
             # A scheduled Shift has to start in the future
@@ -422,7 +442,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )
 
-        return attrs
+        return data
 
     def validate_contract(self, contract):
         if not (contract.user == self.context["request"].user):
