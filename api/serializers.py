@@ -3,7 +3,7 @@ from calendar import monthrange
 
 from more_itertools import pairwise
 from dateutil.relativedelta import relativedelta
-from django.db.models import DurationField, F, Sum
+from django.db.models import DurationField, F, Sum, Q
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from pytz import datetime, utc
@@ -175,7 +175,6 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
             # check if new end date is more than 6 month apart from the old one
             if relativedelta(end_date, self.instance.end_date).months >= 6:
-
                 raise serializers.ValidationError(
                     "A contract's end date can not be modified"
                     "extended for more than 6 months."
@@ -504,6 +503,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         :param validated_data:
         :return:
         """
+
         # To update the old report if we change the contract we need
         # to check this
         contract_changed = bool(validated_data.get("contract"))
