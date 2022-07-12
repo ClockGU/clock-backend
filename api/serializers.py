@@ -2,6 +2,8 @@ import json
 from calendar import monthrange
 
 from dateutil.relativedelta import relativedelta
+from django.db.models import DurationField, F, Sum
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
@@ -294,6 +296,81 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "locked": {"read_only": True},
         }
 
+    @staticmethod
+    def min_break_validation(started: datetime, stopped: datetime, contract: str, uuid: str = None):
+        """
+        Validate minimum breaks per day:
+        - total worktime < 6h --> ne break needed
+        - total worktime >= 6h --> minimal 30min break needed
+        - total worktime >= 9h --> minimal 45min break needed
+
+        :param started:
+        :param stopped:
+        :param contract:
+        :param uuid:
+        """
+        if uuid is not None:
+            this_day = Shift.objects.filter(
+                contract=contract,
+                started__month=started.month,
+                started__year=started.year,
+                started__day=started.day,
+            ).exclude(id=uuid)
+        else:
+            this_day = Shift.objects.filter(
+                contract=contract,
+                started__month=started.month,
+                started__year=started.year,
+                started__day=started.day,
+            )
+
+        new_worktime = stopped - started
+        old_worktime = this_day.aggregate(
+            total_work_time=Coalesce(
+                Sum(F("stopped") - F("started"), output_field=DurationField()),
+                datetime.timedelta(0),
+            )
+        )[
+            "total_work_time"
+        ]
+
+        total_worktime = old_worktime + new_worktime
+        total_break = ShiftSerializer.calculate_break(started=started, stopped=stopped, shifts_queryset=this_day)
+        # raise Exception(f"total_break: {total_break}")
+        if total_worktime > datetime.timedelta(hours=9):
+            # Needed break >= 45min in total
+            if this_day.exists() is False or total_break < datetime.timedelta(minutes=45):
+                raise exceptions.ValidationError(
+                    f"Total worktime ({total_worktime}) is > 9h and therefor is a break >= 45min needed, "
+                    f"currently total break is {total_break}")
+
+        if total_worktime > datetime.timedelta(hours=6):
+            # Needed break >= 30min in total
+            if this_day.exists() is False or total_break < datetime.timedelta(minutes=30):
+                raise exceptions.ValidationError(
+                    f"Total worktime ({total_worktime}) is > 6h and therefor is a break >= 30min needed, "
+                    f"currently total break is {total_break}")
+
+    @staticmethod
+    def calculate_break(started: datetime, stopped: datetime, shifts_queryset):
+        shifts_queryset = shifts_queryset.order_by("started")
+
+        total_break = datetime.timedelta()
+
+        if len(shifts_queryset) > 1:
+            for i in range(1, shifts_queryset.__len__()):
+                total_break += shifts_queryset[i].started - shifts_queryset[i-1].stopped
+
+        # new shift is after old shifts
+        if started > shifts_queryset[len(shifts_queryset) - 1].stopped:
+            return (started - shifts_queryset[len(shifts_queryset) - 1].stopped) + total_break
+        # new shift is before old shifts
+        if shifts_queryset[0].started > stopped:
+            return (shifts_queryset[0].started - stopped) + total_break
+
+        # new shift is in between old shifts
+        return total_break - (stopped - started)
+
     def validate(self, attrs):
         started = attrs.get("started")
         stopped = attrs.get("stopped")
@@ -396,6 +473,11 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         :return:
         """
         tags = validated_data.pop("tags", None)
+        self.min_break_validation(
+            started=validated_data.get("started"),
+            stopped=validated_data.get("stopped"),
+            contract=validated_data.get("contract"),
+        )
         created_object = super(ShiftSerializer, self).create(validated_data)
         if tags:
             assert isinstance(tags, list)
@@ -419,6 +501,12 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         :param validated_data:
         :return:
         """
+
+        self.min_break_validation(
+            started=validated_data.get("started"),
+            stopped=validated_data.get("stopped"),
+            contract=validated_data.get("contract"),
+            uuid=instance.id)
 
         # To update the old report if we change the contract we need
         # to check this
