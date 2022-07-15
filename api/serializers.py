@@ -353,6 +353,16 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
     @staticmethod
     def calculate_break(started: datetime, stopped: datetime, shifts_queryset):
+        """
+        Calculation of total breaks between shifts.
+
+        @param started:
+        @param stopped:
+        @param shifts_queryset:
+        @return:
+        """
+        if shifts_queryset.exists() is False:
+            return datetime.timedelta(seconds=0)
         shifts_queryset = shifts_queryset.order_by("started")
 
         total_break = datetime.timedelta()
