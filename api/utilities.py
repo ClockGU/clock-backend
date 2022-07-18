@@ -121,9 +121,10 @@ def update_reports(contract, month_year):
     )
     carry_over_worktime = datetime.timedelta(minutes=contract.initial_carryover_minutes)
     if previous_report.exists():
-        carry_over_worktime = (
-            previous_report.first().worktime - previous_report.first().debit_worktime
-        )
+        carry_over_worktime = Report.calculate_carryover(previous_report.first())
+        # carry_over_worktime = (
+        #     previous_report.first().worktime - previous_report.first().debit_worktime
+        # )
     # Loop over all Reports starting from month in which the created/update shift
     # took place.
     for report in Report.objects.filter(contract=contract, month_year__gte=month_year):
@@ -140,9 +141,10 @@ def update_reports(contract, month_year):
         )[
             "total_work_time"
         ]
+        carry_over_worktime = Report.get_carry_over_last_month(report)
         report.worktime = carry_over_worktime + total_work_time
         report.save()
-        carry_over_worktime = report.worktime - report.debit_worktime
+        # carry_over_worktime = report.worktime - report.debit_worktime
 
 
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):

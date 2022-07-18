@@ -1,5 +1,3 @@
-import itertools
-import json
 from calendar import monthrange
 
 from more_itertools import pairwise
@@ -553,27 +551,15 @@ class ReportSerializer(RestrictModificationModelSerializer):
             "user": {"write_only": True},
         }
 
-    def calculate_carryover(self, report_object):
-        return report_object.worktime - report_object.debit_worktime
-
     def get_debit_worktime(self, obj):
         return obj.debit_worktime
 
     def get_carry_over_last_month(self, obj):
-        try:
-            last_mon_report_object = Report.objects.get(
-                contract=obj.contract,
-                month_year=obj.month_year - relativedelta(months=1),
-            )
-
-        except Report.DoesNotExist:
-            return datetime.timedelta(minutes=obj.contract.initial_carryover_minutes)
-
-        return self.calculate_carryover(last_mon_report_object)
+        return Report.get_carry_over_last_month(obj)
 
     # TODO: We are currently calculating the carry_over from the previous month twice.
     def get_net_worktime(self, obj):
-        return obj.worktime - self.get_carry_over_last_month(obj)
+        return obj.worktime + Report.get_carry_over_last_month(obj)
 
     def get_carry_over_next_month(self, obj):
-        return self.calculate_carryover(obj)
+        return Report.calculate_carryover(obj)
