@@ -1,6 +1,7 @@
 import uuid
 from calendar import monthrange
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
@@ -234,6 +235,26 @@ class Report(models.Model):
             return timedelta(minutes=minutes)
 
         return timedelta(minutes=self.contract.minutes)
+
+    @staticmethod
+    def calculate_carryover(report_object):
+        carryover = report_object.worktime - report_object.debit_worktime
+        if carryover.total_seconds() > 0 and carryover > report_object.debit_worktime * 1.5:
+            carryover = report_object.debit_worktime * 1.5
+        return carryover
+
+    @staticmethod
+    def get_carry_over_last_month(obj):
+        try:
+            last_mon_report_object = Report.objects.get(
+                contract=obj.contract,
+                month_year=obj.month_year - relativedelta(months=1),
+            )
+
+        except Report.DoesNotExist:
+            return timedelta(minutes=obj.contract.initial_carryover_minutes)
+
+        return Report.calculate_carryover(last_mon_report_object)
 
     class Meta:
         ordering = ["month_year"]
