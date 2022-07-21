@@ -400,12 +400,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             relativedelta(seconds=time_worked_seconds)
         )
 
-        # carryover = {
-        #     "previous_month": self.calculate_carryover_worktime(
-        #         report_object, next_month=False
-        #     ),
-        #     "next_month": self.calculate_carryover_worktime(report_object),
-        # }
         carryover = {
             "previous_month": report_object.carryover_previous_month,
             "next_month": report_object.carryover,
