@@ -1,9 +1,8 @@
-import json
 from calendar import monthrange
 
 from more_itertools import pairwise
 from dateutil.relativedelta import relativedelta
-from django.db.models import DurationField, F, Sum, Q
+from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from pytz import datetime, utc
@@ -370,6 +369,17 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             locked=True,
         ).exists()
 
+        # validate that date is not a sunday
+        if started.date().weekday() == 6:
+            raise serializers.ValidationError(
+                _("Shifts are not allowed on sundays")
+            )
+
+        if vacation_sick_shifts_this_day.exists():
+            raise serializers.ValidationError(
+                _("There can just be one V/S Shift per day")
+            )
+
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
             raise serializers.ValidationError(
@@ -489,7 +499,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         :param validated_data:
         :return:
         """
-
         # To update the old report if we change the contract we need
         # to check this
         contract_changed = bool(validated_data.get("contract"))
