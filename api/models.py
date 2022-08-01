@@ -238,8 +238,8 @@ class Report(models.Model):
 
     def calculate_carryover(self):
         carryover = self.worktime - self.debit_worktime
-        if carryover.total_seconds() > 0 and carryover > self.debit_worktime * 1.5:
-            carryover = self.debit_worktime * 1.5
+        if carryover.total_seconds() > 0 and carryover > self.debit_worktime * 0.5:
+            carryover = self.debit_worktime * 0.5
         return carryover
 
     def get_carry_over_last_month(self):
