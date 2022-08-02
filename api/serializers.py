@@ -155,7 +155,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 )
 
             if Shift.objects.filter(
-                contract=self.instance, started__lt=start_date
+                    contract=self.instance, started__lt=start_date
             ).exists():
                 raise serializers.ValidationError(
                     _(
@@ -164,7 +164,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     )
                 )
             if Shift.objects.filter(
-                contract=self.instance, started__gt=end_date
+                    contract=self.instance, started__gt=end_date
             ).exists():
                 raise serializers.ValidationError(
                     _(
@@ -251,12 +251,12 @@ class ContractSerializer(RestrictModificationModelSerializer):
         )
         if not self.partial:
             carryover_target_date_changed = (
-                validated_data.get("carryover_target_date")
-                != instance.carryover_target_date
+                    validated_data.get("carryover_target_date")
+                    != instance.carryover_target_date
             )
             initial_carryover_minutes_changed = (
-                validated_data.get("initial_carryover_minutes")
-                != instance.initial_carryover_minutes
+                    validated_data.get("initial_carryover_minutes")
+                    != instance.initial_carryover_minutes
             )
 
         return_instance = super(ContractSerializer, self).update(
