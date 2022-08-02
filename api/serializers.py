@@ -1,6 +1,5 @@
 from calendar import monthrange
 
-from more_itertools import pairwise
 from dateutil.relativedelta import relativedelta
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
