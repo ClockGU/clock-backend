@@ -324,6 +324,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         started = data.get("started")
         stopped = data.get("stopped")
         contract = data.get("contract")
+        type = data.get("type")
         was_reviewed = data.get("was_reviewed", False)
         vacation_sick_shifts_this_day = Shift.objects.filter(
             contract=contract,
@@ -338,13 +339,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             stopped = data.get("stopped", self.instance.stopped)
             contract = data.get("contract", self.instance.contract)
             was_reviewed = data.get("was_reviewed", self.instance.was_reviewed)
-
-        if self.instance and (self.partial or self.context["request"].method == "PUT"):
-            started = attrs.get("started", self.instance.started)
-            stopped = attrs.get("stopped", self.instance.stopped)
-            contract = attrs.get("contract", self.instance.contract)
-            was_reviewed = attrs.get("was_reviewed", self.instance.was_reviewed)
-            vacation_sick_shifts_this_day = vacation_sick_shifts_this_day.exclude(id=self.instance.id)
 
         this_day = Shift.objects.filter(
             contract=contract,
@@ -394,6 +388,19 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             raise serializers.ValidationError(
                 _("There can just be one V/S Shift per day")
             )
+
+        # validate that there is no normal shift this day if new shift is a vacation or sick shift
+        if type in ('sk', 'vn'):
+            other_shifts_this_day = Shift.objects.filter(
+                contract=contract,
+                started__year=started.year,
+                started__month=started.month,
+                started__day=started.day
+            ).exists()
+            if other_shifts_this_day:
+                raise serializers.ValidationError(
+                    _("Cannot add a vacation or sick shift to a workday with other shifts.")
+                )
 
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
