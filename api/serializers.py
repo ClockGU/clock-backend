@@ -296,20 +296,20 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "locked": {"read_only": True},
         }
 
-    @staticmethod
-    def min_break_validation(started: datetime, stopped: datetime, contract: str, uuid: str = None):
+    def min_break_validation(self, data):
         """
         Validate minimum breaks per day:
         - total worktime < 6h --> ne break needed
         - total worktime >= 6h --> minimal 30min break needed
         - total worktime >= 9h --> minimal 45min break needed
 
-        :param started:
-        :param stopped:
-        :param contract:
-        :param uuid:
+        :param data:
         """
-        if uuid is not None:
+        started = data.get("started")
+        stopped = data.get("stopped")
+        contract = data.get("contract")
+        if self.instance:
+            uuid = self.instance.id
             this_day = Shift.objects.filter(
                 contract=contract,
                 started__month=started.month,
@@ -335,8 +335,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         ]
 
         total_worktime = old_worktime + new_worktime
-        total_break = ShiftSerializer.calculate_break(started=started, stopped=stopped, shifts_queryset=this_day)
-        # raise Exception(f"total_break: {total_break}")
+        total_break = self.calculate_break(started=started, stopped=stopped, shifts_queryset=this_day)
         if total_worktime > datetime.timedelta(hours=9):
             # Needed break >= 45min in total
             if this_day.exists() is False or total_break < datetime.timedelta(minutes=45):
@@ -351,8 +350,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     f"Total worktime ({total_worktime}) is > 6h and therefor is a break >= 30min needed, "
                     f"currently total break is {total_break}")
 
-    @staticmethod
-    def calculate_break(started: datetime, stopped: datetime, shifts_queryset):
+    def calculate_break(self, started: datetime, stopped: datetime, shifts_queryset):
         """
         Calculation of total breaks between shifts.
 
@@ -483,11 +481,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         :return:
         """
         tags = validated_data.pop("tags", None)
-        self.min_break_validation(
-            started=validated_data.get("started"),
-            stopped=validated_data.get("stopped"),
-            contract=validated_data.get("contract"),
-        )
+        self.min_break_validation(validated_data)
         created_object = super(ShiftSerializer, self).create(validated_data)
         if tags:
             assert isinstance(tags, list)
@@ -512,11 +506,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         :return:
         """
 
-        self.min_break_validation(
-            started=validated_data.get("started"),
-            stopped=validated_data.get("stopped"),
-            contract=validated_data.get("contract"),
-            uuid=instance.id)
+        self.min_break_validation(validated_data)
 
         # To update the old report if we change the contract we need
         # to check this
