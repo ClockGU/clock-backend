@@ -7,6 +7,7 @@ from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
+import holidays
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
@@ -401,6 +402,13 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 raise serializers.ValidationError(
                     _("Cannot add a vacation or sick shift to a workday with other shifts.")
                 )
+
+        # validate feirtage is just clackable on a feiertag
+        de_he_holidays = holidays.country_holidays('DE', subdiv='HE')
+        if started.strftime("%d/%m/%Y") in de_he_holidays and type is not 'bh':
+            raise serializers.ValidationError(
+                _("On holidays there can just be clocked shifts with type holiday/Feiertag")
+            )
 
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
