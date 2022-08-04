@@ -14,7 +14,7 @@ class Command(BaseCommand):
         parser.add_argument("user_id", type=str)
 
     def handle(self, *args, **options):
-        user = User.objects.get(options["user_id"])
+        user = User.objects.get(id=options["user_id"])
 
         if user is None:
             raise CommandError("User ID is not defined.")
