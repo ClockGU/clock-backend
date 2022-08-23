@@ -1633,7 +1633,7 @@ test = ["pytest"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "57b5e6fd3f39d4fbee9379246ed9e7f0ff3382a58a3ad47cb01ee96e1c58d023"
+content-hash = "50308e397a52a77716487771303f72bf249d6362fa18914369d1a782e0b718c9"
 
 [metadata.files]
 alabaster = [
