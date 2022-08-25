@@ -555,11 +555,11 @@ class ReportSerializer(RestrictModificationModelSerializer):
         return obj.debit_worktime
 
     def get_carry_over_last_month(self, obj):
-        return obj.get_carry_over_last_month()
+        return obj.carryover_previous_month
 
     # TODO: We are currently calculating the carry_over from the previous month twice.
     def get_net_worktime(self, obj):
         return obj.worktime
 
     def get_carry_over_next_month(self, obj):
-        return obj.calculate_carryover()
+        return obj.carryover
