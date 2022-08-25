@@ -2,6 +2,7 @@ import itertools
 import json
 from calendar import monthrange
 
+from more_itertools import pairwise
 from dateutil.relativedelta import relativedelta
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
@@ -312,7 +313,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
         total_break = datetime.timedelta()
 
-        for shift, shift_next in itertools.pairwise(shifts_queryset):
+        for shift, shift_next in pairwise(shifts_queryset):
             total_break += shift_next.started - shift.stopped
 
         # new shift is after old shifts
