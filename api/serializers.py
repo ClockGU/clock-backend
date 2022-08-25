@@ -403,13 +403,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     _("Cannot add a vacation or sick shift to a workday with other shifts.")
                 )
 
-        # validate feirtage is just clackable on a feiertag
-        de_he_holidays = holidays.country_holidays('DE', subdiv='HE')
-        if started.strftime("%d/%m/%Y") in de_he_holidays and type is not 'bh':
-            raise serializers.ValidationError(
-                _("On holidays there can just be clocked shifts with type holiday/Feiertag")
-            )
-
         # validate that started and stopped are on the same day
         if not (started.date() == stopped.date()):
             raise serializers.ValidationError(
@@ -468,6 +461,16 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )
         return data
+
+    def validated_started(self, started):
+        # validate feirtage is just clockable on a feiertag
+        de_he_holidays = holidays.country_holidays('DE', subdiv='HE')
+        if started.strftime("%d/%m/%Y") in de_he_holidays and type is not 'bh':
+            raise serializers.ValidationError(
+                _("On holidays there can just be clocked shifts with type holiday/Feiertag")
+            )
+
+        return started
 
     def validate_contract(self, contract):
         if not (contract.user == self.context["request"].user):
