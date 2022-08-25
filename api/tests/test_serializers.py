@@ -634,7 +634,7 @@ class TestReportSerializer:
             contract=contract_start_mid_january,
             month_year=contract_start_mid_january.start_date.replace(day=1),
         )
-        assert ReportSerializer(rep).data["carry_over_next_month"] == "-10:19"
+        assert ReportSerializer(rep).data["carryover"] == "-10:19"
 
     @pytest.mark.django_db
     @pytest.mark.freeze_time("2020-02-01")
@@ -649,20 +649,4 @@ class TestReportSerializer:
             contract=contract_start_mid_january,
             month_year=contract_start_mid_january.end_date.replace(day=1),
         )
-        assert ReportSerializer(rep).data["carry_over_last_month"] == "-10:19"
-
-    @pytest.mark.django_db
-    @pytest.mark.freeze_time("2020-02-01")
-    def test_net_worktime(self, contract_start_mid_january):
-        """
-        Testing that the net_worktime for the next month after the start in the middle of the month is
-        1+(16/31) times the debit_worktime (assuming no shifts in both months).
-        :param contract_start_mid_january:
-        :return:
-        """
-        rep = Report.objects.get(
-            contract=contract_start_mid_january,
-            month_year=contract_start_mid_january.end_date.replace(day=1),
-        )
-
-        assert ReportSerializer(rep).data["net_worktime"] == "00:00"
+        assert ReportSerializer(rep).data["carryover_previous_month"] == "-10:19"

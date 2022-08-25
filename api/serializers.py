@@ -29,13 +29,10 @@ class TagsSerializerField(serializers.Field):
         return data
 
 
-class TimedeltaSerializerMethodField(serializers.SerializerMethodField):
+class TimedeltaField(serializers.Field):
     def to_representation(self, value):
-        return_value = super(TimedeltaSerializerMethodField, self).to_representation(
-            value
-        )
         return relativedelta_to_string(
-            relativedelta(seconds=return_value.total_seconds())
+            relativedelta(seconds=value.total_seconds())
         )
 
 
@@ -534,10 +531,10 @@ class ReportSerializer(RestrictModificationModelSerializer):
     ReadOnlyViewSet and therefore will never perform a create or update.
     """
 
-    debit_worktime = TimedeltaSerializerMethodField()
-    net_worktime = TimedeltaSerializerMethodField()
-    carry_over_last_month = TimedeltaSerializerMethodField()
-    carry_over_next_month = TimedeltaSerializerMethodField()
+    debit_worktime = TimedeltaField()
+    worktime = TimedeltaField()
+    carryover_previous_month = TimedeltaField()
+    carryover = TimedeltaField()
 
     class Meta:
         model = Report
@@ -550,16 +547,3 @@ class ReportSerializer(RestrictModificationModelSerializer):
             "modified_by": {"write_only": True},
             "user": {"write_only": True},
         }
-
-    def get_debit_worktime(self, obj):
-        return obj.debit_worktime
-
-    def get_carry_over_last_month(self, obj):
-        return obj.carryover_previous_month
-
-    # TODO: We are currently calculating the carry_over from the previous month twice.
-    def get_net_worktime(self, obj):
-        return obj.worktime
-
-    def get_carry_over_next_month(self, obj):
-        return obj.carryover
