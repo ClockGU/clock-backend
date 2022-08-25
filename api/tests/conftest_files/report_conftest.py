@@ -91,7 +91,7 @@ def january_report_object(
     create_n_report_objects, user_object, contract_ending_in_february
 ):
     """
-    This fixture creates one report object for February.
+    This fixture creates one report object for January.
     :param create_n_report_objects:
     :param user_object:
     :param contract_ending_in_february:
