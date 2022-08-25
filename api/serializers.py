@@ -1,3 +1,4 @@
+import itertools
 import json
 from calendar import monthrange
 
