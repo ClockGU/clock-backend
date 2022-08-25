@@ -330,24 +330,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             }
         return content
 
-    # def calculate_carryover_worktime(self, report_object, next_month=True):
-    #     # Calculate carryover from last month
-    #     report_to_carry = report_object
-    #     if not next_month:
-    #         try:
-    #             report_to_carry = Report.objects.get(
-    #                 contract=report_object.contract,
-    #                 month_year=report_object.month_year - relativedelta(months=1),
-    #             )
-    #         except Report.DoesNotExist:
-    #             # We are looking at the first report of a contract. Return the
-    #             # initial_carryover_minutes as timedelta.
-    #             return timedelta(
-    #                 minutes=report_object.contract.initial_carryover_minutes
-    #             )
-    #     td = report_to_carry.worktime - report_to_carry.debit_worktime
-    #     return td
-
     def check_for_overlapping_shifts(self, shift_queryset):
         """
         Check the given Queryset for possible overlapping shifts and raise a Validation error
@@ -419,8 +401,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
         carryover = {
-            "previous_month": report_object.get_carry_over_last_month(),
-            "next_month": report_object.calculate_carryover(),
+            "previous_month": report_object.carryover_previous_month,
+            "next_month": report_object.carryover,
         }
         content["last_month_carry_over"] = relativedelta_to_string(
             relativedelta(seconds=carryover["previous_month"].total_seconds())

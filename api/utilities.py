@@ -131,10 +131,9 @@ def update_reports(contract, month_year):
         )[
             "total_work_time"
         ]
-        carry_over_worktime = report.get_carry_over_last_month()
+        carry_over_worktime = report.carryover_previous_month
         report.worktime = carry_over_worktime + total_work_time
         report.save()
-        # carry_over_worktime = report.worktime - report.debit_worktime
 
 
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):

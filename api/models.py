@@ -236,13 +236,15 @@ class Report(models.Model):
 
         return timedelta(minutes=self.contract.minutes)
 
-    def calculate_carryover(self):
+    @property
+    def carryover(self):
         carryover = self.worktime - self.debit_worktime
         if carryover.total_seconds() > 0 and carryover > self.debit_worktime * 0.5:
             carryover = self.debit_worktime * 0.5
         return carryover
 
-    def get_carry_over_last_month(self):
+    @property
+    def carryover_previous_month(self):
         try:
             last_mon_report_object = Report.objects.get(
                 contract=self.contract,
@@ -252,7 +254,7 @@ class Report(models.Model):
         except Report.DoesNotExist:
             return timedelta(minutes=self.contract.initial_carryover_minutes)
 
-        return last_mon_report_object.calculate_carryover()
+        return last_mon_report_object.carryover
 
     class Meta:
         ordering = ["month_year"]
