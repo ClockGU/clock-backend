@@ -355,6 +355,14 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         total_worktime = old_worktime + new_worktime
         total_break = self.calculate_break(started=started, stopped=stopped, shifts_queryset=this_day)
 
+        if new_worktime + old_worktime > datetime.timedelta(hours=10):
+            raise exceptions.ValidationError(
+                _(
+                    f"It is not allowed to save more than 10h total worktime per day "
+                    f"(clocked: {new_worktime + old_worktime} vs allowed: {datetime.timedelta(hours=10)})"
+                )
+            )
+
         locked = Shift.objects.filter(
             contract=contract,
             started__month=started.month,
@@ -400,27 +408,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     f"Total worktime ({total_worktime}) is > 6h and therefor is a break >= 30min needed, "
                     f"currently total break is {total_break}")
 
-        # all shifts of one day are not greater than 10h
-        if this_day.exists():
-            # this_day.objects.all().aggregate(Sum('started'))
-            new_worktime = stopped - started
-            old_worktime = this_day.aggregate(
-                total_work_time=Coalesce(
-                    Sum(F("stopped") - F("started"), output_field=DurationField()),
-                    datetime.timedelta(0),
-                )
-            )[
-                "total_work_time"
-            ]
-            # raise Exception(worktime, datetime.timedelta(hours=10))
-            if new_worktime + old_worktime > datetime.timedelta(hours=10):
-                raise exceptions.ValidationError(
-                    _(
-                        f"It is only allowed to save 10h shifts per day "
-                        f"(clocked: {new_worktime + old_worktime} vs allowed: {datetime.timedelta(hours=10)})"
-                    )
-                )
-
         # If Shift is considered as scheduled
         if not was_reviewed:
             # A scheduled Shift has to start in the future
@@ -440,7 +427,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     "A Shift can't be created or changed if the month has already been locked."
                 )
             )
-
         return data
 
     def validate_contract(self, contract):
