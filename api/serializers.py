@@ -564,6 +564,41 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
             "user": {"write_only": True},
         }
 
+    def validate(self, data):
+        started = data.get("started")
+        contract = data.get("contract")
+        vacation_sick_shifts_this_day = Shift.objects.filter(
+            contract=contract,
+            started__year=started.year,
+            started__month=started.month,
+            started__day=started.day,
+            type__in=('sk', 'vn')
+        )
+
+        # validate that there is already one vacation or sick shift this day
+        if vacation_sick_shifts_this_day.exists():
+            raise serializers.ValidationError(
+                _("Live clocking is not allowed on days where already a vacation or a sick shift is clocked.")
+            )
+
+        return data
+
+    def validate_started(self, started):
+        # no Live clocking on Feiertage/holidays
+        de_he_holidays = country_holidays('DE', subdiv='HE')
+        if started.strftime("%d/%m/%Y") in de_he_holidays:
+            raise serializers.ValidationError(
+                _("Live clocking is not allowed on feiertage/ bank holidays.")
+            )
+
+        # no live clocking on a sunday
+        if started.date().weekday() == 6:
+            raise serializers.ValidationError(
+                _("Live clocking is not allowed on sundays")
+            )
+
+        return started
+
     def validate_contract(self, contract):
         if not (contract.user == self.context["request"].user):
             raise serializers.ValidationError(
