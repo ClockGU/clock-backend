@@ -7,7 +7,7 @@ from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
-import holidays
+from holidays import country_holidays
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
@@ -325,7 +325,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         started = data.get("started")
         stopped = data.get("stopped")
         contract = data.get("contract")
-        type = data.get("type")
+        shift_type = data.get("type")
         was_reviewed = data.get("was_reviewed", False)
         vacation_sick_shifts_this_day = Shift.objects.filter(
             contract=contract,
@@ -340,6 +340,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             stopped = data.get("stopped", self.instance.stopped)
             contract = data.get("contract", self.instance.contract)
             was_reviewed = data.get("was_reviewed", self.instance.was_reviewed)
+            vacation_sick_shifts_this_day = vacation_sick_shifts_this_day.exclude(id=self.instance.id)
 
         this_day = Shift.objects.filter(
             contract=contract,
@@ -384,13 +385,20 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 _("Shifts are not allowed on sundays")
             )
 
-        # validate that there is just one vacation or sick shift per day
+        # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
+        de_he_holidays = country_holidays('DE', subdiv='HE')
+        if started.strftime("%d/%m/%Y") in de_he_holidays and shift_type is not 'bh':
+            raise serializers.ValidationError(
+                _("On holidays there can just be clocked shifts with type holiday/Feiertag ")
+            )
+
+        # validate that there is already one vacation or sick shift this day
         if vacation_sick_shifts_this_day.exists():
             raise serializers.ValidationError(
                 _("There can just be one V/S Shift per day")
             )
 
-        # validate that there is no normal shift this day if new shift is a vacation or sick shift
+        # validate that there is no standard shift this day if new shift is a vacation or sick shift
         if type in ('sk', 'vn'):
             other_shifts_this_day = Shift.objects.filter(
                 contract=contract,
@@ -461,16 +469,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )
         return data
-
-    def validated_started(self, started):
-        # validate feirtage is just clockable on a feiertag
-        de_he_holidays = holidays.country_holidays('DE', subdiv='HE')
-        if started.strftime("%d/%m/%Y") in de_he_holidays and type is not 'bh':
-            raise serializers.ValidationError(
-                _("On holidays there can just be clocked shifts with type holiday/Feiertag")
-            )
-
-        return started
 
     def validate_contract(self, contract):
         if not (contract.user == self.context["request"].user):
