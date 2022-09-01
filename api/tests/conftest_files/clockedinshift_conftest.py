@@ -19,13 +19,14 @@ def valid_clockedinshift_json(user_object, contract_object):
     """
     user = str(user_object.id)
     data = {
-        "started": datetime.datetime(2019, 1, 29, 14, tzinfo=utc).isoformat(),
+        "started": datetime.datetime(2019, 4, 23, 14, tzinfo=utc).isoformat(),
         "contract": str(contract_object.id),
         "user": user,
         "created_by": user,
         "modified_by": user,
     }
     return data
+
 
 @pytest.fixture
 def valid_clockedinshift_sunday_json(user_object, contract_object):
@@ -46,6 +47,7 @@ def valid_clockedinshift_sunday_json(user_object, contract_object):
     }
     return data
 
+
 @pytest.fixture
 def valid_clockedinshift_holiday_json(user_object, contract_object):
     """
@@ -65,6 +67,7 @@ def valid_clockedinshift_holiday_json(user_object, contract_object):
     }
     return data
 
+
 @pytest.fixture
 def valid_clockedinshift_querydict(valid_clockedinshift_json):
     """
@@ -76,6 +79,7 @@ def valid_clockedinshift_querydict(valid_clockedinshift_json):
     qdict.update(valid_clockedinshift_json)
     return qdict
 
+
 @pytest.fixture
 def valid_clockedinshift_sunday_querydict(valid_clockedinshift_sunday_json):
     """
@@ -86,6 +90,7 @@ def valid_clockedinshift_sunday_querydict(valid_clockedinshift_sunday_json):
     qdict = QueryDict("", mutable=True)
     qdict.update(valid_clockedinshift_sunday_json)
     return qdict
+
 
 @pytest.fixture
 def valid_clockedinshift_holiday_querydict(valid_clockedinshift_holiday_json):

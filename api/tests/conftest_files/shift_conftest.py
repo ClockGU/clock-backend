@@ -543,6 +543,29 @@ def shift_content_aggregation_merges_shifts(
 
 
 @pytest.fixture
+def valid_vacation_shift(
+        user_object, contract_object, create_n_shift_objects
+):
+    """
+    This fixture creates a vacation shift at 23.04.2019.
+    :param user_object:
+    :param contract_object:
+    :param create_n_shift_objects:
+    :return:
+    """
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 4, 23, 14).astimezone(tz),
+        stopped=datetime.datetime(2019, 4, 23, 18).astimezone(tz),
+        type="vn",
+    )
+    return Shift.objects.filter(
+        user=user_object, contract=contract_object, started__month=4, started__day=2019).order_by("started")
+
+
+@pytest.fixture
 def two_shifts_with_one_vacation_shift(
     user_object, contract_object, create_n_shift_objects
 ):
