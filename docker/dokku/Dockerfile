@@ -25,7 +25,7 @@ RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
 # Copy pyproject.toml, poetry.lock and install python dependencies
 COPY --chown=app:app pyproject.toml poetry.lock /
 RUN curl -sSL https://install.python-poetry.org | python
-RUN PATH="$PATH:$HOME/.poetry/bin" && poetry install
+RUN PATH="$POETRY_HOME/venv/bin/poetry" && poetry install
 
 # Copy dokku specific files to the project root
 COPY --chown=app:app docker/dokku/* /app/
