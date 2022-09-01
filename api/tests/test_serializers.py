@@ -595,7 +595,6 @@ class TestClockedInShiftSerializer:
         The ClockedInShiftSerializer is tested if a valid JSON passes validation.
         :param valid_clockedinshift_querydict:
         :param plain_request_object:
-        :return:
         """
         ClockedInShiftSerializer(
             data=valid_clockedinshift_querydict,
@@ -611,11 +610,59 @@ class TestClockedInShiftSerializer:
         if the provided contract does not belong to the provided user.
         :param clockedinshift_invalid_contract_json:
         :param plain_request_object:
-        :return:
         """
         with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=clockedinshift_invalid_contract_json,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_invalid_clocking_on_day_with_vacation_shift(
+            self, valid_vacation_shift, valid_clockedinshift_querydict, plain_request_object
+    ):
+        """
+        The  ClockedInShiftSerializer is tested whether it raises a Validation
+        Error if there is already a vacation shift on this day.
+        :param valid_vacation_shift:
+        :param valid_clockedinshift_querydict:
+        :param plain_request_object:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ClockedInShiftSerializer(
+                data=valid_clockedinshift_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_invalid_clocking_on_sunday(
+        self, valid_clockedinshift_sunday_querydict, plain_request_object
+    ):
+        """
+        The  ClockedInShiftSerializer is tested whether it raises a Validation
+        Error if the clocked Shift is on a sunday.
+        :param valid_clockedinshift_sunday_querydict:
+        :param plain_request_object:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ClockedInShiftSerializer(
+                data=valid_clockedinshift_sunday_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_invalid_clocking_on_holiday(
+        self, valid_clockedinshift_holiday_querydict, plain_request_object
+    ):
+        """
+        The  ClockedInShiftSerializer is tested whether it raises a Validation
+        Error if the clocked Shift is on a holiday.
+        :param valid_clockedinshift_holiday_querydict:
+        :param plain_request_object:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ClockedInShiftSerializer(
+                data=valid_clockedinshift_holiday_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 

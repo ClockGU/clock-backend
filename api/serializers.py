@@ -327,11 +327,13 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         contract = data.get("contract")
         shift_type = data.get("type")
         was_reviewed = data.get("was_reviewed", False)
-        vacation_sick_shifts_this_day = Shift.objects.filter(
+
+        this_day = Shift.objects.filter(
             contract=contract,
-            started__year=started.year,
-            started__month=started.month,
-            started__day=started.day,
+            started__date=started,
+        )
+
+        vacation_sick_shifts_this_day = this_day.filter(
             type__in=('sk', 'vn')
         )
 
@@ -341,11 +343,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             contract = data.get("contract", self.instance.contract)
             was_reviewed = data.get("was_reviewed", self.instance.was_reviewed)
             vacation_sick_shifts_this_day = vacation_sick_shifts_this_day.exclude(id=self.instance.id)
-
-        this_day = Shift.objects.filter(
-            contract=contract,
-            started__date=started,
-        )
 
         if self.instance:
             uuid = self.instance.id
@@ -569,13 +566,11 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
         contract = data.get("contract")
         vacation_sick_shifts_this_day = Shift.objects.filter(
             contract=contract,
-            started__year=started.year,
-            started__month=started.month,
-            started__day=started.day,
+            started__date=started,
             type__in=('sk', 'vn')
         )
 
-        # validate that there is already one vacation or sick shift this day
+        # validate that there is not already one vacation or sick shift this day
         if vacation_sick_shifts_this_day.exists():
             raise serializers.ValidationError(
                 _("Live clocking is not allowed on days where already a vacation or a sick shift is clocked.")
