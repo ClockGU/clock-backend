@@ -312,10 +312,10 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             total_break += shift_next.started - shift.stopped
 
         # new shift is after old shifts
-        if started > shifts_queryset.last().stopped:
+        if started >= shifts_queryset.last().stopped:
             return (started - shifts_queryset.last().stopped) + total_break
         # new shift is before old shifts
-        if stopped < shifts_queryset.first().started:
+        if stopped <= shifts_queryset.first().started:
             return (shifts_queryset.first().started - stopped) + total_break
 
         # new shift is in between old shifts
