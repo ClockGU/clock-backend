@@ -328,9 +328,21 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         shift_type = data.get("type")
         was_reviewed = data.get("was_reviewed", False)
 
-        this_day = Shift.objects.filter(
+        # locked is read_only and marks whether a shift was exported and hence not modifyable anymore
+        if Shift.objects.filter(
             contract=contract,
-            started__date=started,
+            started__month=started.month,
+            started__year=started.year,
+            locked=True,
+        ).exists():
+            raise exceptions.PermissionDenied(
+                _(
+                    "A Shift can't be created or changed if the month has already been locked."
+                )
+            )
+
+        this_day = Shift.objects.filter(
+            contract=contract
         )
 
         vacation_sick_shifts_this_day = this_day.filter(
@@ -368,13 +380,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     f"(clocked: {new_worktime + old_worktime} vs allowed: {datetime.timedelta(hours=10)})"
                 )
             )
-
-        locked = Shift.objects.filter(
-            contract=contract,
-            started__month=started.month,
-            started__year=started.year,
-            locked=True,
-        ).exists()
 
         # validate that date is not a sunday
         if started.date().weekday() == 6:
@@ -458,13 +463,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 raise serializers.ValidationError(
                     _("A shift set in the future must be labeled as scheduled.")
                 )
-        # locked is read_only and marks whether a shift was exported and hence not modifyable anymore
-        if locked:
-            raise exceptions.PermissionDenied(
-                _(
-                    "A Shift can't be created or changed if the month has already been locked."
-                )
-            )
         return data
 
     def validate_contract(self, contract):
