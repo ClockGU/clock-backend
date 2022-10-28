@@ -341,6 +341,16 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )
 
+        # validate that started and stopped are on the same day
+        if not (started.date() == stopped.date()):
+            raise serializers.ValidationError(
+                _("A shift must start and end on the same day.")
+            )
+        if started > stopped:
+            raise serializers.ValidationError(
+                _("The start of a shift must be set before its end.")
+            )
+
         this_day = Shift.objects.filter(
             contract=contract
         )
@@ -412,16 +422,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 raise serializers.ValidationError(
                     _("Cannot add a vacation or sick shift to a workday with other shifts.")
                 )
-
-        # validate that started and stopped are on the same day
-        if not (started.date() == stopped.date()):
-            raise serializers.ValidationError(
-                _("A shift must start and end on the same day.")
-            )
-        if started > stopped:
-            raise serializers.ValidationError(
-                _("The start of a shift must be set before its end.")
-            )
 
         if not (contract.carryover_target_date <= started.date() <= contract.end_date):
             raise serializers.ValidationError(
