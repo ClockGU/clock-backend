@@ -384,86 +384,90 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     "A shift must belong to a contract which is active on the respective date."
                 )
             )
+        
+        if was_reviewed:
 
-        new_worktime = stopped - started
-        old_worktime = this_day.aggregate(
-            total_work_time=Coalesce(
-                Sum(F("stopped") - F("started"), output_field=DurationField()),
-                datetime.timedelta(0),
-            )
-        )[
-            "total_work_time"
-        ]
-
-        total_worktime = old_worktime + new_worktime
-        total_break = self.calculate_break(started=started, stopped=stopped, shifts_queryset=this_day)
-
-        if new_worktime + old_worktime > datetime.timedelta(hours=10):
-            raise exceptions.ValidationError(
-                _(
-                    f"It is not allowed to save more than 10h total worktime per day "
-                    f"(clocked: {new_worktime + old_worktime} vs allowed: {datetime.timedelta(hours=10)})"
-                )
-            )
-
-        # validate that date is not a sunday
-        if started.date().weekday() == 6:
-            raise serializers.ValidationError(
-                _("Shifts are not allowed on sundays")
-            )
-
-        # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
-        de_he_holidays = country_holidays('DE', subdiv='HE')
-        if started.strftime("%d/%m/%Y") in de_he_holidays and shift_type is not 'bh':
-            raise serializers.ValidationError(
-                _("On holidays there can just be clocked shifts with type holiday/Feiertag ")
-            )
-
-        # validate that there is already one vacation or sick shift this day
-        if vacation_sick_shifts_this_day.exists():
-            raise serializers.ValidationError(
-                _("There can just be one V/S Shift per day")
-            )
-
-        # validate that there is no standard shift this day if new shift is a vacation or sick shift
-        if type in ('sk', 'vn'):
-            other_shifts_this_day = Shift.objects.filter(
-                contract=contract,
-                started__year=started.year,
-                started__month=started.month,
-                started__day=started.day
-            ).exists()
-            if other_shifts_this_day:
+            # validate that date is not a sunday
+            if started.date().weekday() == 6:
                 raise serializers.ValidationError(
-                    _("Cannot add a vacation or sick shift to a workday with other shifts.")
+                    _("Shifts are not allowed on sundays")
                 )
 
-        if total_worktime > datetime.timedelta(hours=9):
-            # Needed break >= 45min in total
-            if not this_day.exists() or total_break < datetime.timedelta(minutes=45):
+            # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
+            de_he_holidays = country_holidays('DE', subdiv='HE')
+            if started.strftime("%d/%m/%Y") in de_he_holidays and shift_type is not 'bh':
+                raise serializers.ValidationError(
+                    _("On holidays there can just be clocked shifts with type holiday/Feiertag ")
+                )
+
+            # validate that there is already one vacation or sick shift this day
+            if vacation_sick_shifts_this_day.exists():
+                raise serializers.ValidationError(
+                    _("There can just be one V/S Shift per day")
+                )
+
+            # validate that there is no standard shift this day if new shift is a vacation or sick shift
+            if type in ('sk', 'vn'):
+                other_shifts_this_day = Shift.objects.filter(
+                    contract=contract,
+                    started__year=started.year,
+                    started__month=started.month,
+                    started__day=started.day
+                ).exists()
+                if other_shifts_this_day:
+                    raise serializers.ValidationError(
+                        _("Cannot add a vacation or sick shift to a workday with other shifts.")
+                    )
+
+            this_day_reviewed = this_day.filter(was_reviewed=True)
+            
+            new_worktime = stopped - started
+            old_worktime = this_day_reviewed.aggregate(
+                total_work_time=Coalesce(
+                    Sum(F("stopped") - F("started"), output_field=DurationField()),
+                    datetime.timedelta(0),
+                )
+            )[
+                "total_work_time"
+            ]
+
+            total_worktime = old_worktime + new_worktime
+            total_break = self.calculate_break(started=started, stopped=stopped, shifts_queryset=this_day_reviewed)
+
+            if new_worktime + old_worktime > datetime.timedelta(hours=10):
                 raise exceptions.ValidationError(
-                    f"Total worktime ({total_worktime}) is > 9h and therefor is a break >= 45min needed, "
-                    f"currently total break is {total_break}")
-
-        if total_worktime > datetime.timedelta(hours=6):
-            # Needed break >= 30min in total
-            if not this_day.exists() or total_break < datetime.timedelta(minutes=30):
-                raise exceptions.ValidationError(
-                    f"Total worktime ({total_worktime}) is > 6h and therefor is a break >= 30min needed, "
-                    f"currently total break is {total_break}")
-
-        # If Shift is considered as scheduled
-        if not was_reviewed:
-            # A scheduled Shift has to start in the future
-            if not started > datetime.datetime.now().astimezone(utc):
-                raise serializers.ValidationError(
-                    _("A scheduled shift must start or end in the future.")
+                    _(
+                        f"It is not allowed to save more than 10h total worktime per day "
+                        f"(clocked: {new_worktime + old_worktime} vs allowed: {datetime.timedelta(hours=10)})"
+                    )
                 )
-        else:
-            if started > datetime.datetime.now().astimezone(utc):
-                raise serializers.ValidationError(
-                    _("A shift set in the future must be labeled as scheduled.")
-                )
+
+            if total_worktime > datetime.timedelta(hours=9):
+                # Needed break >= 45min in total
+                if not this_day.exists() or total_break < datetime.timedelta(minutes=45):
+                    raise exceptions.ValidationError(
+                        f"Total worktime ({total_worktime}) is > 9h and therefor is a break >= 45min needed, "
+                        f"currently total break is {total_break}")
+
+            if total_worktime > datetime.timedelta(hours=6):
+                # Needed break >= 30min in total
+                if not this_day.exists() or total_break < datetime.timedelta(minutes=30):
+                    raise exceptions.ValidationError(
+                        f"Total worktime ({total_worktime}) is > 6h and therefor is a break >= 30min needed, "
+                        f"currently total break is {total_break}")
+
+            # If Shift is considered as scheduled
+            if not was_reviewed:
+                # A scheduled Shift has to start in the future
+                if not started > datetime.datetime.now().astimezone(utc):
+                    raise serializers.ValidationError(
+                        _("A scheduled shift must start or end in the future.")
+                    )
+            else:
+                if started > datetime.datetime.now().astimezone(utc):
+                    raise serializers.ValidationError(
+                        _("A shift set in the future must be labeled as scheduled.")
+                    )
         return data
 
     def validate_contract(self, contract):
