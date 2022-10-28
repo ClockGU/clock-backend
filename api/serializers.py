@@ -5,8 +5,6 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
-from holidays import country_holidays
-from more_itertools import pairwise
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 from holidays import country_holidays
