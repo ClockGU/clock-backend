@@ -434,6 +434,16 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             total_worktime = old_worktime + new_worktime
             total_break = self.calculate_break(started=started, stopped=stopped, shifts_queryset=this_day_reviewed)
 
+            if total_worktime > datetime.timedelta(hours=9):
+                # Needed break >= 45min in total
+                if not this_day.exists() or total_break < datetime.timedelta(minutes=45):
+                    new_worktime = new_worktime - datetime.timedelta(minutes=45) + total_break
+
+            if total_worktime > datetime.timedelta(hours=6):
+                # Needed break >= 30min in total
+                if not this_day.exists() or total_break < datetime.timedelta(minutes=30):
+                    new_worktime = new_worktime - datetime.timedelta(minutes=30) + total_break
+
             if new_worktime + old_worktime > datetime.timedelta(hours=10):
                 raise exceptions.ValidationError(
                     _(
@@ -442,32 +452,18 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     )
                 )
 
-            if total_worktime > datetime.timedelta(hours=9):
-                # Needed break >= 45min in total
-                if not this_day.exists() or total_break < datetime.timedelta(minutes=45):
-                    raise exceptions.ValidationError(
-                        f"Total worktime ({total_worktime}) is > 9h and therefor is a break >= 45min needed, "
-                        f"currently total break is {total_break}")
-
-            if total_worktime > datetime.timedelta(hours=6):
-                # Needed break >= 30min in total
-                if not this_day.exists() or total_break < datetime.timedelta(minutes=30):
-                    raise exceptions.ValidationError(
-                        f"Total worktime ({total_worktime}) is > 6h and therefor is a break >= 30min needed, "
-                        f"currently total break is {total_break}")
-
-            # If Shift is considered as scheduled
-            if not was_reviewed:
-                # A scheduled Shift has to start in the future
-                if not started > datetime.datetime.now().astimezone(utc):
-                    raise serializers.ValidationError(
-                        _("A scheduled shift must start or end in the future.")
-                    )
-            else:
-                if started > datetime.datetime.now().astimezone(utc):
-                    raise serializers.ValidationError(
-                        _("A shift set in the future must be labeled as scheduled.")
-                    )
+        # # If Shift is considered as scheduled
+        # if not was_reviewed:
+        #     # A scheduled Shift has to start in the future
+        #     if not started > datetime.datetime.now().astimezone(utc):
+        #         raise serializers.ValidationError(
+        #             _("A scheduled shift must start or end in the future.")
+        #         )
+        # else:
+        #     if started > datetime.datetime.now().astimezone(utc):
+        #         raise serializers.ValidationError(
+        #             _("A shift set in the future must be labeled as scheduled.")
+        #         )
         return data
 
     def validate_contract(self, contract):
