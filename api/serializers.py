@@ -1,5 +1,6 @@
 from calendar import monthrange
 
+from more_itertools import pairwise
 from dateutil.relativedelta import relativedelta
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
@@ -8,6 +9,7 @@ from holidays import country_holidays
 from more_itertools import pairwise
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
+from holidays import country_holidays
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
@@ -32,7 +34,9 @@ class TagsSerializerField(serializers.Field):
 
 class TimedeltaField(serializers.Field):
     def to_representation(self, value):
-        return relativedelta_to_string(relativedelta(seconds=value.total_seconds()))
+        return relativedelta_to_string(
+            relativedelta(seconds=value.total_seconds())
+        )
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
