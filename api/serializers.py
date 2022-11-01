@@ -384,8 +384,19 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     "A shift must belong to a contract which is active on the respective date."
                 )
             )
+
+        # # If Shift is considered as scheduled
+        # if was_reviewed and if started > datetime.datetime.now().astimezone(utc):
+        #         raise serializers.ValidationError(
+        #             _("A shift set in the future must be labeled as scheduled.")
+        #         )
         
         if was_reviewed:
+
+            if started > datetime.datetime.now().astimezone(utc):
+                raise serializers.ValidationError(
+                    _("A shift set in the future can not be reviewed.")
+                )
 
             # validate that date is not a sunday
             if started.date().weekday() == 6:
@@ -451,19 +462,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                         f"(clocked: {new_worktime + old_worktime} vs allowed: {datetime.timedelta(hours=10)})"
                     )
                 )
-
-        # # If Shift is considered as scheduled
-        # if not was_reviewed:
-        #     # A scheduled Shift has to start in the future
-        #     if not started > datetime.datetime.now().astimezone(utc):
-        #         raise serializers.ValidationError(
-        #             _("A scheduled shift must start or end in the future.")
-        #         )
-        # else:
-        #     if started > datetime.datetime.now().astimezone(utc):
-        #         raise serializers.ValidationError(
-        #             _("A shift set in the future must be labeled as scheduled.")
-        #         )
         return data
 
     def validate_contract(self, contract):
@@ -473,6 +471,16 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             )
 
         return contract
+
+    def validate_type(self, type):
+        """
+        Validate that the type of a shift is 'st', 'sk', 'vn' or 'bh'.
+        """
+        if type not in ('st', 'sk', 'vn', 'bh'):
+            raise serializers.ValidationError(
+                _(
+                    "The shift type must be 'st', 'sk', 'vn' or 'bh'.")
+            )
 
     def validate_tags(self, tags):
         """

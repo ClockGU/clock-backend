@@ -255,6 +255,33 @@ def shift_is_planned_but_started_in_past_json_querydict(
 
 
 @pytest.fixture
+def shift_on_a_sunday_json(valid_shift_json):
+    """
+    This fixture creates an JSON dictionary on a sunday, 27st of January in 2019.
+    :param valid_shift_json:
+    :return: Dict
+    """
+    valid_shift_json["started"] = datetime.datetime(2019, 1, 27, 14).astimezone(tz).isoformat()
+    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 27, 16).astimezone(tz).isoformat()
+    return valid_shift_json
+
+
+@pytest.fixture
+def shift_on_a_sunday_json_querydict(
+    shift_on_a_sunday_json
+):
+    """
+    This fixture creates a QueryDict out of the shift_on_a_sunday_json.
+    :param shift_on_a_sunday_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(shift_on_a_sunday_json)
+    return qdict
+
+
+
+@pytest.fixture
 def create_n_shift_objects():
     """
     This fixture resembles a shift object factory.
