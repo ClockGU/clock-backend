@@ -1,4 +1,5 @@
 import datetime
+import pstats
 
 import pytest
 from dateutil.relativedelta import relativedelta
@@ -404,20 +405,22 @@ class TestShiftSerializerValidation:
         ).is_valid(raise_exception=True)
 
     @pytest.mark.django_db
-    def test_stopped_before_started_validation(
-        self, stopped_before_started_querydict, plain_request_object
+    def test_shift_not_createable_if_allready_exported_exist(
+        self,
+        valid_shift_querydict,
+        plain_request_object,
+        test_shift_creation_if_allready_exported,
     ):
         """
-        The  ShiftSerializer is tested whether it raises a Validation
-        if the started and ended datetimes are causally incorrect.
-        :param stopped_before_started_querydict:
+        Test that we can not create a Shift if allready exported Shifts exist for this month.
+        :param valid_shift_querydict:
         :param plain_request_object:
+        :param test_shift_creation_if_allready_exported:
         :return:
         """
-        with pytest.raises(serializers.ValidationError):
+        with pytest.raises(exceptions.PermissionDenied):
             ShiftSerializer(
-                data=stopped_before_started_querydict,
-                context={"request": plain_request_object},
+                data=valid_shift_querydict, context={"request": plain_request_object}
             ).is_valid(raise_exception=True)
 
     @pytest.mark.django_db
@@ -434,6 +437,23 @@ class TestShiftSerializerValidation:
         with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=stopped_on_next_day_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_stopped_before_started_validation(
+        self, stopped_before_started_querydict, plain_request_object
+    ):
+        """
+        The  ShiftSerializer is tested whether it raises a Validation
+        if the started and ended datetimes are causally incorrect.
+        :param stopped_before_started_querydict:
+        :param plain_request_object:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=stopped_before_started_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
@@ -488,6 +508,42 @@ class TestShiftSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    @freeze_time("2019-01-01 00:00:00+00:00")
+    @pytest.mark.django_db
+    def test_shift_in_future_was_reviewed_fails(
+        self, shift_starting_in_future_was_reviewed_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=shift_starting_in_future_was_reviewed_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+    
+    def test_reviewed_shift_on_sunday_not_allowed(self, shift_on_a_sunday_json_querydict, plain_request_object):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=shift_on_a_sunday_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    def test_reviewed_shift_on_holiday_typ_holliday_allowed(self):
+        pass
+
+    def test_reviewed_shift_on_holiday_typ_normal_not_allowed(self):
+        pass
+
+    def test_reviewed_vacation_shift_day_exclusive(self):
+        pass
+
+    def test_reviewed_sick_shift_day_exclusive(self):
+        pass
+
+    def test_reducing_day_worktime_by_needed_breaktime(self):
+        pass
+
+    def test_creating_shift_in_not_owned_contract_fails(self):
+        pass
+
     @pytest.mark.django_db
     def test_type_validation(self, wrong_type_querydict, plain_request_object):
         """
@@ -514,47 +570,6 @@ class TestShiftSerializerValidation:
         with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=tags_not_string_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
-    @freeze_time("2019-02-10 00:00:00+00:00")
-    @pytest.mark.django_db
-    def test_shift_in_past_as_planned_fails(
-        self, shift_is_planned_but_started_in_past_json_querydict, plain_request_object
-    ):
-        with pytest.raises(serializers.ValidationError):
-            ShiftSerializer(
-                data=shift_is_planned_but_started_in_past_json_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
-    @pytest.mark.django_db
-    def test_shift_not_createable_if_allready_exported_exist(
-        self,
-        valid_shift_querydict,
-        plain_request_object,
-        test_shift_creation_if_allready_exported,
-    ):
-        """
-        Test that we can not create a Shift if allready exported Shifts exist for this month.
-        :param valid_shift_querydict:
-        :param plain_request_object:
-        :param test_shift_creation_if_allready_exported:
-        :return:
-        """
-        with pytest.raises(exceptions.PermissionDenied):
-            ShiftSerializer(
-                data=valid_shift_querydict, context={"request": plain_request_object}
-            ).is_valid(raise_exception=True)
-
-    @freeze_time("2019-01-01 00:00:00+00:00")
-    @pytest.mark.django_db
-    def test_shift_in_future_was_reviewed_fails(
-        self, shift_starting_in_future_was_reviewed_querydict, plain_request_object
-    ):
-        with pytest.raises(serializers.ValidationError):
-            ShiftSerializer(
-                data=shift_starting_in_future_was_reviewed_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
