@@ -1,5 +1,4 @@
 import datetime
-import json
 
 import pytest
 from django.conf import settings
@@ -261,15 +260,17 @@ def shift_on_a_sunday_json(valid_shift_json):
     :param valid_shift_json:
     :return: Dict
     """
-    valid_shift_json["started"] = datetime.datetime(2019, 1, 27, 14).astimezone(tz).isoformat()
-    valid_shift_json["stopped"] = datetime.datetime(2019, 1, 27, 16).astimezone(tz).isoformat()
+    valid_shift_json["started"] = (
+        datetime.datetime(2019, 1, 27, 14).astimezone(tz).isoformat()
+    )
+    valid_shift_json["stopped"] = (
+        datetime.datetime(2019, 1, 27, 16).astimezone(tz).isoformat()
+    )
     return valid_shift_json
 
 
 @pytest.fixture
-def shift_on_a_sunday_json_querydict(
-    shift_on_a_sunday_json
-):
+def shift_on_a_sunday_json_querydict(shift_on_a_sunday_json):
     """
     This fixture creates a QueryDict out of the shift_on_a_sunday_json.
     :param shift_on_a_sunday_json:
@@ -279,6 +280,149 @@ def shift_on_a_sunday_json_querydict(
     qdict.update(shift_on_a_sunday_json)
     return qdict
 
+
+@pytest.fixture
+def normal_shift_on_a_holiday_json(valid_shift_json):
+    """
+    This fixture creates an JSON dictionary on a holiday in Hessen Germnay, 1st of January in 2019.
+    :param valid_shift_json:
+    :return: Dict
+    """
+    valid_shift_json["started"] = (
+        datetime.datetime(2019, 1, 1, 14).astimezone(tz).isoformat()
+    )
+    valid_shift_json["stopped"] = (
+        datetime.datetime(2019, 1, 1, 16).astimezone(tz).isoformat()
+    )
+    return valid_shift_json
+
+
+@pytest.fixture
+def normal_shift_on_a_holiday_json_querydict(normal_shift_on_a_holiday_json):
+    """
+    This fixture creates a QueryDict out of the shift_on_a_holiday_json.
+    :param normal_shift_on_a_holiday_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(normal_shift_on_a_holiday_json)
+    return qdict
+
+
+@pytest.fixture
+def vacation_shift_json(valid_shift_json):
+    """
+    This fixture creates an JSON dictionary on a 29th of January in 2019 as a vacation shift.
+    :param valid_shift_json:
+    :return: Dict
+    """
+    valid_shift_json["started"] = (
+        datetime.datetime(2019, 1, 29, 16).astimezone(tz).isoformat()
+    )
+    valid_shift_json["stopped"] = (
+        datetime.datetime(2019, 1, 29, 18).astimezone(tz).isoformat()
+    )
+    valid_shift_json["type"] = "vn"
+    return valid_shift_json
+
+
+@pytest.fixture
+def vacation_shift_json_querydict(vacation_shift_json):
+    """
+    This fixture creates a QueryDict out of the vacation_shift_json.
+    :param vacation_shift_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(vacation_shift_json)
+    return qdict
+
+
+@pytest.fixture
+def sick_shift_json(valid_shift_json):
+    """
+    This fixture creates an JSON dictionary on a 29th of January in 2019 as a sick shift.
+    :param valid_shift_json:
+    :return: Dict
+    """
+    valid_shift_json["started"] = (
+        datetime.datetime(2019, 1, 29, 16).astimezone(tz).isoformat()
+    )
+    valid_shift_json["stopped"] = (
+        datetime.datetime(2019, 1, 29, 18).astimezone(tz).isoformat()
+    )
+    valid_shift_json["type"] = "sk"
+    return valid_shift_json
+
+
+@pytest.fixture
+def sick_shift_json_querydict(sick_shift_json):
+    """
+    This fixture creates a QueryDict out of the sick_shift_json.
+    :param sick_shift_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(sick_shift_json)
+    return qdict
+
+
+@pytest.fixture
+def ten_hour_fortyfive_minutes_shift_json(valid_shift_json):
+    """
+    This fixture creates an JSON dictionary on a 29th of January in 2019 as a shift over 10h 45min.
+    :param valid_shift_json:
+    :return: Dict
+    """
+    valid_shift_json["started"] = (
+        datetime.datetime(2019, 1, 29, 7).astimezone(tz).isoformat()
+    )
+    valid_shift_json["stopped"] = (
+        datetime.datetime(2019, 1, 29, 17, 45).astimezone(tz).isoformat()
+    )
+    return valid_shift_json
+
+
+@pytest.fixture
+def ten_hour_fortyfive_minutes_shift_json_querydict(
+    ten_hour_fortyfive_minutes_shift_json
+):
+    """
+    This fixture creates a QueryDict out of the ten_hour_fortyfive_minutes_shift_json.
+    :param ten_hour_fortyfive_minutes_shift_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(ten_hour_fortyfive_minutes_shift_json)
+    return qdict
+
+
+@pytest.fixture
+def eleven_hour_shift_json(valid_shift_json):
+    """
+    This fixture creates an JSON dictionary on a 29th of January in 2019 as a shift over 11h.
+    :param valid_shift_json:
+    :return: Dict
+    """
+    valid_shift_json["started"] = (
+        datetime.datetime(2019, 1, 29, 7).astimezone(tz).isoformat()
+    )
+    valid_shift_json["stopped"] = (
+        datetime.datetime(2019, 1, 29, 17, 50).astimezone(tz).isoformat()
+    )
+    return valid_shift_json
+
+
+@pytest.fixture
+def eleven_hour_shift_json_querydict(eleven_hour_shift_json):
+    """
+    This fixture creates a QueryDict out of the eleven_hour_shift_json.
+    :param eleven_hour_shift_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(eleven_hour_shift_json)
+    return qdict
 
 
 @pytest.fixture
@@ -570,9 +714,7 @@ def shift_content_aggregation_merges_shifts(
 
 
 @pytest.fixture
-def valid_vacation_shift(
-        user_object, contract_object, create_n_shift_objects
-):
+def valid_vacation_shift(user_object, contract_object, create_n_shift_objects):
     """
     This fixture creates a vacation shift at 23.04.2019.
     :param user_object:
@@ -589,7 +731,8 @@ def valid_vacation_shift(
         type="vn",
     )
     return Shift.objects.filter(
-        user=user_object, contract=contract_object, started__month=4, started__day=2019).order_by("started")
+        user=user_object, contract=contract_object, started__month=4, started__day=2019
+    ).order_by("started")
 
 
 @pytest.fixture

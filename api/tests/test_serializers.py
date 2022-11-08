@@ -1,8 +1,6 @@
 import datetime
-import pstats
 
 import pytest
-from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import exceptions, serializers
 
@@ -378,7 +376,6 @@ class TestContractSerializerValidation:
         plain_request_object,
         contract_object,
     ):
-
         with pytest.raises(serializers.ValidationError):
             ContractSerializer(
                 instance=contract_object,
@@ -518,30 +515,68 @@ class TestShiftSerializerValidation:
                 data=shift_starting_in_future_was_reviewed_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
-    
-    def test_reviewed_shift_on_sunday_not_allowed(self, shift_on_a_sunday_json_querydict, plain_request_object):
+
+    @pytest.mark.django_db
+    def test_reviewed_shift_on_sunday_not_allowed(
+        self, shift_on_a_sunday_json_querydict, plain_request_object
+    ):
         with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=shift_on_a_sunday_json_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
-    def test_reviewed_shift_on_holiday_typ_holliday_allowed(self):
-        pass
+    @pytest.mark.django_db
+    def test_reviewed_shift_on_holiday_typ_normal_not_allowed(
+        self, normal_shift_on_a_holiday_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=normal_shift_on_a_holiday_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
 
-    def test_reviewed_shift_on_holiday_typ_normal_not_allowed(self):
-        pass
+    @pytest.mark.django_db
+    def test_reviewed_vacation_shift_day_exclusive(
+        self, shift_object, vacation_shift_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=vacation_shift_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
 
-    def test_reviewed_vacation_shift_day_exclusive(self):
-        pass
+    @pytest.mark.django_db
+    def test_reviewed_sick_shift_day_exclusive(
+        self, shift_object, sick_shift_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=sick_shift_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
 
-    def test_reviewed_sick_shift_day_exclusive(self):
-        pass
+    @pytest.mark.django_db
+    def test_maximum_shift_length_ten_hour_fortyfive_minutes(
+        self, ten_hour_fortyfive_minutes_shift_json_querydict, plain_request_object
+    ):
+        ShiftSerializer(
+            data=ten_hour_fortyfive_minutes_shift_json_querydict,
+            context={"request": plain_request_object},
+        ).is_valid(raise_exception=False)
 
-    def test_reducing_day_worktime_by_needed_breaktime(self):
-        pass
+    @pytest.mark.django_db
+    def test_eleven_hour_shift_not_allowed(
+        self, eleven_hour_shift_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=eleven_hour_shift_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
 
-    def test_creating_shift_in_not_owned_contract_fails(self):
+    @pytest.mark.django_db
+    def test_creating_shift_in_not_owned_contract_not_allowed(self):
         pass
 
     @pytest.mark.django_db
@@ -634,7 +669,7 @@ class TestClockedInShiftSerializer:
 
     @pytest.mark.django_db
     def test_invalid_clocking_on_day_with_vacation_shift(
-            self, valid_vacation_shift, valid_clockedinshift_querydict, plain_request_object
+        self, valid_vacation_shift, valid_clockedinshift_querydict, plain_request_object
     ):
         """
         The  ClockedInShiftSerializer is tested whether it raises a Validation
