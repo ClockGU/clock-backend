@@ -63,6 +63,19 @@ def valid_shift_querydict(valid_shift_json):
 
 
 @pytest.fixture
+def valid_shift_different_contract_json(valid_shift_json, diff_user_contract_object):
+    valid_shift_json["contract"] = str(diff_user_contract_object.id)
+    return valid_shift_json
+
+
+@pytest.fixture
+def valid_shift_different_contract_json_querydict(valid_shift_different_contract_json):
+    qdict = QueryDict("", mutable=True)
+    qdict.update(valid_shift_different_contract_json)
+    return qdict
+
+
+@pytest.fixture
 def stopped_before_started_json(valid_shift_json):
     """
     This fixture creates an invalid according to the ShiftSerializer) JSON dictionary
