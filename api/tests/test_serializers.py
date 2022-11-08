@@ -505,6 +505,17 @@ class TestShiftSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    @freeze_time("2019-02-10 00:00:00+00:00")
+    @pytest.mark.django_db
+    def test_shift_in_past_as_planned_fails(
+        self, shift_is_planned_but_started_in_past_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=shift_is_planned_but_started_in_past_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
     @freeze_time("2019-01-01 00:00:00+00:00")
     @pytest.mark.django_db
     def test_shift_in_future_was_reviewed_fails(
