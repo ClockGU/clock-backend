@@ -1,13 +1,13 @@
 from calendar import monthrange
 
-from more_itertools import pairwise
 from dateutil.relativedelta import relativedelta
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
+from holidays import country_holidays
+from more_itertools import pairwise
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
-from holidays import country_holidays
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
@@ -32,9 +32,7 @@ class TagsSerializerField(serializers.Field):
 
 class TimedeltaField(serializers.Field):
     def to_representation(self, value):
-        return relativedelta_to_string(
-            relativedelta(seconds=value.total_seconds())
-        )
+        return relativedelta_to_string(relativedelta(seconds=value.total_seconds()))
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -155,7 +153,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 )
 
             if Shift.objects.filter(
-                    contract=self.instance, started__lt=start_date
+                contract=self.instance, started__lt=start_date
             ).exists():
                 raise serializers.ValidationError(
                     _(
@@ -164,7 +162,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     )
                 )
             if Shift.objects.filter(
-                    contract=self.instance, started__gt=end_date
+                contract=self.instance, started__gt=end_date
             ).exists():
                 raise serializers.ValidationError(
                     _(
@@ -251,12 +249,12 @@ class ContractSerializer(RestrictModificationModelSerializer):
         )
         if not self.partial:
             carryover_target_date_changed = (
-                    validated_data.get("carryover_target_date")
-                    != instance.carryover_target_date
+                validated_data.get("carryover_target_date")
+                != instance.carryover_target_date
             )
             initial_carryover_minutes_changed = (
-                    validated_data.get("initial_carryover_minutes")
-                    != instance.initial_carryover_minutes
+                validated_data.get("initial_carryover_minutes")
+                != instance.initial_carryover_minutes
             )
 
         return_instance = super(ContractSerializer, self).update(
@@ -328,7 +326,13 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         shift_type = data.get("type")
         was_reviewed = data.get("was_reviewed", False)
 
-        # locked is read_only and marks whether a shift was exported and hence not modifyable anymore
+        if self.instance and (self.partial or self.context["request"].method == "PUT"):
+            started = data.get("started", self.instance.started)
+            stopped = data.get("stopped", self.instance.stopped)
+            contract = data.get("contract", self.instance.contract)
+            was_reviewed = data.get("was_reviewed", self.instance.was_reviewed)
+
+        # locked is read_only and marks whether a shift was exported and hence not modifiable anymore
         if Shift.objects.filter(
             contract=contract,
             started__month=started.month,
@@ -340,22 +344,11 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     "A Shift can't be created or changed if the month has already been locked."
                 )
             )
-        
-        this_day = Shift.objects.filter(
-            contract=contract
-        )
 
-        vacation_sick_shifts_this_day = this_day.filter(
-            type__in=('sk', 'vn')
-        )
+        this_day = Shift.objects.filter(contract=contract)
 
-        if self.instance and (self.partial or self.context["request"].method == "PUT"):
-            started = data.get("started", self.instance.started)
-            stopped = data.get("stopped", self.instance.stopped)
-            contract = data.get("contract", self.instance.contract)
-            was_reviewed = data.get("was_reviewed", self.instance.was_reviewed)
-            vacation_sick_shifts_this_day = vacation_sick_shifts_this_day.exclude(id=self.instance.id)
-        
+        vacation_sick_shifts_this_day = this_day.filter(type__in=("sk", "vn"))
+
         if self.instance:
             uuid = self.instance.id
             this_day = this_day.exclude(id=uuid)
@@ -369,7 +362,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             raise serializers.ValidationError(
                 _("The start of a shift must be set before its end.")
             )
-        
+
         # validate the connected contract
         if not (contract.carryover_target_date <= started.date() <= contract.end_date):
             raise serializers.ValidationError(
@@ -390,7 +383,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         #         raise serializers.ValidationError(
         #             _("A shift set in the future must be labeled as scheduled.")
         #         )
-        
+
         if was_reviewed:
 
             if started > datetime.datetime.now().astimezone(utc):
@@ -405,10 +398,15 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
 
             # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
-            de_he_holidays = country_holidays('DE', subdiv='HE')
-            if started.strftime("%d/%m/%Y") in de_he_holidays and shift_type is not 'bh':
+            de_he_holidays = country_holidays("DE", subdiv="HE")
+            if (
+                started.strftime("%d/%m/%Y") in de_he_holidays
+                and shift_type is not "bh"
+            ):
                 raise serializers.ValidationError(
-                    _("On holidays there can just be clocked shifts with type holiday/Feiertag ")
+                    _(
+                        "On holidays there can just be clocked shifts with type holiday/Feiertag "
+                    )
                 )
 
             # validate that there is already one vacation or sick shift this day
@@ -417,43 +415,49 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     _("There can just be one V/S Shift per day")
                 )
 
-            # validate that there is no standard shift this day if new shift is a vacation or sick shift
-            if type in ('sk', 'vn'):
-                other_shifts_this_day = Shift.objects.filter(
-                    contract=contract,
-                    started__year=started.year,
-                    started__month=started.month,
-                    started__day=started.day
-                ).exists()
-                if other_shifts_this_day:
-                    raise serializers.ValidationError(
-                        _("Cannot add a vacation or sick shift to a workday with other shifts.")
-                    )
-
             this_day_reviewed = this_day.filter(was_reviewed=True)
-            
+
+            # validate that there is no standard shift this day if new shift is a vacation or sick shift
+            if shift_type in ("sk", "vn") and this_day_reviewed.exists():
+                raise serializers.ValidationError(
+                    _(
+                        "Cannot add a vacation or sick shift to a workday with other shifts."
+                    )
+                )
+
             new_worktime = stopped - started
             old_worktime = this_day_reviewed.aggregate(
                 total_work_time=Coalesce(
                     Sum(F("stopped") - F("started"), output_field=DurationField()),
                     datetime.timedelta(0),
                 )
-            )[
-                "total_work_time"
-            ]
+            )["total_work_time"]
 
             total_worktime = old_worktime + new_worktime
-            total_break = self.calculate_break(started=started, stopped=stopped, shifts_queryset=this_day_reviewed)
+            total_break = self.calculate_break(
+                started=started, stopped=stopped, shifts_queryset=this_day_reviewed
+            )
 
-            if total_worktime > datetime.timedelta(hours=9):
-                # Needed break >= 45min in total
-                if not this_day.exists() or total_break < datetime.timedelta(minutes=45):
-                    new_worktime = new_worktime - datetime.timedelta(minutes=45) + total_break
-
-            if total_worktime > datetime.timedelta(hours=6):
+            if (
+                datetime.timedelta(hours=6)
+                < total_worktime
+                <= datetime.timedelta(hours=9)
+            ):
                 # Needed break >= 30min in total
-                if not this_day.exists() or total_break < datetime.timedelta(minutes=30):
-                    new_worktime = new_worktime - datetime.timedelta(minutes=30) + total_break
+                if not this_day.exists() or total_break < datetime.timedelta(
+                    minutes=30
+                ):
+                    new_worktime = (
+                        new_worktime - datetime.timedelta(minutes=30) + total_break
+                    )
+            elif total_worktime > datetime.timedelta(hours=9):
+                # Needed break >= 45min in total
+                if not this_day.exists() or total_break < datetime.timedelta(
+                    minutes=45
+                ):
+                    new_worktime = (
+                        new_worktime - datetime.timedelta(minutes=45) + total_break
+                    )
 
             if new_worktime + old_worktime > datetime.timedelta(hours=10):
                 raise exceptions.ValidationError(
@@ -471,16 +475,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             )
 
         return contract
-
-    def validate_type(self, type):
-        """
-        Validate that the type of a shift is 'st', 'sk', 'vn' or 'bh'.
-        """
-        if type not in ('st', 'sk', 'vn', 'bh'):
-            raise serializers.ValidationError(
-                _(
-                    "The shift type must be 'st', 'sk', 'vn' or 'bh'.")
-            )
 
     def validate_tags(self, tags):
         """
@@ -572,22 +566,22 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
         started = data.get("started")
         contract = data.get("contract")
         vacation_sick_shifts_this_day = Shift.objects.filter(
-            contract=contract,
-            started__date=started,
-            type__in=('sk', 'vn')
+            contract=contract, started__date=started, type__in=("sk", "vn")
         )
 
         # validate that there is not already one vacation or sick shift this day
         if vacation_sick_shifts_this_day.exists():
             raise serializers.ValidationError(
-                _("Live clocking is not allowed on days where already a vacation or a sick shift is clocked.")
+                _(
+                    "Live clocking is not allowed on days where already a vacation or a sick shift is clocked."
+                )
             )
 
         return data
 
     def validate_started(self, started):
         # no Live clocking on Feiertage/holidays
-        de_he_holidays = country_holidays('DE', subdiv='HE')
+        de_he_holidays = country_holidays("DE", subdiv="HE")
         if started.strftime("%d/%m/%Y") in de_he_holidays:
             raise serializers.ValidationError(
                 _("Live clocking is not allowed on feiertage/ bank holidays.")
