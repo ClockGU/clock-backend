@@ -378,13 +378,12 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )
 
-        # # If Shift is considered as scheduled
-        # if was_reviewed and if started > datetime.datetime.now().astimezone(utc):
-        #         raise serializers.ValidationError(
-        #             _("A shift set in the future must be labeled as scheduled.")
-        #         )
-
-        if was_reviewed:
+        if not was_reviewed:
+            if started < datetime.datetime.now().astimezone(utc):
+                raise serializers.ValidationError(
+                    _("A shift set in the past must be reviewed.")
+                )
+        else:
 
             if started > datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
