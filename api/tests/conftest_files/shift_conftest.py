@@ -408,7 +408,7 @@ def eleven_hour_shift_json(valid_shift_json):
         datetime.datetime(2019, 1, 29, 7).astimezone(tz).isoformat()
     )
     valid_shift_json["stopped"] = (
-        datetime.datetime(2019, 1, 29, 17, 50).astimezone(tz).isoformat()
+        datetime.datetime(2019, 1, 29, 18).astimezone(tz).isoformat()
     )
     return valid_shift_json
 
