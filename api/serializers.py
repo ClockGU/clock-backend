@@ -461,7 +461,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     _(
                         "There are already sick shifts this day, combining sick and vacation shifts is not allowed"
                     )
-                )
 
             new_worktime = stopped - started
             old_worktime = this_day_reviewed.aggregate(
