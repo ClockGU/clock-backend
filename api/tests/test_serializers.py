@@ -608,8 +608,14 @@ class TestShiftSerializerValidation:
             ).is_valid(raise_exception=True)
 
     @pytest.mark.django_db
-    def test_creating_shift_in_not_owned_contract_not_allowed(self):
-        pass
+    def test_creating_shift_in_not_owned_contract_not_allowed(
+        self, valid_shift_different_contract_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=valid_shift_different_contract_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
 
     @pytest.mark.django_db
     def test_reviewed_shift_on_holiday_typ_normal_not_allowed(
