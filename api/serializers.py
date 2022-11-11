@@ -414,6 +414,19 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
             this_day_reviewed = this_day.filter(was_reviewed=True)
 
+            for old_reviewed_shift in this_day_reviewed:
+                if (
+                    started > old_reviewed_shift.started
+                    or started < old_reviewed_shift.stopped
+                    or stopped > old_reviewed_shift.started
+                    or stopped < old_reviewed_shift.stopped
+                ):
+                    raise serializers.ValidationError(
+                        _(
+                            "This shift is overlapping with an already existing reviewed shift"
+                        )
+                    )
+
             # validate that there is no standard shift this day if new shift is a V/S shift
             if (
                 shift_type in ("sk", "vn")
