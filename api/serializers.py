@@ -323,6 +323,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         started = data.get("started")
         stopped = data.get("stopped")
         contract = data.get("contract")
+        user = data.get("user")
         shift_type = data.get("type")
         was_reviewed = data.get("was_reviewed", False)
 
@@ -345,11 +346,14 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )
 
-        this_day = Shift.objects.filter(contract=contract)
+        this_day = Shift.objects.filter(
+            started__month=started.month,
+            started__year=started.year,
+            started__day=started.day,
+            user=user,
+        )
 
-        vacation_sick_shifts_this_day = this_day.filter(type__in=("sk", "vn"))
-
-        if self.instance:
+        if self.instance and (self.partial or self.context["request"].method == "PUT"):
             uuid = self.instance.id
             this_day = this_day.exclude(id=uuid)
 
@@ -408,19 +412,43 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     )
                 )
 
-            # validate that there is already one vacation or sick shift this day
-            if vacation_sick_shifts_this_day.exists():
-                raise serializers.ValidationError(
-                    _("There can just be one V/S Shift per day")
-                )
-
             this_day_reviewed = this_day.filter(was_reviewed=True)
 
-            # validate that there is no standard shift this day if new shift is a vacation or sick shift
-            if shift_type in ("sk", "vn") and this_day_reviewed.exists():
+            # validate that there is no standard shift this day if new shift is a V/S shift
+            if (
+                shift_type in ("sk", "vn")
+                and this_day_reviewed.filter(type="st").exists()
+            ):
                 raise serializers.ValidationError(
                     _(
-                        "Cannot add a vacation or sick shift to a workday with other shifts."
+                        "There are already normal shifts this day, adding a V/S shift is not allowed"
+                    )
+                )
+
+            # validate that there is no V/S shift this day if new shift is a standard shift
+            if (
+                shift_type == "st"
+                and this_day_reviewed.filter(type__in=("sk", "vn")).exists()
+            ):
+                raise serializers.ValidationError(
+                    _(
+                        "There are already V/S shifts this day, adding a standard shift is not allowed"
+                    )
+                )
+
+            # validate that there is no vacation shift this day if new shift is a sick shift
+            if shift_type == "sk" and len(this_day_reviewed.filter(type="vn")) > 0:
+                raise serializers.ValidationError(
+                    _(
+                        "There are already vacation shifts this day, combining sick and vacation shifts is not allowed"
+                    )
+                )
+
+            # validate that there is no sick shift this day if new shift is a vacation shift
+            if shift_type == "vn" and len(this_day_reviewed.filter(type="sk")) > 0:
+                raise serializers.ValidationError(
+                    _(
+                        "There are already sick shifts this day, combining sick and vacation shifts is not allowed"
                     )
                 )
 
