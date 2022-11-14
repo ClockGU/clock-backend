@@ -2,8 +2,8 @@ from datetime import datetime
 
 import pytest
 from freezegun import freeze_time
-from pytz import datetime, utc
-
+from pytz import utc
+import datetime
 from api.models import Contract, Report, Shift
 from api.utilities import relativedelta_to_string
 
@@ -301,6 +301,124 @@ class TestUpdateSignals:
             contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
         ).worktime == datetime.timedelta(minutes=-1200)
 
+    @pytest.mark.django_db
+    def test_signal_subtracts_missing_45_min_breaktime(
+            self, contract_object, user_object
+    ):
+        """
+        Test that the Report update subtraqcts missing 45 min breaks for Shift durations above 9h.
+        """
+        Shift.objects.create(
+            started=datetime.datetime(2019, 1, 29, 8, tzinfo=utc),
+            stopped=datetime.datetime(2019, 1, 29, 18, tzinfo=utc),
+            created_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=user_object,
+            created_by=user_object,
+            modified_by=user_object,
+            contract=contract_object,
+            was_reviewed=True,
+        )
+        assert Report.objects.get(
+            contract=contract_object, month_year=datetime.date(2019, 1, 1)
+        ).worktime == datetime.timedelta(seconds=9.25*3600)
+
+    @pytest.mark.django_db
+    def test_signal_subtracts_missing_30_min_breaktime(
+            self, contract_object, user_object
+    ):
+        """
+        Test that the Report update subtracts missing 30 min breaks for Shift durations above 6h and lower than 9h.
+        """
+        Shift.objects.create(
+            started=datetime.datetime(2019, 1, 29, 8, tzinfo=utc),
+            stopped=datetime.datetime(2019, 1, 29, 15, tzinfo=utc),
+            created_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=user_object,
+            created_by=user_object,
+            modified_by=user_object,
+            contract=contract_object,
+            was_reviewed=True,
+        )
+        assert Report.objects.get(
+            contract=contract_object, month_year=datetime.date(2019, 1, 1)
+        ).worktime == datetime.timedelta(seconds=6.5*3600)
+
+    @pytest.mark.django_db
+    def test_signal_doesnt_subtract_missing_breaktime(
+            self, contract_object, user_object
+    ):
+        """
+        Test that the report update does not substract any breaktime if not needed.
+        """
+        Shift.objects.create(
+            started=datetime.datetime(2019, 1, 29, 8, tzinfo=utc),
+            stopped=datetime.datetime(2019, 1, 29, 12, tzinfo=utc),
+            created_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=user_object,
+            created_by=user_object,
+            modified_by=user_object,
+            contract=contract_object,
+            was_reviewed=True,
+        )
+        assert Report.objects.get(
+            contract=contract_object, month_year=datetime.date(2019, 1, 1)
+        ).worktime == datetime.timedelta(seconds=4*3600)
+
+    @pytest.mark.django_db
+    def test_signal_subtract_missing_breaktime(
+            self, contract_object, user_object
+    ):
+        """
+        Test that the report update does substract missing breaktime.
+
+        Shift 1: 8:00-12:00
+        Shift 2: 12:15-18:00
+        Worktime 9:45
+        Breaktime: 00:15
+
+        Missing Breaktiem : 00:30
+        """
+        Shift.objects.create(
+            started=datetime.datetime(2019, 1, 29, 8, tzinfo=utc),
+            stopped=datetime.datetime(2019, 1, 29, 12, tzinfo=utc),
+            created_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=user_object,
+            created_by=user_object,
+            modified_by=user_object,
+            contract=contract_object,
+            was_reviewed=True,
+        )
+
+        Shift.objects.create(
+            started=datetime.datetime(2019, 1, 29, 12, 15, tzinfo=utc),
+            stopped=datetime.datetime(2019, 1, 29, 18, tzinfo=utc),
+            created_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 1, 29, 19, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=user_object,
+            created_by=user_object,
+            modified_by=user_object,
+            contract=contract_object,
+            was_reviewed=True,
+        )
+
+        assert Report.objects.get(
+            contract=contract_object, month_year=datetime.date(2019, 1, 1)
+        ).worktime == datetime.timedelta(seconds=9.25*3600)
+    
 
 class TestContractSignals:
     @pytest.mark.django_db
