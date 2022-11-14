@@ -326,8 +326,10 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         user = data.get("user")
         shift_type = data.get("type")
         was_reviewed = data.get("was_reviewed", False)
+        uuid = None
 
         if self.instance and (self.partial or self.context["request"].method == "PUT"):
+            uuid = self.instance.id
             started = data.get("started", self.instance.started)
             stopped = data.get("stopped", self.instance.stopped)
             contract = data.get("contract", self.instance.contract)
@@ -342,7 +344,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         ).exists():
             raise exceptions.PermissionDenied(
                 _(
-                    "A Shift can't be created or changed if the month has already been locked."
+                    "A Shift can't be created or changed if the month of this contract has already been locked."
                 )
             )
 
@@ -353,8 +355,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             user=user,
         )
 
-        if self.instance and (self.partial or self.context["request"].method == "PUT"):
-            uuid = self.instance.id
+        if uuid is not None:
             this_day = this_day.exclude(id=uuid)
 
         # validate that started and stopped are on the same day
@@ -415,15 +416,16 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             this_day_reviewed = this_day.filter(was_reviewed=True)
 
             for old_reviewed_shift in this_day_reviewed:
-                if (
-                    started > old_reviewed_shift.started
-                    or started < old_reviewed_shift.stopped
-                    or stopped > old_reviewed_shift.started
-                    or stopped < old_reviewed_shift.stopped
-                ):
+                if old_reviewed_shift.started <= started < old_reviewed_shift.stopped:
                     raise serializers.ValidationError(
                         _(
-                            "This shift is overlapping with an already existing reviewed shift"
+                            "The started date is in the time of an already existing reviewed shift : "
+                        )
+                    )
+                if old_reviewed_shift.started < stopped <= old_reviewed_shift.stopped:
+                    raise serializers.ValidationError(
+                        _(
+                            "The stopped date is in the time of an already existing reviewed shift : "
                         )
                     )
 
