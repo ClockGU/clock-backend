@@ -35,7 +35,7 @@ django-filter = "^2.4.0"
 Unidecode = "^1.2.0"
 Sphinx = "^4.5.0"
 weasyprint = "^55.0"
-holidays = "^0.14.2"
+holidays = "^0.17"
 
 [tool.poetry.dev-dependencies]
 coverage = "==5.0a4"
