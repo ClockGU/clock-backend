@@ -321,7 +321,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         started = data.get("started")
         stopped = data.get("stopped")
         contract = data.get("contract")
-        user = self.context["request"].user
+        user = data.get("user")
         shift_type = data.get("type")
         was_reviewed = data.get("was_reviewed", False)
         uuid = None
