@@ -53,15 +53,11 @@ class RestrictModificationModelSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         request = self.context["request"]
 
-        if request.method in ["POST", "PUT"]:
-            data = self.add_user_id(request, data)
+        data = self.add_user_id(request, data)
 
         if request.method == "PATCH":
-            # Not allowed keys "user" and "created_by" in a PATCH-Request.
-            # Set "modified_by" to the user issuing the request
-            data.pop("user", None)
+            # Not allowed to modify "created_by" in a PATCH-Request.
             data.pop("created_by", None)
-            data["modified_by"] = request.user.id
 
         return super(RestrictModificationModelSerializer, self).to_internal_value(data)
 
@@ -323,7 +319,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         started = data.get("started")
         stopped = data.get("stopped")
         contract = data.get("contract")
-        user = self.context["request"].user
+        user = data.get("user")
         shift_type = data.get("type")
         was_reviewed = data.get("was_reviewed", False)
         uuid = None
