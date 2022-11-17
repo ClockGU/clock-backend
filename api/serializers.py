@@ -400,12 +400,14 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
             de_he_holidays = country_holidays("DE", subdiv="HE")
             if (
-                started.strftime("%d/%m/%Y") in de_he_holidays
+                started.strftime("%Y-%m-%d") in de_he_holidays
                 and shift_type is not "bh"
             ):
                 raise serializers.ValidationError(
                     _(
-                        "On holidays there can just be clocked shifts with type holiday/Feiertag "
+                        "This is the holiday "
+                        + de_he_holidays.get(started.strftime("%Y-%m-%d"))
+                        + " and there can just be clocked shifts with type holiday/Feiertag"
                     )
                 )
 
