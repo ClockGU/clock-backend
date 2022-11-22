@@ -238,10 +238,7 @@ class Report(models.Model):
 
     @property
     def carryover(self):
-        carryover = self.worktime - self.debit_worktime
-        if carryover.total_seconds() > 0 and carryover > self.debit_worktime * 0.5:
-            carryover = self.debit_worktime * 0.5
-        return carryover
+        return self.worktime - self.debit_worktime
 
     @property
     def carryover_previous_month(self):
