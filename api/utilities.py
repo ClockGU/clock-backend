@@ -140,7 +140,8 @@ def update_reports(contract, month_year):
             breaktime=ExpressionWrapper(F("last_stopped") - F("first_started") - F("day_worktime"), DurationField()),
             missing_breaktime=Case(
                 When(
-                    day_worktime__range=(datetime.timedelta(hours=6), datetime.timedelta(hours=9)),
+                    day_worktime__gt=datetime.timedelta(hours=6),
+                    day_worktime__lte=datetime.timedelta(hours=9),
                     breaktime__lt=datetime.timedelta(minutes=30),
                     then=datetime.timedelta(minutes=30) - F("breaktime")
                 ),
