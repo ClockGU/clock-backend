@@ -413,19 +413,22 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
             this_day_reviewed = this_day.filter(was_reviewed=True)
 
-            for old_reviewed_shift in this_day_reviewed:
-                if old_reviewed_shift.started <= started < old_reviewed_shift.stopped:
-                    raise serializers.ValidationError(
-                        _(
-                            "The started date is in the time of an already existing reviewed shift : "
-                        )
+            if this_day_reviewed.filter(
+                started__lte=started, stopped__gt=started
+            ).exists():
+                raise serializers.ValidationError(
+                    _(
+                        "The started date is in the time of an already existing reviewed shift : "
                     )
-                if old_reviewed_shift.started < stopped <= old_reviewed_shift.stopped:
-                    raise serializers.ValidationError(
-                        _(
-                            "The stopped date is in the time of an already existing reviewed shift : "
-                        )
+                )
+            if this_day_reviewed.filter(
+                started__lt=stopped, stopped__gte=stopped
+            ).exists():
+                raise serializers.ValidationError(
+                    _(
+                        "The stopped date is in the time of an already existing reviewed shift : "
                     )
+                )
 
             # validate that there is no standard shift this day if new shift is a V/S shift
             if (
@@ -450,7 +453,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
 
             # validate that there is no vacation shift this day if new shift is a sick shift
-            if shift_type == "sk" and len(this_day_reviewed.filter(type="vn")) > 0:
+            if shift_type == "sk" and this_day_reviewed.filter(type="vn").exists():
                 raise serializers.ValidationError(
                     _(
                         "There are already vacation shifts this day, combining sick and vacation shifts is not allowed"
@@ -458,7 +461,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
 
             # validate that there is no sick shift this day if new shift is a vacation shift
-            if shift_type == "vn" and len(this_day_reviewed.filter(type="sk")) > 0:
+            if shift_type == "vn" and this_day_reviewed.filter(type="sk").exists():
                 raise serializers.ValidationError(
                     _(
                         "There are already sick shifts this day, combining sick and vacation shifts is not allowed"
