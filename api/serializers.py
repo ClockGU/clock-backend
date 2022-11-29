@@ -344,12 +344,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )
 
-        this_day = Shift.objects.filter(
-            started__month=started.month,
-            started__year=started.year,
-            started__day=started.day,
-            user=user,
-        )
+        this_day = Shift.objects.filter(started__date=started.date(), user=user)
 
         if uuid is not None:
             this_day = this_day.exclude(id=uuid)
