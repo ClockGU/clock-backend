@@ -32,9 +32,7 @@ class TagsSerializerField(serializers.Field):
 
 class TimedeltaField(serializers.Field):
     def to_representation(self, value):
-        return relativedelta_to_string(
-            relativedelta(seconds=value.total_seconds())
-        )
+        return relativedelta_to_string(relativedelta(seconds=value.total_seconds()))
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
