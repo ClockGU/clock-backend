@@ -129,7 +129,6 @@ class Contract(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     initial_carryover_minutes = models.IntegerField()
-    carryover_target_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE
