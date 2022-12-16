@@ -220,14 +220,14 @@ class ContractSerializer(RestrictModificationModelSerializer):
     def update(self, instance, validated_data):
 
         start_date_changed = bool(
-            validated_data.get("carryover_target_date")
+            validated_data.get("start_date")
         )
         initial_carryover_minutes_changed = bool(
             validated_data.get("initial_carryover_minutes")
         )
         if not self.partial:
             start_date_changed = (
-                validated_data.get("carryover_target_date")
+                validated_data.get("start_date")
                 != instance.carryover_target_date
             )
             initial_carryover_minutes_changed = (
