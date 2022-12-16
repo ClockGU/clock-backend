@@ -20,7 +20,6 @@ def december_contract(user_object):
         start_date=datetime.date(2019, 12, 1),
         end_date=datetime.date(2020, 2, 29),
         initial_carryover_minutes=0,
-        carryover_target_date=datetime.date(2019, 12, 1),
         user=user_object,
         created_by=user_object,
         modified_by=user_object,
@@ -69,8 +68,7 @@ def celery_test_fixture_end_of_year_test(december_contract):
     The expected output is as in every other month: -1200 minutes on the automatically created Report at the beginning
     of a month.
 
-    :param user_object:
-    :param contract_ending_in_february:
+    :param december_contract:
     :return:
     """
 
