@@ -42,7 +42,7 @@ def create_reports_monthly(self):
     date_now = datetime.datetime.now().date()
     for user in User.objects.filter(is_active=True, is_staff=False):
         for contract in user.contracts.filter(
-            carryover_target_date__lt=date_now, end_date__gte=date_now
+            start_date__lt=date_now, end_date__gte=date_now
         ):
             last_report = Report.objects.get(
                 contract=contract, month_year=date_now - relativedelta(months=1)
