@@ -225,7 +225,7 @@ class TestContractSerializerValidation:
 
     @pytest.mark.freeze_time("2019-3-1")
     @pytest.mark.django_db
-    def test_update_carryover_target_date_recreates_reports(
+    def test_update_start_date_recreates_reports(
         self,
         contract_ending_in_april,
         shift_contract_ending_in_april,
@@ -233,17 +233,17 @@ class TestContractSerializerValidation:
     ):
         """
         Test wether the serializers update method deletes existing reports and recreates them when
-        the carryover_target_date is updated.
+        the start_date is updated.
         :param contract_ending_in_april:
         :param shift_contract_ending_in_april:
         :return:
         """
 
-        assert Report.objects.filter(contract=contract_ending_in_april).count() == 1
+        assert Report.objects.filter(contract=contract_ending_in_april).count() == 3
         old_report_pk = Report.objects.filter(contract=contract_ending_in_april)[0].pk
         seri = ContractSerializer(
             instance=contract_ending_in_april,
-            data={"carryover_target_date": datetime.date(2019, 2, 1)},
+            data={"start_date": datetime.date(2019, 2, 1)},
             partial=True,
             context={"request": plain_request_object},
         )
@@ -255,13 +255,14 @@ class TestContractSerializerValidation:
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 2, 1)
         ).worktime == datetime.timedelta(hours=5)
+        # The shift_contract_ending_in_april has a 5 hours duration
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
         ).worktime == datetime.timedelta(hours=-10)
 
     @pytest.mark.freeze_time("2019-3-1")
     @pytest.mark.django_db
-    def test_update_carryover_and_target_date_correct_evaluated(
+    def test_update_carryover_and_start_date_correct_evaluated(
         self,
         user_object,
         contract_ending_in_april,
@@ -282,14 +283,13 @@ class TestContractSerializerValidation:
         data = {
             "name": "Test Contract1",
             "minutes": 1200,
-            "start_date": datetime.date(2019, 1, 1),
+            "start_date": datetime.date(2019, 2, 1),
             "end_date": datetime.date(2019, 4, 30),
             "user": str(user_object.id),
             "created_by": str(user_object.id),
             "modified_by": str(user_object.id),
             "created_at": contract_ending_in_april.created_at,
             "modified_at": contract_ending_in_april.modified_at,
-            "carryover_target_date": datetime.date(2019, 2, 1),
             "initial_carryover_minutes": 600,
         }
         seri = ContractSerializer(
@@ -300,8 +300,8 @@ class TestContractSerializerValidation:
         seri.is_valid()
         validated_data = seri.validated_data
         carryover_target_date_changed = (
-            validated_data.get("carryover_target_date")
-            != contract_ending_in_april.carryover_target_date
+            validated_data.get("start_date")
+            != contract_ending_in_april.start_date
         )
         initial_carryover_minutes_changed = (
             validated_data.get("initial_carryover_minutes")
