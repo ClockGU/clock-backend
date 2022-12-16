@@ -208,7 +208,7 @@ class TestContractSerializerValidation:
         """
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
-        ).worktime == datetime.timedelta(hours=10)
+        ).worktime == datetime.timedelta(hours=-30)
 
         seri = ContractSerializer(
             instance=contract_ending_in_april,
@@ -221,7 +221,7 @@ class TestContractSerializerValidation:
 
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
-        ).worktime == datetime.timedelta(hours=15)
+        ).worktime == datetime.timedelta(hours=-25)
 
     @pytest.mark.freeze_time("2019-3-1")
     @pytest.mark.django_db

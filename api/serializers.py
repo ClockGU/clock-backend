@@ -219,14 +219,14 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
     def update(self, instance, validated_data):
 
-        carryover_target_date_changed = bool(
+        start_date_changed = bool(
             validated_data.get("carryover_target_date")
         )
         initial_carryover_minutes_changed = bool(
             validated_data.get("initial_carryover_minutes")
         )
         if not self.partial:
-            carryover_target_date_changed = (
+            start_date_changed = (
                 validated_data.get("carryover_target_date")
                 != instance.carryover_target_date
             )
@@ -239,14 +239,14 @@ class ContractSerializer(RestrictModificationModelSerializer):
             instance, validated_data
         )
 
-        if carryover_target_date_changed:
+        if start_date_changed:
             # Delete all existing Reports
             Report.objects.filter(contract=instance).delete()
             # Recreate them.
             create_reports_for_contract(contract=instance)
 
-        if carryover_target_date_changed or initial_carryover_minutes_changed:
-            update_reports(instance, instance.carryover_target_date)
+        if initial_carryover_minutes_changed:
+            update_reports(instance, instance.start_date)
 
         return return_instance
 

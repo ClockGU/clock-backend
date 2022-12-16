@@ -51,11 +51,11 @@ def timedelta_to_string(timedelta):
 # TODO: This function needs a different, more phony name.
 def create_reports_for_contract(contract):
     """
-    Function used to create all Reports from carryover_target_date to date.today().
+    Function used to create all Reports from contracts start_date to date.today().
     :param contract:
     :return:
     """
-    _month_year = contract.carryover_target_date
+    _month_year = contract.start_date
     today = datetime.date.today()
     Report.objects.create(
         month_year=_month_year,
@@ -78,6 +78,7 @@ def create_reports_for_contract(contract):
             modified_by=contract.user,
         )
         _month_year += relativedelta(months=1)
+    update_reports(contract, contract.start_date)
 
 
 def create_report_after_contract_creation(sender, instance, created, **kwargs):
