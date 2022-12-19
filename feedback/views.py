@@ -34,6 +34,7 @@ class FeedBackView(generics.GenericAPIView):
                 name=data["name"], email=settings.SYSTEM_EMAILS["SENDER"]
             ),
             to=[settings.SYSTEM_EMAILS["RECEIVER"]],
+            cc=[data["email"]],
             reply_to=[data["email"], settings.SYSTEM_EMAILS["RECEIVER"]],
         )
         message.send(fail_silently=False)
