@@ -232,7 +232,7 @@ class TestContractSerializerValidation:
         plain_request_object,
     ):
         """
-        Test wether the serializers update method deletes existing reports and recreates them when
+        Test whether the serializers update method deletes existing reports and recreates them when
         the start_date is updated.
         :param contract_ending_in_april:
         :param shift_contract_ending_in_april:
@@ -262,7 +262,7 @@ class TestContractSerializerValidation:
 
     @pytest.mark.freeze_time("2019-3-1")
     @pytest.mark.django_db
-    def test_update_carryover_and_start_date_correct_evaluated(
+    def test_update_carryover_minutes_and_start_date_correct_evaluated(
         self,
         user_object,
         contract_ending_in_april,
@@ -270,10 +270,10 @@ class TestContractSerializerValidation:
         plain_request_object,
     ):
         """
-        By the tests 'test_update_carryover_target_date_recreates_reports' and
+        By the tests 'test_update_start_date_recreates_reports' and
         'test_update_initial_carryover_minutes_updates_reports' we allready checked that PATCH'ing
         (parital updates) works. In order to not bother checking the Reports etc. for PUT'ing
-        we just test the logic which determines whether or not either carryover_target_date and/or
+        we just test the logic which determines whether or not either start_date and/or
         initial_carryover_minutes change (see update method of ContractSerializer).
         :param contract_ending_in_april:
         :param shift_contract_ending_in_april:
@@ -299,7 +299,7 @@ class TestContractSerializerValidation:
         )
         seri.is_valid()
         validated_data = seri.validated_data
-        carryover_target_date_changed = (
+        start_date_changed = (
             validated_data.get("start_date")
             != contract_ending_in_april.start_date
         )
@@ -307,7 +307,7 @@ class TestContractSerializerValidation:
             validated_data.get("initial_carryover_minutes")
             != contract_ending_in_april.initial_carryover_minutes
         )
-        assert carryover_target_date_changed
+        assert start_date_changed
         assert initial_carryover_minutes_changed
 
     @pytest.mark.freeze_time("2019-1-20")
