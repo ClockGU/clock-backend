@@ -342,14 +342,14 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             )
 
         # validate the connected contract
-        if not (contract.carryover_target_date <= started.date() <= contract.end_date):
+        if not (contract.start_date <= started.date() <= contract.end_date):
             raise serializers.ValidationError(
                 _(
                     "A shift must belong to a contract which is active on the respective date."
                 )
             )
 
-        if not (contract.carryover_target_date <= stopped.date() <= contract.end_date):
+        if not (contract.start_date <= stopped.date() <= contract.end_date):
             raise serializers.ValidationError(
                 _(
                     "A shift must belong to a contract which is active on the respective date."

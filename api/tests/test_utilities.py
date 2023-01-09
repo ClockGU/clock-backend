@@ -167,7 +167,6 @@ class TestUpdateSignals:
             minutes=1200,
             start_date=datetime.date(2019, 1, 1),
             end_date=datetime.date(2019, 7, 31),
-            carryover_target_date=datetime.date(2019, 2, 1),
             initial_carryover_minutes=300,
             created_by=user_object,
             modified_by=user_object,
@@ -186,7 +185,7 @@ class TestUpdateSignals:
         )
         assert Report.objects.get(
             contract=_contract, month_year=datetime.date(2019, 2, 1)
-        ).worktime == datetime.timedelta(minutes=420)
+        ).worktime == datetime.timedelta(minutes=-780)
 
     @pytest.mark.django_db
     def test_signal_updates_shifts_report(
