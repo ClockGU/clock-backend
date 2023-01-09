@@ -178,34 +178,6 @@ def negative_minutes_contract_querydict(negative_minutes_contract_json):
 
 
 @pytest.fixture
-def incorrect_carryover_target_date_contract_querydict(
-    incorrect_carryover_target_date_contract_json
-):
-    """
-    This fixture creates a QueryDict out of the incorrect_month_start_clocking_contract_json.
-    :param incorrect_carryover_target_date_contract_json:
-    :return: QueryDict
-    """
-    qdict = QueryDict("", mutable=True)
-    qdict.update(incorrect_carryover_target_date_contract_json)
-    return qdict
-
-
-@pytest.fixture
-def incorrect_date_carryover_target_date_contract_querydict(
-    incorrect_date_carryover_target_date_contract_json
-):
-    """
-    This fixture creates a QueryDict out of the incorrect_date_month_start_clocking_contract_json.
-    :param incorrect_date_carryover_target_date_contract_json:
-    :return: QueryDict
-    """
-    qdict = QueryDict("", mutable=True)
-    qdict.update(incorrect_date_carryover_target_date_contract_json)
-    return qdict
-
-
-@pytest.fixture
 def incorrect_carryover_target_date_for_future_contract_json(valid_contract_json):
     """
     This fixture creates an invalid (according to the ContractSerializer) JSON dictionary
