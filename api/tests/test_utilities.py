@@ -22,10 +22,10 @@ class TestContractAutomaticReportCreation:
     """
     Test the create_report_after_contract_save recieverfunction invoked on Contract.save() method.
 
-    1) Test that a Report exists for all months in the case start_date < carryover_target_date < today < end_date
+    1) Test that a Report exists for all months in the case start_date < today < end_date
       1.1) Test that the first Report in case 1) has the initial_carryover_minutes as worktime.
-      1.2) Test that all other Reports in case 1.1) have worktime == timedelta(0)
-    2) Test that only one Report exists if today < start_date == carryover_target_date.
+      1.2) Test that all other Reports in case 1.1) were updated after creation: worktime != timedelta(0)
+    2) Test that only one Report exists if today < start_date.
 
     """
 
@@ -94,7 +94,7 @@ class TestContractAutomaticReportCreation:
         reports = Report.objects.filter(contract=_contract).exclude(
             month_year=datetime.date(2020, 2, 1)
         )
-        assert all([r.worktime == datetime.timedelta() for r in reports])
+        assert all([r.worktime != datetime.timedelta() for r in reports])
 
     @freeze_time("2020-04-10")
     @pytest.mark.django_db
