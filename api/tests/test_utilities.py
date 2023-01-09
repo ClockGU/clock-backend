@@ -18,7 +18,7 @@ def test_relativedelta_to_string_negative_delta(negative_relativedelta_object):
     assert result_string == "-148:23"
 
 
-class ContractAutomaticReportCreation:
+class TestContractAutomaticReportCreation:
     """
     Test the create_report_after_contract_save recieverfunction invoked on Contract.save() method.
 
@@ -44,7 +44,6 @@ class ContractAutomaticReportCreation:
             minutes=1200,
             start_date=datetime.date(2020, 1, 1),
             end_date=datetime.date(2020, 7, 31),
-            carryover_target_date=datetime.date(2020, 1, 1),
             initial_carryover_minutes=0,
             created_by=user_object,
             modified_by=user_object,
@@ -71,7 +70,7 @@ class ContractAutomaticReportCreation:
         )
         assert Report.objects.get(
             contract=_contract, month_year=datetime.date(2020, 2, 1)
-        ).worktime == datetime.timedelta(hours=5)
+        ).worktime == datetime.timedelta(minutes=-900)
 
     @freeze_time("2020-04-10")
     @pytest.mark.django_db
