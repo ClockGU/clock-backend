@@ -67,7 +67,7 @@ def create_reports_for_contract(contract):
     )
     _month_year += relativedelta(months=1)
 
-    # Create Reports for all months between carryover_target_date and now
+    # Create Reports for all months between start_date and now
     while _month_year <= today:
         Report.objects.create(
             month_year=_month_year,
@@ -87,7 +87,7 @@ def create_report_after_contract_creation(sender, instance, created, **kwargs):
     Receiver Function to be called by the post_save signal of a Contract object.
     It creates a Report object for the month when the Contract starts.
     The User might create a Contract after it already started so we also create
-    all Report objects for the months between the carryover_target_date month and 'now".
+    all Report objects for the months between the start_date month and 'now".
 
     State: 14. April 2019
 
