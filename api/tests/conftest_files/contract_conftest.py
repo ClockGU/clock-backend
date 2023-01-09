@@ -517,8 +517,8 @@ def contract_start_mid_january(create_n_contract_objects, user_object):
     """
     cont = create_n_contract_objects(
         (1,),
-        start_date=datetime.date(2020, 1, 16),
-        end_date=datetime.date(2020, 2, 29),
+        start_date=datetime.date(2019, 1, 16),
+        end_date=datetime.date(2019, 2, 28),
         user=user_object,
     )[0]
 

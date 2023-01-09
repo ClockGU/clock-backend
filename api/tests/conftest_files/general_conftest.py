@@ -93,6 +93,7 @@ def prepared_ReportViewSet_view_mid_january(contract_start_mid_january):
     :param report_object:
     :return:
     """
+
     report_object = contract_start_mid_january.reports.get(
         month_year=contract_start_mid_january.start_date.replace(day=1)
     )

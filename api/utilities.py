@@ -55,7 +55,7 @@ def create_reports_for_contract(contract):
     :param contract:
     :return:
     """
-    _month_year = contract.start_date
+    _month_year = contract.start_date.replace(day=1)
     today = datetime.date.today()
     Report.objects.create(
         month_year=_month_year,
