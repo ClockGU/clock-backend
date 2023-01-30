@@ -556,3 +556,14 @@ def contract_start_mid_january(create_n_contract_objects, user_object):
 
     update_reports(cont, datetime.date(2020, 2, 1))  # bring second Report up to date
     return cont
+
+
+@pytest.fixture
+def contract_210h_carryover(create_n_contract_objects, user_object):
+    return create_n_contract_objects(
+        (1,),
+        start_date=datetime.date(2019, 1, 1),
+        end_date=datetime.date(2019, 2, 28),
+        initial_carryover_minutes=12600,
+        user=user_object
+    )[0]

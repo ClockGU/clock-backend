@@ -418,7 +418,32 @@ class TestUpdateSignals:
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
         ).worktime == datetime.timedelta(seconds=9.25*3600)
-    
+
+    @pytest.mark.django_db
+    def test_max_carryover_200h(self, contract_210h_carryover, user_object):
+        """
+        Test if the report update uses at max 200h carryover of the previous month.
+        Tested here with a Contract that has initial_carryover_minutes
+        equivalent to 210h and creation of a 3h long shift.
+        """
+        Shift.objects.create(
+            started=datetime.datetime(2019, 1, 29, 10, tzinfo=utc),
+            stopped=datetime.datetime(2019, 1, 29, 13, tzinfo=utc),
+            created_at=datetime.datetime(2019, 1, 29, 10, tzinfo=utc).isoformat(),
+            modified_at=datetime.datetime(2019, 1, 29, 10, tzinfo=utc).isoformat(),
+            type="st",
+            note="smth",
+            user=user_object,
+            created_by=user_object,
+            modified_by=user_object,
+            contract=contract_210h_carryover,
+            was_reviewed=True,
+        )
+
+        assert Report.objects.get(
+            contract=contract_210h_carryover, month_year=datetime.date(2019, 1, 1)
+        ).worktime == datetime.timedelta(hours=203)
+
 
 class TestContractSignals:
     @pytest.mark.django_db

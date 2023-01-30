@@ -158,7 +158,7 @@ def update_reports(contract, month_year):
             map(lambda shift: shift.day_worktime - shift.missing_breaktime, breaktime_data),
             datetime.timedelta(0)
         )
-        carry_over_worktime = report.carryover_previous_month
+        carry_over_worktime = min(report.carryover_previous_month, datetime.timedelta(hours=200))
         report.worktime = carry_over_worktime + total_worktime
         report.save()
 
