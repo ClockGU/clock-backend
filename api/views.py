@@ -20,7 +20,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from unidecode import unidecode
 
-from api.filters import ShiftFilterSet
+from api.filters import ShiftFilterSet, ReportFilterSet
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.serializers import (
     ClockedInShiftSerializer,
@@ -150,6 +150,7 @@ class ClockedInShiftViewSet(viewsets.ModelViewSet):
 class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
+    filterset_class = ReportFilterSet
     name = "reports"
 
     def get_queryset(self):
