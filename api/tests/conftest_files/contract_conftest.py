@@ -38,7 +38,6 @@ def valid_contract_json(user_object):
         "modified_by": user,
         "created_at": created_at,
         "modified_at": modified_at,
-        "carryover_target_date": start_date,
         "initial_carryover_minutes": 0,
     }
 
@@ -179,87 +178,6 @@ def negative_minutes_contract_querydict(negative_minutes_contract_json):
 
 
 @pytest.fixture
-def incorrect_carryover_target_date_contract_json(valid_contract_json):
-    """
-    This fixture creates an invalid (according to the ContractSerializer) JSON dictionary
-    where month_start_clocking date is not in-between start_date and end_date.
-    :param valid_contract_json:
-    :return:
-    """
-    valid_contract_json["carryover_target_date"] = datetime.date(2019, 2, 1).isoformat()
-    return valid_contract_json
-
-
-@pytest.fixture
-def incorrect_carryover_target_date_contract_querydict(
-    incorrect_carryover_target_date_contract_json
-):
-    """
-    This fixture creates a QueryDict out of the incorrect_month_start_clocking_contract_json.
-    :param incorrect_carryover_target_date_contract_json:
-    :return: QueryDict
-    """
-    qdict = QueryDict("", mutable=True)
-    qdict.update(incorrect_carryover_target_date_contract_json)
-    return qdict
-
-
-@pytest.fixture
-def incorrect_date_carryover_target_date_contract_json(valid_contract_json):
-    """
-    This fixture creates an invalid (according to the ContractSerializer) JSON dictionary
-    where month_start_clocking date is not the first of a month.
-    :param valid_contract_json:
-    :return:
-    """
-    valid_contract_json["carryover_target_date"] = datetime.date(
-        2019, 1, 12
-    ).isoformat()
-    return valid_contract_json
-
-
-@pytest.fixture
-def incorrect_date_carryover_target_date_contract_querydict(
-    incorrect_date_carryover_target_date_contract_json
-):
-    """
-    This fixture creates a QueryDict out of the incorrect_date_month_start_clocking_contract_json.
-    :param incorrect_date_carryover_target_date_contract_json:
-    :return: QueryDict
-    """
-    qdict = QueryDict("", mutable=True)
-    qdict.update(incorrect_date_carryover_target_date_contract_json)
-    return qdict
-
-
-@pytest.fixture
-def incorrect_carryover_target_date_for_future_contract_json(valid_contract_json):
-    """
-    This fixture creates an invalid (according to the ContractSerializer) JSON dictionary
-    where month_start_clocking date is 1.1.2019 while the contract starts on 1.2.2019.
-    :param valid_contract_json:
-    :return:
-    """
-    valid_contract_json["start_date"] = datetime.date(2019, 2, 1).isoformat()
-    valid_contract_json["end_date"] = datetime.date(2019, 3, 31).isoformat()
-    return valid_contract_json
-
-
-@pytest.fixture
-def incorrect_carryover_target_date_for_future_contract_querydict(
-    incorrect_carryover_target_date_for_future_contract_json
-):
-    """
-    This fixture creates a QueryDict out of the incorrect_month_start_clocking_for_future_contract_json.
-    :param incorrect_month_start_clocking_for_future_contract_json:
-    :return: QueryDict
-    """
-    qdict = QueryDict("", mutable=True)
-    qdict.update(incorrect_carryover_target_date_for_future_contract_json)
-    return qdict
-
-
-@pytest.fixture
 def non_zero_initial_carryover_minutes_for_future_contract_json(valid_contract_json):
     """
     This fixture creates an invalid (according to the ContractSerializer) JSON dictionary
@@ -269,7 +187,6 @@ def non_zero_initial_carryover_minutes_for_future_contract_json(valid_contract_j
     """
     valid_contract_json["start_date"] = datetime.date(2019, 2, 1).isoformat()
     valid_contract_json["end_date"] = datetime.date(2019, 3, 31).isoformat()
-    valid_contract_json["carryover_target_date"] = datetime.date(2019, 2, 1).isoformat()
     valid_contract_json["initial_carryover_minutes"] = 300
     return valid_contract_json
 
@@ -324,7 +241,6 @@ def create_n_contract_objects(user_object):
         start_date=_start_date,
         end_date=_end_date,
         initial_carryover_minutes=0,
-        carryover_target_date=_start_date,
     ):
         return [
             Contract.objects.create(
@@ -333,7 +249,6 @@ def create_n_contract_objects(user_object):
                 start_date=start_date,
                 end_date=end_date,
                 initial_carryover_minutes=initial_carryover_minutes,
-                carryover_target_date=carryover_target_date,
                 user=user,
                 created_by=user,
                 modified_by=user,
@@ -388,7 +303,6 @@ def contract_ending_in_april(create_n_contract_objects, user_object):
         start_date=datetime.date(2019, 1, 1),
         end_date=datetime.date(2019, 4, 30),
         initial_carryover_minutes=300,
-        carryover_target_date=datetime.date(2019, 3, 1),
     )[0]
 
 
@@ -548,10 +462,9 @@ def contract_start_mid_january(create_n_contract_objects, user_object):
     """
     cont = create_n_contract_objects(
         (1,),
-        start_date=datetime.date(2020, 1, 16),
-        end_date=datetime.date(2020, 2, 29),
+        start_date=datetime.date(2019, 1, 16),
+        end_date=datetime.date(2019, 2, 28),
         user=user_object,
-        carryover_target_date=datetime.date(2020, 1, 1),
     )[0]
 
     update_reports(cont, datetime.date(2020, 2, 1))  # bring second Report up to date

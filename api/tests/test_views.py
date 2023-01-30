@@ -724,6 +724,7 @@ class TestReportApiEndpoint:
         assert content["26.01.2019"]["type"] == _("Vacation")
         assert content["26.01.2019"]["sick_or_vac_time"] == "04:00"
 
+    @pytest.mark.freeze_time("2019-02-10")
     @pytest.mark.django_db
     def test_general_content_debit_worktime_mid_month(
         self, prepared_ReportViewSet_view_mid_january, contract_start_mid_january

@@ -18,14 +18,14 @@ def test_relativedelta_to_string_negative_delta(negative_relativedelta_object):
     assert result_string == "-148:23"
 
 
-class ContractAutomaticReportCreation:
+class TestContractAutomaticReportCreation:
     """
     Test the create_report_after_contract_save recieverfunction invoked on Contract.save() method.
 
-    1) Test that a Report exists for all months in the case start_date < carryover_target_date < today < end_date
+    1) Test that a Report exists for all months in the case start_date < today < end_date
       1.1) Test that the first Report in case 1) has the initial_carryover_minutes as worktime.
-      1.2) Test that all other Reports in case 1.1) have worktime == timedelta(0)
-    2) Test that only one Report exists if today < start_date == carryover_target_date.
+      1.2) Test that all other Reports in case 1.1) were updated after creation: worktime != timedelta(0)
+    2) Test that only one Report exists if today < start_date.
 
     """
 
@@ -44,7 +44,6 @@ class ContractAutomaticReportCreation:
             minutes=1200,
             start_date=datetime.date(2020, 1, 1),
             end_date=datetime.date(2020, 7, 31),
-            carryover_target_date=datetime.date(2020, 1, 1),
             initial_carryover_minutes=0,
             created_by=user_object,
             modified_by=user_object,
@@ -65,14 +64,13 @@ class ContractAutomaticReportCreation:
             minutes=1200,
             start_date=datetime.date(2020, 1, 1),
             end_date=datetime.date(2020, 7, 31),
-            carryover_target_date=datetime.date(2020, 2, 1),
             initial_carryover_minutes=300,
             created_by=user_object,
             modified_by=user_object,
         )
         assert Report.objects.get(
             contract=_contract, month_year=datetime.date(2020, 2, 1)
-        ).worktime == datetime.timedelta(hours=5)
+        ).worktime == datetime.timedelta(minutes=-900)
 
     @freeze_time("2020-04-10")
     @pytest.mark.django_db
@@ -88,7 +86,6 @@ class ContractAutomaticReportCreation:
             minutes=1200,
             start_date=datetime.date(2020, 1, 1),
             end_date=datetime.date(2020, 7, 31),
-            carryover_target_date=datetime.date(2020, 2, 1),
             initial_carryover_minutes=300,
             created_by=user_object,
             modified_by=user_object,
@@ -97,7 +94,7 @@ class ContractAutomaticReportCreation:
         reports = Report.objects.filter(contract=_contract).exclude(
             month_year=datetime.date(2020, 2, 1)
         )
-        assert all([r.worktime == datetime.timedelta() for r in reports])
+        assert all([r.worktime != datetime.timedelta() for r in reports])
 
     @freeze_time("2020-04-10")
     @pytest.mark.django_db
@@ -113,7 +110,6 @@ class ContractAutomaticReportCreation:
             minutes=1200,
             start_date=datetime.date(2020, 5, 1),
             end_date=datetime.date(2020, 7, 31),
-            carryover_target_date=datetime.date(2020, 5, 1),
             initial_carryover_minutes=300,
             created_by=user_object,
             modified_by=user_object,
@@ -167,7 +163,6 @@ class TestUpdateSignals:
             minutes=1200,
             start_date=datetime.date(2019, 1, 1),
             end_date=datetime.date(2019, 7, 31),
-            carryover_target_date=datetime.date(2019, 2, 1),
             initial_carryover_minutes=300,
             created_by=user_object,
             modified_by=user_object,
@@ -186,7 +181,7 @@ class TestUpdateSignals:
         )
         assert Report.objects.get(
             contract=_contract, month_year=datetime.date(2019, 2, 1)
-        ).worktime == datetime.timedelta(minutes=420)
+        ).worktime == datetime.timedelta(minutes=-780)
 
     @pytest.mark.django_db
     def test_signal_updates_shifts_report(

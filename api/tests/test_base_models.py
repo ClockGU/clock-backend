@@ -223,9 +223,6 @@ class TestContractFields:
     def test_model_has_start_carry_over(self, contract_model_class):
         assert hasattr(contract_model_class, "initial_carryover_minutes")
 
-    def test_model_has_month_start_clocking(self, contract_model_class):
-        assert hasattr(contract_model_class, "carryover_target_date")
-
     def test_model_has_last_used(self, contract_model_class):
         assert hasattr(contract_model_class, "last_used")
 
@@ -292,12 +289,6 @@ class TestContractFields:
         assert isinstance(
             contract_model_class._meta.get_field("initial_carryover_minutes"),
             models.IntegerField,
-        )
-
-    def test_field_type_month_start_clocking(self, contract_model_class):
-        assert isinstance(
-            contract_model_class._meta.get_field("carryover_target_date"),
-            models.DateField,
         )
 
 
