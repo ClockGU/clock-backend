@@ -756,8 +756,7 @@ class TestReportApiEndpoint:
         )
 
         pdf = prepared_ReportViewSet_view.compile_pdf(
-            template_name="api/stundenzettel.html",
-            content_dict=export_content,
+            template_name="api/stundenzettel.html", content_dict=export_content
         )
         assert pdf.startswith(bytes("%PDF-1", "UTF-8"))
 

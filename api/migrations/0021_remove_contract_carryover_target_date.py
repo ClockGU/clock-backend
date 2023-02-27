@@ -5,13 +5,8 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0020_user_onboarding_passed'),
-    ]
+    dependencies = [("api", "0020_user_onboarding_passed")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='contract',
-            name='carryover_target_date',
-        ),
+        migrations.RemoveField(model_name="contract", name="carryover_target_date")
     ]
