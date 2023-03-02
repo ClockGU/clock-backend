@@ -300,8 +300,7 @@ class TestContractSerializerValidation:
         seri.is_valid()
         validated_data = seri.validated_data
         start_date_changed = (
-            validated_data.get("start_date")
-            != contract_ending_in_april.start_date
+            validated_data.get("start_date") != contract_ending_in_april.start_date
         )
         initial_carryover_minutes_changed = (
             validated_data.get("initial_carryover_minutes")

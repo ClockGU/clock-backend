@@ -19,8 +19,12 @@ class Command(BaseCommand):
         if user is None:
             raise CommandError("User ID is not defined.")
 
-        shifts = Shift.objects.filter(user=user, started__month=options["month"], started__year=options["year"])
+        shifts = Shift.objects.filter(
+            user=user, started__month=options["month"], started__year=options["year"]
+        )
         shifts.update(locked=False)
         self.stdout.write(
-            self.style.SUCCESS(f"All Shifts in {options['month']}.{options['year']} (MM.YYYY) are unlocked.")
+            self.style.SUCCESS(
+                f"All Shifts in {options['month']}.{options['year']} (MM.YYYY) are unlocked."
+            )
         )
