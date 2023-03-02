@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0019_auto_20210604_2027'),
-    ]
+    dependencies = [("api", "0019_auto_20210604_2027")]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='onboarding_passed',
+            model_name="user",
+            name="onboarding_passed",
             field=models.BooleanField(default=False),
-        ),
+        )
     ]

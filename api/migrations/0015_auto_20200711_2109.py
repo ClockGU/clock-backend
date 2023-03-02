@@ -29,38 +29,40 @@ def revert_populate_start_carry_over(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0014_auto_20200702_1157'),
-    ]
+    dependencies = [("api", "0014_auto_20200702_1157")]
     state_operations = [
         migrations.AlterField(
-            model_name='contract',
-            name='carryover_target_date',
-            field=models.DateField()
+            model_name="contract",
+            name="carryover_target_date",
+            field=models.DateField(),
         ),
         migrations.AlterField(
-            model_name='contract',
-            name='initial_carryover_minutes',
+            model_name="contract",
+            name="initial_carryover_minutes",
             field=models.IntegerField(),
-        )
+        ),
     ]
     database_operations = [
-        migrations.RunPython(populate_month_start_clocking, reverse_code=revert_populate_month_start_clocking),
-        migrations.RunPython(populate_start_carry_over, reverse_code=revert_populate_start_carry_over),
+        migrations.RunPython(
+            populate_month_start_clocking,
+            reverse_code=revert_populate_month_start_clocking,
+        ),
+        migrations.RunPython(
+            populate_start_carry_over, reverse_code=revert_populate_start_carry_over
+        ),
     ]
     operations = [
         migrations.AddField(
-            model_name='contract',
-            name='carryover_target_date',
+            model_name="contract",
+            name="carryover_target_date",
             field=models.DateField(null=True),
         ),
         migrations.AddField(
-            model_name='contract',
-            name='initial_carryover_minutes',
+            model_name="contract",
+            name="initial_carryover_minutes",
             field=models.IntegerField(null=True),
         ),
         migrations.SeparateDatabaseAndState(
-            database_operations=database_operations,
-            state_operations=state_operations
+            database_operations=database_operations, state_operations=state_operations
         ),
     ]

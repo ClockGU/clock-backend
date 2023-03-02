@@ -5,14 +5,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0018_contract_last_used'),
-    ]
+    dependencies = [("api", "0018_contract_last_used")]
 
     operations = [
         migrations.AlterField(
-            model_name='shift',
-            name='type',
-            field=models.CharField(choices=[('st', 'Shift'), ('sk', 'Sick'), ('vn', 'Vacation'), ('bh', 'Bank Holiday')], max_length=2),
-        ),
+            model_name="shift",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("st", "Shift"),
+                    ("sk", "Sick"),
+                    ("vn", "Vacation"),
+                    ("bh", "Bank Holiday"),
+                ],
+                max_length=2,
+            ),
+        )
     ]

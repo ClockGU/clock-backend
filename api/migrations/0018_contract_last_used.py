@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0017_add_dsgvo_accepted_field_user'),
-    ]
+    dependencies = [("api", "0017_add_dsgvo_accepted_field_user")]
 
     operations = [
         migrations.AddField(
-            model_name='contract',
-            name='last_used',
+            model_name="contract",
+            name="last_used",
             field=models.DateTimeField(default=datetime.datetime.now),
-        ),
+        )
     ]

@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0016_auto_20200811_1639'),
-    ]
+    dependencies = [("api", "0016_auto_20200811_1639")]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='dsgvo_accepted',
+            model_name="user",
+            name="dsgvo_accepted",
             field=models.BooleanField(default=False),
-        ),
+        )
     ]

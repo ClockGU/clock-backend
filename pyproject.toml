@@ -63,12 +63,6 @@ isort = "^4.3.21"
 
 [tool.black]
 line-length = 88
-extend-exclude = '''
-/(
-    api\/migrations
-  | feedback\/migrations
-)/
-'''
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]
