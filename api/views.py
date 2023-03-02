@@ -20,7 +20,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from unidecode import unidecode
 
-from api.filters import ShiftFilterSet, ReportFilterSet
+from api.filters import ReportFilterSet, ShiftFilterSet
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.serializers import (
     ClockedInShiftSerializer,
@@ -31,7 +31,6 @@ from api.serializers import (
 )
 from api.utilities import relativedelta_to_string, timedelta_to_string
 from project_celery.tasks import async_5_user_creation
-
 
 # Proof of Concept that celery works
 
@@ -204,8 +203,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         report = self.get_object()
         aggregated_content = self.aggregate_export_content(report_object=report)
         pdf = self.compile_pdf(
-            template_name="api/stundenzettel.html",
-            content_dict=aggregated_content,
+            template_name="api/stundenzettel.html", content_dict=aggregated_content
         )
         response = HttpResponse(pdf, content_type="application/pdf")
         response[

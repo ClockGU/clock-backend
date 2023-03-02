@@ -1,9 +1,10 @@
+import datetime
 from datetime import datetime
 
 import pytest
 from freezegun import freeze_time
 from pytz import utc
-import datetime
+
 from api.models import Contract, Report, Shift
 from api.utilities import relativedelta_to_string
 
@@ -298,7 +299,7 @@ class TestUpdateSignals:
 
     @pytest.mark.django_db
     def test_signal_subtracts_missing_45_min_breaktime(
-            self, contract_object, user_object
+        self, contract_object, user_object
     ):
         """
         Test that the Report update subtraqcts missing 45 min breaks for Shift durations above 9h.
@@ -318,11 +319,11 @@ class TestUpdateSignals:
         )
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
-        ).worktime == datetime.timedelta(seconds=9.25*3600)
+        ).worktime == datetime.timedelta(seconds=9.25 * 3600)
 
     @pytest.mark.django_db
     def test_signal_subtracts_missing_30_min_breaktime(
-            self, contract_object, user_object
+        self, contract_object, user_object
     ):
         """
         Test that the Report update subtracts missing 30 min breaks for Shift durations above 6h and lower than 9h.
@@ -342,11 +343,11 @@ class TestUpdateSignals:
         )
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
-        ).worktime == datetime.timedelta(seconds=6.5*3600)
+        ).worktime == datetime.timedelta(seconds=6.5 * 3600)
 
     @pytest.mark.django_db
     def test_signal_doesnt_subtract_missing_breaktime(
-            self, contract_object, user_object
+        self, contract_object, user_object
     ):
         """
         Test that the report update does not substract any breaktime if not needed.
@@ -366,12 +367,10 @@ class TestUpdateSignals:
         )
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
-        ).worktime == datetime.timedelta(seconds=4*3600)
+        ).worktime == datetime.timedelta(seconds=4 * 3600)
 
     @pytest.mark.django_db
-    def test_signal_subtract_missing_breaktime(
-            self, contract_object, user_object
-    ):
+    def test_signal_subtract_missing_breaktime(self, contract_object, user_object):
         """
         Test that the report update does substract missing breaktime.
 
@@ -412,7 +411,7 @@ class TestUpdateSignals:
 
         assert Report.objects.get(
             contract=contract_object, month_year=datetime.date(2019, 1, 1)
-        ).worktime == datetime.timedelta(seconds=9.25*3600)
+        ).worktime == datetime.timedelta(seconds=9.25 * 3600)
 
     @pytest.mark.django_db
     def test_max_carryover_200h(self, contract_210h_carryover, user_object):

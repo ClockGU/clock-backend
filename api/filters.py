@@ -18,4 +18,6 @@ class ShiftFilterSet(django_filters.FilterSet):
 class ReportFilterSet(django_filters.FilterSet):
 
     contract = django_filters.UUIDFilter(field_name="contract", lookup_expr="exact")
-    month_year__gte = django_filters.DateFilter(field_name="month_year", lookup_expr="gte")
+    month_year__gte = django_filters.DateFilter(
+        field_name="month_year", lookup_expr="gte"
+    )

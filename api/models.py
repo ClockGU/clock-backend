@@ -1,8 +1,8 @@
 import uuid
 from calendar import monthrange
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models

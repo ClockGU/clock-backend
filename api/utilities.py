@@ -1,12 +1,23 @@
-from dateutil.relativedelta import relativedelta
-from django.db.models import DurationField, F, Sum, Window, When, Case, Value, ExpressionWrapper
-from django.db.models.functions import Trunc, FirstValue, LastValue
-from django.db.models.signals import post_delete, post_save
 import datetime
+
+from dateutil.relativedelta import relativedelta
+from django.db.models import (
+    Case,
+    DurationField,
+    ExpressionWrapper,
+    F,
+    Sum,
+    Value,
+    When,
+    Window,
+)
+from django.db.models.functions import FirstValue, LastValue, Trunc
+from django.db.models.signals import post_delete, post_save
 
 from api.models import Contract, Report, Shift
 
 # Receiver used for the main API
+
 
 def relativedelta_to_string(relative_time_delta):
     """
@@ -118,48 +129,63 @@ def update_reports(contract, month_year):
     # Loop over all Reports starting from month in which the created/update shift
     # took place.
     for report in Report.objects.filter(contract=contract, month_year__gte=month_year):
-        data_per_day = Shift.objects.filter(
-            contract=report.contract,
-            started__month=report.month_year.month,
-            started__year=report.month_year.year,
-            was_reviewed=True,
-        ).annotate(
-            day_worktime=ExpressionWrapper(
-                Window(
-                    expression=Sum(F("stopped") - F("started")), partition_by=[Trunc("started", "day")]
-                ),
-                DurationField()
-            ),
-            first_started=Window(
-                expression=FirstValue("started"), partition_by=[Trunc("started", "day")]
-            ),
-            last_stopped=Window(
-                expression=LastValue("stopped"), partition_by=[Trunc("started", "day")]
+        data_per_day = (
+            Shift.objects.filter(
+                contract=report.contract,
+                started__month=report.month_year.month,
+                started__year=report.month_year.year,
+                was_reviewed=True,
             )
-        ).distinct("started__date")
+            .annotate(
+                day_worktime=ExpressionWrapper(
+                    Window(
+                        expression=Sum(F("stopped") - F("started")),
+                        partition_by=[Trunc("started", "day")],
+                    ),
+                    DurationField(),
+                ),
+                first_started=Window(
+                    expression=FirstValue("started"),
+                    partition_by=[Trunc("started", "day")],
+                ),
+                last_stopped=Window(
+                    expression=LastValue("stopped"),
+                    partition_by=[Trunc("started", "day")],
+                ),
+            )
+            .distinct("started__date")
+        )
         breaktime_data = data_per_day.annotate(
-            breaktime=ExpressionWrapper(F("last_stopped") - F("first_started") - F("day_worktime"), DurationField()),
+            breaktime=ExpressionWrapper(
+                F("last_stopped") - F("first_started") - F("day_worktime"),
+                DurationField(),
+            ),
             missing_breaktime=Case(
                 When(
                     day_worktime__gt=datetime.timedelta(hours=6),
                     day_worktime__lte=datetime.timedelta(hours=9),
                     breaktime__lt=datetime.timedelta(minutes=30),
-                    then=datetime.timedelta(minutes=30) - F("breaktime")
+                    then=datetime.timedelta(minutes=30) - F("breaktime"),
                 ),
                 When(
                     day_worktime__gt=datetime.timedelta(hours=9),
                     breaktime__lt=datetime.timedelta(minutes=45),
-                    then=datetime.timedelta(minutes=45) - F("breaktime")
+                    then=datetime.timedelta(minutes=45) - F("breaktime"),
                 ),
                 default=Value(datetime.timedelta(0)),
-                output_field=DurationField()
-            )
+                output_field=DurationField(),
+            ),
         )
         total_worktime = sum(
-            map(lambda shift: shift.day_worktime - shift.missing_breaktime, breaktime_data),
-            datetime.timedelta(0)
+            map(
+                lambda shift: shift.day_worktime - shift.missing_breaktime,
+                breaktime_data,
+            ),
+            datetime.timedelta(0),
         )
-        carry_over_worktime = min(report.carryover_previous_month, datetime.timedelta(hours=200))
+        carry_over_worktime = min(
+            report.carryover_previous_month, datetime.timedelta(hours=200)
+        )
         report.worktime = carry_over_worktime + total_worktime
         report.save()
 

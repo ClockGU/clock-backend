@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 import pytest
 from dateutil.parser import parse
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from freezegun import freeze_time
 from rest_framework import serializers, status
-from django.utils.translation import ugettext_lazy as _
 
 from api.models import Contract, Report, Shift, User
 
@@ -756,8 +756,7 @@ class TestReportApiEndpoint:
         )
 
         pdf = prepared_ReportViewSet_view.compile_pdf(
-            template_name="api/stundenzettel.html",
-            content_dict=export_content,
+            template_name="api/stundenzettel.html", content_dict=export_content
         )
         assert pdf.startswith(bytes("%PDF-1", "UTF-8"))
 

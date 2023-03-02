@@ -12,18 +12,20 @@
 #
 import os
 import sys
+
 import django
-sys.path.insert(0, os.path.abspath('.'))
+
+sys.path.insert(0, os.path.abspath("."))
 FILE_PATH = os.path.dirname(__file__)
-path = FILE_PATH[:FILE_PATH.rfind("/")]
-prev_path = path[:path.rfind("/")]
+path = FILE_PATH[: FILE_PATH.rfind("/")]
+prev_path = path[: path.rfind("/")]
 
 sys.path.append(prev_path)
 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath(".."))
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.local'
-os.environ['DJANGO_SECRET_KEY'] = "h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)"
+os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.local"
+os.environ["DJANGO_SECRET_KEY"] = "h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)"
 os.environ["POSTGRES_HOST"] = "db"
 os.environ["POSTGRES_PORT"] = "5432"
 os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.local"
@@ -33,9 +35,9 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = 'Clock-Backend'
-copyright = '2022, Christian Grossmüller'
-author = 'Christian Grossmüller'
+project = "Clock-Backend"
+copyright = "2022, Christian Grossmüller"
+author = "Christian Grossmüller"
 
 
 # -- General configuration ---------------------------------------------------
@@ -44,20 +46,20 @@ author = 'Christian Grossmüller'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.duration',
-    'sphinx.ext.doctest',
-    'sphinx.ext.autodoc',
+    "sphinx.ext.duration",
+    "sphinx.ext.doctest",
+    "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
 ]
-autodoc_default_flags = ['members']
+autodoc_default_flags = ["members"]
 autosummary_generate = True
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['**/migrations*', ]
+exclude_patterns = ["**/migrations*"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -65,11 +67,9 @@ exclude_patterns = ['**/migrations*', ]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-
-
+html_static_path = ["_static"]

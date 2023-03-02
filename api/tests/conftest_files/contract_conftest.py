@@ -478,5 +478,5 @@ def contract_210h_carryover(create_n_contract_objects, user_object):
         start_date=datetime.date(2019, 1, 1),
         end_date=datetime.date(2019, 2, 28),
         initial_carryover_minutes=12600,
-        user=user_object
+        user=user_object,
     )[0]
