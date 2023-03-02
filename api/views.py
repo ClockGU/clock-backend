@@ -204,8 +204,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         report = self.get_object()
         aggregated_content = self.aggregate_export_content(report_object=report)
         pdf = self.compile_pdf(
-            template_name="api/stundenzettel.html",
-            content_dict=aggregated_content,
+            template_name="api/stundenzettel.html", content_dict=aggregated_content
         )
         response = HttpResponse(pdf, content_type="application/pdf")
         response[

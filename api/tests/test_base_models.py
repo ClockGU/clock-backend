@@ -682,21 +682,15 @@ class TestReportProperties:
 
     @pytest.mark.django_db
     def test_field_type_debit_worktime(self, report_object):
-        assert isinstance(
-            report_object.debit_worktime, datetime.timedelta
-        )
+        assert isinstance(report_object.debit_worktime, datetime.timedelta)
 
     @pytest.mark.django_db
     def test_field_type_carryover(self, report_object):
-        assert isinstance(
-            report_object.carryover, datetime.timedelta
-        )
+        assert isinstance(report_object.carryover, datetime.timedelta)
 
     @pytest.mark.django_db
     def test_field_type_carryover_previous_month(self, report_object):
-        assert isinstance(
-            report_object.carryover_previous_month, datetime.timedelta
-        )
+        assert isinstance(report_object.carryover_previous_month, datetime.timedelta)
 
     @pytest.mark.django_db
     def test_field_type_debit_worktime_in_report_object(self, report_object):
@@ -709,4 +703,3 @@ class TestReportProperties:
     @pytest.mark.django_db
     def test_field_type_carryover_previous_month_in_report_object(self, report_object):
         assert report_object.carryover_previous_month == datetime.timedelta(0)
-

@@ -19,7 +19,12 @@ class UserAdmin(BaseUserAdmin):
         "modified_at",
     )
     fieldsets = BaseUserAdmin.fieldsets
-    fieldsets[1][1]["fields"] += ("language", "personal_number", "dsgvo_accepted", "onboarding_passed")
+    fieldsets[1][1]["fields"] += (
+        "language",
+        "personal_number",
+        "dsgvo_accepted",
+        "onboarding_passed",
+    )
     ordering = ("-date_joined",)
     readonly_fields = ("date_joined",)
 
