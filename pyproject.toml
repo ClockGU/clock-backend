@@ -60,11 +60,15 @@ isort = "^4.3.21"
 
 [tool.black]
 exclude = '''
-/(
-    api\/migrations
-  | feedback\/migrations
-)/
+/(migrations)/
 '''
+line_length = 88
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+
 [build-system]
 requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
