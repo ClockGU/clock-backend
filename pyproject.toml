@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["Christian Grossmüller <chgad.games@gmail.com>", "Michael Gecht <gecht.m@gmail.com>"]
 
+[tool.isort]
+profile = "black"
+
 [tool.poetry.dependencies]
 python = "^3.7"
 gunicorn = "==19.9.0"
@@ -59,12 +62,14 @@ django-request-logging = "^0.7.1"
 isort = "^4.3.21"
 
 [tool.black]
-exclude = '''
+line-length = 88
+extend-exclude = '''
 /(
     api\/migrations
   | feedback\/migrations
 )/
 '''
+
 [build-system]
 requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
