@@ -63,8 +63,6 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("The field 'first_name' is required.")
         if not last_name:
             raise ValueError("The field 'last_name' is required.")
-        if not personal_number:
-            raise ValueError("The field 'personal_number' is required.")
         if not password:
             raise ValueError("The field 'password' is required.")
         # We always set the provided username to the user's email
@@ -103,7 +101,9 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50)  # Firstname is required
     last_name = models.CharField(max_length=100)  # Lastname is required
-    personal_number = models.CharField(max_length=100, default="")
+    personal_number = models.CharField(
+        max_length=100, default="", null=True, blank=True
+    )
     language = models.CharField(choices=LANGUAGE_CHOICES, default="de", max_length=2)
     date_joined = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
