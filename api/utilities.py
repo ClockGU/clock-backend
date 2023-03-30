@@ -77,8 +77,8 @@ def create_reports_for_contract(contract):
     )
     _month_year += relativedelta(months=1)
 
-    # Create Reports for all months between start_date and now
-    while _month_year <= today:
+    # Create Reports for all months between start_date and now/end_date
+    while _month_year <= today and _month_year <= contract.end_date:
         Report.objects.create(
             month_year=_month_year,
             worktime=datetime.timedelta(0),
