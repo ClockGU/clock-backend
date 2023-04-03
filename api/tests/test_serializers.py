@@ -1,7 +1,6 @@
 import datetime
 
 import pytest
-from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import exceptions, serializers
 
@@ -175,64 +174,6 @@ class TestContractSerializerValidation:
 
     @pytest.mark.freeze_time("2019-01-01")
     @pytest.mark.django_db
-    def test_carryover_target_date_not_in_month_range(
-        self, incorrect_carryover_target_date_contract_querydict, plain_request_object
-    ):
-        """
-        Test if it is allowed to have a month_start_clocking not in-between start_date
-        and end_date.
-        :param incorrect_month_start_clocking_contract_querydict:
-        :param plain_request_object:
-        :return:
-        """
-        with pytest.raises(serializers.ValidationError):
-            ContractSerializer(
-                data=incorrect_carryover_target_date_contract_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
-    @pytest.mark.freeze_time("2019-01-01")
-    @pytest.mark.django_db
-    def test_carryover_target_date_incorrect_date(
-        self,
-        incorrect_date_carryover_target_date_contract_querydict,
-        plain_request_object,
-    ):
-        """
-        Test if it is allowed to have a month_start_clocking which is not the first of a
-        month.
-        :param incorrect_date_month_start_clocking_contract_querydict:
-        :param plain_request_object:
-        :return:
-        """
-        with pytest.raises(serializers.ValidationError):
-            ContractSerializer(
-                data=incorrect_date_carryover_target_date_contract_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
-    @pytest.mark.freeze_time("2019-01-01")
-    @pytest.mark.django_db
-    def test_month_start_clocking_incorrect_for_future_contract(
-        self,
-        incorrect_carryover_target_date_for_future_contract_querydict,
-        plain_request_object,
-    ):
-        """
-        Test if is allowed to set month_start_clock to a different date then start_date.replace(day=1)
-        if contract starts in the future.
-        :param incorrect_month_start_clocking_for_future_contract_querydict:
-        :param plain_request_object:
-        :return:
-        """
-        with pytest.raises(serializers.ValidationError):
-            ContractSerializer(
-                data=incorrect_carryover_target_date_for_future_contract_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
-    @pytest.mark.freeze_time("2019-01-01")
-    @pytest.mark.django_db
     def test_start_carry_over_non_zerofuture_contract(
         self,
         non_zero_initial_carryover_minutes_for_future_contract_querydict,
@@ -267,7 +208,7 @@ class TestContractSerializerValidation:
         """
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
-        ).worktime == datetime.timedelta(hours=10)
+        ).worktime == datetime.timedelta(hours=-30)
 
         seri = ContractSerializer(
             instance=contract_ending_in_april,
@@ -280,29 +221,29 @@ class TestContractSerializerValidation:
 
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
-        ).worktime == datetime.timedelta(hours=15)
+        ).worktime == datetime.timedelta(hours=-25)
 
     @pytest.mark.freeze_time("2019-3-1")
     @pytest.mark.django_db
-    def test_update_carryover_target_date_recreates_reports(
+    def test_update_start_date_recreates_reports(
         self,
         contract_ending_in_april,
         shift_contract_ending_in_april,
         plain_request_object,
     ):
         """
-        Test wether the serializers update method deletes existing reports and recreates them when
-        the carryover_target_date is updated.
+        Test whether the serializers update method deletes existing reports and recreates them when
+        the start_date is updated.
         :param contract_ending_in_april:
         :param shift_contract_ending_in_april:
         :return:
         """
 
-        assert Report.objects.filter(contract=contract_ending_in_april).count() == 1
+        assert Report.objects.filter(contract=contract_ending_in_april).count() == 3
         old_report_pk = Report.objects.filter(contract=contract_ending_in_april)[0].pk
         seri = ContractSerializer(
             instance=contract_ending_in_april,
-            data={"carryover_target_date": datetime.date(2019, 2, 1)},
+            data={"start_date": datetime.date(2019, 2, 1)},
             partial=True,
             context={"request": plain_request_object},
         )
@@ -314,13 +255,14 @@ class TestContractSerializerValidation:
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 2, 1)
         ).worktime == datetime.timedelta(hours=5)
+        # The shift_contract_ending_in_april has a 5 hours duration
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
         ).worktime == datetime.timedelta(hours=-10)
 
     @pytest.mark.freeze_time("2019-3-1")
     @pytest.mark.django_db
-    def test_update_carryover_and_target_date_correct_evaluated(
+    def test_update_carryover_minutes_and_start_date_correct_evaluated(
         self,
         user_object,
         contract_ending_in_april,
@@ -328,10 +270,10 @@ class TestContractSerializerValidation:
         plain_request_object,
     ):
         """
-        By the tests 'test_update_carryover_target_date_recreates_reports' and
+        By the tests 'test_update_start_date_recreates_reports' and
         'test_update_initial_carryover_minutes_updates_reports' we allready checked that PATCH'ing
         (parital updates) works. In order to not bother checking the Reports etc. for PUT'ing
-        we just test the logic which determines whether or not either carryover_target_date and/or
+        we just test the logic which determines whether or not either start_date and/or
         initial_carryover_minutes change (see update method of ContractSerializer).
         :param contract_ending_in_april:
         :param shift_contract_ending_in_april:
@@ -341,14 +283,13 @@ class TestContractSerializerValidation:
         data = {
             "name": "Test Contract1",
             "minutes": 1200,
-            "start_date": datetime.date(2019, 1, 1),
+            "start_date": datetime.date(2019, 2, 1),
             "end_date": datetime.date(2019, 4, 30),
             "user": str(user_object.id),
             "created_by": str(user_object.id),
             "modified_by": str(user_object.id),
             "created_at": contract_ending_in_april.created_at,
             "modified_at": contract_ending_in_april.modified_at,
-            "carryover_target_date": datetime.date(2019, 2, 1),
             "initial_carryover_minutes": 600,
         }
         seri = ContractSerializer(
@@ -358,15 +299,14 @@ class TestContractSerializerValidation:
         )
         seri.is_valid()
         validated_data = seri.validated_data
-        carryover_target_date_changed = (
-            validated_data.get("carryover_target_date")
-            != contract_ending_in_april.carryover_target_date
+        start_date_changed = (
+            validated_data.get("start_date") != contract_ending_in_april.start_date
         )
         initial_carryover_minutes_changed = (
             validated_data.get("initial_carryover_minutes")
             != contract_ending_in_april.initial_carryover_minutes
         )
-        assert carryover_target_date_changed
+        assert start_date_changed
         assert initial_carryover_minutes_changed
 
     @pytest.mark.freeze_time("2019-1-20")
@@ -377,7 +317,6 @@ class TestContractSerializerValidation:
         plain_request_object,
         contract_object,
     ):
-
         with pytest.raises(serializers.ValidationError):
             ContractSerializer(
                 instance=contract_object,
@@ -404,20 +343,22 @@ class TestShiftSerializerValidation:
         ).is_valid(raise_exception=True)
 
     @pytest.mark.django_db
-    def test_stopped_before_started_validation(
-        self, stopped_before_started_querydict, plain_request_object
+    def test_shift_not_createable_if_allready_exported_exist(
+        self,
+        valid_shift_querydict,
+        plain_request_object,
+        test_shift_creation_if_allready_exported,
     ):
         """
-        The  ShiftSerializer is tested whether it raises a Validation
-        if the started and ended datetimes are causally incorrect.
-        :param stopped_before_started_querydict:
+        Test that we can not create a Shift if allready exported Shifts exist for this month.
+        :param valid_shift_querydict:
         :param plain_request_object:
+        :param test_shift_creation_if_allready_exported:
         :return:
         """
-        with pytest.raises(serializers.ValidationError):
+        with pytest.raises(exceptions.PermissionDenied):
             ShiftSerializer(
-                data=stopped_before_started_querydict,
-                context={"request": plain_request_object},
+                data=valid_shift_querydict, context={"request": plain_request_object}
             ).is_valid(raise_exception=True)
 
     @pytest.mark.django_db
@@ -434,6 +375,23 @@ class TestShiftSerializerValidation:
         with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=stopped_on_next_day_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_stopped_before_started_validation(
+        self, stopped_before_started_querydict, plain_request_object
+    ):
+        """
+        The  ShiftSerializer is tested whether it raises a Validation
+        if the started and ended datetimes are causally incorrect.
+        :param stopped_before_started_querydict:
+        :param plain_request_object:
+        :return:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=stopped_before_started_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
@@ -488,6 +446,118 @@ class TestShiftSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    @freeze_time("2019-02-10 00:00:00+00:00")
+    @pytest.mark.django_db
+    def test_shift_in_past_as_planned_fails(
+        self, shift_is_planned_but_started_in_past_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=shift_is_planned_but_started_in_past_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @freeze_time("2019-01-01 00:00:00+00:00")
+    @pytest.mark.django_db
+    def test_shift_in_future_was_reviewed_fails(
+        self, shift_starting_in_future_was_reviewed_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=shift_starting_in_future_was_reviewed_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_reviewed_shift_on_sunday_not_allowed(
+        self, shift_on_a_sunday_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=shift_on_a_sunday_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @freeze_time("2019-01-01 00:00:00+00:00")
+    @pytest.mark.django_db
+    def test_shift_in_future_was_reviewed_fails(
+        self, shift_starting_in_future_was_reviewed_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=shift_starting_in_future_was_reviewed_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_reviewed_shift_on_sunday_not_allowed(
+        self, shift_on_a_sunday_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=shift_on_a_sunday_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_reviewed_shift_on_holiday_typ_normal_not_allowed(
+        self, normal_shift_on_a_holiday_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=normal_shift_on_a_holiday_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_reviewed_vacation_shift_day_exclusive(
+        self, shift_object, vacation_shift_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=vacation_shift_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_reviewed_sick_shift_day_exclusive(
+        self, shift_object, sick_shift_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=sick_shift_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_maximum_shift_length_ten_hour_fortyfive_minutes(
+        self, ten_hour_fortyfive_minutes_shift_json_querydict, plain_request_object
+    ):
+        ShiftSerializer(
+            data=ten_hour_fortyfive_minutes_shift_json_querydict,
+            context={"request": plain_request_object},
+        ).is_valid(raise_exception=False)
+
+    @pytest.mark.django_db
+    def test_eleven_hour_shift_not_allowed(
+        self, eleven_hour_shift_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=eleven_hour_shift_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_creating_shift_in_not_owned_contract_not_allowed(
+        self, valid_shift_different_contract_json_querydict, plain_request_object
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ShiftSerializer(
+                data=valid_shift_different_contract_json_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
     @pytest.mark.django_db
     def test_type_validation(self, wrong_type_querydict, plain_request_object):
         """
@@ -514,47 +584,6 @@ class TestShiftSerializerValidation:
         with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=tags_not_string_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
-    @freeze_time("2019-02-10 00:00:00+00:00")
-    @pytest.mark.django_db
-    def test_shift_in_past_as_planned_fails(
-        self, shift_is_planned_but_started_in_past_json_querydict, plain_request_object
-    ):
-        with pytest.raises(serializers.ValidationError):
-            ShiftSerializer(
-                data=shift_is_planned_but_started_in_past_json_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
-    @pytest.mark.django_db
-    def test_shift_not_createable_if_allready_exported_exist(
-        self,
-        valid_shift_querydict,
-        plain_request_object,
-        test_shift_creation_if_allready_exported,
-    ):
-        """
-        Test that we can not create a Shift if allready exported Shifts exist for this month.
-        :param valid_shift_querydict:
-        :param plain_request_object:
-        :param test_shift_creation_if_allready_exported:
-        :return:
-        """
-        with pytest.raises(exceptions.PermissionDenied):
-            ShiftSerializer(
-                data=valid_shift_querydict, context={"request": plain_request_object}
-            ).is_valid(raise_exception=True)
-
-    @freeze_time("2019-01-01 00:00:00+00:00")
-    @pytest.mark.django_db
-    def test_shift_in_future_was_reviewed_fails(
-        self, shift_starting_in_future_was_reviewed_querydict, plain_request_object
-    ):
-        with pytest.raises(serializers.ValidationError):
-            ShiftSerializer(
-                data=shift_starting_in_future_was_reviewed_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
@@ -595,7 +624,6 @@ class TestClockedInShiftSerializer:
         The ClockedInShiftSerializer is tested if a valid JSON passes validation.
         :param valid_clockedinshift_querydict:
         :param plain_request_object:
-        :return:
         """
         ClockedInShiftSerializer(
             data=valid_clockedinshift_querydict,
@@ -611,11 +639,59 @@ class TestClockedInShiftSerializer:
         if the provided contract does not belong to the provided user.
         :param clockedinshift_invalid_contract_json:
         :param plain_request_object:
-        :return:
         """
         with pytest.raises(serializers.ValidationError):
             ShiftSerializer(
                 data=clockedinshift_invalid_contract_json,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_invalid_clocking_on_day_with_vacation_shift(
+        self, valid_vacation_shift, valid_clockedinshift_querydict, plain_request_object
+    ):
+        """
+        The  ClockedInShiftSerializer is tested whether it raises a Validation
+        Error if there is already a vacation shift on this day.
+        :param valid_vacation_shift:
+        :param valid_clockedinshift_querydict:
+        :param plain_request_object:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ClockedInShiftSerializer(
+                data=valid_clockedinshift_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_invalid_clocking_on_sunday(
+        self, valid_clockedinshift_sunday_querydict, plain_request_object
+    ):
+        """
+        The  ClockedInShiftSerializer is tested whether it raises a Validation
+        Error if the clocked Shift is on a sunday.
+        :param valid_clockedinshift_sunday_querydict:
+        :param plain_request_object:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ClockedInShiftSerializer(
+                data=valid_clockedinshift_sunday_querydict,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_invalid_clocking_on_holiday(
+        self, valid_clockedinshift_holiday_querydict, plain_request_object
+    ):
+        """
+        The  ClockedInShiftSerializer is tested whether it raises a Validation
+        Error if the clocked Shift is on a holiday.
+        :param valid_clockedinshift_holiday_querydict:
+        :param plain_request_object:
+        """
+        with pytest.raises(serializers.ValidationError):
+            ClockedInShiftSerializer(
+                data=valid_clockedinshift_holiday_querydict,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
@@ -634,7 +710,7 @@ class TestReportSerializer:
             contract=contract_start_mid_january,
             month_year=contract_start_mid_january.start_date.replace(day=1),
         )
-        assert ReportSerializer(rep).data["carry_over_next_month"] == "-10:19"
+        assert ReportSerializer(rep).data["carryover"] == "-10:19"
 
     @pytest.mark.django_db
     @pytest.mark.freeze_time("2020-02-01")
@@ -649,20 +725,4 @@ class TestReportSerializer:
             contract=contract_start_mid_january,
             month_year=contract_start_mid_january.end_date.replace(day=1),
         )
-        assert ReportSerializer(rep).data["carry_over_last_month"] == "-10:19"
-
-    @pytest.mark.django_db
-    @pytest.mark.freeze_time("2020-02-01")
-    def test_net_worktime(self, contract_start_mid_january):
-        """
-        Testing that the net_worktime for the next month after the start in the middle of the month is
-        1+(16/31) times the debit_worktime (assuming no shifts in both months).
-        :param contract_start_mid_january:
-        :return:
-        """
-        rep = Report.objects.get(
-            contract=contract_start_mid_january,
-            month_year=contract_start_mid_january.end_date.replace(day=1),
-        )
-
-        assert ReportSerializer(rep).data["net_worktime"] == "00:00"
+        assert ReportSerializer(rep).data["carryover_previous_month"] == "-10:19"

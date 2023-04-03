@@ -1,7 +1,9 @@
 from datetime import timedelta
 
+import weasyprint
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
@@ -18,7 +20,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from unidecode import unidecode
 
-from api.filters import ShiftFilterSet
+from api.filters import ShiftFilterSet, ReportFilterSet
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.serializers import (
     ClockedInShiftSerializer,
@@ -29,6 +31,7 @@ from api.serializers import (
 )
 from api.utilities import relativedelta_to_string, timedelta_to_string
 from project_celery.tasks import async_5_user_creation
+
 
 # Proof of Concept that celery works
 
@@ -77,7 +80,6 @@ class ContractViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def lock_shifts(self, request, month=None, year=None, *args, **kwargs):
-
         instance = self.get_object()
         Shift.objects.filter(
             contract=instance, started__month=month, started__year=year
@@ -148,6 +150,7 @@ class ClockedInShiftViewSet(viewsets.ModelViewSet):
 class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
+    filterset_class = ReportFilterSet
     name = "reports"
 
     def get_queryset(self):
@@ -198,22 +201,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :param kwargs:
         :return:
         """
-
-        options = {
-            "page-size": "Letter",
-            "margin-top": "30px",
-            "margin-right": "5px",
-            "margin-bottom": "5px",
-            "margin-left": "15px",
-            "encoding": "UTF-8",
-            "no-outline": None,
-        }
         report = self.get_object()
         aggregated_content = self.aggregate_export_content(report_object=report)
         pdf = self.compile_pdf(
-            template_name="api/stundenzettel.html",
-            content_dict=aggregated_content,
-            pdf_options=options,
+            template_name="api/stundenzettel.html", content_dict=aggregated_content
         )
         response = HttpResponse(pdf, content_type="application/pdf")
         response[
@@ -224,17 +215,25 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return response
 
-    def compile_pdf(self, template_name, content_dict, pdf_options):
+    def compile_pdf(self, template_name, content_dict):
         """
         Compile a PDF given a Django HTML-Tmeplate name as string, a content dictionary and possible options.
         :param template_name:
         :param content_dict:
-        :param pdf_options:
         :return:
         """
         template = get_template(template_name)
         html = template.render(content_dict)
-        pdf = pdf_from_string(html, False, options=pdf_options)
+        css_tailwind = finders.find("api/css/tailwind.out.css")
+        picture = finders.find("api/GU_Logo_blau_weiß_RGB.png")
+        pdf = weasyprint.HTML(
+            string=html, base_url=self.request.build_absolute_uri()
+        ).write_pdf(
+            stylesheets=[css_tailwind],
+            attachments=[picture],
+            presentational_hints=True,
+            optimize_size=("fonts", "images"),
+        )
         return pdf
 
     def get_shifts_to_export(self, report_object):
@@ -331,24 +330,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             }
         return content
 
-    def calculate_carryover_worktime(self, report_object, next_month=True):
-        # Calculate carryover from last month
-        report_to_carry = report_object
-        if not next_month:
-            try:
-                report_to_carry = Report.objects.get(
-                    contract=report_object.contract,
-                    month_year=report_object.month_year - relativedelta(months=1),
-                )
-            except Report.DoesNotExist:
-                # We are looking at the first report of a contract. Return the
-                # initial_carryover_minutes as timedelta.
-                return timedelta(
-                    minutes=report_object.contract.initial_carryover_minutes
-                )
-        td = report_to_carry.worktime - report_to_carry.debit_worktime
-        return td
-
     def check_for_overlapping_shifts(self, shift_queryset):
         """
         Check the given Queryset for possible overlapping shifts and raise a Validation error
@@ -420,10 +401,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
         carryover = {
-            "previous_month": self.calculate_carryover_worktime(
-                report_object, next_month=False
-            ),
-            "next_month": self.calculate_carryover_worktime(report_object),
+            "previous_month": report_object.carryover_previous_month,
+            "next_month": report_object.carryover,
         }
         content["last_month_carry_over"] = relativedelta_to_string(
             relativedelta(seconds=carryover["previous_month"].total_seconds())

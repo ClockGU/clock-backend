@@ -1,7 +1,10 @@
+import datetime
 import uuid
 
+import pytest
 from django.db import models
 from taggit.managers import TaggableManager
+from django.utils.translation import ugettext_lazy as _
 
 
 class TestUserModelExists:
@@ -220,9 +223,6 @@ class TestContractFields:
     def test_model_has_start_carry_over(self, contract_model_class):
         assert hasattr(contract_model_class, "initial_carryover_minutes")
 
-    def test_model_has_month_start_clocking(self, contract_model_class):
-        assert hasattr(contract_model_class, "carryover_target_date")
-
     def test_model_has_last_used(self, contract_model_class):
         assert hasattr(contract_model_class, "last_used")
 
@@ -289,12 +289,6 @@ class TestContractFields:
         assert isinstance(
             contract_model_class._meta.get_field("initial_carryover_minutes"),
             models.IntegerField,
-        )
-
-    def test_field_type_month_start_clocking(self, contract_model_class):
-        assert isinstance(
-            contract_model_class._meta.get_field("carryover_target_date"),
-            models.DateField,
         )
 
 
@@ -423,10 +417,10 @@ class TestShiftFields:
 
     def test_field_conf_type(self, shift_model_class):
         choices = (
-            ("st", "Shift"),
-            ("sk", "Sick"),
-            ("vn", "Vacation"),
-            ("bh", "Bank Holiday"),
+            ("st", _("Shift")),
+            ("sk", _("Sick")),
+            ("vn", _("Vacation")),
+            ("bh", _("Bank Holiday")),
         )
         field = shift_model_class._meta.get_field("type")
         assert field.choices == choices
@@ -674,3 +668,38 @@ class TestReportFields:
 
     def test_unique_together(self, report_model_class):
         assert report_model_class._meta.unique_together == (("month_year", "contract"),)
+
+
+class TestReportProperties:
+    def test_model_has_debit_worktime(self, report_model_class):
+        assert hasattr(report_model_class, "debit_worktime")
+
+    def test_model_has_carryover(self, report_model_class):
+        assert hasattr(report_model_class, "carryover")
+
+    def test_model_has_carryover_previous_month(self, report_model_class):
+        assert hasattr(report_model_class, "carryover_previous_month")
+
+    @pytest.mark.django_db
+    def test_field_type_debit_worktime(self, report_object):
+        assert isinstance(report_object.debit_worktime, datetime.timedelta)
+
+    @pytest.mark.django_db
+    def test_field_type_carryover(self, report_object):
+        assert isinstance(report_object.carryover, datetime.timedelta)
+
+    @pytest.mark.django_db
+    def test_field_type_carryover_previous_month(self, report_object):
+        assert isinstance(report_object.carryover_previous_month, datetime.timedelta)
+
+    @pytest.mark.django_db
+    def test_field_type_debit_worktime_in_report_object(self, report_object):
+        assert report_object.debit_worktime == datetime.timedelta(seconds=72000)
+
+    @pytest.mark.django_db
+    def test_field_type_carryover_in_report_object(self, report_object):
+        assert report_object.carryover == datetime.timedelta(days=-1, seconds=14400)
+
+    @pytest.mark.django_db
+    def test_field_type_carryover_previous_month_in_report_object(self, report_object):
+        assert report_object.carryover_previous_month == datetime.timedelta(0)

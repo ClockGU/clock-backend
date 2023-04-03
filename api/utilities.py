@@ -1,8 +1,17 @@
 from dateutil.relativedelta import relativedelta
-from django.db.models import DurationField, F, Sum
-from django.db.models.functions import Coalesce
+from django.db.models import (
+    DurationField,
+    F,
+    Sum,
+    Window,
+    When,
+    Case,
+    Value,
+    ExpressionWrapper,
+)
+from django.db.models.functions import Trunc, FirstValue, LastValue
 from django.db.models.signals import post_delete, post_save
-from pytz import datetime
+import datetime
 
 from api.models import Contract, Report, Shift
 
@@ -52,11 +61,11 @@ def timedelta_to_string(timedelta):
 # TODO: This function needs a different, more phony name.
 def create_reports_for_contract(contract):
     """
-    Function used to create all Reports from carryover_target_date to date.today().
+    Function used to create all Reports from contracts start_date to date.today().
     :param contract:
     :return:
     """
-    _month_year = contract.carryover_target_date
+    _month_year = contract.start_date.replace(day=1)
     today = datetime.date.today()
     Report.objects.create(
         month_year=_month_year,
@@ -68,8 +77,8 @@ def create_reports_for_contract(contract):
     )
     _month_year += relativedelta(months=1)
 
-    # Create Reports for all months between carryover_target_date and now
-    while _month_year <= today:
+    # Create Reports for all months between start_date and now/end_date
+    while _month_year <= today and _month_year <= contract.end_date:
         Report.objects.create(
             month_year=_month_year,
             worktime=datetime.timedelta(0),
@@ -79,14 +88,16 @@ def create_reports_for_contract(contract):
             modified_by=contract.user,
         )
         _month_year += relativedelta(months=1)
+    update_reports(contract, contract.start_date)
 
 
 def create_report_after_contract_creation(sender, instance, created, **kwargs):
     """
+    Reciever function:
     Receiver Function to be called by the post_save signal of a Contract object.
     It creates a Report object for the month when the Contract starts.
     The User might create a Contract after it already started so we also create
-    all Report objects for the months between the carryover_target_date month and 'now".
+    all Report objects for the months between the start_date month and 'now".
 
     State: 14. April 2019
 
@@ -108,45 +119,79 @@ post_save.connect(
 
 
 def update_reports(contract, month_year):
-
     """
     Update the Reports for the given contract starting with the given month/year.
     :param contract:
     :param month_year:
     :return:
     """
-
-    previous_report = Report.objects.filter(
-        contract=contract, month_year=month_year - relativedelta(months=1)
-    )
-    carry_over_worktime = datetime.timedelta(minutes=contract.initial_carryover_minutes)
-    if previous_report.exists():
-        carry_over_worktime = (
-            previous_report.first().worktime - previous_report.first().debit_worktime
-        )
     # Loop over all Reports starting from month in which the created/update shift
     # took place.
     for report in Report.objects.filter(contract=contract, month_year__gte=month_year):
-        total_work_time = Shift.objects.filter(
-            contract=report.contract,
-            started__month=report.month_year.month,
-            started__year=report.month_year.year,
-            was_reviewed=True,
-        ).aggregate(
-            total_work_time=Coalesce(
-                Sum(F("stopped") - F("started"), output_field=DurationField()),
-                datetime.timedelta(0),
+        data_per_day = (
+            Shift.objects.filter(
+                contract=report.contract,
+                started__month=report.month_year.month,
+                started__year=report.month_year.year,
+                was_reviewed=True,
             )
-        )[
-            "total_work_time"
-        ]
-        report.worktime = carry_over_worktime + total_work_time
+            .annotate(
+                day_worktime=ExpressionWrapper(
+                    Window(
+                        expression=Sum(F("stopped") - F("started")),
+                        partition_by=[Trunc("started", "day")],
+                    ),
+                    DurationField(),
+                ),
+                first_started=Window(
+                    expression=FirstValue("started"),
+                    partition_by=[Trunc("started", "day")],
+                ),
+                last_stopped=Window(
+                    expression=LastValue("stopped"),
+                    partition_by=[Trunc("started", "day")],
+                ),
+            )
+            .distinct("started__date")
+        )
+        breaktime_data = data_per_day.annotate(
+            breaktime=ExpressionWrapper(
+                F("last_stopped") - F("first_started") - F("day_worktime"),
+                DurationField(),
+            ),
+            missing_breaktime=Case(
+                When(
+                    day_worktime__gt=datetime.timedelta(hours=6),
+                    day_worktime__lte=datetime.timedelta(hours=9),
+                    breaktime__lt=datetime.timedelta(minutes=30),
+                    then=datetime.timedelta(minutes=30) - F("breaktime"),
+                ),
+                When(
+                    day_worktime__gt=datetime.timedelta(hours=9),
+                    breaktime__lt=datetime.timedelta(minutes=45),
+                    then=datetime.timedelta(minutes=45) - F("breaktime"),
+                ),
+                default=Value(datetime.timedelta(0)),
+                output_field=DurationField(),
+            ),
+        )
+        total_worktime = sum(
+            map(
+                lambda shift: shift.day_worktime - shift.missing_breaktime,
+                breaktime_data,
+            ),
+            datetime.timedelta(0),
+        )
+        carry_over_worktime = min(
+            report.carryover_previous_month, datetime.timedelta(hours=200)
+        )
+        report.worktime = carry_over_worktime + total_worktime
         report.save()
-        carry_over_worktime = report.worktime - report.debit_worktime
 
 
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):
     """
+    Reciever function:
     After saving a Shift we need to update the corresponding Report to reflect the now
     possibly updated overall work time.
 
@@ -182,6 +227,7 @@ post_delete.connect(
 
 def update_last_used_on_contract(sender, instance, created=False, **kwargs):
     """
+    Reciever functions:
     After saving or deleting a shift set the `last_used` field of the corresponding
     contract.
     :param sender:

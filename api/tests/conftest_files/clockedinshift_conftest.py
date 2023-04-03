@@ -19,7 +19,47 @@ def valid_clockedinshift_json(user_object, contract_object):
     """
     user = str(user_object.id)
     data = {
-        "started": datetime.datetime(2019, 1, 29, 14, tzinfo=utc).isoformat(),
+        "started": datetime.datetime(2019, 4, 23, 14, tzinfo=utc).isoformat(),
+        "contract": str(contract_object.id),
+        "user": user,
+        "created_by": user,
+        "modified_by": user,
+    }
+    return data
+
+
+@pytest.fixture
+def valid_clockedinshift_sunday_json(user_object, contract_object):
+    """
+    This fixture provides a valid (according to ClockedInShiftSerializer) JSON dictionary for a clocked-in shift
+    which is created manually on a sunday.
+    :param user_object:
+    :param contract_object:
+    :return:
+    """
+    user = str(user_object.id)
+    data = {
+        "started": datetime.datetime(2019, 1, 6, 14, tzinfo=utc).isoformat(),
+        "contract": str(contract_object.id),
+        "user": user,
+        "created_by": user,
+        "modified_by": user,
+    }
+    return data
+
+
+@pytest.fixture
+def valid_clockedinshift_holiday_json(user_object, contract_object):
+    """
+    This fixture provides a valid (according to ClockedInShiftSerializer) JSON dictionary for a clocked-in shift
+    which is created manually on a holiday.
+    :param user_object:
+    :param contract_object:
+    :return:
+    """
+    user = str(user_object.id)
+    data = {
+        "started": datetime.datetime(2019, 1, 1, 14, tzinfo=utc).isoformat(),
         "contract": str(contract_object.id),
         "user": user,
         "created_by": user,
@@ -37,6 +77,30 @@ def valid_clockedinshift_querydict(valid_clockedinshift_json):
     """
     qdict = QueryDict("", mutable=True)
     qdict.update(valid_clockedinshift_json)
+    return qdict
+
+
+@pytest.fixture
+def valid_clockedinshift_sunday_querydict(valid_clockedinshift_sunday_json):
+    """
+    This fixture creates a QueryDict out of the valid_shift_json.
+    :param valid_clockedinshift_sunday_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(valid_clockedinshift_sunday_json)
+    return qdict
+
+
+@pytest.fixture
+def valid_clockedinshift_holiday_querydict(valid_clockedinshift_holiday_json):
+    """
+    This fixture creates a QueryDict out of the valid_shift_json.
+    :param valid_clockedinshift_holiday_json:
+    :return: QueryDict
+    """
+    qdict = QueryDict("", mutable=True)
+    qdict.update(valid_clockedinshift_holiday_json)
     return qdict
 
 

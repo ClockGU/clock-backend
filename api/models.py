@@ -1,6 +1,7 @@
 import uuid
 from calendar import monthrange
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
@@ -62,8 +63,6 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("The field 'first_name' is required.")
         if not last_name:
             raise ValueError("The field 'last_name' is required.")
-        if not personal_number:
-            raise ValueError("The field 'personal_number' is required.")
         if not password:
             raise ValueError("The field 'password' is required.")
         # We always set the provided username to the user's email
@@ -102,7 +101,9 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50)  # Firstname is required
     last_name = models.CharField(max_length=100)  # Lastname is required
-    personal_number = models.CharField(max_length=100, default="")
+    personal_number = models.CharField(
+        max_length=100, default="", null=True, blank=True
+    )
     language = models.CharField(choices=LANGUAGE_CHOICES, default="de", max_length=2)
     date_joined = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
@@ -128,7 +129,6 @@ class Contract(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     initial_carryover_minutes = models.IntegerField()
-    carryover_target_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE
@@ -234,6 +234,23 @@ class Report(models.Model):
             return timedelta(minutes=minutes)
 
         return timedelta(minutes=self.contract.minutes)
+
+    @property
+    def carryover(self):
+        return self.worktime - self.debit_worktime
+
+    @property
+    def carryover_previous_month(self):
+        try:
+            last_mon_report_object = Report.objects.get(
+                contract=self.contract,
+                month_year=self.month_year - relativedelta(months=1),
+            )
+
+        except Report.DoesNotExist:
+            return timedelta(minutes=self.contract.initial_carryover_minutes)
+
+        return last_mon_report_object.carryover
 
     class Meta:
         ordering = ["month_year"]

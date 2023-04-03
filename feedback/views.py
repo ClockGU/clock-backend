@@ -22,6 +22,10 @@ class FeedBackView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.data
 
+        receiver = settings.SYSTEM_EMAILS["RECEIVER"]
+        if data["title"] == "Ombud":
+            receiver = settings.SYSTEM_EMAILS["RECEIVER_OMBUD"]
+
         message = EmailMessage(
             subject=data["title"],
             body=format_message(
@@ -33,7 +37,8 @@ class FeedBackView(generics.GenericAPIView):
             from_email="Clock Feedback <{email}>".format(
                 name=data["name"], email=settings.SYSTEM_EMAILS["SENDER"]
             ),
-            to=[settings.SYSTEM_EMAILS["RECEIVER"]],
+            to=[receiver],
+            cc=[data["email"]],
             reply_to=[data["email"], settings.SYSTEM_EMAILS["RECEIVER"]],
         )
         message.send(fail_silently=False)
