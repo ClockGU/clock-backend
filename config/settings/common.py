@@ -98,7 +98,7 @@ DATABASES["default"]["ATOMIC_REQUESTS"] = True
 # EMAIL
 SYSTEM_EMAILS = {
     "RECEIVER": env.str("SYSTEM_EMAIL_RECEIVER", "hello@example.com"),
-    "RECEIVER_OMBUD": env.str("SYSTEM_EMAIL_RECEIVER", "hello@ombud_example.com"),
+    "RECEIVER_OMBUD": env.str("OMBUD_EMAIL_RECEIVER", "hello@ombud_example.com"),
     "SENDER": env.str("SYSTEM_EMAIL_SENDER", "noreply@example.com"),
 }
 
