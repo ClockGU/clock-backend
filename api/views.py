@@ -224,13 +224,13 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         """
         template = get_template(template_name)
         html = template.render(content_dict)
-        css_tailwind = finders.find("api/css/tailwind.out.css")
-        picture = finders.find("api/GU_Logo_blau_weiß_RGB.png")
+        # css_tailwind = finders.find("api/css/tailwind.out.css")
+        # picture = finders.find("api/GU_Logo_blau_weiß_RGB.png")
         pdf = weasyprint.HTML(
             string=html, base_url=self.request.build_absolute_uri()
         ).write_pdf(
-            stylesheets=[css_tailwind],
-            attachments=[picture],
+            # stylesheets=[css_tailwind],
+            # attachments=[picture],
             presentational_hints=True,
             optimize_size=("fonts", "images"),
         )
