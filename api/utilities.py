@@ -8,8 +8,10 @@ from django.db.models import (
     Case,
     Value,
     ExpressionWrapper,
+    Min,
+    Max,
 )
-from django.db.models.functions import Trunc, FirstValue, LastValue
+from django.db.models.functions import Trunc
 from django.db.models.signals import post_delete, post_save
 import datetime
 
@@ -144,12 +146,10 @@ def update_reports(contract, month_year):
                     DurationField(),
                 ),
                 first_started=Window(
-                    expression=FirstValue("started"),
-                    partition_by=[Trunc("started", "day")],
+                    expression=Min("started"), partition_by=[Trunc("started", "day")]
                 ),
                 last_stopped=Window(
-                    expression=LastValue("stopped"),
-                    partition_by=[Trunc("started", "day")],
+                    expression=Max("stopped"), partition_by=[Trunc("started", "day")]
                 ),
             )
             .distinct("started__date")
