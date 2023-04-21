@@ -60,6 +60,7 @@ isort = "^4.3.21"
 [tool.black]
 exclude = '''
 /(migrations)/
+| /venv
 '''
 line_length = 88
 target_version = ["py38"]
