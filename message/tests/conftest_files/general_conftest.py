@@ -1,4 +1,5 @@
 import pytest
+
 from message.models import Message
 
 

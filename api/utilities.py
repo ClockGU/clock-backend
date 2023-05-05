@@ -1,19 +1,20 @@
+import datetime
+
 from dateutil.relativedelta import relativedelta
 from django.db.models import (
-    DurationField,
-    F,
-    Sum,
-    Window,
-    When,
     Case,
-    Value,
+    DurationField,
     ExpressionWrapper,
-    Min,
+    F,
     Max,
+    Min,
+    Sum,
+    Value,
+    When,
+    Window,
 )
 from django.db.models.functions import Trunc
 from django.db.models.signals import post_delete, post_save
-import datetime
 
 from api.models import Contract, Report, Shift
 

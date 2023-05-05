@@ -1,9 +1,10 @@
+import datetime
 from datetime import datetime
 
 import pytest
 from freezegun import freeze_time
 from pytz import utc
-import datetime
+
 from api.models import Contract, Report, Shift
 from api.utilities import relativedelta_to_string
 
