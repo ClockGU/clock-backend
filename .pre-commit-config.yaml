@@ -1,4 +1,4 @@
-exclude: ("api/migrations/", "faq/migrations/", "feedback/migrations/", "message/migrations/")
+exclude: "/migrations/.*"
 repos:
   - repo: https://github.com/pycqa/isort
     rev: 5.11.5
