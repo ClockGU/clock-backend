@@ -340,7 +340,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         e = []
 
         for early_shift, late_shift in pairwise(shift_queryset.order_by("started")):
-
             if late_shift.started < early_shift.stopped:
                 e.append(
                     [

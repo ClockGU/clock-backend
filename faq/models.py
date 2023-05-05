@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Faq(models.Model):
-
     de_question = models.CharField(
         max_length=200, verbose_name="Faq-question in german"
     )

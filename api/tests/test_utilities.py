@@ -156,7 +156,6 @@ class TestUpdateSignals:
     @freeze_time("2019-02-05")
     @pytest.mark.django_db
     def test_signal_uses_initial_carryover_minutes(self, user_object):
-
         _contract = Contract.objects.create(
             user=user_object,
             name="Report Creation Test Contract",
@@ -217,7 +216,6 @@ class TestUpdateSignals:
     def test_signal_updates_next_months_report(
         self, contract_ending_in_february, user_object
     ):
-
         # Create shift for 29.01. which is 120 minutes long
         Shift.objects.create(
             started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),

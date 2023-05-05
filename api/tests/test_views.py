@@ -696,7 +696,6 @@ class TestReportApiEndpoint:
         shift_content_aggregation_merges_shifts,
         report_object,
     ):
-
         content = prepared_ReportViewSet_view.aggregate_shift_content(
             shift_content_aggregation_merges_shifts
         )

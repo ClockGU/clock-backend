@@ -90,7 +90,7 @@ def end_date_before_start_date_contract_json(valid_contract_json):
 
 @pytest.fixture
 def end_date_before_start_date_contract_querydict(
-    end_date_before_start_date_contract_json
+    end_date_before_start_date_contract_json,
 ):
     """
     This fixture creates a QueryDict out of the end_date_before_start_date_contract_json.
@@ -193,7 +193,7 @@ def non_zero_initial_carryover_minutes_for_future_contract_json(valid_contract_j
 
 @pytest.fixture
 def non_zero_initial_carryover_minutes_for_future_contract_querydict(
-    non_zero_initial_carryover_minutes_for_future_contract_json
+    non_zero_initial_carryover_minutes_for_future_contract_json,
 ):
     """
     This fixture creates a QueryDict out of the incorrect_date_month_start_clocking_contract_json.
@@ -386,7 +386,7 @@ def start_date_after_months_with_shifts_contract_json(valid_contract_json):
 
 @pytest.fixture
 def start_date_after_months_with_shifts_contract_querydict(
-    start_date_after_months_with_shifts_contract_json
+    start_date_after_months_with_shifts_contract_json,
 ):
     """
     This fixture creates a QueryDict out of the end_date_before_start_date_contract_json.
@@ -416,7 +416,7 @@ def end_date_before_months_with_shifts_contract_json(valid_contract_json):
 
 @pytest.fixture
 def end_date_before_months_with_shifts_contract_querydict(
-    end_date_before_months_with_shifts_contract_json
+    end_date_before_months_with_shifts_contract_json,
 ):
     """
     This fixture creates a QueryDict out of the end_date_before_start_date_contract_json.

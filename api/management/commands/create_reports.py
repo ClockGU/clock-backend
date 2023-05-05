@@ -22,7 +22,6 @@ class Command(BaseCommand):
             raise CommandError("It's not allowed to create Reports for future months.")
 
         for user in User.objects.filter(is_active=True, is_staff=False):
-
             for contract in user.contracts.filter(
                 start_date__lt=date, end_date__gt=date
             ).exclude(reports__month_year=date):
