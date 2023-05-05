@@ -1,7 +1,12 @@
-exclude: "api/migrations/"
+exclude: ("api/migrations/", "faq/migrations/", "feedback/migrations/", "message/migrations/")
 repos:
--   repo: https://github.com/ambv/black
-    rev: stable
+  - repo: https://github.com/pycqa/isort
+    rev: 5.11.5
     hooks:
-    - id: black
-      language_version: python3
+      - id: isort
+        name: isort (python)
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        language_version: python3.8
