@@ -39,7 +39,6 @@ holidays = "^0.17"
 black = "^23.3.0"
 pre-commit = "^2.21.0"
 isort = "^5.11.5"
-importlib-metadata = "<5.0.0"
 
 [tool.poetry.dev-dependencies]
 coverage = "==5.0a4"
@@ -61,7 +60,6 @@ django-request-logging = "^0.7.1"
 black = "^23.3.0"
 pre-commit = "^2.21.0"
 isort = "^5.11.5"
-importlib-metadata = "<5.0.0"
 
 [tool.black]
 exclude = '''
