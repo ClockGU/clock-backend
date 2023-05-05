@@ -2,7 +2,7 @@
 name = "api"
 version = "0.1.0"
 description = ""
-authors = ["Christian Grossmüller <chgad.games@gmail.com>", "Michael Gecht <gecht.m@gmail.com>"]
+authors = ["Christian Grossmüller <chgad.games@gmail.com>", "Sören Grieger <soeren.grieger@posteo.de>", "Michael Gecht <gecht.m@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -37,6 +37,8 @@ Sphinx = "^4.5.0"
 weasyprint = "^58.1"
 holidays = "^0.17"
 black = "^23.3.0"
+pre-commit = "^2.21.0"
+isort = "^5.11.5"
 
 [tool.poetry.dev-dependencies]
 coverage = "==5.0a4"
@@ -50,13 +52,14 @@ freezegun = "==0.3.11"
 pylint = "==2.2.2"
 pylint-django = "==2.0.4"
 flake8 = "==3.6.0"
-black = "*"
 werkzeug = "2.0.*"
 pytest-freezegun = "*"
 django-test-plus = "*"
 django-extensions = "*"
 django-request-logging = "^0.7.1"
-isort = "^4.3.21"
+black = "^23.3.0"
+pre-commit = "^2.21.0"
+isort = "^5.11.5"
 
 [tool.black]
 exclude = '''
