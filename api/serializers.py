@@ -181,7 +181,6 @@ class ContractSerializer(RestrictModificationModelSerializer):
             )
 
         if start_date > today:
-
             if not initial_carryover_minutes == 0:
                 raise serializers.ValidationError(
                     _(
@@ -218,7 +217,6 @@ class ContractSerializer(RestrictModificationModelSerializer):
         return end_date
 
     def update(self, instance, validated_data):
-
         start_date_changed = bool(validated_data.get("start_date"))
         initial_carryover_minutes_changed = bool(
             validated_data.get("initial_carryover_minutes")
@@ -357,7 +355,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     _("A shift set in the past must be reviewed.")
                 )
         else:
-
             if started > datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
                     _("A shift set in the future can not be reviewed.")

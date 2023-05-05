@@ -28,7 +28,7 @@ class CustomUserManager(BaseUserManager):
         last_name="",
         personal_number="",
         username="",
-        **extra_fields
+        **extra_fields,
     ):
         """
         Create and save a user with the given username, email, password, first_name, last_name and personal_number.
@@ -41,7 +41,7 @@ class CustomUserManager(BaseUserManager):
             first_name=first_name,
             last_name=last_name,
             personal_number=personal_number,
-            **extra_fields
+            **extra_fields,
         )
         user.set_password(password)
         user.save(using=self._db)
@@ -55,7 +55,7 @@ class CustomUserManager(BaseUserManager):
         personal_number="",
         password="",
         username="",
-        **extra_fields
+        **extra_fields,
     ):
         if not email:
             raise ValueError("The field 'email' is required.")
@@ -76,7 +76,7 @@ class CustomUserManager(BaseUserManager):
             first_name=first_name,
             last_name=last_name,
             personal_number=personal_number,
-            **extra_fields
+            **extra_fields,
         )
 
     def create_superuser(self, email, password, **extra_fields):
@@ -92,7 +92,6 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-
     LANGUAGE_CHOICES = (("de", "Deutsch"), ("en", "English"))
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
@@ -117,7 +116,6 @@ class User(AbstractUser):
 
 
 class Contract(models.Model):
-
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
@@ -141,7 +139,6 @@ class Contract(models.Model):
 
 
 class Shift(models.Model):
-
     TYPE_CHOICES = (
         ("st", _("Shift")),
         ("sk", _("Sick")),
@@ -170,7 +167,6 @@ class Shift(models.Model):
 
 
 class ClockedInShift(models.Model):
-
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
@@ -188,7 +184,6 @@ class ClockedInShift(models.Model):
 
 
 class Report(models.Model):
-
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
