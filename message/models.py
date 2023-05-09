@@ -17,10 +17,12 @@ class Message(models.Model):
     ]
 
     type = models.CharField(max_length=2, choices=MTYPE_CHOICES)
-    title = models.CharField(max_length=100)
-    text = models.TextField(default="", blank=True, verbose_name="text (Markdown)")
+    de_title = models.CharField(max_length=100)
+    de_text = models.TextField(default="", blank=True, verbose_name="text (Markdown)")
+    en_title = models.CharField(max_length=100, default="", blank=True)
+    en_text = models.TextField(default="", blank=True, verbose_name="text (Markdown)")
     valid_from = models.DateField(default=date.today)
     valid_to = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return self.title
+        return self.en_title
