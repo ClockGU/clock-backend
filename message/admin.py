@@ -22,7 +22,7 @@ class DateOrderForm(forms.ModelForm):
 
 class MessageAdmin(admin.ModelAdmin):
     form = DateOrderForm
-    list_display = ["id", "type", "en_title", "valid_from", "valid_to"]
+    list_display = ["id", "type", "en_title", "de_title", "valid_from", "valid_to"]
 
 
 admin.site.register(Message, MessageAdmin)
