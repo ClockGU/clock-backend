@@ -72,7 +72,7 @@ def create_reports_for_contract(contract):
     today = datetime.date.today()
     Report.objects.create(
         month_year=_month_year,
-        worktime=datetime.timedelta(minutes=contract.initial_carryover_minutes),
+        worktime=datetime.timedelta(0),
         contract=contract,
         user=contract.user,
         created_by=contract.user,
@@ -176,17 +176,13 @@ def update_reports(contract, month_year):
                 output_field=DurationField(),
             ),
         )
-        total_worktime = sum(
+        report.worktime = sum(
             map(
                 lambda shift: shift.day_worktime - shift.missing_breaktime,
                 breaktime_data,
             ),
             datetime.timedelta(0),
         )
-        carry_over_worktime = min(
-            report.carryover_previous_month, datetime.timedelta(hours=200)
-        )
-        report.worktime = carry_over_worktime + total_worktime
         report.save()
 
 

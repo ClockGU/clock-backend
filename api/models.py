@@ -232,7 +232,7 @@ class Report(models.Model):
 
     @property
     def carryover(self):
-        return self.worktime - self.debit_worktime
+        return self.worktime - self.debit_worktime + self.carryover_previous_month
 
     @property
     def carryover_previous_month(self):
