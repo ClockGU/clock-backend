@@ -3,8 +3,8 @@ import uuid
 
 import pytest
 from django.db import models
-from taggit.managers import TaggableManager
 from django.utils.translation import ugettext_lazy as _
+from taggit.managers import TaggableManager
 
 
 class TestUserModelExists:

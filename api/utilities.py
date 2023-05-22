@@ -1,19 +1,20 @@
+import datetime
+
 from dateutil.relativedelta import relativedelta
 from django.db.models import (
-    DurationField,
-    F,
-    Sum,
-    Window,
-    When,
     Case,
-    Value,
+    DurationField,
     ExpressionWrapper,
-    Min,
+    F,
     Max,
+    Min,
+    Sum,
+    Value,
+    When,
+    Window,
 )
 from django.db.models.functions import Trunc
 from django.db.models.signals import post_delete, post_save
-import datetime
 
 from api.models import Contract, Report, Shift
 
@@ -71,7 +72,7 @@ def create_reports_for_contract(contract):
     today = datetime.date.today()
     Report.objects.create(
         month_year=_month_year,
-        worktime=datetime.timedelta(minutes=contract.initial_carryover_minutes),
+        worktime=datetime.timedelta(0),
         contract=contract,
         user=contract.user,
         created_by=contract.user,
@@ -175,17 +176,13 @@ def update_reports(contract, month_year):
                 output_field=DurationField(),
             ),
         )
-        total_worktime = sum(
+        report.worktime = sum(
             map(
                 lambda shift: shift.day_worktime - shift.missing_breaktime,
                 breaktime_data,
             ),
             datetime.timedelta(0),
         )
-        carry_over_worktime = min(
-            report.carryover_previous_month, datetime.timedelta(hours=200)
-        )
-        report.worktime = carry_over_worktime + total_worktime
         report.save()
 
 

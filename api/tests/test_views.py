@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 import pytest
 from dateutil.parser import parse
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from freezegun import freeze_time
 from rest_framework import serializers, status
-from django.utils.translation import ugettext_lazy as _
 
 from api.models import Contract, Report, Shift, User
 
@@ -696,7 +696,6 @@ class TestReportApiEndpoint:
         shift_content_aggregation_merges_shifts,
         report_object,
     ):
-
         content = prepared_ReportViewSet_view.aggregate_shift_content(
             shift_content_aggregation_merges_shifts
         )

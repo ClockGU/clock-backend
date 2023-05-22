@@ -1,9 +1,9 @@
-from datetime import datetime
+import datetime
 
 import pytest
 from freezegun import freeze_time
 from pytz import utc
-import datetime
+
 from api.models import Contract, Report, Shift
 from api.utilities import relativedelta_to_string
 
@@ -70,7 +70,13 @@ class TestContractAutomaticReportCreation:
         )
         assert Report.objects.get(
             contract=_contract, month_year=datetime.date(2020, 2, 1)
-        ).worktime == datetime.timedelta(minutes=-900)
+        ).worktime == datetime.timedelta(minutes=0)
+        assert Report.objects.get(
+            contract=_contract, month_year=datetime.date(2020, 2, 1)
+        ).carryover_previous_month == datetime.timedelta(minutes=-900)
+        assert Report.objects.get(
+            contract=_contract, month_year=datetime.date(2020, 2, 1)
+        ).carryover == datetime.timedelta(minutes=-2100)
 
     @freeze_time("2020-04-10")
     @pytest.mark.django_db
@@ -94,7 +100,11 @@ class TestContractAutomaticReportCreation:
         reports = Report.objects.filter(contract=_contract).exclude(
             month_year=datetime.date(2020, 2, 1)
         )
-        assert all([r.worktime != datetime.timedelta() for r in reports])
+        assert all([r.worktime == datetime.timedelta(0) for r in reports])
+        assert all(
+            [r.carryover_previous_month != datetime.timedelta(0) for r in reports]
+        )
+        assert all([r.carryover != datetime.timedelta(0) for r in reports])
 
     @freeze_time("2020-04-10")
     @pytest.mark.django_db
@@ -151,12 +161,14 @@ class TestUpdateSignals:
 
         assert Report.objects.get(
             contract=report_update_contract, month_year=datetime.date(2019, 2, 1)
-        ).worktime == datetime.timedelta(minutes=-960)
+        ).worktime == datetime.timedelta(minutes=240)
+        assert Report.objects.get(
+            contract=report_update_contract, month_year=datetime.date(2019, 2, 1)
+        ).carryover == datetime.timedelta(minutes=-2160)
 
     @freeze_time("2019-02-05")
     @pytest.mark.django_db
     def test_signal_uses_initial_carryover_minutes(self, user_object):
-
         _contract = Contract.objects.create(
             user=user_object,
             name="Report Creation Test Contract",
@@ -181,7 +193,10 @@ class TestUpdateSignals:
         )
         assert Report.objects.get(
             contract=_contract, month_year=datetime.date(2019, 2, 1)
-        ).worktime == datetime.timedelta(minutes=-780)
+        ).worktime == datetime.timedelta(minutes=120)
+        assert Report.objects.get(
+            contract=_contract, month_year=datetime.date(2019, 2, 1)
+        ).carryover == datetime.timedelta(minutes=-1980)
 
     @pytest.mark.django_db
     def test_signal_updates_shifts_report(
@@ -217,7 +232,6 @@ class TestUpdateSignals:
     def test_signal_updates_next_months_report(
         self, contract_ending_in_february, user_object
     ):
-
         # Create shift for 29.01. which is 120 minutes long
         Shift.objects.create(
             started=datetime.datetime(2019, 1, 29, 14, tzinfo=utc),
@@ -233,8 +247,17 @@ class TestUpdateSignals:
         )
 
         assert Report.objects.get(
+            contract=contract_ending_in_february, month_year=datetime.date(2019, 1, 1)
+        ).worktime == datetime.timedelta(minutes=120)
+        assert Report.objects.get(
+            contract=contract_ending_in_february, month_year=datetime.date(2019, 1, 1)
+        ).carryover == datetime.timedelta(minutes=-1080)
+        assert Report.objects.get(
             contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
-        ).worktime == datetime.timedelta(minutes=-1080)
+        ).worktime == datetime.timedelta(minutes=0)
+        assert Report.objects.get(
+            contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
+        ).carryover == datetime.timedelta(minutes=-2280)
 
     @pytest.mark.django_db
     def test_signal_only_updates_reviewed_shifts(
@@ -289,12 +312,12 @@ class TestUpdateSignals:
         """
 
         assert Report.objects.get(
-            contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
-        ).worktime == datetime.timedelta(minutes=-1080)
+            contract=contract_ending_in_february, month_year=datetime.date(2019, 1, 1)
+        ).carryover == datetime.timedelta(minutes=-1080)
         shift_object_february_contract.delete()
         assert Report.objects.get(
-            contract=contract_ending_in_february, month_year=datetime.date(2019, 2, 1)
-        ).worktime == datetime.timedelta(minutes=-1200)
+            contract=contract_ending_in_february, month_year=datetime.date(2019, 1, 1)
+        ).carryover == datetime.timedelta(minutes=-1200)
 
     @pytest.mark.django_db
     def test_signal_subtracts_missing_45_min_breaktime(
@@ -413,9 +436,9 @@ class TestUpdateSignals:
         ).worktime == datetime.timedelta(seconds=9.25 * 3600)
 
     @pytest.mark.django_db
-    def test_max_carryover_200h(self, contract_210h_carryover, user_object):
+    def test_max_carryover_50percent(self, contract_210h_carryover, user_object):
         """
-        Test if the report update uses at max 200h carryover of the previous month.
+        Test if the report update uses at max 50% of the worktime as carryover of the previous month.
         Tested here with a Contract that has initial_carryover_minutes
         equivalent to 210h and creation of a 3h long shift.
         """
@@ -435,7 +458,10 @@ class TestUpdateSignals:
 
         assert Report.objects.get(
             contract=contract_210h_carryover, month_year=datetime.date(2019, 1, 1)
-        ).worktime == datetime.timedelta(hours=203)
+        ).worktime == datetime.timedelta(hours=3)
+        assert Report.objects.get(
+            contract=contract_210h_carryover, month_year=datetime.date(2019, 1, 1)
+        ).carryover == datetime.timedelta(minutes=1200 / 2)
 
 
 class TestContractSignals:

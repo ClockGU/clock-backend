@@ -20,7 +20,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from unidecode import unidecode
 
-from api.filters import ShiftFilterSet, ReportFilterSet
+from api.filters import ReportFilterSet, ShiftFilterSet
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.serializers import (
     ClockedInShiftSerializer,
@@ -31,7 +31,6 @@ from api.serializers import (
 )
 from api.utilities import relativedelta_to_string, timedelta_to_string
 from project_celery.tasks import async_5_user_creation
-
 
 # Proof of Concept that celery works
 
@@ -340,7 +339,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         e = []
 
         for early_shift, late_shift in pairwise(shift_queryset.order_by("started")):
-
             if late_shift.started < early_shift.stopped:
                 e.append(
                     [

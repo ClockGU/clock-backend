@@ -201,14 +201,18 @@ class TestContractSerializerValidation:
         plain_request_object,
     ):
         """
-        Test wether the serializers update method also updates the Reports when we change the initial_carryover_minutes.
+        Test weather the serializers update method also updates the Reports when we change the initial_carryover_minutes.
         :param contract_ending_in_april:
         :param shift_contract_ending_in_april:
         :return:
         """
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
-        ).worktime == datetime.timedelta(hours=-30)
+        ).carryover == datetime.timedelta(hours=-50)
+
+        assert Report.objects.get(
+            contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
+        ).worktime == datetime.timedelta(hours=5)
 
         seri = ContractSerializer(
             instance=contract_ending_in_april,
@@ -221,7 +225,11 @@ class TestContractSerializerValidation:
 
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
-        ).worktime == datetime.timedelta(hours=-25)
+        ).carryover == datetime.timedelta(hours=-45)
+
+        assert Report.objects.get(
+            contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
+        ).worktime == datetime.timedelta(hours=5)
 
     @pytest.mark.freeze_time("2019-3-1")
     @pytest.mark.django_db
@@ -254,11 +262,14 @@ class TestContractSerializerValidation:
         assert not Report.objects.filter(pk=old_report_pk).exists()
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 2, 1)
-        ).worktime == datetime.timedelta(hours=5)
+        ).carryover_previous_month == datetime.timedelta(hours=5)
         # The shift_contract_ending_in_april has a 5 hours duration
         assert Report.objects.get(
             contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
-        ).worktime == datetime.timedelta(hours=-10)
+        ).worktime == datetime.timedelta(hours=5)
+        assert Report.objects.get(
+            contract=contract_ending_in_april, month_year=datetime.date(2019, 3, 1)
+        ).carryover == datetime.timedelta(hours=-30)
 
     @pytest.mark.freeze_time("2019-3-1")
     @pytest.mark.django_db

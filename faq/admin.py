@@ -6,7 +6,6 @@ from .models import Faq
 
 
 class FaqAdmin(admin.ModelAdmin):
-
     list_display = ("id", "de_question")
 
 

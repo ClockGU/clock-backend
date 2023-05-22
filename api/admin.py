@@ -8,7 +8,6 @@ from api.models import ClockedInShift, Contract, Report, Shift, User
 
 
 class UserAdmin(BaseUserAdmin):
-
     list_display = (
         "id",
         "email",
@@ -33,7 +32,6 @@ admin.site.register(User, UserAdmin)
 
 
 class ContractAdmin(admin.ModelAdmin):
-
     list_display = (
         "id",
         "link_user",
@@ -63,7 +61,6 @@ admin.site.register(Contract, ContractAdmin)
 
 
 class ShiftAdmin(admin.ModelAdmin):
-
     list_display = ("id", "link_user", "started", "stopped", "locked", "modified_at")
     list_per_page = 200
     ordering = ("-modified_at",)
@@ -85,7 +82,6 @@ admin.site.register(Shift, ShiftAdmin)
 
 
 class ClockedInShiftAdmin(ShiftAdmin):
-
     list_display = ("id", "link_user", "link_contract", "created_at", "duration")
 
     def link_contract(self, obj):
@@ -116,7 +112,6 @@ admin.site.register(ClockedInShift, ClockedInShiftAdmin)
 
 
 class ReportAdmin(admin.ModelAdmin):
-
     list_display = (
         "id",
         "link_user",

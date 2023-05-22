@@ -128,7 +128,6 @@ def february_report_object(
 
 @pytest.fixture
 def delete_report_object_afterwards():
-
     yield
     Report.objects.all().delete()
 

@@ -239,7 +239,7 @@ def shift_starts_ends_after_contract_json(valid_shift_json):
 
 @pytest.fixture
 def shift_starts_ends_after_contract_json_querydict(
-    shift_starts_ends_after_contract_json
+    shift_starts_ends_after_contract_json,
 ):
     """
     This fixture creates a QueryDict out of the shift_starts_ends_after_contract_json.
@@ -259,7 +259,7 @@ def shift_is_planned_but_started_in_past_json(valid_shift_json):
 
 @pytest.fixture
 def shift_is_planned_but_started_in_past_json_querydict(
-    shift_is_planned_but_started_in_past_json
+    shift_is_planned_but_started_in_past_json,
 ):
     qdict = QueryDict("", mutable=True)
     qdict.update(shift_is_planned_but_started_in_past_json)
@@ -398,7 +398,7 @@ def ten_hour_fortyfive_minutes_shift_json(valid_shift_json):
 
 @pytest.fixture
 def ten_hour_fortyfive_minutes_shift_json_querydict(
-    ten_hour_fortyfive_minutes_shift_json
+    ten_hour_fortyfive_minutes_shift_json,
 ):
     """
     This fixture creates a QueryDict out of the ten_hour_fortyfive_minutes_shift_json.
@@ -586,7 +586,7 @@ def shift_starting_in_future_was_reviewed_json(valid_shift_json):
 
 @pytest.fixture
 def shift_starting_in_future_was_reviewed_querydict(
-    shift_starting_in_future_was_reviewed_json
+    shift_starting_in_future_was_reviewed_json,
 ):
     """
     Create QueryDict instance.

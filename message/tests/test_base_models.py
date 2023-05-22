@@ -24,11 +24,17 @@ class TestMessageModelFields:
     def test_model_has_field_type(self, message_model_class):
         assert hasattr(message_model_class, "type")
 
-    def test_model_has_field_title(self, message_model_class):
-        assert hasattr(message_model_class, "title")
+    def test_model_has_field_de_title(self, message_model_class):
+        assert hasattr(message_model_class, "de_title")
 
-    def test_model_has_field_text(self, message_model_class):
-        assert hasattr(message_model_class, "text")
+    def test_model_has_field_de_text(self, message_model_class):
+        assert hasattr(message_model_class, "de_text")
+
+    def test_model_has_field_en_title(self, message_model_class):
+        assert hasattr(message_model_class, "en_title")
+
+    def test_model_has_field_en_text(self, message_model_class):
+        assert hasattr(message_model_class, "en_text")
 
     def test_model_has_field_valid_from(self, message_model_class):
         assert hasattr(message_model_class, "valid_from")
@@ -39,13 +45,25 @@ class TestMessageModelFields:
     def test_field_type_type(self, message_model_class):
         assert isinstance(message_model_class._meta.get_field("type"), models.CharField)
 
-    def test_field_type_title(self, message_model_class):
+    def test_field_type_de_title(self, message_model_class):
         assert isinstance(
-            message_model_class._meta.get_field("title"), models.CharField
+            message_model_class._meta.get_field("de_title"), models.CharField
         )
 
-    def test_field_type_text(self, message_model_class):
-        assert isinstance(message_model_class._meta.get_field("text"), models.TextField)
+    def test_field_type_de_text(self, message_model_class):
+        assert isinstance(
+            message_model_class._meta.get_field("de_text"), models.TextField
+        )
+
+    def test_field_type_en_title(self, message_model_class):
+        assert isinstance(
+            message_model_class._meta.get_field("en_title"), models.CharField
+        )
+
+    def test_field_type_en_text(self, message_model_class):
+        assert isinstance(
+            message_model_class._meta.get_field("en_text"), models.TextField
+        )
 
     def test_field_type_valid_from(self, message_model_class):
         assert isinstance(
