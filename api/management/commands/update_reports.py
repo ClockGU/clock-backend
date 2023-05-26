@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from api.models import Contract
 from api.utilities import update_reports
@@ -18,7 +18,6 @@ class Command(BaseCommand):
             action="store_true",
             help="Update thre Reports from all Users including non-active ones.",
         )
-        # TODO: optional arguments --end_month, --end_year
 
     def handle(self, *args, **options):
         start_month_year = datetime.date(
@@ -27,8 +26,7 @@ class Command(BaseCommand):
         contract_qs = Contract.objects.filter(
             user__is_active=True,
             user__is_staff=False,
-            start_date__lte=start_month_year,
-            end_date__gte=start_month_year,
+            start_date__gte=start_month_year,
         )
         contract_cnt = 0
         for contract in contract_qs:
