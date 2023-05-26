@@ -350,14 +350,14 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             )
 
         if not was_reviewed:
-            if started < datetime.datetime.now().astimezone(utc):
+            if stopped < datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
-                    _("A shift set in the past must be reviewed.")
+                    _("A shift stopped in the past must be reviewed.")
                 )
         else:
-            if started > datetime.datetime.now().astimezone(utc):
+            if stopped > datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
-                    _("A shift set in the future can not be reviewed.")
+                    _("A shift stopped in the future can not be reviewed.")
                 )
 
             # validate that date is not a sunday
