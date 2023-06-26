@@ -21,12 +21,12 @@ from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from holidays import country_holidays
-from more_itertools import pairwise
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
+    calculate_break,
     create_reports_for_contract,
     relativedelta_to_string,
     update_reports,
@@ -308,34 +308,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "locked": {"read_only": True},
         }
 
-    def calculate_break(self, started: datetime, stopped: datetime, shifts_queryset):
-        """
-        Calculation of total breaks between shifts.
-
-        @param started:
-        @param stopped:
-        @param shifts_queryset:
-        @return:
-        """
-        if not shifts_queryset.exists():
-            return datetime.timedelta(seconds=0)
-        shifts_queryset = shifts_queryset.order_by("started")
-
-        total_break = datetime.timedelta()
-
-        for shift, shift_next in pairwise(shifts_queryset):
-            total_break += shift_next.started - shift.stopped
-
-        # new shift is after old shifts
-        if started >= shifts_queryset.last().stopped:
-            return (started - shifts_queryset.last().stopped) + total_break
-        # new shift is before old shifts
-        if stopped <= shifts_queryset.first().started:
-            return (shifts_queryset.first().started - stopped) + total_break
-
-        # new shift is in between old shifts
-        return total_break - (stopped - started)
-
     def validate(self, data):
         started = data.get("started")
         stopped = data.get("stopped")
@@ -503,7 +475,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             )["total_work_time"]
 
             total_worktime = old_worktime + new_worktime
-            total_break = self.calculate_break(
+            total_break = calculate_break(
                 started=started, stopped=stopped, shifts_queryset=this_day_reviewed
             )
 

@@ -36,6 +36,35 @@ from api.models import Contract, Report, Shift
 # Receiver used for the main API
 
 
+def calculate_break(self, started: datetime, stopped: datetime, shifts_queryset):
+    """
+    Calculation of total breaks between shifts.
+
+    @param started:
+    @param stopped:
+    @param shifts_queryset:
+    @return:
+    """
+    if not shifts_queryset.exists():
+        return datetime.timedelta(seconds=0)
+    shifts_queryset = shifts_queryset.order_by("started")
+
+    total_break = datetime.timedelta()
+
+    for shift, shift_next in pairwise(shifts_queryset):
+        total_break += shift_next.started - shift.stopped
+
+    # new shift is after old shifts
+    if started >= shifts_queryset.last().stopped:
+        return (started - shifts_queryset.last().stopped) + total_break
+    # new shift is before old shifts
+    if stopped <= shifts_queryset.first().started:
+        return (shifts_queryset.first().started - stopped) + total_break
+
+    # new shift is in between old shifts
+    return total_break - (stopped - started)
+
+
 def relativedelta_to_string(relative_time_delta):
     """
     Format a relativedelta object for string representation in the format +/- HH:MM.
