@@ -16,3 +16,4 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 
 # Silence flake8 on all of the following star imports
 # flake8: noqa
+from api.tests.conftest import *
