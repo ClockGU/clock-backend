@@ -325,7 +325,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             vsh_type = ""
 
             if shifts_of_date.first().type != "st":
-                vsh_type = shifts_of_date.first().type
+                vsh_type = shifts_of_date.first().get_type_display()
                 vsh_time = worktime
                 worktime = datetime.timedelta(0)
 
@@ -336,14 +336,21 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 timezone(settings.TIME_ZONE)
             )
 
+            worktime_string = timedelta_to_string(worktime)
+            vsh_time_string = timedelta_to_string(vsh_time)
+            if worktime_string == "00:00":
+                worktime_string = ""
+            if vsh_time_string == "00:00":
+                vsh_time_string = ""
+
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().strftime("%H:%M"),
                 "stopped": stopped.time().strftime("%H:%M"),
                 "type": vsh_type,
                 "work_time": timedelta_to_string(stopped - started),
-                "net_work_time": timedelta_to_string(worktime),
+                "net_work_time": worktime_string,
                 "break_time": timedelta_to_string(breaktime),
-                "sick_or_vac_time": timedelta_to_string(vsh_time),
+                "sick_or_vac_time": vsh_time_string,
             }
         return content
 
