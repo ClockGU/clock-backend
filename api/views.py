@@ -303,38 +303,29 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                     Sum(F("stopped") - F("started"), output_field=DurationField()),
                     datetime.timedelta(0),
                 )
+            )["work_time"]
+
+            breaktime = calculate_break(
+                shifts_of_date,
             )
-            breaktime = datetime.timedelta(0)
-            if len(shifts_of_date) > 1:
-                breaktime = calculate_break(
-                    shifts_of_date[0].started,
-                    shifts_of_date[0].stopped,
-                    shifts_of_date[1:],
-                )
+
+            if datetime.timedelta(hours=6) < worktime <= datetime.timedelta(hours=9):
+                # Needed break >= 30min in total
+                if breaktime < datetime.timedelta(minutes=30):
+                    worktime = worktime - datetime.timedelta(minutes=30) + breaktime
+                    breaktime = datetime.timedelta(minutes=30)
+            elif worktime > datetime.timedelta(hours=9):
+                # Needed break >= 45min in total
+                if breaktime < datetime.timedelta(minutes=45):
+                    worktime = worktime - datetime.timedelta(minutes=45) + breaktime
+                    breaktime = datetime.timedelta(minutes=45)
 
             # vsh = vacation, sick, holiday
             vsh_time = datetime.timedelta(0)
-
-            # worked_shifts = shifts_of_date.filter(type="st")
-            # vacation_or_sick_shifts = shifts_of_date.exclude(type="st")
-            # # calculate time worked
-            # worked_time = worked_shifts.aggregate(
-            #     work_time=Coalesce(
-            #         Sum(F("stopped") - F("started"), output_field=DurationField()),
-            #         datetime.timedelta(0),
-            #     )
-            # )["work_time"]
-            # # calculate time not present
-            # sick_or_vacation_time = vacation_or_sick_shifts.aggregate(
-            #     sick_or_vac_time=Coalesce(
-            #         Sum(F("stopped") - F("started"), output_field=DurationField()),
-            #         datetime.timedelta(0),
-            #     )
-            # )["sick_or_vac_time"]
-
             vsh_type = ""
-            if shifts_of_date.first().get_type_display() != "st":
-                vsh_type = shifts_of_date.first().get_type_display()
+
+            if shifts_of_date.first().type != "st":
+                vsh_type = shifts_of_date.first().type
                 vsh_time = worktime
                 worktime = datetime.timedelta(0)
 
