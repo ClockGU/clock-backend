@@ -1,3 +1,18 @@
+"""
+Clock - Master your timesheets
+Copyright (C) 2023  Johann Wolfgang Goethe-Universität Frankfurt am Main
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU Affero General Public License as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
+"""
 import datetime
 import uuid
 
@@ -13,8 +28,6 @@ class TestUserModelExists:
         This Test tests if an Object User can be imported.
         :return:
         """
-
-        from api.models import User
 
     def test_model_is_model(self):
         """
@@ -33,8 +46,6 @@ class TestContractModelExists:
         :return:
         """
 
-        from api.models import Contract
-
     def test_model_is_model(self):
         """
         Test if the Contract Object is a Django Model
@@ -52,8 +63,6 @@ class TestShiftModelExists:
         :return:
         """
 
-        from api.models import Shift
-
     def test_model_is_model(self):
         """
         Test if the Shift Object is a Django Model
@@ -70,7 +79,6 @@ class TestClockedInShiftModelExists:
         This Test test if an Object ClockedInShift can be imported.
         :return:
         """
-        from api.models import ClockedInShift
 
     def test_model_is_model(self):
         """
@@ -88,8 +96,6 @@ class TestReportModelExists:
         This Test tests if an Object Report can be imported.
         :return:
         """
-
-        from api.models import Report
 
     def test_model_is_model(self):
         """
