@@ -30,19 +30,19 @@ from django.db.models import (
 )
 from django.db.models.functions import Trunc
 from django.db.models.signals import post_delete, post_save
+from more_itertools import pairwise
 
 from api.models import Contract, Report, Shift
 
-# Receiver used for the main API
 
-
-def calculate_break(self, started: datetime, stopped: datetime, shifts_queryset):
+def calculate_break(shifts_queryset, new_shift=None):
     """
     Calculation of total breaks between shifts.
 
     @param started:
     @param stopped:
     @param shifts_queryset:
+    @param new_shift:
     @return:
     """
     if not shifts_queryset.exists():
@@ -54,15 +54,19 @@ def calculate_break(self, started: datetime, stopped: datetime, shifts_queryset)
     for shift, shift_next in pairwise(shifts_queryset):
         total_break += shift_next.started - shift.stopped
 
-    # new shift is after old shifts
-    if started >= shifts_queryset.last().stopped:
-        return (started - shifts_queryset.last().stopped) + total_break
-    # new shift is before old shifts
-    if stopped <= shifts_queryset.first().started:
-        return (shifts_queryset.first().started - stopped) + total_break
+    if new_shift:
+        # new shift is after old shifts
+        if new_shift["started"] >= shifts_queryset.last().stopped:
+            return (new_shift["started"] - shifts_queryset.last().stopped) + total_break
+        # new shift is before old shifts
+        if new_shift["stopped"] <= shifts_queryset.first().started:
+            return (
+                shifts_queryset.first().started - new_shift["stopped"]
+            ) + total_break
 
-    # new shift is in between old shifts
-    return total_break - (stopped - started)
+        # new shift is in between old shifts
+        return total_break - (new_shift["stopped"] - new_shift["started"])
+    return total_break
 
 
 def relativedelta_to_string(relative_time_delta):
