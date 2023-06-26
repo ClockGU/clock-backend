@@ -41,7 +41,7 @@ from api.serializers import (
     ShiftSerializer,
     UserSerializer,
 )
-from api.utilities import relativedelta_to_string, timedelta_to_string
+from api.utilities import calculate_break, relativedelta_to_string, timedelta_to_string
 from project_celery.tasks import async_5_user_creation
 
 # Proof of Concept that celery works
@@ -298,28 +298,45 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         for date in dates:
             shifts_of_date = shifts.filter(started__date=date)
 
-            worked_shifts = shifts_of_date.filter(type="st")
-            vacation_or_sick_shifts = shifts_of_date.exclude(type="st")
-            # calculate time worked
-            worked_time = worked_shifts.aggregate(
+            worktime = shifts_of_date.aggregate(
                 work_time=Coalesce(
                     Sum(F("stopped") - F("started"), output_field=DurationField()),
                     datetime.timedelta(0),
                 )
-            )["work_time"]
-            # calculate time not present
-            sick_or_vacation_time = vacation_or_sick_shifts.aggregate(
-                sick_or_vac_time=Coalesce(
-                    Sum(F("stopped") - F("started"), output_field=DurationField()),
-                    datetime.timedelta(0),
+            )
+            breaktime = datetime.timedelta(0)
+            if len(shifts_of_date) > 1:
+                breaktime = calculate_break(
+                    shifts_of_date[0].started,
+                    shifts_of_date[0].stopped,
+                    shifts_of_date[1:],
                 )
-            )["sick_or_vac_time"]
 
-            vacation_or_sick_type = ""
-            if vacation_or_sick_shifts.exists():
-                vacation_or_sick_type = (
-                    vacation_or_sick_shifts.first().get_type_display()
-                )
+            # vsh = vacation, sick, holiday
+            vsh_time = datetime.timedelta(0)
+
+            # worked_shifts = shifts_of_date.filter(type="st")
+            # vacation_or_sick_shifts = shifts_of_date.exclude(type="st")
+            # # calculate time worked
+            # worked_time = worked_shifts.aggregate(
+            #     work_time=Coalesce(
+            #         Sum(F("stopped") - F("started"), output_field=DurationField()),
+            #         datetime.timedelta(0),
+            #     )
+            # )["work_time"]
+            # # calculate time not present
+            # sick_or_vacation_time = vacation_or_sick_shifts.aggregate(
+            #     sick_or_vac_time=Coalesce(
+            #         Sum(F("stopped") - F("started"), output_field=DurationField()),
+            #         datetime.timedelta(0),
+            #     )
+            # )["sick_or_vac_time"]
+
+            vsh_type = ""
+            if shifts_of_date.first().get_type_display() != "st":
+                vsh_type = shifts_of_date.first().get_type_display()
+                vsh_time = worktime
+                worktime = datetime.timedelta(0)
 
             started = shifts_of_date.first().started.astimezone(
                 timezone(settings.TIME_ZONE)
@@ -331,13 +348,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().strftime("%H:%M"),
                 "stopped": stopped.time().strftime("%H:%M"),
-                "type": vacation_or_sick_type,
+                "type": vsh_type,
                 "work_time": timedelta_to_string(stopped - started),
-                "net_work_time": timedelta_to_string(worked_time),
-                "break_time": timedelta_to_string(
-                    stopped - started - worked_time - sick_or_vacation_time
-                ),
-                "sick_or_vac_time": timedelta_to_string(sick_or_vacation_time),
+                "net_work_time": timedelta_to_string(worktime),
+                "break_time": timedelta_to_string(breaktime),
+                "sick_or_vac_time": timedelta_to_string(vsh_time),
             }
         return content
 
