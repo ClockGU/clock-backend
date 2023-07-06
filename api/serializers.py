@@ -129,9 +129,10 @@ class ContractSerializer(RestrictModificationModelSerializer):
         :param attrs:
         :return:
         """
+        today = datetime.date.today()
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
-        today = datetime.date.today()
+        minutes = attrs.get("minutes")
         initial_carryover_minutes = attrs.get("initial_carryover_minutes")
 
         # Catches PUT
@@ -144,6 +145,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     "initial_carryover_minutes", self.instance.initial_carryover_minutes
                 )
 
+            # No shifts out of scope after modification
             if Shift.objects.filter(
                 contract=self.instance, started__lt=start_date
             ).exists():
@@ -169,6 +171,26 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     "A contract's end date can not be modified"
                     "extended for more than 6 months."
                 )
+
+            # no modification of minutes, start_date and carryover with locked shifts
+            if Shift.objects.filter(contract=self.instance, locked=True).exists():
+                if self.instance.initial_carryover_minutes != initial_carryover_minutes:
+                    raise serializers.ValidationError(
+                        "The Carryover of a contract with locked shifts "
+                        "is not allowed to modify."
+                    )
+
+                if self.instance.start_date != start_date:
+                    raise serializers.ValidationError(
+                        "The start date of a contract with locked shifts "
+                        "is not allowed to modify."
+                    )
+
+                if self.instance.minutes != minutes:
+                    raise serializers.ValidationError(
+                        "The minutes of a contract with locked shifts "
+                        "is not allowed to modify."
+                    )
 
         if start_date > end_date:
             raise serializers.ValidationError(
