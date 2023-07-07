@@ -376,7 +376,18 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     _(
                         "This is the holiday "
                         + de_he_holidays.get(started.strftime("%Y-%m-%d"))
-                        + " and there can just be clocked shifts with type holiday/Feiertag"
+                        + " and there can just be clocked shifts with type holiday (de: Feiertag)."
+                    )
+                )
+            if (
+                shift_type is "bh"
+                and started.strftime("%Y-%m-%d") not in de_he_holidays
+            ):
+                raise serializers.ValidationError(
+                    _(
+                        "This day "
+                        + started.strftime("%Y-%m-%d")
+                        + " is not a holiday (de: Feiertag)."
                     )
                 )
 
