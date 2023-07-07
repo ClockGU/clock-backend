@@ -20,4 +20,4 @@ class APIConfig(AppConfig):
     name = "api"
 
     def ready(self):
-        pass
+        import api.utilities
