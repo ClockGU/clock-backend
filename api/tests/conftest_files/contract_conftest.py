@@ -480,3 +480,34 @@ def contract_210h_carryover(create_n_contract_objects, user_object):
         initial_carryover_minutes=12600,
         user=user_object,
     )[0]
+
+
+@pytest.fixture
+def contract_with_locked_shift(contract_object, user_object, create_n_shift_objects):
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 8, 14),
+        stopped=datetime.datetime(2019, 1, 8, 14),
+        locked=True,
+    )[0]
+    return contract_object
+
+
+@pytest.fixture
+def contract_start_date_one_months_earlier_json(valid_contract_json):
+    valid_contract_json["start_date"] = datetime.date(2018, 12, 1).isoformat()
+    return valid_contract_json
+
+
+@pytest.fixture
+def contract_carryover_two_hours_json(valid_contract_json):
+    valid_contract_json["initial_carryover_minutes"] = 120
+    return valid_contract_json
+
+
+@pytest.fixture
+def contract_minutes_thirty_hours_json(valid_contract_json):
+    valid_contract_json["initial_carryover_minutes"] = 1800
+    return valid_contract_json

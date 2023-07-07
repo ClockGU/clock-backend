@@ -335,6 +335,48 @@ class TestContractSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    @pytest.mark.django_db
+    def test_carryover_not_modifiable_with_locked_shifts(
+        self,
+        contract_with_locked_shift,
+        contract_carryover_two_hours_json,
+        plain_request_object,
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                instance=contract_with_locked_shift,
+                data=contract_carryover_two_hours_json,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_start_date_not_modifiable_with_locked_shifts(
+        self,
+        contract_with_locked_shift,
+        contract_start_date_one_months_earlier_json,
+        plain_request_object,
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                instance=contract_with_locked_shift,
+                data=contract_start_date_one_months_earlier_json,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_minutes_not_modifiable_with_locked_shifts(
+        self,
+        contract_with_locked_shift,
+        contract_minutes_thirty_hours_json,
+        plain_request_object,
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                instance=contract_with_locked_shift,
+                data=contract_minutes_thirty_hours_json,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
 
 class TestShiftSerializerValidation:
     """
