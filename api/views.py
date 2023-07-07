@@ -303,28 +303,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         for date in dates:
             shifts_of_date = shifts.filter(started__date=date)
 
-            # worktime = shifts_of_date.aggregate(
-            #     work_time=Coalesce(
-            #         Sum(F("stopped") - F("started"), output_field=DurationField()),
-            #         datetime.timedelta(0),
-            #     )
-            # )["work_time"]
-
-            # breaktime = calculate_break(
-            #     shifts_of_date,
-            # )
-
-            # if datetime.timedelta(hours=6) < worktime <= datetime.timedelta(hours=9):
-            #     # Needed break >= 30min in total
-            #     if breaktime < datetime.timedelta(minutes=30):
-            #         worktime = worktime - datetime.timedelta(minutes=30) + breaktime
-            #         breaktime = datetime.timedelta(minutes=30)
-            # elif worktime > datetime.timedelta(hours=9):
-            #     # Needed break >= 45min in total
-            #     if breaktime < datetime.timedelta(minutes=45):
-            #         worktime = worktime - datetime.timedelta(minutes=45) + breaktime
-            #         breaktime = datetime.timedelta(minutes=45)
-
             worktime, breaktime = calculate_worktime_breaktime(
                 worktime=shifts_of_date.aggregate(
                     work_time=Coalesce(

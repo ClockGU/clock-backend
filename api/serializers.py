@@ -476,34 +476,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                         )
                     )
 
-                # total_worktime = old_worktime + new_worktime
-                # total_break = calculate_break(
-                #     shifts_queryset=this_day_reviewed,
-                #     new_shift_started=started,
-                #     new_shift_stopped=stopped,
-                # )
-
-                # if (
-                #     datetime.timedelta(hours=6)
-                #     < total_worktime
-                #     <= datetime.timedelta(hours=9)
-                # ):
-                #     # Needed break >= 30min in total
-                #     if not this_day.exists() or total_break < datetime.timedelta(
-                #         minutes=30
-                #     ):
-                #         new_worktime = (
-                #             new_worktime - datetime.timedelta(minutes=30) + total_break
-                #         )
-                # elif total_worktime > datetime.timedelta(hours=9):
-                #     # Needed break >= 45min in total
-                #     if not this_day.exists() or total_break < datetime.timedelta(
-                #         minutes=45
-                #     ):
-                #         new_worktime = (
-                #             new_worktime - datetime.timedelta(minutes=45) + total_break
-                #         )
-
                 # calculate total worktime of the day depending on the other shifts
                 new_worktime, break_time = calculate_worktime_breaktime(
                     worktime=(old_worktime + new_worktime),
