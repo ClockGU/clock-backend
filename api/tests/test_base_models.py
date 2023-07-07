@@ -28,6 +28,7 @@ class TestUserModelExists:
         This Test tests if an Object User can be imported.
         :return:
         """
+        from api.models import User
 
     def test_model_is_model(self):
         """
@@ -45,6 +46,7 @@ class TestContractModelExists:
         This Test tests if an Object Contract can be imported.
         :return:
         """
+        from api.models import Contract
 
     def test_model_is_model(self):
         """
@@ -62,6 +64,7 @@ class TestShiftModelExists:
         This Test tests if an Object Shift can be imported.
         :return:
         """
+        from api.models import Shift
 
     def test_model_is_model(self):
         """
@@ -79,6 +82,7 @@ class TestClockedInShiftModelExists:
         This Test test if an Object ClockedInShift can be imported.
         :return:
         """
+        from api.models import ClockedInShift
 
     def test_model_is_model(self):
         """
@@ -96,6 +100,7 @@ class TestReportModelExists:
         This Test tests if an Object Report can be imported.
         :return:
         """
+        from api.models import Report
 
     def test_model_is_model(self):
         """
