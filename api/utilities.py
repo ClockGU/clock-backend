@@ -67,6 +67,32 @@ def calculate_break(shifts_queryset, new_shift_started=None, new_shift_stopped=N
     return total_break
 
 
+def calculate_worktime_breaktime(worktime, breaktime):
+    """
+    Calculate the work and break time of a day, depending on the minimal needed break.
+
+    worktime > 9h --> needs minimum 45min break
+    worktime > 6h and < 9h --> needs minimum 30min break
+
+    @param worktime:
+    @type worktime: datetime.timedelta
+    @param breaktime:
+    @type breaktime: datetime.timedelta
+    @return:
+    """
+    if datetime.timedelta(hours=6) < worktime <= datetime.timedelta(hours=9):
+        # Needed break >= 30min in total
+        if breaktime < datetime.timedelta(minutes=30):
+            worktime = worktime - datetime.timedelta(minutes=30) + breaktime
+            breaktime = datetime.timedelta(minutes=30)
+    elif worktime > datetime.timedelta(hours=9):
+        # Needed break >= 45min in total
+        if breaktime < datetime.timedelta(minutes=45):
+            worktime = worktime - datetime.timedelta(minutes=45) + breaktime
+            breaktime = datetime.timedelta(minutes=45)
+    return worktime, breaktime
+
+
 def relativedelta_to_string(relative_time_delta):
     """
     Format a relativedelta object for string representation in the format +/- HH:MM.
