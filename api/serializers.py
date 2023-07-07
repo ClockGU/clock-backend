@@ -168,28 +168,36 @@ class ContractSerializer(RestrictModificationModelSerializer):
             # check if new end date is more than 6 month apart from the old one
             if relativedelta(end_date, self.instance.end_date).months >= 6:
                 raise serializers.ValidationError(
-                    "A contract's end date can not be modified"
-                    "extended for more than 6 months."
+                    _(
+                        "A contract's end date can not be modified"
+                        "extended for more than 6 months."
+                    )
                 )
 
             # no modification of minutes, start_date and carryover with locked shifts
             if Shift.objects.filter(contract=self.instance, locked=True).exists():
                 if self.instance.initial_carryover_minutes != initial_carryover_minutes:
                     raise serializers.ValidationError(
-                        "The Carryover of a contract with locked shifts "
-                        "is not allowed to modify."
+                        _(
+                            "The Carryover of a contract with locked shifts "
+                            "is not allowed to modify."
+                        )
                     )
 
                 if self.instance.start_date != start_date:
                     raise serializers.ValidationError(
-                        "The start date of a contract with locked shifts "
-                        "is not allowed to modify."
+                        _(
+                            "The start date of a contract with locked shifts "
+                            "is not allowed to modify."
+                        )
                     )
 
                 if self.instance.minutes != minutes:
                     raise serializers.ValidationError(
-                        "The minutes of a contract with locked shifts "
-                        "is not allowed to modify."
+                        _(
+                            "The minutes of a contract with locked shifts "
+                            "is not allowed to modify."
+                        )
                     )
 
         if start_date > end_date:
