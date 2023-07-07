@@ -1,9 +1,22 @@
-from datetime import timedelta
+"""
+Clock - Master your timesheets
+Copyright (C) 2023  Johann Wolfgang Goethe-Universität Frankfurt am Main
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU Affero General Public License as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
+"""
 
 import weasyprint
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.contrib.staticfiles import finders
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
@@ -11,9 +24,8 @@ from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from drf_yasg.utils import swagger_auto_schema
 from more_itertools import pairwise
-from pdfkit import from_string as pdf_from_string
 from pytz import datetime, timezone
-from rest_framework import mixins, serializers, viewsets
+from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
