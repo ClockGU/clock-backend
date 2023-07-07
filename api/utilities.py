@@ -35,7 +35,7 @@ from more_itertools import pairwise
 from api.models import Contract, Report, Shift
 
 
-def calculate_break(shifts_queryset, new_shift=None):
+def calculate_break(shifts_queryset, new_shift_started=None, new_shift_stopped=None):
     """
     Calculation of total breaks between shifts.
 
@@ -54,18 +54,16 @@ def calculate_break(shifts_queryset, new_shift=None):
     for shift, shift_next in pairwise(shifts_queryset):
         total_break += shift_next.started - shift.stopped
 
-    if new_shift:
+    if new_shift_started and new_shift_stopped:
         # new shift is after old shifts
-        if new_shift["started"] >= shifts_queryset.last().stopped:
-            return (new_shift["started"] - shifts_queryset.last().stopped) + total_break
+        if new_shift_started >= shifts_queryset.last().stopped:
+            return (new_shift_started - shifts_queryset.last().stopped) + total_break
         # new shift is before old shifts
-        if new_shift["stopped"] <= shifts_queryset.first().started:
-            return (
-                shifts_queryset.first().started - new_shift["stopped"]
-            ) + total_break
+        if new_shift_stopped <= shifts_queryset.first().started:
+            return (shifts_queryset.first().started - new_shift_stopped) + total_break
 
         # new shift is in between old shifts
-        return total_break - (new_shift["stopped"] - new_shift["started"])
+        return total_break - (new_shift_started - new_shift_stopped)
     return total_break
 
 

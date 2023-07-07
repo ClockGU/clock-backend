@@ -477,7 +477,8 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             total_worktime = old_worktime + new_worktime
             total_break = calculate_break(
                 shifts_queryset=this_day_reviewed,
-                new_shift={"stopped": stopped, "started": started},
+                new_shift_started=started,
+                new_shift_stopped=stopped,
             )
 
             if (
