@@ -336,21 +336,22 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 timezone(settings.TIME_ZONE)
             )
 
-            worktime_string = timedelta_to_string(worktime)
-            vsh_time_string = timedelta_to_string(absence_time)
-            if worktime_string == "00:00":
-                worktime_string = ""
-            if vsh_time_string == "00:00":
-                vsh_time_string = ""
-
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().strftime("%H:%M"),
                 "stopped": stopped.time().strftime("%H:%M"),
                 "type": absence_type,
                 "work_time": timedelta_to_string(stopped - started),
-                "net_work_time": worktime_string,
+                "net_work_time": (
+                    timedelta_to_string(worktime)
+                    if timedelta_to_string(worktime) != "00:00"
+                    else ""
+                ),
                 "break_time": timedelta_to_string(breaktime),
-                "sick_or_vac_time": vsh_time_string,
+                "sick_or_vac_time": (
+                    timedelta_to_string(absence_time)
+                    if timedelta_to_string(worktime) != "00:00"
+                    else ""
+                ),
             }
         return content
 
