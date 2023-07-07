@@ -366,7 +366,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 "break_time": timedelta_to_string(breaktime),
                 "sick_or_vac_time": (
                     timedelta_to_string(absence_time)
-                    if timedelta_to_string(worktime) != "00:00"
+                    if timedelta_to_string(absence_time) != "00:00"
                     else ""
                 ),
             }
