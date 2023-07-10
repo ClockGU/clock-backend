@@ -764,9 +764,7 @@ def valid_vacation_shift(user_object, contract_object, create_n_shift_objects):
 
 
 @pytest.fixture
-def two_shifts_with_one_vacation_shift(
-    user_object, contract_object, create_n_shift_objects
-):
+def two_vacation_shifts(user_object, contract_object, create_n_shift_objects):
     """
     This fixture creates two shifts for a day.
     1. Shift is a regular 4 hour shift of type `st`.
@@ -783,6 +781,7 @@ def two_shifts_with_one_vacation_shift(
         contract=contract_object,
         started=datetime.datetime(2019, 1, 26, 10).astimezone(tz),
         stopped=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
+        type="vn",
     )
     # Vacation Shift
     create_n_shift_objects(

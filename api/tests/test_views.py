@@ -725,18 +725,18 @@ class TestReportApiEndpoint:
 
     @pytest.mark.django_db
     def test_aggregate_shift_content_handles_vacation_shifts(
-        self, prepared_ReportViewSet_view, two_shifts_with_one_vacation_shift
+        self, prepared_ReportViewSet_view, two_vacation_shifts
     ):
         content = prepared_ReportViewSet_view.aggregate_shift_content(
-            two_shifts_with_one_vacation_shift
+            two_vacation_shifts
         )
 
         assert len(content) == 1
-        assert content["26.01.2019"]["break_time"] == "00:00"
+        assert content["26.01.2019"]["break_time"] == "00:30"
         assert content["26.01.2019"]["work_time"] == "08:00"
-        assert content["26.01.2019"]["net_work_time"] == "04:00"
+        assert content["26.01.2019"]["net_work_time"] == ""
         assert content["26.01.2019"]["type"] == _("Vacation")
-        assert content["26.01.2019"]["sick_or_vac_time"] == "04:00"
+        assert content["26.01.2019"]["sick_or_vac_time"] == "07:30"
 
     @pytest.mark.freeze_time("2019-02-10")
     @pytest.mark.django_db

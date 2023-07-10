@@ -21,12 +21,13 @@ from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from holidays import country_holidays
-from more_itertools import pairwise
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
+    calculate_break,
+    calculate_worktime_breaktime,
     create_reports_for_contract,
     relativedelta_to_string,
     update_reports,
@@ -308,34 +309,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "locked": {"read_only": True},
         }
 
-    def calculate_break(self, started: datetime, stopped: datetime, shifts_queryset):
-        """
-        Calculation of total breaks between shifts.
-
-        @param started:
-        @param stopped:
-        @param shifts_queryset:
-        @return:
-        """
-        if not shifts_queryset.exists():
-            return datetime.timedelta(seconds=0)
-        shifts_queryset = shifts_queryset.order_by("started")
-
-        total_break = datetime.timedelta()
-
-        for shift, shift_next in pairwise(shifts_queryset):
-            total_break += shift_next.started - shift.stopped
-
-        # new shift is after old shifts
-        if started >= shifts_queryset.last().stopped:
-            return (started - shifts_queryset.last().stopped) + total_break
-        # new shift is before old shifts
-        if stopped <= shifts_queryset.first().started:
-            return (shifts_queryset.first().started - stopped) + total_break
-
-        # new shift is in between old shifts
-        return total_break - (stopped - started)
-
     def validate(self, data):
         started = data.get("started")
         stopped = data.get("stopped")
@@ -439,61 +412,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
             this_day_reviewed = this_day.filter(was_reviewed=True)
 
-            if this_day_reviewed.filter(
-                started__lte=started, stopped__gt=started
-            ).exists():
-                raise serializers.ValidationError(
-                    _(
-                        "The started date is in the time of an already existing reviewed shift : "
-                    )
-                )
-            if this_day_reviewed.filter(
-                started__lt=stopped, stopped__gte=stopped
-            ).exists():
-                raise serializers.ValidationError(
-                    _(
-                        "The stopped date is in the time of an already existing reviewed shift : "
-                    )
-                )
-
-            # validate that there is no standard shift this day if new shift is a V/S shift
-            if (
-                shift_type in ("sk", "vn")
-                and this_day_reviewed.filter(type="st").exists()
-            ):
-                raise serializers.ValidationError(
-                    _(
-                        "There are already normal shifts this day, adding a V/S shift is not allowed"
-                    )
-                )
-
-            # validate that there is no V/S shift this day if new shift is a standard shift
-            if (
-                shift_type == "st"
-                and this_day_reviewed.filter(type__in=("sk", "vn")).exists()
-            ):
-                raise serializers.ValidationError(
-                    _(
-                        "There are already V/S shifts this day, adding a standard shift is not allowed"
-                    )
-                )
-
-            # validate that there is no vacation shift this day if new shift is a sick shift
-            if shift_type == "sk" and this_day_reviewed.filter(type="vn").exists():
-                raise serializers.ValidationError(
-                    _(
-                        "There are already vacation shifts this day, combining sick and vacation shifts is not allowed"
-                    )
-                )
-
-            # validate that there is no sick shift this day if new shift is a vacation shift
-            if shift_type == "vn" and this_day_reviewed.filter(type="sk").exists():
-                raise serializers.ValidationError(
-                    _(
-                        "There are already sick shifts this day, combining sick and vacation shifts is not allowed"
-                    )
-                )
-
             new_worktime = stopped - started
             old_worktime = this_day_reviewed.aggregate(
                 total_work_time=Coalesce(
@@ -502,31 +420,71 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )["total_work_time"]
 
-            total_worktime = old_worktime + new_worktime
-            total_break = self.calculate_break(
-                started=started, stopped=stopped, shifts_queryset=this_day_reviewed
-            )
+            if this_day_reviewed.exists():
+                if this_day_reviewed.filter(
+                    started__lte=started, stopped__gt=started
+                ).exists():
+                    raise serializers.ValidationError(
+                        _(
+                            "The started date is in the time of an already existing reviewed shift : "
+                        )
+                    )
+                if this_day_reviewed.filter(
+                    started__lt=stopped, stopped__gte=stopped
+                ).exists():
+                    raise serializers.ValidationError(
+                        _(
+                            "The stopped date is in the time of an already existing reviewed shift : "
+                        )
+                    )
 
-            if (
-                datetime.timedelta(hours=6)
-                < total_worktime
-                <= datetime.timedelta(hours=9)
-            ):
-                # Needed break >= 30min in total
-                if not this_day.exists() or total_break < datetime.timedelta(
-                    minutes=30
+                # validate that there is no standard shift this day if new shift is a V/S shift
+                if (
+                    shift_type in ("sk", "vn")
+                    and this_day_reviewed.filter(type="st").exists()
                 ):
-                    new_worktime = (
-                        new_worktime - datetime.timedelta(minutes=30) + total_break
+                    raise serializers.ValidationError(
+                        _(
+                            "There are already normal shifts this day, adding a V/S shift is not allowed"
+                        )
                     )
-            elif total_worktime > datetime.timedelta(hours=9):
-                # Needed break >= 45min in total
-                if not this_day.exists() or total_break < datetime.timedelta(
-                    minutes=45
+
+                # validate that there is no V/S shift this day if new shift is a standard shift
+                if (
+                    shift_type == "st"
+                    and this_day_reviewed.filter(type__in=("sk", "vn")).exists()
                 ):
-                    new_worktime = (
-                        new_worktime - datetime.timedelta(minutes=45) + total_break
+                    raise serializers.ValidationError(
+                        _(
+                            "There are already V/S shifts this day, adding a standard shift is not allowed"
+                        )
                     )
+
+                # validate that there is no vacation shift this day if new shift is a sick shift
+                if shift_type == "sk" and this_day_reviewed.filter(type="vn").exists():
+                    raise serializers.ValidationError(
+                        _(
+                            "There are already vacation shifts this day, combining sick and vacation shifts is not allowed"
+                        )
+                    )
+
+                # validate that there is no sick shift this day if new shift is a vacation shift
+                if shift_type == "vn" and this_day_reviewed.filter(type="sk").exists():
+                    raise serializers.ValidationError(
+                        _(
+                            "There are already sick shifts this day, combining sick and vacation shifts is not allowed"
+                        )
+                    )
+
+                # calculate total worktime of the day depending on the other shifts
+                new_worktime, break_time = calculate_worktime_breaktime(
+                    worktime=(old_worktime + new_worktime),
+                    breaktime=calculate_break(
+                        shifts_queryset=this_day_reviewed,
+                        new_shift_started=started,
+                        new_shift_stopped=stopped,
+                    ),
+                )
 
             if new_worktime + old_worktime > datetime.timedelta(hours=10):
                 raise exceptions.ValidationError(
