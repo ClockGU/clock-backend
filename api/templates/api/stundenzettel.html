@@ -1244,9 +1244,20 @@ video {
             </div>
             {#            <span class="font-bold text-blue-600 text-xs">Legende</span>#}
             <ul class="list-none text-xs">
-                <li>Feiertag (F)</li>
-                <li>Urlaub (U)</li>
-                <li>Krank (K)</li>
+                <li> </li>
+                <li>F: Feiertag/bank holiday</li>
+                <li>K: Krank/sick</li>
+                <li>U: Urlaub/vacation</li>
+            </ul>
+            <ul class="list-none text-xs">
+                <li> </li>
+                <li>1: Arbeitszeit > 10 h</li>
+                <li>2: Ruhezeiten < 11 h</li>
+                <li>3: Pausenzeit zu gering</li>
+                <li>4: Arbeit nach 20 Uhr</li>
+                <li>5: Arbeit vor 8 Uhr</li>
+                <li>6: Sonntagsarbeit</li>
+                <li>7: Feiertagsarbeit</li>
             </ul>
         </div>
     </div>
@@ -1258,10 +1269,10 @@ video {
                 <th class="px-2 py-2">Datum</th>
                 <th class="px-2 py-2">Start</th>
                 <th class="px-2 py-2">Ende</th>
-                <th class="px-2 py-2">Abwesenheitsgrund</th>
                 <th class="px-2 py-2">Pause</th>
-                <th class="px-2 py-2">Netto-Arbeitszeit</th>
+                <th class="px-2 py-2">Arbeitszeit</th>
                 <th class="px-2 py-2">F/K/U</th>
+                <th class="px-2 py-2">Notizen</th>
             </tr>
             </thead>
             <tbody class="text-center">
@@ -1272,10 +1283,10 @@ video {
                         <td class="border px-2 py-2">{{ date }}</td>
                         <td class="border px-2 py-2">{{ content.started }}</td>
                         <td class="border px-2 py-2">{{ content.stopped }}</td>
-                        <td class="border px-2 py-2">{{ content.type }}</td>
                         <td class="border px-2 py-2">{{ content.break_time }}</td>
-                        <td class="border px-2 py-2">{{ content.net_work_time }}</td>
-                        <td class="border px-2 py-2">{{ content.sick_or_vac_time }}</td>
+                        <td class="border px-2 py-2">{{ content.work_time }}</td>
+                        <td class="border px-2 py-2">{{ content.absence_type }}</td>
+                        <td class="border px-2 py-2">{{ content.notes }}</td>
                     </tr>
                 {% else %}
                     <tr>

@@ -315,14 +315,66 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 ),
             )
 
-            # vsh = vacation, sick, holiday
-            absence_time = datetime.timedelta(0)
             absence_type = ""
 
             if shifts_of_date.first().type != "st":
-                absence_type = shifts_of_date.first().get_type_display()
-                absence_time = worktime
-                worktime = datetime.timedelta(0)
+                absence_type = shifts_of_date.first().type
+                if absence_type == "bh":
+                    absence_type = "F"
+                if absence_type == "sk":
+                    absence_type = "K"
+                if absence_type == "vn":
+                    absence_type = "U"
+
+            notes_list = list()
+
+            # 1: Arbeitszeit > 10 h
+            if worktime > datetime.timedelta(hours=10):
+                notes_list.append(1)
+
+            # 2: Ruhezeiten < 11 h
+            if worktime > datetime.timedelta(hours=11):
+                # todo: build correct validation for not enough breaktime between two workdays
+                notes_list.append(2)
+
+            # 3: Pausenzeit zu gering
+            if (
+                worktime < datetime.timedelta(hours=9)
+                and worktime > datetime.timedelta(hours=6)
+                and breaktime < datetime.timedelta(minutes=30)
+            ) or (
+                worktime > datetime.timedelta(hours=9)
+                and breaktime < datetime.timedelta(minutes=45)
+            ):
+                notes_list.append(3)
+
+            # 4: Arbeit nach 20 Uhr
+            today_at_20 = datetime.datetime(
+                year=date.year, month=date.month, day=date.day, hour=20
+            )
+            if (
+                shifts_of_date.filter(started__gte=today_at_20).exists()
+                or shifts_of_date.filter(stopped__gte=today_at_20).exists()
+            ):
+                notes_list.append(4)
+
+            # 5: Arbeit vor 8 Uhr
+            today_at_8 = datetime.datetime(
+                year=date.year, month=date.month, day=date.day, hour=8
+            )
+            if (
+                shifts_of_date.filter(started__lte=today_at_8).exists()
+                or shifts_of_date.filter(stopped__lte=today_at_8).exists()
+            ):
+                notes_list.append(5)
+
+            # 6: Sonntagsarbeit
+            # todo: build validation
+
+            # 7: Feiertagsarbeit
+            # todo: build validation
+
+            notes = str(notes_list).replace("[", "").replace("]", "")
 
             started = shifts_of_date.first().started.astimezone(
                 timezone(settings.TIME_ZONE)
@@ -334,19 +386,14 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().strftime("%H:%M"),
                 "stopped": stopped.time().strftime("%H:%M"),
-                "type": absence_type,
-                "work_time": timedelta_to_string(stopped - started),
-                "net_work_time": (
+                "break_time": timedelta_to_string(breaktime),
+                "work_time": (
                     timedelta_to_string(worktime)
                     if timedelta_to_string(worktime) != "00:00"
                     else ""
                 ),
-                "break_time": timedelta_to_string(breaktime),
-                "sick_or_vac_time": (
-                    timedelta_to_string(absence_time)
-                    if timedelta_to_string(absence_time) != "00:00"
-                    else ""
-                ),
+                "absence_type": (absence_type),
+                "notes": (notes),
             }
         return content
 
