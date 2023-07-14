@@ -303,6 +303,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         dates = [_datetime.date() for _datetime in shifts.datetimes("started", "day")]
         for date in dates:
             shifts_of_date = shifts.filter(started__date=date)
+            shifts_of_yesterday = shifts.filter(
+                started__date=date - datetime.timedelta(days=1)
+            )
 
             worktime, breaktime = calculate_worktime_breaktime(
                 worktime=shifts_of_date.aggregate(
@@ -334,9 +337,13 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 notes_list.append(1)
 
             # 2: Ruhezeiten < 11 h
-            if worktime > datetime.timedelta(hours=11):
-                # todo: build correct validation for not enough breaktime between two workdays
-                notes_list.append(2)
+            if shifts_of_yesterday.exists():
+                shifts_of_yesterday.order_by("stopped")
+                shifts_of_date.order_by("started")
+                if (
+                    shifts_of_date.first().started - shifts_of_yesterday.last().stopped
+                ) < datetime.timedelta(hours=11):
+                    notes_list.append(2)
 
             # 3: Pausenzeit zu gering
             if (
@@ -370,12 +377,12 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 notes_list.append(5)
 
             # 6: Sonntagsarbeit
-            if shifts_of_date[0].date().weekday() == 6:
+            if shifts_of_date[0].started.weekday() == 6:
                 notes_list.append(6)
 
             # 7: Feiertagsarbeit
             de_he_holidays = country_holidays("DE", subdiv="HE")
-            if shifts_of_date[0].strftime("%Y-%m-%d") in de_he_holidays:
+            if shifts_of_date[0].started.strftime("%Y-%m-%d") in de_he_holidays:
                 notes_list.append(7)
 
             notes = str(notes_list).replace("[", "").replace("]", "")
