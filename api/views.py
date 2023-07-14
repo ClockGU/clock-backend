@@ -370,7 +370,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 notes_list.append(5)
 
             # 6: Sonntagsarbeit
-            # todo: build validation
+            if shifts_of_date[0].date().weekday() == 6:
+                notes_list.append(6)
 
             # 7: Feiertagsarbeit
             de_he_holidays = country_holidays("DE", subdiv="HE")
