@@ -23,6 +23,7 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from drf_yasg.utils import swagger_auto_schema
+from holidays import country_holidays
 from more_itertools import pairwise
 from pytz import datetime, timezone
 from rest_framework import serializers, viewsets
@@ -372,7 +373,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             # todo: build validation
 
             # 7: Feiertagsarbeit
-            # todo: build validation
+            de_he_holidays = country_holidays("DE", subdiv="HE")
+            if shifts_of_date[0].strftime("%Y-%m-%d") in de_he_holidays:
+                notes_list.append(7)
 
             notes = str(notes_list).replace("[", "").replace("]", "")
 
