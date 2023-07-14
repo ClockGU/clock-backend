@@ -476,23 +476,23 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                         )
                     )
 
-                # calculate total worktime of the day depending on the other shifts
-                work_time, break_time = calculate_worktime_breaktime(
-                    worktime=(old_worktime + new_worktime),
-                    breaktime=calculate_break(
-                        shifts_queryset=this_day_reviewed,
-                        new_shift_started=started,
-                        new_shift_stopped=stopped,
-                    ),
-                )
+            # calculate total worktime of the day depending on the other shifts
+            work_time, break_time = calculate_worktime_breaktime(
+                worktime=(old_worktime + new_worktime),
+                breaktime=calculate_break(
+                    shifts_queryset=this_day_reviewed,
+                    new_shift_started=started,
+                    new_shift_stopped=stopped,
+                ),
+            )
 
-                if work_time > datetime.timedelta(hours=10):
-                    raise exceptions.ValidationError(
-                        _(
-                            f"It is not allowed to save more than 10h total worktime per day "
-                            f"(clocked: {work_time} vs allowed: {datetime.timedelta(hours=10)})"
-                        )
+            if work_time > datetime.timedelta(hours=10):
+                raise exceptions.ValidationError(
+                    _(
+                        f"It is not allowed to save more than 10h total worktime per day "
+                        f"(clocked: {work_time} vs allowed: {datetime.timedelta(hours=10)})"
                     )
+                )
         return data
 
     def validate_contract(self, contract):
