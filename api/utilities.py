@@ -1,3 +1,18 @@
+"""
+Clock - Master your timesheets
+Copyright (C) 2023  Johann Wolfgang Goethe-Universität Frankfurt am Main
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU Affero General Public License as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
+"""
 import datetime
 
 from dateutil.relativedelta import relativedelta
@@ -15,10 +30,67 @@ from django.db.models import (
 )
 from django.db.models.functions import Trunc
 from django.db.models.signals import post_delete, post_save
+from more_itertools import pairwise
 
 from api.models import Contract, Report, Shift
 
-# Receiver used for the main API
+
+def calculate_break(shifts_queryset, new_shift_started=None, new_shift_stopped=None):
+    """
+    Calculation of total breaks between shifts.
+
+    @param started:
+    @param stopped:
+    @param shifts_queryset:
+    @param new_shift:
+    @return:
+    """
+    if not shifts_queryset.exists():
+        return datetime.timedelta(seconds=0)
+    shifts_queryset = shifts_queryset.order_by("started")
+
+    total_break = datetime.timedelta()
+
+    for shift, shift_next in pairwise(shifts_queryset):
+        total_break += shift_next.started - shift.stopped
+
+    if new_shift_started and new_shift_stopped:
+        # new shift is after old shifts
+        if new_shift_started >= shifts_queryset.last().stopped:
+            return (new_shift_started - shifts_queryset.last().stopped) + total_break
+        # new shift is before old shifts
+        if new_shift_stopped <= shifts_queryset.first().started:
+            return (shifts_queryset.first().started - new_shift_stopped) + total_break
+
+        # new shift is in between old shifts
+        return total_break - (new_shift_started - new_shift_stopped)
+    return total_break
+
+
+def calculate_worktime_breaktime(worktime, breaktime):
+    """
+    Calculate the work and break time of a day, depending on the minimal needed break.
+
+    worktime > 9h --> needs minimum 45min break
+    worktime > 6h and < 9h --> needs minimum 30min break
+
+    @param worktime:
+    @type worktime: datetime.timedelta
+    @param breaktime:
+    @type breaktime: datetime.timedelta
+    @return:
+    """
+    if datetime.timedelta(hours=6) < worktime <= datetime.timedelta(hours=9):
+        # Needed break >= 30min in total
+        if breaktime < datetime.timedelta(minutes=30):
+            worktime = worktime - datetime.timedelta(minutes=30) + breaktime
+            breaktime = datetime.timedelta(minutes=30)
+    elif worktime > datetime.timedelta(hours=9):
+        # Needed break >= 45min in total
+        if breaktime < datetime.timedelta(minutes=45):
+            worktime = worktime - datetime.timedelta(minutes=45) + breaktime
+            breaktime = datetime.timedelta(minutes=45)
+    return worktime, breaktime
 
 
 def relativedelta_to_string(relative_time_delta):

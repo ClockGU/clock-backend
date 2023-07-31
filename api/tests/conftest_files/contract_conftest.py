@@ -1,3 +1,18 @@
+"""
+Clock - Master your timesheets
+Copyright (C) 2023  Johann Wolfgang Goethe-Universität Frankfurt am Main
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU Affero General Public License as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
+"""
 import uuid
 
 import pytest
@@ -480,3 +495,34 @@ def contract_210h_carryover(create_n_contract_objects, user_object):
         initial_carryover_minutes=12600,
         user=user_object,
     )[0]
+
+
+@pytest.fixture
+def contract_with_locked_shift(contract_object, user_object, create_n_shift_objects):
+    create_n_shift_objects(
+        (1,),
+        user=user_object,
+        contract=contract_object,
+        started=datetime.datetime(2019, 1, 8, 14),
+        stopped=datetime.datetime(2019, 1, 8, 14),
+        locked=True,
+    )[0]
+    return contract_object
+
+
+@pytest.fixture
+def contract_start_date_one_months_earlier_json(valid_contract_json):
+    valid_contract_json["start_date"] = datetime.date(2018, 12, 1).isoformat()
+    return valid_contract_json
+
+
+@pytest.fixture
+def contract_carryover_two_hours_json(valid_contract_json):
+    valid_contract_json["initial_carryover_minutes"] = 120
+    return valid_contract_json
+
+
+@pytest.fixture
+def contract_minutes_thirty_hours_json(valid_contract_json):
+    valid_contract_json["initial_carryover_minutes"] = 1800
+    return valid_contract_json

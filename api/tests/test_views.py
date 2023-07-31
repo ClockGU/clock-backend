@@ -1,5 +1,20 @@
+"""
+Clock - Master your timesheets
+Copyright (C) 2023  Johann Wolfgang Goethe-Universität Frankfurt am Main
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU Affero General Public License as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
+"""
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pytest
 from dateutil.parser import parse
@@ -710,18 +725,18 @@ class TestReportApiEndpoint:
 
     @pytest.mark.django_db
     def test_aggregate_shift_content_handles_vacation_shifts(
-        self, prepared_ReportViewSet_view, two_shifts_with_one_vacation_shift
+        self, prepared_ReportViewSet_view, two_vacation_shifts
     ):
         content = prepared_ReportViewSet_view.aggregate_shift_content(
-            two_shifts_with_one_vacation_shift
+            two_vacation_shifts
         )
 
         assert len(content) == 1
-        assert content["26.01.2019"]["break_time"] == "00:00"
+        assert content["26.01.2019"]["break_time"] == "00:30"
         assert content["26.01.2019"]["work_time"] == "08:00"
-        assert content["26.01.2019"]["net_work_time"] == "04:00"
+        assert content["26.01.2019"]["net_work_time"] == ""
         assert content["26.01.2019"]["type"] == _("Vacation")
-        assert content["26.01.2019"]["sick_or_vac_time"] == "04:00"
+        assert content["26.01.2019"]["sick_or_vac_time"] == "07:30"
 
     @pytest.mark.freeze_time("2019-02-10")
     @pytest.mark.django_db

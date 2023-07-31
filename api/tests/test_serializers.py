@@ -1,3 +1,18 @@
+"""
+Clock - Master your timesheets
+Copyright (C) 2023  Johann Wolfgang Goethe-Universität Frankfurt am Main
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU Affero General Public License as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
+"""
 import datetime
 
 import pytest
@@ -332,6 +347,48 @@ class TestContractSerializerValidation:
             ContractSerializer(
                 instance=contract_object,
                 data=contract_end_date_7_months_apart_json,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_carryover_not_modifiable_with_locked_shifts(
+        self,
+        contract_with_locked_shift,
+        contract_carryover_two_hours_json,
+        plain_request_object,
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                instance=contract_with_locked_shift,
+                data=contract_carryover_two_hours_json,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_start_date_not_modifiable_with_locked_shifts(
+        self,
+        contract_with_locked_shift,
+        contract_start_date_one_months_earlier_json,
+        plain_request_object,
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                instance=contract_with_locked_shift,
+                data=contract_start_date_one_months_earlier_json,
+                context={"request": plain_request_object},
+            ).is_valid(raise_exception=True)
+
+    @pytest.mark.django_db
+    def test_minutes_not_modifiable_with_locked_shifts(
+        self,
+        contract_with_locked_shift,
+        contract_minutes_thirty_hours_json,
+        plain_request_object,
+    ):
+        with pytest.raises(serializers.ValidationError):
+            ContractSerializer(
+                instance=contract_with_locked_shift,
+                data=contract_minutes_thirty_hours_json,
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 

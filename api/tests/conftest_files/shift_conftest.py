@@ -1,3 +1,18 @@
+"""
+Clock - Master your timesheets
+Copyright (C) 2023  Johann Wolfgang Goethe-Universität Frankfurt am Main
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU Affero General Public License as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
+"""
 import datetime
 
 import pytest
@@ -749,9 +764,7 @@ def valid_vacation_shift(user_object, contract_object, create_n_shift_objects):
 
 
 @pytest.fixture
-def two_shifts_with_one_vacation_shift(
-    user_object, contract_object, create_n_shift_objects
-):
+def two_vacation_shifts(user_object, contract_object, create_n_shift_objects):
     """
     This fixture creates two shifts for a day.
     1. Shift is a regular 4 hour shift of type `st`.
@@ -768,6 +781,7 @@ def two_shifts_with_one_vacation_shift(
         contract=contract_object,
         started=datetime.datetime(2019, 1, 26, 10).astimezone(tz),
         stopped=datetime.datetime(2019, 1, 26, 14).astimezone(tz),
+        type="vn",
     )
     # Vacation Shift
     create_n_shift_objects(

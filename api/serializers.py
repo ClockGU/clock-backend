@@ -1,3 +1,19 @@
+"""
+Clock - Master your timesheets
+Copyright (C) 2023  Johann Wolfgang Goethe-Universität Frankfurt am Main
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU Affero General Public License as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
+"""
+
 from calendar import monthrange
 
 from dateutil.relativedelta import relativedelta
@@ -5,12 +21,13 @@ from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from holidays import country_holidays
-from more_itertools import pairwise
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
+    calculate_break,
+    calculate_worktime_breaktime,
     create_reports_for_contract,
     relativedelta_to_string,
     update_reports,
@@ -129,9 +146,10 @@ class ContractSerializer(RestrictModificationModelSerializer):
         :param attrs:
         :return:
         """
+        today = datetime.date.today()
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
-        today = datetime.date.today()
+        minutes = attrs.get("minutes")
         initial_carryover_minutes = attrs.get("initial_carryover_minutes")
 
         # Catches PUT
@@ -144,6 +162,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     "initial_carryover_minutes", self.instance.initial_carryover_minutes
                 )
 
+            # No shifts out of scope after modification
             if Shift.objects.filter(
                 contract=self.instance, started__lt=start_date
             ).exists():
@@ -166,9 +185,37 @@ class ContractSerializer(RestrictModificationModelSerializer):
             # check if new end date is more than 6 month apart from the old one
             if relativedelta(end_date, self.instance.end_date).months >= 6:
                 raise serializers.ValidationError(
-                    "A contract's end date can not be modified"
-                    "extended for more than 6 months."
+                    _(
+                        "A contract's end date can not be modified"
+                        "extended for more than 6 months."
+                    )
                 )
+
+            # no modification of minutes, start_date and carryover with locked shifts
+            if Shift.objects.filter(contract=self.instance, locked=True).exists():
+                if self.instance.initial_carryover_minutes != initial_carryover_minutes:
+                    raise serializers.ValidationError(
+                        _(
+                            "The Carryover of a contract with locked shifts "
+                            "is not allowed to modify."
+                        )
+                    )
+
+                if self.instance.start_date != start_date:
+                    raise serializers.ValidationError(
+                        _(
+                            "The start date of a contract with locked shifts "
+                            "is not allowed to modify."
+                        )
+                    )
+
+                if self.instance.minutes != minutes:
+                    raise serializers.ValidationError(
+                        _(
+                            "The minutes of a contract with locked shifts "
+                            "is not allowed to modify."
+                        )
+                    )
 
         if start_date > end_date:
             raise serializers.ValidationError(
@@ -262,34 +309,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             "locked": {"read_only": True},
         }
 
-    def calculate_break(self, started: datetime, stopped: datetime, shifts_queryset):
-        """
-        Calculation of total breaks between shifts.
-
-        @param started:
-        @param stopped:
-        @param shifts_queryset:
-        @return:
-        """
-        if not shifts_queryset.exists():
-            return datetime.timedelta(seconds=0)
-        shifts_queryset = shifts_queryset.order_by("started")
-
-        total_break = datetime.timedelta()
-
-        for shift, shift_next in pairwise(shifts_queryset):
-            total_break += shift_next.started - shift.stopped
-
-        # new shift is after old shifts
-        if started >= shifts_queryset.last().stopped:
-            return (started - shifts_queryset.last().stopped) + total_break
-        # new shift is before old shifts
-        if stopped <= shifts_queryset.first().started:
-            return (shifts_queryset.first().started - stopped) + total_break
-
-        # new shift is in between old shifts
-        return total_break - (stopped - started)
-
     def validate(self, data):
         started = data.get("started")
         stopped = data.get("stopped")
@@ -376,66 +395,22 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     _(
                         "This is the holiday "
                         + de_he_holidays.get(started.strftime("%Y-%m-%d"))
-                        + " and there can just be clocked shifts with type holiday/Feiertag"
+                        + " and there can just be clocked shifts with type holiday (de: Feiertag)."
+                    )
+                )
+            if (
+                shift_type is "bh"
+                and started.strftime("%Y-%m-%d") not in de_he_holidays
+            ):
+                raise serializers.ValidationError(
+                    _(
+                        "This day "
+                        + started.strftime("%Y-%m-%d")
+                        + " is not a holiday (de: Feiertag)."
                     )
                 )
 
             this_day_reviewed = this_day.filter(was_reviewed=True)
-
-            if this_day_reviewed.filter(
-                started__lte=started, stopped__gt=started
-            ).exists():
-                raise serializers.ValidationError(
-                    _(
-                        "The started date is in the time of an already existing reviewed shift : "
-                    )
-                )
-            if this_day_reviewed.filter(
-                started__lt=stopped, stopped__gte=stopped
-            ).exists():
-                raise serializers.ValidationError(
-                    _(
-                        "The stopped date is in the time of an already existing reviewed shift : "
-                    )
-                )
-
-            # validate that there is no standard shift this day if new shift is a V/S shift
-            if (
-                shift_type in ("sk", "vn")
-                and this_day_reviewed.filter(type="st").exists()
-            ):
-                raise serializers.ValidationError(
-                    _(
-                        "There are already normal shifts this day, adding a V/S shift is not allowed"
-                    )
-                )
-
-            # validate that there is no V/S shift this day if new shift is a standard shift
-            if (
-                shift_type == "st"
-                and this_day_reviewed.filter(type__in=("sk", "vn")).exists()
-            ):
-                raise serializers.ValidationError(
-                    _(
-                        "There are already V/S shifts this day, adding a standard shift is not allowed"
-                    )
-                )
-
-            # validate that there is no vacation shift this day if new shift is a sick shift
-            if shift_type == "sk" and this_day_reviewed.filter(type="vn").exists():
-                raise serializers.ValidationError(
-                    _(
-                        "There are already vacation shifts this day, combining sick and vacation shifts is not allowed"
-                    )
-                )
-
-            # validate that there is no sick shift this day if new shift is a vacation shift
-            if shift_type == "vn" and this_day_reviewed.filter(type="sk").exists():
-                raise serializers.ValidationError(
-                    _(
-                        "There are already sick shifts this day, combining sick and vacation shifts is not allowed"
-                    )
-                )
 
             new_worktime = stopped - started
             old_worktime = this_day_reviewed.aggregate(
@@ -445,31 +420,71 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
             )["total_work_time"]
 
-            total_worktime = old_worktime + new_worktime
-            total_break = self.calculate_break(
-                started=started, stopped=stopped, shifts_queryset=this_day_reviewed
-            )
+            if this_day_reviewed.exists():
+                if this_day_reviewed.filter(
+                    started__lte=started, stopped__gt=started
+                ).exists():
+                    raise serializers.ValidationError(
+                        _(
+                            "The started date is in the time of an already existing reviewed shift : "
+                        )
+                    )
+                if this_day_reviewed.filter(
+                    started__lt=stopped, stopped__gte=stopped
+                ).exists():
+                    raise serializers.ValidationError(
+                        _(
+                            "The stopped date is in the time of an already existing reviewed shift : "
+                        )
+                    )
 
-            if (
-                datetime.timedelta(hours=6)
-                < total_worktime
-                <= datetime.timedelta(hours=9)
-            ):
-                # Needed break >= 30min in total
-                if not this_day.exists() or total_break < datetime.timedelta(
-                    minutes=30
+                # validate that there is no standard shift this day if new shift is a V/S shift
+                if (
+                    shift_type in ("sk", "vn")
+                    and this_day_reviewed.filter(type="st").exists()
                 ):
-                    new_worktime = (
-                        new_worktime - datetime.timedelta(minutes=30) + total_break
+                    raise serializers.ValidationError(
+                        _(
+                            "There are already normal shifts this day, adding a V/S shift is not allowed"
+                        )
                     )
-            elif total_worktime > datetime.timedelta(hours=9):
-                # Needed break >= 45min in total
-                if not this_day.exists() or total_break < datetime.timedelta(
-                    minutes=45
+
+                # validate that there is no V/S shift this day if new shift is a standard shift
+                if (
+                    shift_type == "st"
+                    and this_day_reviewed.filter(type__in=("sk", "vn")).exists()
                 ):
-                    new_worktime = (
-                        new_worktime - datetime.timedelta(minutes=45) + total_break
+                    raise serializers.ValidationError(
+                        _(
+                            "There are already V/S shifts this day, adding a standard shift is not allowed"
+                        )
                     )
+
+                # validate that there is no vacation shift this day if new shift is a sick shift
+                if shift_type == "sk" and this_day_reviewed.filter(type="vn").exists():
+                    raise serializers.ValidationError(
+                        _(
+                            "There are already vacation shifts this day, combining sick and vacation shifts is not allowed"
+                        )
+                    )
+
+                # validate that there is no sick shift this day if new shift is a vacation shift
+                if shift_type == "vn" and this_day_reviewed.filter(type="sk").exists():
+                    raise serializers.ValidationError(
+                        _(
+                            "There are already sick shifts this day, combining sick and vacation shifts is not allowed"
+                        )
+                    )
+
+                # calculate total worktime of the day depending on the other shifts
+                new_worktime, break_time = calculate_worktime_breaktime(
+                    worktime=(old_worktime + new_worktime),
+                    breaktime=calculate_break(
+                        shifts_queryset=this_day_reviewed,
+                        new_shift_started=started,
+                        new_shift_stopped=stopped,
+                    ),
+                )
 
             if new_worktime + old_worktime > datetime.timedelta(hours=10):
                 raise exceptions.ValidationError(
