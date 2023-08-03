@@ -11,6 +11,7 @@ from api.models import User
 
 class Deprovisioner:
     model = User
+    REQUEST_OBJ_COUNT = 500
 
     def __init__(self, user_queryset=None):
         self.idm_api_url = env.str("IDM_API_URL")
@@ -24,3 +25,27 @@ class Deprovisioner:
 
     def get_queryset(self):
         return self.model.objects.all()
+
+    def create_hmac(self):
+        return ""
+
+    def prepare_request_bodies(self):
+        """
+        Prepare an Array of Arrays each representing one Batch-Request body for an JSON-RPC Request.
+        """
+        n = 0
+        queryset_partition = self.queryset[n * self.REQUEST_OBJ_COUNT:(n + 1) * self.REQUEST_OBJ_COUNT]
+
+        while queryset_partition:
+            self.request_bodies.append(map(self.prepare_obj_json_rpc, queryset_partition))
+            n += 1
+            queryset_partition = self.queryset[n * self.REQUEST_OBJ_COUNT:(n + 1) * self.REQUEST_OBJ_COUNT]
+
+    def prepare_obj_json_rpc(self, obj):
+        """
+        Prepare the object for a JSON-RPC request for one user.
+        """
+        body_obj = {
+
+        }
+        return body_obj
