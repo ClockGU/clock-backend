@@ -1,4 +1,3 @@
-import timeit
 import time
 import json
 import hashlib
@@ -75,3 +74,17 @@ class Deprovisioner:
             }
         }
         return body_obj
+
+    def deprovison(self):
+        self.prepare_request_bodies()
+
+        for body in self.request_bodies:
+            mac = self.create_hmac(body)
+            headers = self.create_headers(mac)
+            response = requests.post(self.idm_api_url, data=body, headers=headers, verify=True)
+            self.handle_response(response)
+
+    def handle_response(self, response):
+        pass
+
+
