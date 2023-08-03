@@ -19,7 +19,7 @@ class Deprovisioner:
         self.SECRET_KEY = bytes.fromhex(env.str("IDM_SECRET_KEY"))
         self.queryset = user_queryset if user_queryset else self.get_queryset()
         self.request_bodies = []
-        self.time = time.time()
+        self.time = int(time.time() * 1000)
 
     def get_model(self):
         return self.model
@@ -27,8 +27,20 @@ class Deprovisioner:
     def get_queryset(self):
         return self.model.objects.all()
 
-    def create_hmac(self):
-        return ""
+    def create_hmac(self, request_body):
+        encodeData = self.idm_api_url + json.dumps(request_body, sort_keys=True) + self.API_KEY + str(self.time)
+
+        b64mac = base64.b64encode(hmac.new(self.SECRET_KEY, bytes(encodeData, "utf-8"), hashlib.sha1).digest())
+        return b64mac
+
+    def create_headers(self, b64mac):
+        return {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "x-uniffm-apikey": self.API_KEY,
+            "x-uniffm-time": str(self.time),
+            "x-uniffm-mac": b64mac,
+        }
 
     def prepare_request_bodies(self):
         """
