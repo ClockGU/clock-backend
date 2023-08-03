@@ -28,7 +28,7 @@ class Deprovisioner:
         return self.model.objects.all()
 
     def create_hmac(self, request_body):
-        encodeData = self.idm_api_url + json.dumps(request_body, sort_keys=True) + self.API_KEY + str(self.time)
+        encodeData = self.idm_api_url + request_body + self.API_KEY + str(self.time)
 
         b64mac = base64.b64encode(hmac.new(self.SECRET_KEY, bytes(encodeData, "utf-8"), hashlib.sha1).digest())
         return b64mac
@@ -44,14 +44,15 @@ class Deprovisioner:
 
     def prepare_request_bodies(self):
         """
-        Prepare an Array of Arrays each representing one Batch-Request body for an JSON-RPC Request.
+        Prepare an Array of Strings each representing one Batch-Request body for an JSON-RPC Request.
         """
         assert len(self.request_bodies) == 0
         n = 0
         queryset_partition = self.queryset[n * self.REQUEST_OBJ_COUNT:(n + 1) * self.REQUEST_OBJ_COUNT]
 
         while queryset_partition:
-            self.request_bodies.append(map(self.prepare_obj_json_rpc, queryset_partition))
+            prepared_rpc_bodies = map(self.prepare_obj_json_rpc, queryset_partition)
+            self.request_bodies.append(json.dumps(prepared_rpc_bodies, sort_keys=True))
             n += 1
             queryset_partition = self.queryset[n * self.REQUEST_OBJ_COUNT:(n + 1) * self.REQUEST_OBJ_COUNT]
 
