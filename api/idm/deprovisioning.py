@@ -19,6 +19,7 @@ class Deprovisioner:
         self.SECRET_KEY = bytes.fromhex(env.str("IDM_SECRET_KEY"))
         self.queryset = user_queryset if user_queryset else self.get_queryset()
         self.request_bodies = []
+        self.time = time.time()
 
     def get_model(self):
         return self.model
@@ -33,6 +34,7 @@ class Deprovisioner:
         """
         Prepare an Array of Arrays each representing one Batch-Request body for an JSON-RPC Request.
         """
+        assert len(self.request_bodies) == 0
         n = 0
         queryset_partition = self.queryset[n * self.REQUEST_OBJ_COUNT:(n + 1) * self.REQUEST_OBJ_COUNT]
 
@@ -46,6 +48,17 @@ class Deprovisioner:
         Prepare the object for a JSON-RPC request for one user.
         """
         body_obj = {
-
+            "jsonrpc": "2.0",
+            "method": "idm.read",
+            "id": "1",
+            "params": {
+                "object": ["account"],
+                "filter": [f"db.login={obj.username} && db.accountstatus=L"],
+                "datain": {
+                    "timestamp": self.time,
+                    "returns": None,
+                    "debug": False
+                }
+            }
         }
         return body_obj
