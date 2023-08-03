@@ -13,6 +13,11 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+import datetime
+import json
+import time
+
+import pytest
 
 from api.idm.deprovisioning import Deprovisioner
 
@@ -35,13 +40,13 @@ class TestClassAttributes:
 
     def test_has_secret_key(self):
         assert hasattr(self.instance, "SECRET_KEY")
-        
+
     def test_has_queryset(self):
-        assert hasattr(self.instance,"queryset")
+        assert hasattr(self.instance, "queryset")
 
     def test_has_request_bodies(self):
         assert hasattr(self.instance, "request_bodies")
-        
+
     def test_has_time(self):
         assert hasattr(self.instance, "time")
 
@@ -77,3 +82,33 @@ class TestClassAttributes:
     def test_has_handle_response(self):
         assert hasattr(self.instance, "handle_response")
         assert callable(getattr(self.instance, "handle_response"))
+
+
+class TestDeprovisionSteps:
+
+    @pytest.mark.django_db
+    def test_request_batch_size(self, deprovison_test_users, test_deprovisioner_instance):
+        test_deprovisioner_instance.prepare_request_bodies()
+        assert len(test_deprovisioner_instance.request_bodies) == 5
+        assert all(map(lambda x: len(json.loads(x)) == 2, test_deprovisioner_instance.request_bodies))
+
+    @pytest.mark.freeze_time("2012-01-14")
+    @pytest.mark.django_db
+    def test_correct_obj_json_rpc(self, deprovison_test_users, test_deprovisioner_instance):
+        body = test_deprovisioner_instance.prepare_obj_json_rpc(deprovison_test_users[0])
+        frozen_unix_epoch = int(time.time() * 1000)
+        correct_body = {
+            "jsonrpc": "2.0",
+            "method": "idm.read",
+            "id": "testusername0",
+            "params": {
+                "object": ["account"],
+                "filter": [f"db.login=testusername0 && db.accountstatus=L"],
+                "datain": {
+                    "timestamp": frozen_unix_epoch,
+                    "returns": None,
+                    "debug": False
+                }
+            }
+        }
+        assert body == correct_body

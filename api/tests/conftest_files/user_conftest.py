@@ -39,7 +39,7 @@ def create_n_user_objects():
 
     def create_users(start_stop):
         return [
-            User.objects.create_user(
+            User.objects.create(
                 username=username.format(i),
                 email=email.format(i),
                 first_name=first_name,

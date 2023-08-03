@@ -66,7 +66,7 @@ class Deprovisioner:
         queryset_partition = self.queryset[n * self.REQUEST_OBJ_COUNT:(n + 1) * self.REQUEST_OBJ_COUNT]
 
         while queryset_partition:
-            prepared_rpc_bodies = map(self.prepare_obj_json_rpc, queryset_partition)
+            prepared_rpc_bodies = [self.prepare_obj_json_rpc(user_obj) for user_obj in queryset_partition]
             self.request_bodies.append(json.dumps(prepared_rpc_bodies, sort_keys=True))
             n += 1
             queryset_partition = self.queryset[n * self.REQUEST_OBJ_COUNT:(n + 1) * self.REQUEST_OBJ_COUNT]

@@ -13,18 +13,21 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+import freezegun
 import pytest
 from api.idm.deprovisioning import Deprovisioner
-    
+
+
 @pytest.fixture
 def deprovison_test_users(create_n_user_objects):
     """
     Create 10 User objects to test the Derpovisioner class.
     """
-    create_n_user_objects((10,))
+    return create_n_user_objects((10,))
+
 
 @pytest.fixture
-def test_deeprovisioner_instance():
+def test_deprovisioner_instance():
     """
     Set the REQUEST_OBJ_COUNT to 2 for testing of request Partition.
     (By doing that we avoid creating 501 User objects.)
