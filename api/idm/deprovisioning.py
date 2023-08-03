@@ -28,9 +28,9 @@ class Deprovisioner:
         return self.model.objects.all()
 
     def create_hmac(self, request_body):
-        encodeData = self.idm_api_url + request_body + self.API_KEY + str(self.time)
+        encoded_data = self.idm_api_url + request_body + self.API_KEY + str(self.time)
 
-        b64mac = base64.b64encode(hmac.new(self.SECRET_KEY, bytes(encodeData, "utf-8"), hashlib.sha1).digest())
+        b64mac = base64.b64encode(hmac.new(self.SECRET_KEY, bytes(encoded_data, "utf-8"), hashlib.sha1).digest())
         return b64mac
 
     def create_headers(self, b64mac):
@@ -63,7 +63,7 @@ class Deprovisioner:
         body_obj = {
             "jsonrpc": "2.0",
             "method": "idm.read",
-            "id": "1",
+            "id": f"{obj.username}",
             "params": {
                 "object": ["account"],
                 "filter": [f"db.login={obj.username} && db.accountstatus=L"],
