@@ -45,7 +45,11 @@ class Deprovisioner:
     def create_hmac(self, request_body):
         encoded_data = self.idm_api_url + request_body + self.API_KEY + str(self.time)
 
-        b64mac = base64.b64encode(hmac.new(self.SECRET_KEY, bytes(encoded_data, "utf-8"), hashlib.sha1).digest())
+        b64mac = base64.b64encode(
+            hmac.new(
+                self.SECRET_KEY, bytes(encoded_data, "utf-8"), hashlib.sha1
+            ).digest()
+        )
         return b64mac
 
     def create_headers(self, b64mac):
@@ -63,13 +67,19 @@ class Deprovisioner:
         """
         assert len(self.request_bodies) == 0
         n = 0
-        queryset_partition = self.queryset[n * self.REQUEST_OBJ_COUNT:(n + 1) * self.REQUEST_OBJ_COUNT]
+        queryset_partition = self.queryset[
+            n * self.REQUEST_OBJ_COUNT : (n + 1) * self.REQUEST_OBJ_COUNT
+        ]
 
         while queryset_partition:
-            prepared_rpc_bodies = [self.prepare_obj_json_rpc(user_obj) for user_obj in queryset_partition]
+            prepared_rpc_bodies = [
+                self.prepare_obj_json_rpc(user_obj) for user_obj in queryset_partition
+            ]
             self.request_bodies.append(json.dumps(prepared_rpc_bodies, sort_keys=True))
             n += 1
-            queryset_partition = self.queryset[n * self.REQUEST_OBJ_COUNT:(n + 1) * self.REQUEST_OBJ_COUNT]
+            queryset_partition = self.queryset[
+                n * self.REQUEST_OBJ_COUNT : (n + 1) * self.REQUEST_OBJ_COUNT
+            ]
 
     def prepare_obj_json_rpc(self, obj):
         """
@@ -80,14 +90,10 @@ class Deprovisioner:
             "method": "idm.read",
             "id": f"{obj.username}",
             "params": {
-                "object": ["account"],
-                "filter": [f"db.login={obj.username} && db.accountstatus=L"],
-                "datain": {
-                    "timestamp": self.time,
-                    "returns": None,
-                    "debug": False
-                }
-            }
+                "object": ["shortstamm"],
+                "filter": [f"db.hrzlogin={obj.username} && db.accountstatus=L"],
+                "datain": {"timestamp": self.time, "returns": None, "debug": False},
+            },
         }
         return body_obj
 
@@ -97,7 +103,9 @@ class Deprovisioner:
         for body in self.request_bodies:
             mac = self.create_hmac(body)
             headers = self.create_headers(mac)
-            response = requests.post(self.idm_api_url, data=body, headers=headers, verify=True)
+            response = requests.post(
+                self.idm_api_url, data=body, headers=headers, verify=True
+            )
             self.handle_response(response)
 
     def handle_response(self, response):
@@ -105,6 +113,3 @@ class Deprovisioner:
         print(f"Response status:{response.status_code}")
         print("Response content:\n")
         print(response.content)
-        
-
-

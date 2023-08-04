@@ -85,30 +85,40 @@ class TestClassAttributes:
 
 
 class TestDeprovisionSteps:
-
     @pytest.mark.django_db
-    def test_request_batch_size(self, deprovison_test_users, test_deprovisioner_instance):
+    def test_request_batch_size(
+        self, deprovison_test_users, test_deprovisioner_instance
+    ):
         test_deprovisioner_instance.prepare_request_bodies()
         assert len(test_deprovisioner_instance.request_bodies) == 5
-        assert all(map(lambda x: len(json.loads(x)) == 2, test_deprovisioner_instance.request_bodies))
+        assert all(
+            map(
+                lambda x: len(json.loads(x)) == 2,
+                test_deprovisioner_instance.request_bodies,
+            )
+        )
 
     @pytest.mark.freeze_time("2012-01-14")
     @pytest.mark.django_db
-    def test_correct_obj_json_rpc(self, deprovison_test_users, test_deprovisioner_instance):
-        body = test_deprovisioner_instance.prepare_obj_json_rpc(deprovison_test_users[0])
+    def test_correct_obj_json_rpc(
+        self, deprovison_test_users, test_deprovisioner_instance
+    ):
+        body = test_deprovisioner_instance.prepare_obj_json_rpc(
+            deprovison_test_users[0]
+        )
         frozen_unix_epoch = int(time.time() * 1000)
         correct_body = {
             "jsonrpc": "2.0",
             "method": "idm.read",
             "id": "testusername0",
             "params": {
-                "object": ["account"],
-                "filter": [f"db.login=testusername0 && db.accountstatus=L"],
+                "object": ["shortstamm"],
+                "filter": [f"db.hrzlogin=testusername0 && db.accountstatus=L"],
                 "datain": {
                     "timestamp": frozen_unix_epoch,
                     "returns": None,
-                    "debug": False
-                }
-            }
+                    "debug": False,
+                },
+            },
         }
         assert body == correct_body
