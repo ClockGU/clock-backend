@@ -101,6 +101,10 @@ class Deprovisioner:
             self.handle_response(response)
 
     def handle_response(self, response):
-        pass
+        print("Response handled")
+        print(f"Response status:{response.status_code}")
+        print("Response content:\n")
+        print(response.content)
+        
 
 
