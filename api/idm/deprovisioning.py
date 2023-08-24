@@ -104,9 +104,9 @@ class Deprovisioner:
         }
         return body_obj
 
-    def deprovison(self):
+    def deprovision(self):
         LOGGER.info("Deprovisioning started.")
-        self.pre_deprovison()
+        self.pre_deprovision()
         self.prepare_request_bodies()
 
         for body in self.request_bodies:
@@ -118,7 +118,7 @@ class Deprovisioner:
             parsed_content = json.loads(response.content)
             self.handle_response(parsed_content)
 
-    def pre_deprovison(self):
+    def pre_deprovision(self):
         LOGGER.info("PRE-Deprovisioning hook called")
         self.delete_marked_objects()
 
