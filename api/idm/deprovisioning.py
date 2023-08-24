@@ -105,6 +105,15 @@ class Deprovisioner:
         return body_obj
 
     def deprovision(self):
+        """
+        Main method of the deprovisioning process.
+
+        1. Do tasks prior to call the IDM
+            1.1 Delete all model instances that full-fill the deprovisioning condition
+        2. Prepare data to call the IDM
+        3. Handle the response
+            3.1 Mark model instances that full-fill the deprovisioning condition for future deletion
+        """
         LOGGER.info("Deprovisioning started.")
         self.pre_deprovision()
         self.prepare_request_bodies()
@@ -119,15 +128,26 @@ class Deprovisioner:
             self.handle_response(parsed_content)
 
     def pre_deprovision(self):
+        """
+        Hook to handle task prior to the actual deprovision.
+        """
         LOGGER.info("PRE-Deprovisioning hook called")
         self.delete_marked_objects()
 
     def delete_marked_objects(self):
+        """
+        Delete all model instances where the deprovision_cond_field equals True.
+        """
         LOGGER.info("Delete marked objects called.")
         deleted_count = self.get_queryset().filter(**{self.deprovision_cond_field: True}).delete()
         LOGGER.info(f"{deleted_count} User objects deleted.")
 
     def mark_for_deletion(self, response_body):
+        """
+        Update the field value of identifier_field for each model instance.
+        :param: request_body: JSON parsed response body
+        :type: Array[Dict]
+        """
         LOGGER.info("mark_for_deletion called")
         with transaction.atomic():
             for body_obj in response_body:
@@ -169,13 +189,26 @@ class Deprovisioner:
         return conditional_value
 
     def handle_response(self, response_body):
+        """
+        Hook to handle the response body of one Request for the respecting queryset_partition (Size: REQUEST_OBJ_COUNT).
+        """
         LOGGER.info("handle_response called.")
         self.mark_for_deletion(response_body)
 
     def get_update_value(self, obj):
+        """
+        Method to retrieve the value to update the deprovision_cond_field.
+        :param obj: Dictionary of one JSON-RPC Request object
+        :type: dict
+        """
         assert isinstance(obj, dict)
         return obj["result"]["resultsize"] > 0
 
     def get_obj_identifier_value(self, obj):
+        """
+        Method to retrieve the value for the identifier_field.
+        :param obj: Dictionary of one JSON-RPC Request object
+        :type: dict
+        """
         assert isinstance(obj, dict)
         return obj["id"]
