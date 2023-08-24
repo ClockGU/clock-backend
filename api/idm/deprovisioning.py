@@ -13,13 +13,14 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
-
+import pprint
 import time
 import json
 import hashlib
 import hmac
 import base64
 import requests
+from django.db import transaction
 from config.settings.common import env
 from api.models import User
 
@@ -98,6 +99,7 @@ class Deprovisioner:
         return body_obj
 
     def deprovison(self):
+        self.pre_deprovison()
         self.prepare_request_bodies()
 
         for body in self.request_bodies:
@@ -106,10 +108,7 @@ class Deprovisioner:
             response = requests.post(
                 self.idm_api_url, data=body, headers=headers, verify=True
             )
-            self.handle_response(response)
+            parsed_content = json.loads(response.content)
 
-    def handle_response(self, response):
-        print("Response handled")
-        print(f"Response status:{response.status_code}")
-        print("Response content:\n")
-        print(response.content)
+    def pre_deprovison(self):
+        pass
