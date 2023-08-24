@@ -124,8 +124,12 @@ class Deprovisioner:
                 self.model.objects.filter(
                     **{self.identifier_field: body_obj["id"]}
                 ).update(
-                    marked_for_deletion=body_obj["result"]["resultsize"] > 0
+                    marked_for_deletion=self.get_update_value(body_obj)
                 )
 
     def handle_response(self, response_body):
         self.mark_for_deletion(response_body)
+
+    def get_update_value(self, obj):
+        assert isinstance(obj, dict)
+        return obj["result"]["resultsize"] > 0
