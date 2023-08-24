@@ -123,7 +123,7 @@ class Deprovisioner:
         with transaction.atomic():
             for body_obj in response_body:
                 self.model.objects.filter(
-                    **{self.identifier_field: body_obj["id"]}
+                    **{self.identifier_field: self.get_obj_identifier_value(body_obj)}
                 ).update(
                     **{self.deprovision_cond_field: self.get_update_value(body_obj)}
                 )
@@ -134,3 +134,7 @@ class Deprovisioner:
     def get_update_value(self, obj):
         assert isinstance(obj, dict)
         return obj["result"]["resultsize"] > 0
+
+    def get_obj_identifier_value(self, obj):
+        assert isinstance(obj, dict)
+        return obj["id"]
