@@ -13,17 +13,19 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
-import pprint
-import time
-import json
+import base64
 import hashlib
 import hmac
-import base64
-import requests
+import json
 import logging
+import pprint
+import time
+
+import requests
 from django.db import transaction
-from config.settings.common import env
+
 from api.models import User
+from config.settings.common import env
 
 LOGGER = logging.getLogger("deprovisioning")
 
@@ -75,7 +77,7 @@ class Deprovisioner:
         assert len(self.request_bodies) == 0
         n = 0
         queryset_partition = self.queryset[
-            n * self.REQUEST_OBJ_COUNT: (n + 1) * self.REQUEST_OBJ_COUNT
+            n * self.REQUEST_OBJ_COUNT : (n + 1) * self.REQUEST_OBJ_COUNT
         ]
 
         while queryset_partition:
@@ -85,7 +87,7 @@ class Deprovisioner:
             self.request_bodies.append(json.dumps(prepared_rpc_bodies, sort_keys=True))
             n += 1
             queryset_partition = self.queryset[
-                n * self.REQUEST_OBJ_COUNT: (n + 1) * self.REQUEST_OBJ_COUNT
+                n * self.REQUEST_OBJ_COUNT : (n + 1) * self.REQUEST_OBJ_COUNT
             ]
 
     def prepare_obj_json_rpc(self, obj):
@@ -98,7 +100,9 @@ class Deprovisioner:
             "id": f"{getattr(obj, self.identifier_field)}",
             "params": {
                 "object": ["shortstamm"],
-                "filter": [f"db.hrzlogin={getattr(obj, self.identifier_field)} && db.accountstatus=L"],
+                "filter": [
+                    f"db.hrzlogin={getattr(obj, self.identifier_field)} && db.accountstatus=L"
+                ],
                 "datain": {"timestamp": self.time, "returns": None, "debug": False},
             },
         }
@@ -139,7 +143,9 @@ class Deprovisioner:
         Delete all model instances where the deprovision_cond_field equals True.
         """
         LOGGER.info("Delete marked objects called.")
-        deleted_count = self.get_queryset().filter(**{self.deprovision_cond_field: True}).delete()
+        deleted_count = (
+            self.get_queryset().filter(**{self.deprovision_cond_field: True}).delete()
+        )
         LOGGER.info(f"{deleted_count} User objects deleted.")
 
     def mark_for_deletion(self, response_body):
@@ -154,16 +160,14 @@ class Deprovisioner:
                 update_value = self.get_update_value(body_obj)
                 self.model.objects.filter(
                     **{self.identifier_field: self.get_obj_identifier_value(body_obj)}
-                ).update(
-                    **{self.deprovision_cond_field: update_value}
-                )
+                ).update(**{self.deprovision_cond_field: update_value})
                 self.update_counter(update_value)
         LOGGER.info(f"{self.update_cnt} Objects updated.")
         self.reset_update_cnt()
-    
+
     def reset_update_cnt(self):
         self.update_cnt = 0
-    
+
     def update_counter(self, conditional_value=None):
         """
         Method to update the counter of objects.
@@ -180,7 +184,7 @@ class Deprovisioner:
         depending on the conditional_value.
 
         :param conditional_value: value used to determine increment
-        
+
         Example:
         In this case we will get conditional_value to be True/False --> 1/0
 

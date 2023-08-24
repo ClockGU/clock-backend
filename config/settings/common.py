@@ -229,20 +229,18 @@ LOCALE_PATHS = [str(ROOT_DIR("locale"))]
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(message)s'
-        },
+    "formatters": {
+        "verbose": {"format": "%(levelname)s %(asctime)s %(message)s"},
     },
     "handlers": {
-        'deprovisionlogfile': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(str(LOG_ROOT.path("api_logs")), "deprovision.log"),
-            'formatter': "verbose",
-            'when': 'midnight',
-            'interval': 1,
-            'backupCount': 10,
+        "deprovisionlogfile": {
+            "level": "DEBUG",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": os.path.join(str(LOG_ROOT.path("api_logs")), "deprovision.log"),
+            "formatter": "verbose",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 10,
         }
     },
     "loggers": {

@@ -15,6 +15,7 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 """
 import freezegun
 import pytest
+
 from api.idm.deprovisioning import Deprovisioner
 
 
