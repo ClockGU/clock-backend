@@ -28,6 +28,7 @@ from api.models import User
 class Deprovisioner:
     model = User
     REQUEST_OBJ_COUNT = 500
+    identifier_field = "username"
 
     def __init__(self, user_queryset=None):
         self.idm_api_url = env.str("IDM_API_URL")
@@ -69,7 +70,7 @@ class Deprovisioner:
         assert len(self.request_bodies) == 0
         n = 0
         queryset_partition = self.queryset[
-            n * self.REQUEST_OBJ_COUNT : (n + 1) * self.REQUEST_OBJ_COUNT
+            n * self.REQUEST_OBJ_COUNT: (n + 1) * self.REQUEST_OBJ_COUNT
         ]
 
         while queryset_partition:
@@ -79,7 +80,7 @@ class Deprovisioner:
             self.request_bodies.append(json.dumps(prepared_rpc_bodies, sort_keys=True))
             n += 1
             queryset_partition = self.queryset[
-                n * self.REQUEST_OBJ_COUNT : (n + 1) * self.REQUEST_OBJ_COUNT
+                n * self.REQUEST_OBJ_COUNT: (n + 1) * self.REQUEST_OBJ_COUNT
             ]
 
     def prepare_obj_json_rpc(self, obj):
@@ -89,10 +90,10 @@ class Deprovisioner:
         body_obj = {
             "jsonrpc": "2.0",
             "method": "idm.read",
-            "id": f"{obj.username}",
+            "id": f"{getattr(obj, self.identifier_field)}",
             "params": {
                 "object": ["shortstamm"],
-                "filter": [f"db.hrzlogin={obj.username} && db.accountstatus=L"],
+                "filter": [f"db.hrzlogin={getattr(obj, self.identifier_field)} && db.accountstatus=L"],
                 "datain": {"timestamp": self.time, "returns": None, "debug": False},
             },
         }
@@ -121,7 +122,7 @@ class Deprovisioner:
         with transaction.atomic():
             for body_obj in response_body:
                 self.model.objects.filter(
-                    username=body_obj["id"]
+                    **{self.identifier_field: body_obj["id"]}
                 ).update(
                     marked_for_deletion=body_obj["result"]["resultsize"] > 0
                 )
