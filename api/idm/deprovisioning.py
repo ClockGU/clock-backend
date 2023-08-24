@@ -112,7 +112,10 @@ class Deprovisioner:
             self.handle_response(parsed_content)
 
     def pre_deprovison(self):
-        pass
+        self.delete_marked_objects()
+
+    def delete_marked_objects(self):
+        self.get_queryset().filter(marked_for_deletion=True).delete()
 
     def mark_for_deletion(self, response_body):
         with transaction.atomic():
