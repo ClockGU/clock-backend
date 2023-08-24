@@ -114,12 +114,15 @@ class Deprovisioner:
             self.handle_response(parsed_content)
 
     def pre_deprovison(self):
+        print("pre_deprovision called")
         self.delete_marked_objects()
 
     def delete_marked_objects(self):
+        print("delete_marked_objects called")
         self.get_queryset().filter(**{self.deprovision_cond_field: True}).delete()
 
     def mark_for_deletion(self, response_body):
+        print("mark_for_deletion called")
         with transaction.atomic():
             for body_obj in response_body:
                 self.model.objects.filter(
@@ -129,6 +132,7 @@ class Deprovisioner:
                 )
 
     def handle_response(self, response_body):
+        print("handle_response called")
         self.mark_for_deletion(response_body)
 
     def get_update_value(self, obj):
