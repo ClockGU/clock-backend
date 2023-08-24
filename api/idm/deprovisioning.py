@@ -20,9 +20,12 @@ import hashlib
 import hmac
 import base64
 import requests
+import logging
 from django.db import transaction
 from config.settings.common import env
 from api.models import User
+
+LOGGER = logging.getLogger("deprovisioning")
 
 
 class Deprovisioner:
@@ -38,6 +41,7 @@ class Deprovisioner:
         self.queryset = user_queryset if user_queryset else self.get_queryset()
         self.request_bodies = []
         self.time = int(time.time() * 1000)
+        self.update_cnt = 0
 
     def get_model(self):
         return self.model
@@ -101,6 +105,7 @@ class Deprovisioner:
         return body_obj
 
     def deprovison(self):
+        LOGGER.info("Deprovisioning started.")
         self.pre_deprovison()
         self.prepare_request_bodies()
 
@@ -114,25 +119,57 @@ class Deprovisioner:
             self.handle_response(parsed_content)
 
     def pre_deprovison(self):
-        print("pre_deprovision called")
+        LOGGER.info("PRE-Deprovisioning hook called")
         self.delete_marked_objects()
 
     def delete_marked_objects(self):
-        print("delete_marked_objects called")
-        self.get_queryset().filter(**{self.deprovision_cond_field: True}).delete()
+        LOGGER.info("Delete marked objects called.")
+        deleted_count = self.get_queryset().filter(**{self.deprovision_cond_field: True}).delete()
+        LOGGER.info(f"{deleted_count} User objects deleted.")
 
     def mark_for_deletion(self, response_body):
-        print("mark_for_deletion called")
+        LOGGER.info("mark_for_deletion called")
         with transaction.atomic():
             for body_obj in response_body:
+                update_value = self.get_update_value(body_obj)
                 self.model.objects.filter(
                     **{self.identifier_field: self.get_obj_identifier_value(body_obj)}
                 ).update(
-                    **{self.deprovision_cond_field: self.get_update_value(body_obj)}
+                    **{self.deprovision_cond_field: update_value}
                 )
+                self.update_counter(update_value)
+        LOGGER.info(f"{self.update_cnt} Objects updated.")
+        self.reset_update_cnt()
+    
+    def reset_update_cnt(self):
+        self.update_cnt = 0
+    
+    def update_counter(self, conditional_value=None):
+        """
+        Method to update the counter of objects.
+        :param conditional_value: value used to determine whether an object was actually updated
+
+        Example:
+        Changing a field from 1 --> 1 does not count as real update in thos case.
+        """
+        self.update_cnt += self.get_increment(conditional_value)
+
+    def get_increment(self, conditional_value):
+        """
+        Method to determine what increment to provide for the update counter
+        depending on the conditional_value.
+
+        :param conditional_value: value used to determine increment
+        
+        Example:
+        In this case we will get conditional_value to be True/False --> 1/0
+
+        Can be further generalized in future deprovisioning classes if needed.
+        """
+        return conditional_value
 
     def handle_response(self, response_body):
-        print("handle_response called")
+        LOGGER.info("handle_response called.")
         self.mark_for_deletion(response_body)
 
     def get_update_value(self, obj):

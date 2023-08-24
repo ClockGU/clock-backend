@@ -61,20 +61,6 @@ CACHES = {
         "LOCATION": "",
     }
 }
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler"}},
-    "loggers": {
-        "": {"handlers": ["console"], "level": "NOTSET"},
-        "django.request": {
-            "handlers": ["console"],
-            "propagate": False,
-            "level": "DEBUG",
-        },
-        "werkzeug": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
-    },
-}
 
 REQUEST_LOGGING_ENABLE_COLORIZE = True
 REQUEST_LOGGING_SENSITIVE_HEADERS = []
