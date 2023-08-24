@@ -29,6 +29,7 @@ class Deprovisioner:
     model = User
     REQUEST_OBJ_COUNT = 500
     identifier_field = "username"
+    deprovision_cond_field = "marked_for_deletion"
 
     def __init__(self, user_queryset=None):
         self.idm_api_url = env.str("IDM_API_URL")
@@ -116,7 +117,7 @@ class Deprovisioner:
         self.delete_marked_objects()
 
     def delete_marked_objects(self):
-        self.get_queryset().filter(marked_for_deletion=True).delete()
+        self.get_queryset().filter(**{self.deprovision_cond_field: True}).delete()
 
     def mark_for_deletion(self, response_body):
         with transaction.atomic():
@@ -124,7 +125,7 @@ class Deprovisioner:
                 self.model.objects.filter(
                     **{self.identifier_field: body_obj["id"]}
                 ).update(
-                    marked_for_deletion=self.get_update_value(body_obj)
+                    **{self.deprovision_cond_field: self.get_update_value(body_obj)}
                 )
 
     def handle_response(self, response_body):
