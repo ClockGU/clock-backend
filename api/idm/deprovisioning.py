@@ -109,6 +109,19 @@ class Deprovisioner:
                 self.idm_api_url, data=body, headers=headers, verify=True
             )
             parsed_content = json.loads(response.content)
+            self.handle_response(parsed_content)
 
     def pre_deprovison(self):
         pass
+
+    def mark_for_deletion(self, response_body):
+        with transaction.atomic():
+            for body_obj in response_body:
+                self.model.objects.filter(
+                    username=body_obj["id"]
+                ).update(
+                    marked_for_deletion=body_obj["result"]["resultsize"] > 0
+                )
+
+    def handle_response(self, response_body):
+        self.mark_for_deletion(response_body)
