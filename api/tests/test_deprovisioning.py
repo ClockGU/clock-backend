@@ -203,3 +203,19 @@ class TestDeprovisionSteps:
         test_deprovisioner_instance.handle_response(response_body_for_test_users)
 
         assert User.objects.filter(marked_for_deletion=True).count() == 5
+    
+    def test_update_counter(self,test_deprovisioner_instance):
+        
+        assert test_deprovisioner_instance.update_cnt == 0
+        test_deprovisioner_instance.update_counter(True)
+        assert test_deprovisioner_instance.update_cnt == 1
+        
+    def test_get_increment(self, test_deprovisioner_instance):
+        assert test_deprovisioner_instance.get_increment(True) == 1
+        
+    def test_reset_update_counter(self, test_deprovisioner_instance):
+        test_deprovisioner_instance.update_counter(True)
+        assert test_deprovisioner_instance.update_cnt == 1
+        test_deprovisioner_instance.reset_update_cnt()
+        assert test_deprovisioner_instance.update_cnt == 0
+ 
