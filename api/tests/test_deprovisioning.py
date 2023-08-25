@@ -20,6 +20,7 @@ import time
 import pytest
 
 from api.idm.deprovisioning import Deprovisioner
+from api.models import User
 
 
 class TestClassAttributes:
@@ -181,3 +182,24 @@ class TestDeprovisionSteps:
         Test whether the method `get_obj_identifier_value` retrieves the
         """
         assert first_deprovision_test_user.username == test_deprovisioner_instance.get_obj_identifier_value(not_deleted_user_json_rpc_obj)
+
+    @pytest.mark.django_db
+    def test_mark_for_deletion_marks_users(self, response_body_for_test_users, test_deprovisioner_instance):
+        """
+        Test whether the method `mark_for_deletion` actually marks the users whith resultsize > 0
+        for  deletion.
+        """
+        test_deprovisioner_instance.mark_for_deletion(response_body_for_test_users)
+
+        assert User.objects.filter(marked_for_deletion=True).count() == 5
+
+    @pytest.mark.django_db
+    def test_handle_response_only_does_marking_for_deletion(self, response_body_for_test_users, test_deprovisioner_instance):
+        """
+        Test whether the hook/method `handle_response` calls `mark_for_deletion`.
+
+        We can practically only test, that calling this method does the same as calling `mark_for_deletion`.
+        """
+        test_deprovisioner_instance.handle_response(response_body_for_test_users)
+
+        assert User.objects.filter(marked_for_deletion=True).count() == 5

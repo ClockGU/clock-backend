@@ -66,3 +66,37 @@ def not_deleted_user_json_rpc_obj(first_deprovision_test_user):
             ],
         },
     }
+
+@pytest.fixture
+def response_body_for_test_users(deprovision_test_users):
+    """
+    Creates a json parsed test response body for the deprovision_test_us.
+    We set the resultsize to 1 for every other user, so we can also test for
+    the case a user should be marked for deletion.
+
+    10 Users total
+    5 Users to be marked
+
+    Note: user.username[-1] --> Is the number of the User from 0 to 9 (Since we have 10 Users)
+    """
+    return [{
+        "jsonrpc": "2.0",
+        "id": f"{user.username}",
+        "result": {
+            "resultsize": int(user.username[-1]) % 2,
+            "success": True,
+            "hasInfos": True,
+            "hasWarnings": False,
+            "hasErrors": False,
+            "hasFatals": False,
+            "hasStrangeMessage": False,
+            "data": [],
+            "messages": [
+                {
+                    "messageID": "IOK",
+                    "messageType": "INFO",
+                    "messageData": "Ausfuehrung erfolgreich.",
+                }
+            ],
+        }
+    } for user in deprovision_test_users]
