@@ -218,4 +218,21 @@ class TestDeprovisionSteps:
         assert test_deprovisioner_instance.update_cnt == 1
         test_deprovisioner_instance.reset_update_cnt()
         assert test_deprovisioner_instance.update_cnt == 0
- 
+
+    @pytest.mark.django_db
+    def test_delete_marked_objects(self, user_marked_for_deletion, test_deprovisioner_instance):
+        assert User.objects.all().count() == 1
+        test_deprovisioner_instance.delete_marked_objects()
+        assert User.objects.all().count() == 0
+
+    @pytest.mark.django_db
+    def test_pre_deprovision_deletes_marked_objs(self, user_marked_for_deletion, test_deprovisioner_instance):
+        """
+        Test whether the hook/method `pre_deprovision` calls `delete_marked_objects`.
+
+        We can practically only test, that calling this method does the same as calling `delete_marked_objects`.
+        """
+
+        assert User.objects.all().count() == 1
+        test_deprovisioner_instance.pre_deprovision()
+        assert User.objects.all().count() == 0

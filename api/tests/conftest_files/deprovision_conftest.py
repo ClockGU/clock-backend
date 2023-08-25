@@ -100,3 +100,11 @@ def response_body_for_test_users(deprovision_test_users):
             ],
         }
     } for user in deprovision_test_users]
+
+
+@pytest.fixture
+def user_marked_for_deletion(create_n_user_objects):
+    user = create_n_user_objects((1,))[0]
+    user.marked_for_deletion = True
+    user.save()
+    return user
