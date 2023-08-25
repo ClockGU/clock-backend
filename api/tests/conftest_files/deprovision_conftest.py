@@ -67,6 +67,7 @@ def not_deleted_user_json_rpc_obj(first_deprovision_test_user):
         },
     }
 
+
 @pytest.fixture
 def response_body_for_test_users(deprovision_test_users):
     """
@@ -79,27 +80,30 @@ def response_body_for_test_users(deprovision_test_users):
 
     Note: user.username[-1] --> Is the number of the User from 0 to 9 (Since we have 10 Users)
     """
-    return [{
-        "jsonrpc": "2.0",
-        "id": f"{user.username}",
-        "result": {
-            "resultsize": int(user.username[-1]) % 2,
-            "success": True,
-            "hasInfos": True,
-            "hasWarnings": False,
-            "hasErrors": False,
-            "hasFatals": False,
-            "hasStrangeMessage": False,
-            "data": [],
-            "messages": [
-                {
-                    "messageID": "IOK",
-                    "messageType": "INFO",
-                    "messageData": "Ausfuehrung erfolgreich.",
-                }
-            ],
+    return [
+        {
+            "jsonrpc": "2.0",
+            "id": f"{user.username}",
+            "result": {
+                "resultsize": int(user.username[-1]) % 2,
+                "success": True,
+                "hasInfos": True,
+                "hasWarnings": False,
+                "hasErrors": False,
+                "hasFatals": False,
+                "hasStrangeMessage": False,
+                "data": [],
+                "messages": [
+                    {
+                        "messageID": "IOK",
+                        "messageType": "INFO",
+                        "messageData": "Ausfuehrung erfolgreich.",
+                    }
+                ],
+            },
         }
-    } for user in deprovision_test_users]
+        for user in deprovision_test_users
+    ]
 
 
 @pytest.fixture

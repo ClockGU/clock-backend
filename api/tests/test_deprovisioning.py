@@ -166,7 +166,9 @@ class TestDeprovisionSteps:
         assert body == correct_body
 
     @pytest.mark.django_db
-    def test_get_update_value_for_non_deletion(self, test_deprovisioner_instance, not_deleted_user_json_rpc_obj):
+    def test_get_update_value_for_non_deletion(
+        self, test_deprovisioner_instance, not_deleted_user_json_rpc_obj
+    ):
         """
         Test whether the method `get_update_value` returns the correct value if the resultsize is 0.
 
@@ -174,17 +176,31 @@ class TestDeprovisionSteps:
 
         Resultsize zero resembles the state when a user is not marked for deletion in the IDM.
         """
-        assert not test_deprovisioner_instance.get_update_value(not_deleted_user_json_rpc_obj)
+        assert not test_deprovisioner_instance.get_update_value(
+            not_deleted_user_json_rpc_obj
+        )
 
     @pytest.mark.django_db
-    def test_get_obj_identifier_value(self, first_deprovision_test_user, test_deprovisioner_instance, not_deleted_user_json_rpc_obj):
+    def test_get_obj_identifier_value(
+        self,
+        first_deprovision_test_user,
+        test_deprovisioner_instance,
+        not_deleted_user_json_rpc_obj,
+    ):
         """
         Test whether the method `get_obj_identifier_value` retrieves the
         """
-        assert first_deprovision_test_user.username == test_deprovisioner_instance.get_obj_identifier_value(not_deleted_user_json_rpc_obj)
+        assert (
+            first_deprovision_test_user.username
+            == test_deprovisioner_instance.get_obj_identifier_value(
+                not_deleted_user_json_rpc_obj
+            )
+        )
 
     @pytest.mark.django_db
-    def test_mark_for_deletion_marks_users(self, response_body_for_test_users, test_deprovisioner_instance):
+    def test_mark_for_deletion_marks_users(
+        self, response_body_for_test_users, test_deprovisioner_instance
+    ):
         """
         Test whether the method `mark_for_deletion` actually marks the users whith resultsize > 0
         for  deletion.
@@ -194,7 +210,9 @@ class TestDeprovisionSteps:
         assert User.objects.filter(marked_for_deletion=True).count() == 5
 
     @pytest.mark.django_db
-    def test_handle_response_only_does_marking_for_deletion(self, response_body_for_test_users, test_deprovisioner_instance):
+    def test_handle_response_only_does_marking_for_deletion(
+        self, response_body_for_test_users, test_deprovisioner_instance
+    ):
         """
         Test whether the hook/method `handle_response` calls `mark_for_deletion`.
 
@@ -203,16 +221,15 @@ class TestDeprovisionSteps:
         test_deprovisioner_instance.handle_response(response_body_for_test_users)
 
         assert User.objects.filter(marked_for_deletion=True).count() == 5
-    
-    def test_update_counter(self,test_deprovisioner_instance):
-        
+
+    def test_update_counter(self, test_deprovisioner_instance):
         assert test_deprovisioner_instance.update_cnt == 0
         test_deprovisioner_instance.update_counter(True)
         assert test_deprovisioner_instance.update_cnt == 1
-        
+
     def test_get_increment(self, test_deprovisioner_instance):
         assert test_deprovisioner_instance.get_increment(True) == 1
-        
+
     def test_reset_update_counter(self, test_deprovisioner_instance):
         test_deprovisioner_instance.update_counter(True)
         assert test_deprovisioner_instance.update_cnt == 1
@@ -220,13 +237,17 @@ class TestDeprovisionSteps:
         assert test_deprovisioner_instance.update_cnt == 0
 
     @pytest.mark.django_db
-    def test_delete_marked_objects(self, user_marked_for_deletion, test_deprovisioner_instance):
+    def test_delete_marked_objects(
+        self, user_marked_for_deletion, test_deprovisioner_instance
+    ):
         assert User.objects.all().count() == 1
         test_deprovisioner_instance.delete_marked_objects()
         assert User.objects.all().count() == 0
 
     @pytest.mark.django_db
-    def test_pre_deprovision_deletes_marked_objs(self, user_marked_for_deletion, test_deprovisioner_instance):
+    def test_pre_deprovision_deletes_marked_objs(
+        self, user_marked_for_deletion, test_deprovisioner_instance
+    ):
         """
         Test whether the hook/method `pre_deprovision` calls `delete_marked_objects`.
 
