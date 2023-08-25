@@ -32,6 +32,15 @@ class TestClassAttributes:
     def test_has_req_obj_count(self):
         assert hasattr(self.instance, "REQUEST_OBJ_COUNT")
 
+    def test_has_identifier_field(self):
+        assert hasattr(self.instance, "identifier_field")
+
+    def test_has_deprovision_cond_field(self):
+        assert hasattr(self.instance, "deprovision_cond_field")
+
+    def test_has_update_cnt(self):
+        assert hasattr(self.instance, "update_cnt")
+
     def test_has_idm_api_url(self):
         assert hasattr(self.instance, "idm_api_url")
 
