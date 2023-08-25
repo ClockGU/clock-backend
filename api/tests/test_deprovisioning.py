@@ -163,3 +163,13 @@ class TestDeprovisionSteps:
             },
         }
         assert body == correct_body
+
+    def test_get_update_value_for_non_deletion(self, test_deprovisioner_instance, not_deleted_user_json_rpc_obj):
+        """
+        Test wether the method `get_update_value` returns the correct value if the resultsize is 0.
+
+        Expected: get_update_value(not_deleted_user_json_rpc_obj) === False
+
+        Resultsize zero resembles the state when a user is not marked for deletion in the IDM.
+        """
+        assert not test_deprovisioner_instance.get_update_value(not_deleted_user_json_rpc_obj)

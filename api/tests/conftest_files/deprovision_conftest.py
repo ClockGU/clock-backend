@@ -36,3 +36,28 @@ def test_deprovisioner_instance():
     deprovisioner = Deprovisioner()
     deprovisioner.REQUEST_OBJ_COUNT = 2
     return deprovisioner
+
+
+@pytest.fixture
+def not_deleted_user_json_rpc_obj(deprovison_test_users):
+    return {
+        "jsonrpc": "2.0",
+        "id": f"{deprovison_test_users.username}",
+        "result": {
+            "resultsize": 0,
+            "success": True,
+            "hasInfos": True,
+            "hasWarnings": False,
+            "hasErrors": False,
+            "hasFatals": False,
+            "hasStrangeMessage": False,
+            "data": [],
+            "messages": [
+                {
+                    "messageID": "IOK",
+                    "messageType": "INFO",
+                    "messageData": "Ausfuehrung erfolgreich.",
+                }
+            ],
+        },
+    }
