@@ -15,8 +15,11 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 """
 
 from calendar import monthrange
+from rest_framework_simplejwt.exceptions import TokenError
 
 from dateutil.relativedelta import relativedelta
+from djoser.conf import settings
+from django.contrib.auth import authenticate
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _

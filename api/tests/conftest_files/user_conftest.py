@@ -39,7 +39,7 @@ def create_n_user_objects():
 
     def create_users(start_stop):
         return [
-            User.objects.create(
+            User.objects.create_user(
                 username=username.format(i),
                 email=email.format(i),
                 first_name=first_name,
@@ -56,8 +56,8 @@ def create_n_user_objects():
 @pytest.fixture
 def user_object(create_n_user_objects):
     """
-    This fixture creates a user object which resembles the standart user.
-    The standart user symbolize the user sending requests to the api within tests.
+    This fixture creates a user object which resembles the standard user.
+    The standard user symbolize the user sending requests to the api within tests.
     :param create_n_user_objects:
     :return: User
     """
@@ -95,9 +95,9 @@ def report_update_user(create_n_user_objects):
 @pytest.fixture
 def user_object_password():
     """
-    This fixture provides the password of the standart user in clean, unhased form. It will be needed in the following
+    This fixture provides the password of the standard user in clean, unhashed form. It will be needed in the following
     fixture to access the users jwt.
-    We can not acces the clean, unhased passwort via the user_object fixture since it's retrieved in a hased form form
+    We can not access the clean, unhashed password via the user_object fixture since it's retrieved in a hashed form from
     the database.
     :return: string
     """
@@ -107,7 +107,7 @@ def user_object_password():
 @pytest.fixture
 def user_object_jwt(user_object, client, user_object_password):
     """
-    This fixture retrieves the standart users valid JWT.
+    This fixture retrieves the standard users valid JWT.
 
     :param user_object:
     :param client:

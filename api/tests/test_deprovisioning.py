@@ -76,8 +76,8 @@ class TestClassAttributes:
         assert callable(getattr(self.instance, "prepare_obj_json_rpc"))
 
     def test_has_deprovison(self):
-        assert hasattr(self.instance, "deprovison")
-        assert callable(getattr(self.instance, "deprovison"))
+        assert hasattr(self.instance, "deprovision")
+        assert callable(getattr(self.instance, "deprovision"))
 
     def test_has_handle_response(self):
         assert hasattr(self.instance, "handle_response")

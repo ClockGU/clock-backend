@@ -81,7 +81,6 @@ class CustomUserManager(BaseUserManager):
         if not password:
             raise ValueError("The field 'password' is required.")
         # We always set the provided username to the user's email
-        username = email
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(
