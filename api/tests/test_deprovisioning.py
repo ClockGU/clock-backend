@@ -92,6 +92,38 @@ class TestClassAttributes:
         assert hasattr(self.instance, "handle_response")
         assert callable(getattr(self.instance, "handle_response"))
 
+    def test_has_pre_deprovision_hook(self):
+        assert hasattr(self.instance, "pre_deprovision")
+        assert callable(getattr(self.instance, "pre_deprovision"))
+
+    def test_has_delete_marked_objects(self):
+        assert hasattr(self.instance, "delete_marked_objects")
+        assert callable(getattr(self.instance, "delete_marked_objects"))
+
+    def test_has_mark_for_deletion(self):
+        assert hasattr(self.instance, "mark_for_deletion")
+        assert callable(getattr(self.instance, "mark_for_deletion"))
+
+    def test_has_reset_update_cnt(self):
+        assert hasattr(self.instance, "reset_update_cnt")
+        assert callable(getattr(self.instance, "reset_update_cnt"))
+
+    def test_has_update_counter(self):
+        assert hasattr(self.instance, "update_counter")
+        assert callable(getattr(self.instance, "update_counter"))
+
+    def test_has_get_increment(self):
+        assert hasattr(self.instance, "get_increment")
+        assert callable(getattr(self.instance, "get_increment"))
+
+    def test_has_get_update_value(self):
+        assert hasattr(self.instance, "get_update_value")
+        assert callable(getattr(self.instance, "get_update_value"))
+
+    def test_has_get_obj_identifier_value(self):
+        assert hasattr(self.instance, "get_obj_identifier_value")
+        assert callable(getattr(self.instance, "get_obj_identifier_value"))
+
 
 class TestDeprovisionSteps:
     @pytest.mark.django_db
