@@ -128,7 +128,7 @@ class TestClassAttributes:
 class TestDeprovisionSteps:
     @pytest.mark.django_db
     def test_request_batch_size(
-        self, deprovison_test_users, test_deprovisioner_instance
+        self, deprovision_test_users, test_deprovisioner_instance
     ):
         test_deprovisioner_instance.prepare_request_bodies()
         assert len(test_deprovisioner_instance.request_bodies) == 5
@@ -142,10 +142,10 @@ class TestDeprovisionSteps:
     @pytest.mark.freeze_time("2012-01-14")
     @pytest.mark.django_db
     def test_correct_obj_json_rpc(
-        self, deprovison_test_users, test_deprovisioner_instance
+        self, first_deprovision_test_user, test_deprovisioner_instance
     ):
         body = test_deprovisioner_instance.prepare_obj_json_rpc(
-            deprovison_test_users[0]
+            first_deprovision_test_user
         )
         frozen_unix_epoch = int(time.time() * 1000)
         correct_body = {
@@ -164,12 +164,20 @@ class TestDeprovisionSteps:
         }
         assert body == correct_body
 
+    @pytest.mark.django_db
     def test_get_update_value_for_non_deletion(self, test_deprovisioner_instance, not_deleted_user_json_rpc_obj):
         """
-        Test wether the method `get_update_value` returns the correct value if the resultsize is 0.
+        Test whether the method `get_update_value` returns the correct value if the resultsize is 0.
 
-        Expected: get_update_value(not_deleted_user_json_rpc_obj) === False
+        Expected: get_update_value(not_deleted_user_json_rpc_obj) == False
 
         Resultsize zero resembles the state when a user is not marked for deletion in the IDM.
         """
         assert not test_deprovisioner_instance.get_update_value(not_deleted_user_json_rpc_obj)
+
+    @pytest.mark.django_db
+    def test_get_obj_identifier_value(self, first_deprovision_test_user, test_deprovisioner_instance, not_deleted_user_json_rpc_obj):
+        """
+        Test whether the method `get_obj_identifier_value` retrieves the
+        """
+        assert first_deprovision_test_user.username == test_deprovisioner_instance.get_obj_identifier_value(not_deleted_user_json_rpc_obj)

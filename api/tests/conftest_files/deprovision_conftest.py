@@ -20,11 +20,16 @@ from api.idm.deprovisioning import Deprovisioner
 
 
 @pytest.fixture
-def deprovison_test_users(create_n_user_objects):
+def deprovision_test_users(create_n_user_objects):
     """
     Create 10 User objects to test the Derpovisioner class.
     """
     return create_n_user_objects((10,))
+
+
+@pytest.fixture
+def first_deprovision_test_user(deprovision_test_users):
+    return deprovision_test_users[0]
 
 
 @pytest.fixture
@@ -39,10 +44,10 @@ def test_deprovisioner_instance():
 
 
 @pytest.fixture
-def not_deleted_user_json_rpc_obj(deprovison_test_users):
+def not_deleted_user_json_rpc_obj(first_deprovision_test_user):
     return {
         "jsonrpc": "2.0",
-        "id": f"{deprovison_test_users.username}",
+        "id": f"{first_deprovision_test_user.username}",
         "result": {
             "resultsize": 0,
             "success": True,
