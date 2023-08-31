@@ -388,10 +388,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
             # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
             de_he_holidays = country_holidays("DE", subdiv="HE")
-            if (
-                started.strftime("%Y-%m-%d") in de_he_holidays
-                and shift_type is not "bh"
-            ):
+            if started.strftime("%Y-%m-%d") in de_he_holidays and shift_type != "bh":
                 raise serializers.ValidationError(
                     _(
                         "This is the holiday "
@@ -400,7 +397,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     )
                 )
             if (
-                shift_type is "bh"
+                shift_type == "bh"
                 and started.strftime("%Y-%m-%d") not in de_he_holidays
             ):
                 raise serializers.ValidationError(
@@ -536,7 +533,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         created_object = super(ShiftSerializer, self).create(validated_data)
         if tags:
             assert isinstance(tags, list)
-            created_object.tags.set(*tags)
+            created_object.tags.set(tags.copy())
 
         return created_object
 
@@ -569,7 +566,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         updated_object = super(ShiftSerializer, self).update(instance, validated_data)
 
         if isinstance(tags, list):
-            updated_object.tags.set(*tags)
+            updated_object.tags.set(tags.copy())
 
         if contract_changed:
             update_reports(orig_contract, orig_started.date().replace(day=1))
