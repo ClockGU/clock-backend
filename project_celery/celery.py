@@ -28,6 +28,10 @@ app.conf.beat_schedule = {
     "create_reports_monthly": {
         "task": "project_celery.tasks.create_reports_monthly",
         "schedule": crontab(0, 0, day_of_month="1"),
+    },
+    "deprovision_users_monthly": {
+        "task": "project_celery.tasks.deprovision_users_monthly",
+        "schedule": crontab(0, 0, day_of_month="1"),
     }
 }
 app.autodiscover_tasks()
