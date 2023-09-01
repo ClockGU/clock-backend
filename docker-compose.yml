@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: db_user
       POSTGRES_PASSWORD: db_pass
     restart: always
-    image: postgres:9.6-alpine
+    image: postgres:11.2-alpine
     ports:
       - "5432:5432"
 
