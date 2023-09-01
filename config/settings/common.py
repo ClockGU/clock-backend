@@ -50,19 +50,20 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     "api.apps.APIConfig",
     "message.apps.MessageConfig",
     "faq.apps.FaqConfig",
     "project_celery",
     "taggit",
     "rest_framework",
+    "rest_framework.authtoken",
     "django_filters",
     "drf_yasg",
     "djoser",
     "corsheaders",
     "dj_rest_auth",
     "dj_rest_auth.registration",
-    "django.contrib.sites",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -112,6 +113,8 @@ DATABASES = {
     )
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # EMAIL
 SYSTEM_EMAILS = {
