@@ -52,7 +52,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/local/Dockerfile.celery
-    command: [celery, worker, --app=api, --loglevel=INFO]
+    command: celery --app=api worker --loglevel=INFO
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
@@ -72,7 +72,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/local/Dockerfile.celery
-    command: [celery, beat, --app=api, --loglevel=INFO]
+    command: celery --app=api beat --loglevel=INFO
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
