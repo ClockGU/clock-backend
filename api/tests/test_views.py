@@ -644,7 +644,7 @@ class TestClockedInShiftEndpoint:
 
 
 class TestReportApiEndpoint:
-    @freeze_time("2019-01-10")
+    @pytest.mark.freeze_time("2019-01-10")
     @pytest.mark.django_db
     def test_get_current_endpoint(
         self, client, user_object_jwt, db_get_current_endpoint, contract_object
