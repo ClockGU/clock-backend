@@ -60,16 +60,9 @@ def create_reports_monthly(self):
         for contract in user.contracts.filter(
             start_date__lt=date_now, end_date__gte=date_now
         ):
-            last_report = Report.objects.get(
-                contract=contract, month_year=date_now - relativedelta(months=1)
-            )
-            carry_over_worktime = last_report.worktime - datetime.timedelta(
-                minutes=contract.minutes
-            )
-
             Report.objects.create(
                 month_year=date_now,
-                worktime=carry_over_worktime,
+                worktime=datetime.timedelta(minutes=0),
                 contract=contract,
                 user=user,
                 created_by=user,
