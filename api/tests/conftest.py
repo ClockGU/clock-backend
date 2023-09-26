@@ -20,6 +20,7 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 
 from api.tests.conftest_files.clockedinshift_conftest import *  # noqa
 from api.tests.conftest_files.contract_conftest import *  # noqa
+from api.tests.conftest_files.deprovision_conftest import *  # noqa
 from api.tests.conftest_files.general_conftest import *  # noqa
 from api.tests.conftest_files.report_conftest import *  # noqa
 from api.tests.conftest_files.shift_conftest import *  # noqa

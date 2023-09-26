@@ -13,6 +13,8 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+import os.path
+
 """
 Django settings for djangodocker project.
 
@@ -36,6 +38,8 @@ from django.utils.translation import gettext_lazy as _
 
 ROOT_DIR = environ.Path(__file__) - 3
 APPS_DIR = ROOT_DIR.path("api")
+
+LOG_ROOT = ROOT_DIR.path("logs")
 
 env = environ.Env()
 
@@ -219,3 +223,31 @@ CELERY_ALWAYS_EAGER = True
 LANGUAGES = [("de", _("German")), ("en", _("English"))]
 
 LOCALE_PATHS = [str(ROOT_DIR("locale"))]
+
+# LOGGING
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {"format": "%(levelname)s %(asctime)s %(message)s"},
+    },
+    "handlers": {
+        "deprovisionlogfile": {
+            "level": "DEBUG",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": os.path.join(str(LOG_ROOT.path("api_logs")), "deprovision.log"),
+            "formatter": "verbose",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 10,
+        }
+    },
+    "loggers": {
+        "deprovisioning": {
+            "handlers": ["deprovisionlogfile"],
+            "level": "INFO",
+            "propagate": True,
+        },
+    },
+}
