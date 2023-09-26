@@ -22,8 +22,8 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from pytz import datetime
 
-from api.models import Report, User
 from api.idm.deprovisioning import Deprovisioner
+from api.models import Report, User
 from project_celery.celery import app
 
 
