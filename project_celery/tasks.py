@@ -22,6 +22,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from pytz import datetime
 
+from api.idm.deprovisioning import Deprovisioner
 from api.models import Report, User
 from project_celery.celery import app
 
@@ -59,18 +60,19 @@ def create_reports_monthly(self):
         for contract in user.contracts.filter(
             start_date__lt=date_now, end_date__gte=date_now
         ):
-            last_report = Report.objects.get(
-                contract=contract, month_year=date_now - relativedelta(months=1)
-            )
-            carry_over_worktime = last_report.worktime - datetime.timedelta(
-                minutes=contract.minutes
-            )
-
             Report.objects.create(
                 month_year=date_now,
-                worktime=carry_over_worktime,
+                worktime=datetime.timedelta(minutes=0),
                 contract=contract,
                 user=user,
                 created_by=user,
                 modified_by=user,
             )
+
+
+@app.task(bind=True, default_retry_delay=10)
+def deprovision_users_monthly(self):
+    """
+    This is a Periodical task which runs the deprovision.
+    """
+    Deprovisioner().deprovision()
