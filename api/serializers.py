@@ -380,10 +380,11 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 )
 
             # validate that date is not a sunday
-            if started.date().weekday() == 6:
-                raise serializers.ValidationError(
-                    _("Shifts are not allowed on sundays")
-                )
+            # Disable this validation in order toinclude UB hiwis
+            # if started.date().weekday() == 6:
+            #     raise serializers.ValidationError(
+            #         _("Shifts are not allowed on sundays")
+            #     )
 
             # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
             de_he_holidays = country_holidays("DE", subdiv="HE")
