@@ -536,15 +536,16 @@ class TestShiftSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
-    @pytest.mark.django_db
-    def test_reviewed_shift_on_sunday_not_allowed(
-        self, shift_on_a_sunday_json_querydict, plain_request_object
-    ):
-        with pytest.raises(serializers.ValidationError):
-            ShiftSerializer(
-                data=shift_on_a_sunday_json_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
+    # Disable this test in order to include UB hiwis
+    # @pytest.mark.django_db
+    # def test_reviewed_shift_on_sunday_not_allowed(
+    #     self, shift_on_a_sunday_json_querydict, plain_request_object
+    # ):
+    #     with pytest.raises(serializers.ValidationError):
+    #         ShiftSerializer(
+    #             data=shift_on_a_sunday_json_querydict,
+    #             context={"request": plain_request_object},
+    #         ).is_valid(raise_exception=True)
 
     @freeze_time("2019-01-01 00:00:00+00:00")
     @pytest.mark.django_db
