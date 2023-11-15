@@ -19,7 +19,7 @@ from datetime import datetime
 import pytest
 from dateutil.parser import parse
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from freezegun import freeze_time
 from rest_framework import serializers, status
 
@@ -644,7 +644,7 @@ class TestClockedInShiftEndpoint:
 
 
 class TestReportApiEndpoint:
-    @freeze_time("2019-01-10")
+    @pytest.mark.freeze_time("2019-01-10")
     @pytest.mark.django_db
     def test_get_current_endpoint(
         self, client, user_object_jwt, db_get_current_endpoint, contract_object

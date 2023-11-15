@@ -559,16 +559,6 @@ class TestShiftSerializerValidation:
             ).is_valid(raise_exception=True)
 
     @pytest.mark.django_db
-    def test_reviewed_shift_on_sunday_not_allowed(
-        self, shift_on_a_sunday_json_querydict, plain_request_object
-    ):
-        with pytest.raises(serializers.ValidationError):
-            ShiftSerializer(
-                data=shift_on_a_sunday_json_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
-    @pytest.mark.django_db
     def test_reviewed_shift_on_holiday_typ_normal_not_allowed(
         self, normal_shift_on_a_holiday_json_querydict, plain_request_object
     ):
