@@ -707,11 +707,15 @@ video {
 }
 
 .text-xxs {
-  font-size: .6rem;
+  font-size: .72rem;
 }
 
 .text-xs {
   font-size: .75rem;
+}
+
+.text-s {
+  font-size: .8rem;
 }
 
 .text-sm {
@@ -1242,28 +1246,28 @@ video {
             <div class="flex-none font-bold text-blue-600">
                 Legende
             </div>
+            <br>
             {#            <span class="font-bold text-blue-600 text-xs">Legende</span>#}
             <ul class="list-none text-xs">
-                <li> </li>
                 <li>F: Feiertag</li>
                 <li>K: Krank</li>
                 <li>U: Urlaub</li>
             </ul>
+            <br>
             <ul class="list-none text-xs">
-                <li> </li>
-                <li>1: Arbeitszeit > 10 h</li>
-                <li>2: Pausenzeit zu gering</li>
-                <li>3: Ruhezeiten < 11 h</li>
+                <li>1: Arbeitszeit über 10 Stunden</li>
+                <li>2: Pausenzeit nicht ausreichend</li>
+                <li>3: Ruhezeit unter 11 Stunden</li>
                 <li>4: Arbeit nach 20 Uhr</li>
                 <li>5: Arbeit vor 8 Uhr</li>
-                <li>6: Sonntagsarbeit</li>
-                <li>7: Feiertagsarbeit</li>
+                <li>6: Arbeit an einem Sonntag</li>
+                <li>7: Arbeit an einem Feiertag</li>
             </ul>
         </div>
     </div>
 
     <div class="flex-auto w-2/3">
-        <table class="table-auto text-xxs">
+        <table class="table-auto mt-6 text-xs">
             <thead>
             <tr>
                 <th class="px-2 py-2">Datum</th>
@@ -1280,7 +1284,7 @@ video {
                 {% get_dict_value shift_content date as content %}
                 {% if content %}
                     <tr>
-                        <td class="border px-2 py-2">{{ date }}</td>
+                        <td class="border px-2 py-2">{{ date|cut_year }}</td>
                         <td class="border px-2 py-2">{{ content.started }}</td>
                         <td class="border px-2 py-2">{{ content.stopped }}</td>
                         <td class="border px-2 py-2">{{ content.break_time }}</td>
@@ -1290,7 +1294,7 @@ video {
                     </tr>
                 {% else %}
                     <tr>
-                        <td class="border px-2 py-2">{{ date }}</td>
+                        <td class="border px-2 py-2">{{ date|cut_year }}</td>
                         <td class="border px-2 py-2">&nbsp;</td>
                         <td class="border px-2 py-2">&nbsp;</td>
                         <td class="border px-2 py-2">&nbsp;</td>
@@ -1302,19 +1306,12 @@ video {
             {% endfor %}
             </tbody>
         </table>
-
-        <div class="flex mt-16 text-xs">
-            <div class="flex-none font-bold pb-10 mr-8 border-b w-48">
-                Datum / Ort
-            </div>
-            <div class="flex-none font-bold ml-10 border-b w-48">Unterschrift</div>
-        </div>
-        <footer class="mt-8 text-xs text-gray-600">
+        <footer class="mt-8 text-xxs text-gray-600">
             <div>Dieser Stundenzettel wurde maschinell mit Hilfe von <a class="text-blue-600"
                                                                         href="https://clock.uni-frankfurt.de">Clock</a>
                 erstellt.
             </div>
-            <div>Stand: 14. Juni 2022</div>
+            <div>Stand: 17. November 2023</div>
         </footer>
     </div>
 </div>
