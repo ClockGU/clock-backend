@@ -294,6 +294,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         break time : 2 hours
 
         :param report_object:
+        @param shifts:
         :return:
         """
         content = {}
@@ -336,25 +337,24 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             if worktime > datetime.timedelta(hours=10):
                 notes_list.append(1)
 
-            # 2: Ruhezeiten < 11 h
+            # 2: Pausenzeit zu gering
+            if (
+                datetime.timedelta(hours=9) > worktime > datetime.timedelta(hours=6)
+                and breaktime < datetime.timedelta(minutes=30)
+            ) or (
+                worktime > datetime.timedelta(hours=9)
+                and breaktime < datetime.timedelta(minutes=45)
+            ):
+                notes_list.append(2)
+
+            # 3: Ruhezeiten < 11 h
             if shifts_of_yesterday.exists():
                 shifts_of_yesterday.order_by("stopped")
                 shifts_of_date.order_by("started")
                 if (
                     shifts_of_date.first().started - shifts_of_yesterday.last().stopped
                 ) < datetime.timedelta(hours=11):
-                    notes_list.append(2)
-
-            # 3: Pausenzeit zu gering
-            if (
-                worktime < datetime.timedelta(hours=9)
-                and worktime > datetime.timedelta(hours=6)
-                and breaktime < datetime.timedelta(minutes=30)
-            ) or (
-                worktime > datetime.timedelta(hours=9)
-                and breaktime < datetime.timedelta(minutes=45)
-            ):
-                notes_list.append(3)
+                    notes_list.append(3)
 
             # 4: Arbeit nach 20 Uhr
             today_at_20 = datetime.datetime(
@@ -382,7 +382,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
             # 7: Feiertagsarbeit
             de_he_holidays = country_holidays("DE", subdiv="HE")
-            if shifts_of_date[0].started.strftime("%Y-%m-%d") in de_he_holidays:
+            if (
+                shifts_of_date[0].started.strftime("%Y-%m-%d") in de_he_holidays
+                and shifts_of_date.first().type != "bh"
+            ):
                 notes_list.append(7)
 
             notes = str(notes_list).replace("[", "").replace("]", "")
