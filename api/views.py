@@ -406,8 +406,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                     if timedelta_to_string(worktime) != "00:00"
                     else ""
                 ),
-                "absence_type": (absence_type),
-                "notes": (notes),
+                "absence_type": absence_type,
+                "type": shifts_of_date.first().get_type_display(),
+                "notes": notes,
             }
         return content
 
