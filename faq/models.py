@@ -13,22 +13,27 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
-# Create your models here.
 
 
 class Faq(models.Model):
-    de_question = models.CharField(
-        max_length=200, verbose_name="Faq-question in german"
-    )
+    de_question = models.CharField(max_length=200, verbose_name="Faq-question german")
 
-    de_answer = models.TextField(max_length=500, verbose_name="Faq-answer in german")
+    de_answer = models.TextField(max_length=500, verbose_name="Faq-answer german")
 
     en_question = models.CharField(
-        max_length=200, blank=True, null=True, verbose_name="Faq-question in english"
+        max_length=200, blank=True, null=True, verbose_name="Faq-question english"
     )
 
     en_answer = models.TextField(
-        max_length=500, blank=True, null=True, verbose_name="Faq-answer in english"
+        max_length=500, blank=True, null=True, verbose_name="Faq-answer english"
+    )
+
+    prioritization = models.FloatField(
+        default=0,
+        null=False,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(10.0)],
+        verbose_name="Prio (0.0 - 10.0)",
     )

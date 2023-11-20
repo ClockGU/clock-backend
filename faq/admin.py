@@ -21,7 +21,7 @@ from .models import Faq
 
 
 class FaqAdmin(admin.ModelAdmin):
-    list_display = ("id", "de_question")
+    list_display = ("id", "prioritization", "de_question", "en_question")
 
 
 admin.site.register(Faq, FaqAdmin)
