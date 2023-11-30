@@ -17,6 +17,17 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
+class FaqHeading(models.Model):
+    de_heading = models.CharField(max_length=250, verbose_name="Faq-heading german")
+
+    en_heading = models.CharField(max_length=250, verbose_name="Faq-heading english")
+
+    prio_level = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        verbose_name="Prio Heading (1 - 10)",
+    )
+
+
 class Faq(models.Model):
     de_question = models.CharField(max_length=200, verbose_name="Faq-question german")
 
@@ -30,10 +41,15 @@ class Faq(models.Model):
         max_length=500, blank=True, null=True, verbose_name="Faq-answer english"
     )
 
-    prioritization = models.FloatField(
-        default=0,
-        null=False,
-        blank=False,
-        validators=[MinValueValidator(0.0), MaxValueValidator(10.0)],
-        verbose_name="Prio (0.0 - 10.0)",
+    faq_heading = models.ForeignKey(
+        to=FaqHeading,
+        related_name="faq_heading",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+
+    prioritization = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        verbose_name="Prio (0 - 100)",
     )
