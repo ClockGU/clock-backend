@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0023_user_marked_for_deletion'),
+        ('api', '0024_merge_20231115_1721'),
     ]
 
     operations = [
