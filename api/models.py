@@ -142,6 +142,7 @@ class Contract(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     initial_carryover_minutes = models.IntegerField()
+    color = models.CharField(max_length=7, default="#8ac5ff")
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE

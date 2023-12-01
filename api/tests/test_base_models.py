@@ -237,6 +237,9 @@ class TestContractFields:
     def test_model_has_last_used(self, contract_model_class):
         assert hasattr(contract_model_class, "last_used")
 
+    def test_model_has_color(self, contract_model_class):
+        assert hasattr(contract_model_class, "color")
+
     def test_field_type_id(self, contract_model_class):
         assert isinstance(contract_model_class._meta.get_field("id"), models.UUIDField)
 
@@ -288,6 +291,11 @@ class TestContractFields:
     def test_field_type_modified_by(self, contract_model_class):
         assert isinstance(
             contract_model_class._meta.get_field("modified_by"), models.ForeignKey
+        )
+
+    def test_field_type_color(self, contract_model_class):
+        assert isinstance(
+            contract_model_class._meta.get_field("color"), models.CharField
         )
 
     def test_field_conf_id(self, contract_model_class):
