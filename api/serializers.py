@@ -637,8 +637,12 @@ class ReportSerializer(RestrictModificationModelSerializer):
 
     debit_worktime = TimedeltaField()
     worktime = TimedeltaField()
+    vacation_time = TimedeltaField()
+    debit_vacation_time = TimedeltaField()
     carryover_previous_month = TimedeltaField()
     carryover = TimedeltaField()
+    vacation_carryover_previous_month = TimedeltaField()
+    vacation_carryover_next_month = TimedeltaField()
 
     class Meta:
         model = Report
