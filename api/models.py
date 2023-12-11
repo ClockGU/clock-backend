@@ -205,6 +205,7 @@ class Report(models.Model):
     )
     month_year = models.DateField()
     worktime = models.DurationField()
+    vacation_time = models.DurationField(default=timedelta(0))
     contract = models.ForeignKey(
         to=Contract, related_name="reports", on_delete=models.CASCADE
     )
@@ -226,6 +227,7 @@ class Report(models.Model):
         year = self.month_year.year
         end_day = monthrange(year, month)[1]
 
+        # Contract starts (at 16th of) this month
         if (
             self.contract.start_date.month == month
             and self.contract.start_date.year == year
@@ -237,6 +239,7 @@ class Report(models.Model):
             )
             return timedelta(minutes=minutes)
 
+        # Contract ends (at 15th of) this month
         if (
             self.contract.end_date.month == month
             and self.contract.end_date.year == year
@@ -247,11 +250,42 @@ class Report(models.Model):
         return timedelta(minutes=self.contract.minutes)
 
     @property
+    def debit_vacation_time(self):
+        """
+        Calculate the actual debit vacation time for a report.
+
+        The actual debit vacation time can be lower than the provided value based on the contract due to:
+        incomplete months (contract starts not at first, or end not on the last of a month.)
+
+        Calculation description for vacation_seconds_per_month:
+        ('Worktime per month' / 'avg weeks per month' / 'workdays per week') * 'general vacation days' / '12 months'
+
+        """
+        vacation_seconds_per_month = (
+            ((self.contract.minutes * 60) / 4.348 / 5) * 20 / 12
+        )
+
+        return timedelta(
+            seconds=(
+                self.debit_worktime.total_seconds()
+                / (self.contract.minutes * 60)
+                * vacation_seconds_per_month
+            )
+        )
+
+    @property
     def carryover(self):
         carryover = self.worktime - self.debit_worktime + self.carryover_previous_month
         if carryover > timedelta(minutes=self.contract.minutes) / 2:
             return timedelta(minutes=self.contract.minutes) / 2
         return carryover
+
+    @property
+    def vacation_carryover_next_month(self):
+        carryover_next_month = (
+            self.debit_vacation_time + self.vacation_carryover_previous_month
+        ) - self.vacation_time
+        return carryover_next_month
 
     @property
     def carryover_previous_month(self):
@@ -265,6 +299,19 @@ class Report(models.Model):
             return timedelta(minutes=self.contract.initial_carryover_minutes)
 
         return last_mon_report_object.carryover
+
+    @property
+    def vacation_carryover_previous_month(self):
+        try:
+            last_mon_report_object = Report.objects.get(
+                contract=self.contract,
+                month_year=self.month_year - relativedelta(months=1),
+            )
+
+        except Report.DoesNotExist:
+            return timedelta(0)
+
+        return last_mon_report_object.vacation_carryover_next_month
 
     class Meta:
         ordering = ["month_year"]
