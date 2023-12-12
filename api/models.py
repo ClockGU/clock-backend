@@ -141,7 +141,8 @@ class Contract(models.Model):
     minutes = models.PositiveIntegerField()
     start_date = models.DateField()
     end_date = models.DateField()
-    initial_carryover_minutes = models.IntegerField()
+    initial_carryover_minutes = models.IntegerField(default=0)
+    initial_vacation_carryover_minutes = models.IntegerField(default=0)
     color = models.CharField(max_length=7, default="#8ac5ff")
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
@@ -307,6 +308,9 @@ class Report(models.Model):
                 contract=self.contract,
                 month_year=self.month_year - relativedelta(months=1),
             )
+
+        except Report.DoesNotExist:
+            return timedelta(minutes=self.contract.initial_vacation_carryover_minutes)
 
         except Report.DoesNotExist:
             return timedelta(0)
