@@ -12,7 +12,13 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Migrate new Changes
+        run: docker-compose run --rm web python manage.py migrate
+
+      - name: Build new Container
+        run: docker-compose build
 
       - name: Run unit tests
         run: docker-compose run --rm web pytest
