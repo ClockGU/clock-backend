@@ -596,6 +596,9 @@ class TestReportFields:
     def test_model_has_worktime(self, report_model_class):
         assert hasattr(report_model_class, "worktime")
 
+    def test_model_has_vacation_time(self, report_model_class):
+        assert hasattr(report_model_class, "vacation_time")
+
     def test_model_has_contract(self, report_model_class):
         assert hasattr(report_model_class, "contract")
 
@@ -625,6 +628,11 @@ class TestReportFields:
     def test_field_type_worktime(self, report_model_class):
         assert isinstance(
             report_model_class._meta.get_field("worktime"), models.DurationField
+        )
+
+    def test_field_type_vacation_time(self, report_model_class):
+        assert isinstance(
+            report_model_class._meta.get_field("vacation_time"), models.DurationField
         )
 
     def test_field_type_contract(self, report_model_class):
@@ -693,32 +701,77 @@ class TestReportProperties:
     def test_model_has_debit_worktime(self, report_model_class):
         assert hasattr(report_model_class, "debit_worktime")
 
+    def test_model_has_debit_vacation_time(self, report_model_class):
+        assert hasattr(report_model_class, "debit_vacation_time")
+
     def test_model_has_carryover(self, report_model_class):
         assert hasattr(report_model_class, "carryover")
 
+    def test_model_has_vacation_carryover_next_month(self, report_model_class):
+        assert hasattr(report_model_class, "vacation_carryover_next_month")
+
     def test_model_has_carryover_previous_month(self, report_model_class):
         assert hasattr(report_model_class, "carryover_previous_month")
+
+    def test_model_has_vacation_carryover_previous_month(self, report_model_class):
+        assert hasattr(report_model_class, "vacation_carryover_previous_month")
 
     @pytest.mark.django_db
     def test_field_type_debit_worktime(self, report_object):
         assert isinstance(report_object.debit_worktime, datetime.timedelta)
 
     @pytest.mark.django_db
+    def test_field_type_debit_vacation_time(self, report_object):
+        assert isinstance(report_object.debit_vacation_time, datetime.timedelta)
+
+    @pytest.mark.django_db
     def test_field_type_carryover(self, report_object):
         assert isinstance(report_object.carryover, datetime.timedelta)
+
+    @pytest.mark.django_db
+    def test_field_type_vacation_carryover_next_month(self, report_object):
+        assert isinstance(
+            report_object.vacation_carryover_next_month, datetime.timedelta
+        )
 
     @pytest.mark.django_db
     def test_field_type_carryover_previous_month(self, report_object):
         assert isinstance(report_object.carryover_previous_month, datetime.timedelta)
 
     @pytest.mark.django_db
+    def test_field_type_vacation_carryover_previous_month(self, report_object):
+        assert isinstance(
+            report_object.vacation_carryover_previous_month, datetime.timedelta
+        )
+
+    @pytest.mark.django_db
     def test_field_type_debit_worktime_in_report_object(self, report_object):
         assert report_object.debit_worktime == datetime.timedelta(seconds=72000)
+
+    @pytest.mark.django_db
+    def test_field_type_debit_vacation_time_in_report_object(self, report_object):
+        assert report_object.debit_vacation_time == datetime.timedelta(
+            seconds=5519, microseconds=779209
+        )
 
     @pytest.mark.django_db
     def test_field_type_carryover_in_report_object(self, report_object):
         assert report_object.carryover == datetime.timedelta(days=-1, seconds=14400)
 
     @pytest.mark.django_db
+    def test_field_type_vacation_carryover_next_month_in_report_object(
+        self, report_object
+    ):
+        assert report_object.vacation_carryover_next_month == datetime.timedelta(
+            seconds=5519, microseconds=779209
+        )
+
+    @pytest.mark.django_db
     def test_field_type_carryover_previous_month_in_report_object(self, report_object):
         assert report_object.carryover_previous_month == datetime.timedelta(0)
+
+    @pytest.mark.django_db
+    def test_field_type_vacation_carryover_previous_month_in_report_object(
+        self, report_object
+    ):
+        assert report_object.vacation_carryover_previous_month == datetime.timedelta(0)
