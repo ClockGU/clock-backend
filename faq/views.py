@@ -16,13 +16,11 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from .models import Faq
-from .serializers import FaqSerializer
-
-# Create your views here.
+from faq.models import Faq
+from faq.serializers import FaqSerializer
 
 
-class FaqViewSet(ReadOnlyModelViewSet):
+class FaqsViewSet(ReadOnlyModelViewSet):
     queryset = Faq.objects.all()
     serializer_class = FaqSerializer
     name = "faqs"

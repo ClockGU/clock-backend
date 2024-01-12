@@ -15,10 +15,18 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 """
 from rest_framework.serializers import ModelSerializer
 
-from .models import Faq
+from .models import Faq, FaqHeading
+
+
+class FaqHeadingSerializer(ModelSerializer):
+    class Meta:
+        model = FaqHeading
+        fields = ["prio_level", "de_heading", "en_heading"]
 
 
 class FaqSerializer(ModelSerializer):
+    faq_heading = FaqHeadingSerializer(read_only=True)
+
     class Meta:
         model = Faq
         fields = "__all__"

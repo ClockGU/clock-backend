@@ -15,13 +15,18 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 """
 from django.contrib import admin
 
-from .models import Faq
-
-# Register your models here.
+from .models import Faq, FaqHeading
 
 
 class FaqAdmin(admin.ModelAdmin):
-    list_display = ("id", "de_question")
+    list_display = ("id", "prioritization", "de_question", "en_question")
 
 
 admin.site.register(Faq, FaqAdmin)
+
+
+class FaqHeadsAdmin(admin.ModelAdmin):
+    list_display = ("id", "prio_level", "de_heading", "en_heading")
+
+
+admin.site.register(FaqHeading, FaqHeadsAdmin)
