@@ -36,13 +36,19 @@ def create_n_report_objects():
     modified_at = created_at
 
     def create_reports(
-        start_stop, user, contract, worktime=_worktime, month_year=month_year
+        start_stop,
+        user,
+        contract,
+        worktime=_worktime,
+        vacation_time=_worktime,
+        month_year=month_year,
     ):
         lst = []
         for i in range(*start_stop):
             report = Report.objects.create(
                 month_year=month_year,
                 worktime=worktime,
+                vacation_time=vacation_time,
                 contract=contract,
                 user=user,
                 created_by=user,

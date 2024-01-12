@@ -145,6 +145,7 @@ def create_reports_for_contract(contract):
     Report.objects.create(
         month_year=_month_year,
         worktime=datetime.timedelta(0),
+        vacation_time=datetime.timedelta(0),
         contract=contract,
         user=contract.user,
         created_by=contract.user,
@@ -157,6 +158,7 @@ def create_reports_for_contract(contract):
         Report.objects.create(
             month_year=_month_year,
             worktime=datetime.timedelta(0),
+            vacation_time=datetime.timedelta(0),
             contract=contract,
             user=contract.user,
             created_by=contract.user,
@@ -203,30 +205,27 @@ def update_reports(contract, month_year):
     # Loop over all Reports starting from month in which the created/update shift
     # took place.
     for report in Report.objects.filter(contract=contract, month_year__gte=month_year):
-        data_per_day = (
-            Shift.objects.filter(
-                contract=report.contract,
-                started__month=report.month_year.month,
-                started__year=report.month_year.year,
-                was_reviewed=True,
-            )
-            .annotate(
-                day_worktime=ExpressionWrapper(
-                    Window(
-                        expression=Sum(F("stopped") - F("started")),
-                        partition_by=[Trunc("started", "day")],
-                    ),
-                    DurationField(),
-                ),
-                first_started=Window(
-                    expression=Min("started"), partition_by=[Trunc("started", "day")]
-                ),
-                last_stopped=Window(
-                    expression=Max("stopped"), partition_by=[Trunc("started", "day")]
-                ),
-            )
-            .distinct("started__date")
+        shifts_this_day = Shift.objects.filter(
+            contract=report.contract,
+            started__month=report.month_year.month,
+            started__year=report.month_year.year,
+            was_reviewed=True,
         )
+        data_per_day = shifts_this_day.annotate(
+            day_worktime=ExpressionWrapper(
+                Window(
+                    expression=Sum(F("stopped") - F("started")),
+                    partition_by=[Trunc("started", "day")],
+                ),
+                DurationField(),
+            ),
+            first_started=Window(
+                expression=Min("started"), partition_by=[Trunc("started", "day")]
+            ),
+            last_stopped=Window(
+                expression=Max("stopped"), partition_by=[Trunc("started", "day")]
+            ),
+        ).distinct("started__date")
         breaktime_data = data_per_day.annotate(
             breaktime=ExpressionWrapper(
                 F("last_stopped") - F("first_started") - F("day_worktime"),
@@ -252,6 +251,15 @@ def update_reports(contract, month_year):
             map(
                 lambda shift: shift.day_worktime - shift.missing_breaktime,
                 breaktime_data,
+            ),
+            datetime.timedelta(0),
+        )
+        report.vacation_time = sum(
+            map(
+                lambda shift: shift.stopped - shift.started,
+                shifts_this_day.filter(
+                    type="vn",
+                ),
             ),
             datetime.timedelta(0),
         )
