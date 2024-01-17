@@ -25,6 +25,8 @@ from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 
+from .validators import VALIDATOR_CLASS_NAMES
+
 
 class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
     class Meta:
@@ -123,7 +125,6 @@ class User(AbstractUser):
     dsgvo_accepted = models.BooleanField(default=False)
     onboarding_passed = models.BooleanField(default=False)
     marked_for_deletion = models.BooleanField(default=False)
-
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "personal_number"]
 
@@ -144,6 +145,9 @@ class Contract(models.Model):
     initial_carryover_minutes = models.IntegerField(default=0)
     initial_vacation_carryover_minutes = models.IntegerField(default=0)
     color = models.CharField(max_length=7, default="#8ac5ff")
+    worktime_model_name = models.CharField(
+        max_length=200, choices=VALIDATOR_CLASS_NAMES, verbose_name="Validierungsklasse"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE

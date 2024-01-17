@@ -2,9 +2,9 @@
 
 from .student_employee import StudentEmployeeValidator
 
-VALIDATOR_CLASSES_CHOICES = {
-    "studEmp": "Studentische Hilfskraft"
-}
+VALIDATOR_CLASS_NAMES = (
+    ("studEmp", "Studentische Hilfskraft"),
+)
 
 VALIDATOR_CLASSES = {
     "studEmp": StudentEmployeeValidator
