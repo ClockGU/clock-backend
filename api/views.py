@@ -23,6 +23,7 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from drf_yasg.utils import swagger_auto_schema
+from holidays import country_holidays
 from more_itertools import pairwise
 from pytz import datetime, timezone
 from rest_framework import serializers, viewsets
@@ -293,6 +294,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         break time : 2 hours
 
         :param report_object:
+        @param shifts:
         :return:
         """
         content = {}
@@ -302,6 +304,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         dates = [_datetime.date() for _datetime in shifts.datetimes("started", "day")]
         for date in dates:
             shifts_of_date = shifts.filter(started__date=date)
+            shifts_of_yesterday = shifts.filter(
+                started__date=date - datetime.timedelta(days=1)
+            )
 
             worktime, breaktime = calculate_worktime_breaktime(
                 worktime=shifts_of_date.aggregate(
@@ -315,14 +320,75 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 ),
             )
 
-            # vsh = vacation, sick, holiday
-            absence_time = datetime.timedelta(0)
             absence_type = ""
 
             if shifts_of_date.first().type != "st":
-                absence_type = shifts_of_date.first().get_type_display()
-                absence_time = worktime
-                worktime = datetime.timedelta(0)
+                absence_type = shifts_of_date.first().type
+                if absence_type == "bh":
+                    absence_type = "F"
+                if absence_type == "sk":
+                    absence_type = "K"
+                if absence_type == "vn":
+                    absence_type = "U"
+
+            notes_list = list()
+
+            # 1: Arbeitszeit > 10 h
+            if worktime > datetime.timedelta(hours=10):
+                notes_list.append(1)
+
+            # 2: Pausenzeit zu gering
+            if (
+                datetime.timedelta(hours=9) > worktime > datetime.timedelta(hours=6)
+                and breaktime < datetime.timedelta(minutes=30)
+            ) or (
+                worktime > datetime.timedelta(hours=9)
+                and breaktime < datetime.timedelta(minutes=45)
+            ):
+                notes_list.append(2)
+
+            # 3: Ruhezeiten < 11 h
+            if shifts_of_yesterday.exists():
+                shifts_of_yesterday.order_by("stopped")
+                shifts_of_date.order_by("started")
+                if (
+                    shifts_of_date.first().started - shifts_of_yesterday.last().stopped
+                ) < datetime.timedelta(hours=11):
+                    notes_list.append(3)
+
+            # 4: Arbeit nach 20 Uhr
+            today_at_20 = datetime.datetime(
+                year=date.year, month=date.month, day=date.day, hour=20
+            )
+            if (
+                shifts_of_date.filter(started__gte=today_at_20).exists()
+                or shifts_of_date.filter(stopped__gte=today_at_20).exists()
+            ):
+                notes_list.append(4)
+
+            # 5: Arbeit vor 8 Uhr
+            today_at_8 = datetime.datetime(
+                year=date.year, month=date.month, day=date.day, hour=8
+            )
+            if (
+                shifts_of_date.filter(started__lte=today_at_8).exists()
+                or shifts_of_date.filter(stopped__lte=today_at_8).exists()
+            ):
+                notes_list.append(5)
+
+            # 6: Sonntagsarbeit
+            if shifts_of_date[0].started.weekday() == 6:
+                notes_list.append(6)
+
+            # 7: Feiertagsarbeit
+            de_he_holidays = country_holidays("DE", subdiv="HE")
+            if (
+                shifts_of_date[0].started.strftime("%Y-%m-%d") in de_he_holidays
+                and shifts_of_date.first().type != "bh"
+            ):
+                notes_list.append(7)
+
+            notes = str(notes_list).replace("[", "").replace("]", "")
 
             started = shifts_of_date.first().started.astimezone(
                 timezone(settings.TIME_ZONE)
@@ -334,19 +400,15 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().strftime("%H:%M"),
                 "stopped": stopped.time().strftime("%H:%M"),
-                "type": absence_type,
-                "work_time": timedelta_to_string(stopped - started),
-                "net_work_time": (
+                "break_time": timedelta_to_string(breaktime),
+                "work_time": (
                     timedelta_to_string(worktime)
                     if timedelta_to_string(worktime) != "00:00"
                     else ""
                 ),
-                "break_time": timedelta_to_string(breaktime),
-                "sick_or_vac_time": (
-                    timedelta_to_string(absence_time)
-                    if timedelta_to_string(absence_time) != "00:00"
-                    else ""
-                ),
+                "absence_type": absence_type,
+                "type": shifts_of_date.first().get_type_display(),
+                "notes": notes,
             }
         return content
 

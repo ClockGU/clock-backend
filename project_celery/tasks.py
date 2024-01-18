@@ -63,6 +63,7 @@ def create_reports_monthly(self):
             Report.objects.create(
                 month_year=date_now,
                 worktime=datetime.timedelta(minutes=0),
+                vacation_time=datetime.timedelta(minutes=0),
                 contract=contract,
                 user=user,
                 created_by=user,

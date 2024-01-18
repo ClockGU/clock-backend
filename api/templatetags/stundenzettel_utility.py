@@ -21,6 +21,11 @@ from django import template
 register = template.Library()
 
 
+@register.filter
+def cut_year(date_str):
+    return date_str[0 : date_str.rindex(".")] + "."
+
+
 @register.simple_tag
 def get_calendar(year, month):
     """

@@ -151,6 +151,9 @@ class ContractSerializer(RestrictModificationModelSerializer):
         end_date = attrs.get("end_date")
         minutes = attrs.get("minutes")
         initial_carryover_minutes = attrs.get("initial_carryover_minutes")
+        initial_vacation_carryover_minutes = attrs.get(
+            "initial_vacation_carryover_minutes"
+        )
 
         # Catches PUT
         if self.instance:
@@ -160,6 +163,10 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 end_date = attrs.get("end_date", self.instance.end_date)
                 initial_carryover_minutes = attrs.get(
                     "initial_carryover_minutes", self.instance.initial_carryover_minutes
+                )
+                initial_vacation_carryover_minutes = attrs.get(
+                    "initial_vacation_carryover_minutes",
+                    self.instance.initial_vacation_carryover_minutes,
                 )
 
             # No shifts out of scope after modification
@@ -201,6 +208,17 @@ class ContractSerializer(RestrictModificationModelSerializer):
                         )
                     )
 
+                if (
+                    self.instance.initial_vacation_carryover_minutes
+                    != initial_vacation_carryover_minutes
+                ):
+                    raise serializers.ValidationError(
+                        _(
+                            "The Vacation Carryover of a contract with locked shifts "
+                            "is not allowed to modify."
+                        )
+                    )
+
                 if self.instance.start_date != start_date:
                     raise serializers.ValidationError(
                         _(
@@ -231,7 +249,14 @@ class ContractSerializer(RestrictModificationModelSerializer):
             if not initial_carryover_minutes == 0:
                 raise serializers.ValidationError(
                     _(
-                        "The carry over for a contract starting in the future may only be 00:00."
+                        "The carryover for a contract starting in the future may only be 00:00."
+                    )
+                )
+
+            if not initial_vacation_carryover_minutes == 0:
+                raise serializers.ValidationError(
+                    _(
+                        "The vacation carryover for a contract starting in the future may only be 00:00."
                     )
                 )
 
@@ -268,11 +293,18 @@ class ContractSerializer(RestrictModificationModelSerializer):
         initial_carryover_minutes_changed = bool(
             validated_data.get("initial_carryover_minutes")
         )
+        initial_vacation_carryover_minutes_changed = bool(
+            validated_data.get("initial_vacation_carryover_minutes")
+        )
         if not self.partial:
             start_date_changed = validated_data.get("start_date") != instance.start_date
             initial_carryover_minutes_changed = (
                 validated_data.get("initial_carryover_minutes")
                 != instance.initial_carryover_minutes
+            )
+            initial_vacation_carryover_minutes_changed = (
+                validated_data.get("initial_vacation_carryover_minutes")
+                != instance.initial_vacation_carryover_minutes
             )
 
         return_instance = super(ContractSerializer, self).update(
@@ -286,6 +318,9 @@ class ContractSerializer(RestrictModificationModelSerializer):
             create_reports_for_contract(contract=instance)
 
         if initial_carryover_minutes_changed:
+            update_reports(instance, instance.start_date)
+
+        if initial_vacation_carryover_minutes_changed:
             update_reports(instance, instance.start_date)
 
         return return_instance
@@ -637,8 +672,12 @@ class ReportSerializer(RestrictModificationModelSerializer):
 
     debit_worktime = TimedeltaField()
     worktime = TimedeltaField()
+    vacation_time = TimedeltaField()
+    debit_vacation_time = TimedeltaField()
     carryover_previous_month = TimedeltaField()
     carryover = TimedeltaField()
+    vacation_carryover_previous_month = TimedeltaField()
+    vacation_carryover_next_month = TimedeltaField()
 
     class Meta:
         model = Report

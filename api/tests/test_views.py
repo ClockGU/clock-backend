@@ -719,8 +719,7 @@ class TestReportApiEndpoint:
         assert content["26.01.2019"]
         assert content["26.01.2019"]["started"] == "10:00"
         assert content["26.01.2019"]["stopped"] == "18:00"
-        assert content["26.01.2019"]["work_time"] == "08:00"
-        assert content["26.01.2019"]["net_work_time"] == "06:00"
+        assert content["26.01.2019"]["work_time"] == "06:00"
         assert content["26.01.2019"]["break_time"] == "02:00"
 
     @pytest.mark.django_db
@@ -732,11 +731,13 @@ class TestReportApiEndpoint:
         )
 
         assert len(content) == 1
+        assert content["26.01.2019"]
+        assert content["26.01.2019"]["started"] == "10:00"
+        assert content["26.01.2019"]["stopped"] == "18:00"
         assert content["26.01.2019"]["break_time"] == "00:30"
-        assert content["26.01.2019"]["work_time"] == "08:00"
-        assert content["26.01.2019"]["net_work_time"] == ""
+        assert content["26.01.2019"]["work_time"] == "07:30"
         assert content["26.01.2019"]["type"] == _("Vacation")
-        assert content["26.01.2019"]["sick_or_vac_time"] == "07:30"
+        assert content["26.01.2019"]["absence_type"] == "U"
 
     @pytest.mark.freeze_time("2019-02-10")
     @pytest.mark.django_db
