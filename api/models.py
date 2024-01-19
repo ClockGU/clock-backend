@@ -140,6 +140,7 @@ class Contract(models.Model):
     )
     name = models.CharField(max_length=100)
     minutes = models.PositiveIntegerField()
+    percent_fte = models.FloatField(null=True, blank=True, verbose_name="Prozent einer Vollzeitstelle")
     start_date = models.DateField()
     end_date = models.DateField()
     initial_carryover_minutes = models.IntegerField(default=0)
