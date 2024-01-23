@@ -15,6 +15,7 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 """
 import datetime
 
+from calendar import Calendar
 from dateutil.relativedelta import relativedelta
 from django.db.models import (
     Case,
@@ -328,3 +329,15 @@ post_delete.connect(
     sender=Shift,
     dispatch_uid="update_last_used_on_contract_delete",
 )
+
+
+def calculate_business_days(date):
+    """
+    Claculate the number of business days in the given month.
+    :param: date
+    """
+    weeks_in_month = Calendar().monthdayscalendar(date.year, date.month)
+    day_count = 0
+    for week in weeks_in_month:
+        day_count += sum(map(lambda x: x != 0, week[:5]))
+    return day_count
