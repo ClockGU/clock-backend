@@ -331,7 +331,7 @@ post_delete.connect(
 )
 
 
-def calculate_business_days(date):
+def calculate_business_days(date, end_day=31):
     """
     Claculate the number of business days in the given month.
     :param: date
@@ -339,5 +339,14 @@ def calculate_business_days(date):
     weeks_in_month = Calendar().monthdayscalendar(date.year, date.month)
     day_count = 0
     for week in weeks_in_month:
-        day_count += sum(map(lambda x: x != 0, week[:5]))
+        day_count += sum(map(lambda x: 0 < x <= end_day,  week[:5]))
+
     return day_count
+
+
+def business_weeks(date, end_day=31):
+    """
+    Provide the number of business weeks (5 days in a business week) for a given
+    month as float.
+    """
+    return calculate_business_days(date, end_day)/5
