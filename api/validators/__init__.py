@@ -8,6 +8,10 @@ VALIDATOR_CLASS_NAMES = (
     ("civilSer", "Beamt*in")
 )
 
+FTE_WEEKYL_MINUTES = {
+    "regEmp": 2400,  # 40h per week
+    "civilSer": 2460,  # 41h per week
+}
 VALIDATOR_CLASSES = {
     "studEmp": StudentEmployeeValidator
 }
