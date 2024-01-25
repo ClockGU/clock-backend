@@ -16,7 +16,7 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 
 from calendar import monthrange
 
-from dateutil.relativedelta import relativedelta
+
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
@@ -29,7 +29,7 @@ from api.utilities import (
     calculate_break,
     calculate_worktime_breaktime,
     create_reports_for_contract,
-    relativedelta_to_string,
+    timedelta_to_string,
     update_reports,
 )
 
@@ -49,7 +49,7 @@ class TagsSerializerField(serializers.Field):
 
 class TimedeltaField(serializers.Field):
     def to_representation(self, value):
-        return relativedelta_to_string(relativedelta(seconds=value.total_seconds()))
+        return timedelta_to_string(value)
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):

@@ -25,7 +25,8 @@ from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 
-from .validators import VALIDATOR_CLASS_NAMES
+from .validators import VALIDATOR_CLASS_NAMES, FTE_WEEKYL_MINUTES, business_weeks, stud_emp_worktime_multiplicator, \
+    worktime_multiplicator
 
 
 class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
@@ -223,37 +224,25 @@ class Report(models.Model):
 
     @property
     def debit_worktime(self):
-        """
-        Calculate the actual debit worktime for a report.
+        current_date = self.month_year
+        month_end_day = monthrange(current_date.year, current_date.month)[1]
+        start_date = self.contract.start_date
+        end_date = self.contract.end_date
 
-        The actual debitworktime can be lower than the provided value from the contract due to:
-        incomplete months (contract starts not at first, or end not on the last of a month.)
-        """
-        month = self.month_year.month
-        year = self.month_year.year
-        end_day = monthrange(year, month)[1]
-
-        # Contract starts (at 16th of) this month
-        if (
-            self.contract.start_date.month == month
-            and self.contract.start_date.year == year
-        ):
-            minutes = (
-                (end_day - self.contract.start_date.day + 1)
-                / end_day
-                * self.contract.minutes
+        if self.contract.worktime_model_name == "studEmp":
+            return timedelta(
+                minutes=self.contract.minutes
+                * stud_emp_worktime_multiplicator(
+                    current_date, start_date, end_date, month_end_day
+                )
             )
-            return timedelta(minutes=minutes)
-
-        # Contract ends (at 15th of) this month
-        if (
-            self.contract.end_date.month == month
-            and self.contract.end_date.year == year
-        ):
-            minutes = self.contract.end_date.day / end_day * self.contract.minutes
-            return timedelta(minutes=minutes)
-
-        return timedelta(minutes=self.contract.minutes)
+        return timedelta(
+            minutes=self.contract.percent_fte/100
+            * FTE_WEEKYL_MINUTES[self.contract.worktime_model_name]
+            * worktime_multiplicator(
+                current_date, start_date, end_date, month_end_day
+            )
+        )
 
     @property
     def debit_vacation_time(self):
@@ -267,6 +256,9 @@ class Report(models.Model):
         ('Worktime per month' / 'avg weeks per month' / 'workdays per week') * 'general vacation days' / '12 months'
 
         """
+        if self.contract.worktime_model_name != "studEmp":
+            return timedelta()
+
         vacation_seconds_per_month = (
             ((self.contract.minutes * 60) / 4.348 / 5) * 20 / 12
         )
