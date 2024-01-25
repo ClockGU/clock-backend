@@ -261,7 +261,7 @@ class Report(models.Model):
         Return 0
 
         """
-        if self.contract.worktime_model_name != "studEmp":
+        if self.contract.worktime_model_name == "studEmp":
 
             vacation_seconds_per_month = (
                 ((self.contract.minutes * 60) / 4.348 / 5) * 20 / 12
