@@ -255,21 +255,27 @@ class Report(models.Model):
         Calculation description for vacation_seconds_per_month:
         ('Worktime per month' / 'avg weeks per month' / 'workdays per week') * 'general vacation days' / '12 months'
 
+        Calculation for non student employees:
+        Given an employee works on X days in a week he receives X/5 * 30 days of vacation.
+        Since we are not saving the actual days of work, only the percent FTE, we can not compute this.
+        Return 0
+
         """
         if self.contract.worktime_model_name != "studEmp":
-            return timedelta()
 
-        vacation_seconds_per_month = (
-            ((self.contract.minutes * 60) / 4.348 / 5) * 20 / 12
-        )
-
-        return timedelta(
-            seconds=(
-                self.debit_worktime.total_seconds()
-                / (self.contract.minutes * 60)
-                * vacation_seconds_per_month
+            vacation_seconds_per_month = (
+                ((self.contract.minutes * 60) / 4.348 / 5) * 20 / 12
             )
-        )
+
+            return timedelta(
+                seconds=(
+                    self.debit_worktime.total_seconds()
+                    / (self.contract.minutes * 60)
+                    * vacation_seconds_per_month
+                )
+            )
+
+        return timedelta()
 
     @property
     def carryover(self):
