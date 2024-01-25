@@ -280,8 +280,9 @@ class Report(models.Model):
     @property
     def carryover(self):
         carryover = self.worktime - self.debit_worktime + self.carryover_previous_month
-        if carryover > timedelta(minutes=self.contract.minutes) / 2:
-            return timedelta(minutes=self.contract.minutes) / 2
+        max_carryover = self.debit_worktime / 2
+        if carryover > max_carryover:
+            return max_carryover
         return carryover
 
     @property
