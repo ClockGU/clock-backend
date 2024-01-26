@@ -16,7 +16,7 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 
 from calendar import monthrange
 
-
+from dateutil.relativedelta import relativedelta
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
@@ -445,14 +445,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
             this_day_reviewed = this_day.filter(was_reviewed=True)
 
-            new_worktime = stopped - started
-            old_worktime = this_day_reviewed.aggregate(
-                total_work_time=Coalesce(
-                    Sum(F("stopped") - F("started"), output_field=DurationField()),
-                    datetime.timedelta(0),
-                )
-            )["total_work_time"]
-
             if this_day_reviewed.exists():
                 if this_day_reviewed.filter(
                     started__lte=started, stopped__gt=started
@@ -508,24 +500,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                             "There are already sick shifts this day, combining sick and vacation shifts is not allowed"
                         )
                     )
-
-            # calculate total worktime of the day depending on the other shifts
-            work_time, break_time = calculate_worktime_breaktime(
-                worktime=(old_worktime + new_worktime),
-                breaktime=calculate_break(
-                    shifts_queryset=this_day_reviewed,
-                    new_shift_started=started,
-                    new_shift_stopped=stopped,
-                ),
-            )
-
-            if work_time > datetime.timedelta(hours=10):
-                raise exceptions.ValidationError(
-                    _(
-                        f"It is not allowed to save more than 10h total worktime per day "
-                        f"(clocked: {work_time} vs allowed: {datetime.timedelta(hours=10)})"
-                    )
-                )
         return data
 
     def validate_contract(self, contract):
