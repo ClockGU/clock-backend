@@ -224,7 +224,7 @@ CELERY_ALWAYS_EAGER = True
 # Time Vault
 
 TIME_VAULT_URL = env("TIME_VAULT_URL", default="")
-
+TIME_VAULT_API_KEY = env("TIME_VAULT_API_KEY", default="")
 # Locale
 
 LANGUAGES = [("de", _("German")), ("en", _("English"))]
