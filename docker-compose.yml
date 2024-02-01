@@ -25,6 +25,7 @@ services:
       - CORS_ORIGIN_WHITELIST=http://localhost:8080,https://preview.clock.uni-frankfurt.de
       - GOETHE_OAUTH2_REDIRECT_URI=https://preview.clock.uni-frankfurt.de/logging-in
       - TIME_VAULT_URL=http://time-vault-api:8000
+      - TIME_VAULT_API_KEY=SOME KEY WE KEEP SECRET
       - SITE_ID=1
       - IDM_API_URL=default
       - IDM_API_KEY=default
