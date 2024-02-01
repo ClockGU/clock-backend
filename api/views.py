@@ -13,7 +13,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+import json
 
+import requests
 import weasyprint
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -98,6 +100,14 @@ class ContractViewSet(viewsets.ModelViewSet):
 
     def lock_shifts(self, request, month=None, year=None, *args, **kwargs):
         instance = self.get_object()
+        report = Report.objects.get(
+            contract=instance, month_year__month=month, month_year__year=year
+        )
+        response = requests.post(url=f"{settings.TIME_VAULT_URL}/reports/",
+                                 json=ReportViewSet().aggregate_export_content(report),
+                                 headers={"X-API-KEY": settings.TIME_VAULT_API_KEY})
+        if response.status_code != 201:
+            return Response(data=json.loads(response.content), status=response.status_code)
         Shift.objects.filter(
             contract=instance, started__month=month, started__year=year
         ).update(locked=True)
@@ -270,7 +280,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
         return shifts
 
-    def aggregate_shift_content(self, shifts):
+    def aggregate_days_content(self, shifts):
         """
         Method to aggregate a content with all dates at which a shift was worked.
         By creating this dictionary we merge all Shifts on a date to One Object with the following rule:
@@ -335,7 +345,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
             # 1: Arbeitszeit > 10 h
             if worktime > datetime.timedelta(hours=10):
-                notes_list.append(1)
+                notes_list.append("1")
 
             # 2: Pausenzeit zu gering
             if (
@@ -345,7 +355,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 worktime > datetime.timedelta(hours=9)
                 and breaktime < datetime.timedelta(minutes=45)
             ):
-                notes_list.append(2)
+                notes_list.append("2")
 
             # 3: Ruhezeiten < 11 h
             if shifts_of_yesterday.exists():
@@ -354,7 +364,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 if (
                     shifts_of_date.first().started - shifts_of_yesterday.last().stopped
                 ) < datetime.timedelta(hours=11):
-                    notes_list.append(3)
+                    notes_list.append("3")
 
             # 4: Arbeit nach 20 Uhr
             today_at_20 = datetime.datetime(
@@ -364,7 +374,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 shifts_of_date.filter(started__gte=today_at_20).exists()
                 or shifts_of_date.filter(stopped__gte=today_at_20).exists()
             ):
-                notes_list.append(4)
+                notes_list.append("4")
 
             # 5: Arbeit vor 8 Uhr
             today_at_8 = datetime.datetime(
@@ -374,11 +384,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 shifts_of_date.filter(started__lte=today_at_8).exists()
                 or shifts_of_date.filter(stopped__lte=today_at_8).exists()
             ):
-                notes_list.append(5)
+                notes_list.append("5")
 
             # 6: Sonntagsarbeit
             if shifts_of_date[0].started.weekday() == 6:
-                notes_list.append(6)
+                notes_list.append("6")
 
             # 7: Feiertagsarbeit
             de_he_holidays = country_holidays("DE", subdiv="HE")
@@ -386,9 +396,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 shifts_of_date[0].started.strftime("%Y-%m-%d") in de_he_holidays
                 and shifts_of_date.first().type != "bh"
             ):
-                notes_list.append(7)
+                notes_list.append("7")
 
-            notes = str(notes_list).replace("[", "").replace("]", "")
+            notes = ", ".join(notes_list)
 
             started = shifts_of_date.first().started.astimezone(
                 timezone(settings.TIME_ZONE)
@@ -400,8 +410,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().strftime("%H:%M"),
                 "stopped": stopped.time().strftime("%H:%M"),
-                "break_time": timedelta_to_string(breaktime),
-                "work_time": (
+                "breaktime": timedelta_to_string(breaktime),
+                "worktime": (
                     timedelta_to_string(worktime)
                     if timedelta_to_string(worktime) != "00:00"
                     else ""
@@ -475,7 +485,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["long_month_name"] = month_names[report_object.month_year.month]
 
         # Working time account (AZK)
-        content["debit_work_time"] = timedelta_to_string(report_object.debit_worktime)
+        content["debit_worktime"] = timedelta_to_string(report_object.debit_worktime)
         time_worked_seconds = report_object.worktime.total_seconds()
         content["total_worked_time"] = relativedelta_to_string(
             relativedelta(seconds=time_worked_seconds)
@@ -514,7 +524,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         self.check_for_not_locked_shifts(report_object)
 
         # Get all dates the user has worked on
-        content["shift_content"] = self.aggregate_shift_content(shift_queryset)
+        content["days_content"] = self.aggregate_days_content(shift_queryset)
         content["general"] = self.aggregate_general_content(
             report_object, shift_queryset
         )
