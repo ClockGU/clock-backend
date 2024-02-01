@@ -221,6 +221,10 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_ALWAYS_EAGER = True
 
+# Time Vault
+
+TIME_VAULT_URL = env("TIME_VAULT_URL", default="")
+
 # Locale
 
 LANGUAGES = [("de", _("German")), ("en", _("English"))]
