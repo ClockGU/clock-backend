@@ -400,8 +400,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().strftime("%H:%M"),
                 "stopped": stopped.time().strftime("%H:%M"),
-                "break_time": timedelta_to_string(breaktime),
-                "work_time": (
+                "breaktime": timedelta_to_string(breaktime),
+                "worktime": (
                     timedelta_to_string(worktime)
                     if timedelta_to_string(worktime) != "00:00"
                     else ""
