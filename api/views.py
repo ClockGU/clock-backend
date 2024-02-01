@@ -475,7 +475,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["long_month_name"] = month_names[report_object.month_year.month]
 
         # Working time account (AZK)
-        content["debit_work_time"] = timedelta_to_string(report_object.debit_worktime)
+        content["debit_worktime"] = timedelta_to_string(report_object.debit_worktime)
         time_worked_seconds = report_object.worktime.total_seconds()
         content["total_worked_time"] = relativedelta_to_string(
             relativedelta(seconds=time_worked_seconds)

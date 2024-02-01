@@ -1231,7 +1231,7 @@ video {
             </div>
             <div class="flex flex-wrap mb-4">
                 <span class="w-full font-bold text-blue-600">Monatliche Arbeitszeit</span>
-                <span class="text-gray-700">{{ general.debit_work_time }}</span>
+                <span class="text-gray-700">{{ general.debit_worktime }}</span>
             </div>
             <div class="flex flex-wrap mb-4">
                 <span class="w-full font-bold text-blue-600">Geleistete Arbeitszeit</span>
@@ -1281,7 +1281,7 @@ video {
             </thead>
             <tbody class="text-center">
             {% for date in calendar %}
-                {% get_dict_value shift_content date as content %}
+                {% get_dict_value days_content date as content %}
                 {% if content %}
                     <tr>
                         <td class="border px-2 py-2">{{ date|cut_year }}</td>
