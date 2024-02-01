@@ -13,6 +13,8 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+import json
+
 import requests
 import weasyprint
 from dateutil.relativedelta import relativedelta
@@ -98,6 +100,14 @@ class ContractViewSet(viewsets.ModelViewSet):
 
     def lock_shifts(self, request, month=None, year=None, *args, **kwargs):
         instance = self.get_object()
+        report = Report.objects.get(
+            contract=instance, month_year__month=month, month_year__year=year
+        )
+        response = requests.post(url=f"{settings.TIME_VAULT_URL}/reports/",
+                                 json=ReportViewSet().aggregate_export_content(report),
+                                 headers={"X-API-KEY": settings.TIME_VAULT_API_KEY})
+        if response.status_code != 201:
+            return Response(data=json.loads(response.content), status=response.status_code)
         Shift.objects.filter(
             contract=instance, started__month=month, started__year=year
         ).update(locked=True)
