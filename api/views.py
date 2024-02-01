@@ -270,7 +270,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
         return shifts
 
-    def aggregate_shift_content(self, shifts):
+    def aggregate_days_content(self, shifts):
         """
         Method to aggregate a content with all dates at which a shift was worked.
         By creating this dictionary we merge all Shifts on a date to One Object with the following rule:
@@ -514,7 +514,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         self.check_for_not_locked_shifts(report_object)
 
         # Get all dates the user has worked on
-        content["shift_content"] = self.aggregate_shift_content(shift_queryset)
+        content["days_content"] = self.aggregate_days_content(shift_queryset)
         content["general"] = self.aggregate_general_content(
             report_object, shift_queryset
         )

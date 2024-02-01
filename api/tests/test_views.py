@@ -676,7 +676,7 @@ class TestReportApiEndpoint:
         Test that the utility method of the ReportViewSet 'aggregate_shift_content' catches all Shifts of a month.
         :return:
         """
-        content = prepared_ReportViewSet_view.aggregate_shift_content(
+        content = prepared_ReportViewSet_view.aggregate_days_content(
             shift_content_aggregation_gather_all_shifts
         )
 
@@ -711,7 +711,7 @@ class TestReportApiEndpoint:
         shift_content_aggregation_merges_shifts,
         report_object,
     ):
-        content = prepared_ReportViewSet_view.aggregate_shift_content(
+        content = prepared_ReportViewSet_view.aggregate_days_content(
             shift_content_aggregation_merges_shifts
         )
 
@@ -726,7 +726,7 @@ class TestReportApiEndpoint:
     def test_aggregate_shift_content_handles_vacation_shifts(
         self, prepared_ReportViewSet_view, two_vacation_shifts
     ):
-        content = prepared_ReportViewSet_view.aggregate_shift_content(
+        content = prepared_ReportViewSet_view.aggregate_days_content(
             two_vacation_shifts
         )
 
