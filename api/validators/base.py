@@ -1,6 +1,4 @@
-
 class BaseValidator:
-
     def __init__(self, data, for_model, instance=None):
         self._data = data
         self._instance = instance
@@ -20,7 +18,11 @@ class BaseValidator:
 
     def validate(self):
         try:
-            model_validation_method = getattr(self, f"get_{self.for_model_name}_validate")
+            model_validation_method = getattr(
+                self, f"get_{self.for_model_name}_validate"
+            )
         except AttributeError:
-            raise NotImplementedError(f"Validation is not implemented for {self.for_model_name} model.")
+            raise NotImplementedError(
+                f"Validation is not implemented for {self.for_model_name} model."
+            )
         return model_validation_method()

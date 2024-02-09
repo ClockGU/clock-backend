@@ -328,5 +328,3 @@ post_delete.connect(
     sender=Shift,
     dispatch_uid="update_last_used_on_contract_delete",
 )
-
-

@@ -6,16 +6,14 @@ from .student_employee import StudentEmployeeValidator
 VALIDATOR_CLASS_NAMES = (
     ("studEmp", "Studentische Hilfskraft"),
     ("regEmp", "Regulär*er Angestelt*er"),
-    ("civilSer", "Beamt*in")
+    ("civilSer", "Beamt*in"),
 )
 
 FTE_WEEKYL_MINUTES = {
     "regEmp": 2400,  # 40h per week
     "civilSer": 2460,  # 41h per week
 }
-VALIDATOR_CLASSES = {
-    "studEmp": StudentEmployeeValidator
-}
+VALIDATOR_CLASSES = {"studEmp": StudentEmployeeValidator}
 
 
 def calculate_business_days(date, start_day=0, end_day=31):
@@ -46,13 +44,8 @@ def worktime_multiplicator(current_date, start_date, end_date, month_end_day):
     return business_weeks(current_date, start_date.day - 1, end_day)
 
 
-def stud_emp_worktime_multiplicator(
-        current_date, start_date, end_date, month_end_day
-):
-    if (
-            start_date.month == current_date.month
-            and start_date.year == current_date.year
-    ):
+def stud_emp_worktime_multiplicator(current_date, start_date, end_date, month_end_day):
+    if start_date.month == current_date.month and start_date.year == current_date.year:
         return (month_end_day - start_date.day + 1) / month_end_day
     if end_date.month == current_date.month and end_date.year == current_date.year:
         return end_date.day / month_end_day

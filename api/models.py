@@ -25,8 +25,13 @@ from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 
-from .validators import VALIDATOR_CLASS_NAMES, FTE_WEEKYL_MINUTES, business_weeks, stud_emp_worktime_multiplicator, \
-    worktime_multiplicator
+from .validators import (
+    VALIDATOR_CLASS_NAMES,
+    FTE_WEEKYL_MINUTES,
+    business_weeks,
+    stud_emp_worktime_multiplicator,
+    worktime_multiplicator,
+)
 
 
 class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
@@ -141,7 +146,9 @@ class Contract(models.Model):
     )
     name = models.CharField(max_length=100)
     minutes = models.PositiveIntegerField()
-    percent_fte = models.FloatField(null=True, blank=True, verbose_name="Prozent einer Vollzeitstelle")
+    percent_fte = models.FloatField(
+        null=True, blank=True, verbose_name="Prozent einer Vollzeitstelle"
+    )
     start_date = models.DateField()
     end_date = models.DateField()
     initial_carryover_minutes = models.IntegerField(default=0)
@@ -237,11 +244,10 @@ class Report(models.Model):
                 )
             )
         return timedelta(
-            minutes=self.contract.percent_fte/100
+            minutes=self.contract.percent_fte
+            / 100
             * FTE_WEEKYL_MINUTES[self.contract.worktime_model_name]
-            * worktime_multiplicator(
-                current_date, start_date, end_date, month_end_day
-            )
+            * worktime_multiplicator(current_date, start_date, end_date, month_end_day)
         )
 
     @property
@@ -262,7 +268,6 @@ class Report(models.Model):
 
         """
         if self.contract.worktime_model_name == "studEmp":
-
             vacation_seconds_per_month = (
                 ((self.contract.minutes * 60) / 4.348 / 5) * 20 / 12
             )

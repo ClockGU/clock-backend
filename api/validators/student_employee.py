@@ -1,3 +1,2 @@
-
 class StudentEmployeeValidator:
     pass
