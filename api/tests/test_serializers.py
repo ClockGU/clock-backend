@@ -14,8 +14,10 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
 import datetime
+from calendar import monthrange
 
 import pytest
+from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import exceptions, serializers
 
@@ -26,6 +28,8 @@ from api.serializers import (
     ReportSerializer,
     ShiftSerializer,
 )
+from api.utilities import timedelta_to_string
+from api.validators import stud_emp_worktime_multiplicator
 
 
 class TestContractSerializerValidation:

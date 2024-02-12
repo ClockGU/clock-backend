@@ -128,9 +128,14 @@ def timedelta_to_string(timedelta):
     :param timedelta:
     :return:
     """
-    hours, remainder = divmod(timedelta.total_seconds(), 3600)
+    format_string = "{hours:02g}:{minutes:02g}"
+    seconds = timedelta.total_seconds()
+    if seconds < 0:
+        format_string = "-{hours:02g}:{minutes:02g}"
+        seconds = -1*seconds
+    hours, remainder = divmod(seconds, 3600)
     minutes, _ = divmod(remainder, 60)
-    return "{hours:02g}:{minutes:02g}".format(hours=hours, minutes=minutes)
+    return format_string.format(hours=hours, minutes=minutes)
 
 
 # TODO: This function needs a different, more phony name.
