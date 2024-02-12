@@ -62,6 +62,7 @@ class TestContractAutomaticReportCreation:
             initial_carryover_minutes=0,
             created_by=user_object,
             modified_by=user_object,
+            worktime_model_name="studEmp"
         )
         assert len(Report.objects.filter(contract=_contract)) == 4
 
@@ -82,6 +83,7 @@ class TestContractAutomaticReportCreation:
             initial_carryover_minutes=300,
             created_by=user_object,
             modified_by=user_object,
+            worktime_model_name="studEmp"
         )
         assert Report.objects.get(
             contract=_contract, month_year=datetime.date(2020, 2, 1)
@@ -110,6 +112,7 @@ class TestContractAutomaticReportCreation:
             initial_carryover_minutes=300,
             created_by=user_object,
             modified_by=user_object,
+            worktime_model_name="studEmp"
         )
 
         reports = Report.objects.filter(contract=_contract).exclude(
@@ -138,6 +141,7 @@ class TestContractAutomaticReportCreation:
             initial_carryover_minutes=300,
             created_by=user_object,
             modified_by=user_object,
+            worktime_model_name="studEmp"
         )
 
         reports = Report.objects.filter(contract=_contract)
@@ -193,6 +197,7 @@ class TestUpdateSignals:
             initial_carryover_minutes=300,
             created_by=user_object,
             modified_by=user_object,
+            worktime_model_name="studEmp"
         )
         Shift.objects.create(
             started=datetime.datetime(2019, 2, 11, 14, tzinfo=utc),
