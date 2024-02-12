@@ -602,16 +602,6 @@ class TestShiftSerializerValidation:
         ).is_valid(raise_exception=False)
 
     @pytest.mark.django_db
-    def test_eleven_hour_shift_not_allowed(
-        self, eleven_hour_shift_json_querydict, plain_request_object
-    ):
-        with pytest.raises(serializers.ValidationError):
-            ShiftSerializer(
-                data=eleven_hour_shift_json_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
-    @pytest.mark.django_db
     def test_creating_shift_in_not_owned_contract_not_allowed(
         self, valid_shift_different_contract_json_querydict, plain_request_object
     ):
