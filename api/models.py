@@ -25,6 +25,14 @@ from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 
+from .validators import (
+    FTE_WEEKYL_MINUTES,
+    VALIDATOR_CLASS_NAMES,
+    business_weeks,
+    stud_emp_worktime_multiplicator,
+    worktime_multiplicator,
+)
+
 
 class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
     class Meta:
@@ -123,7 +131,6 @@ class User(AbstractUser):
     dsgvo_accepted = models.BooleanField(default=False)
     onboarding_passed = models.BooleanField(default=False)
     marked_for_deletion = models.BooleanField(default=False)
-
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "personal_number"]
 
@@ -139,11 +146,17 @@ class Contract(models.Model):
     )
     name = models.CharField(max_length=100)
     minutes = models.PositiveIntegerField()
+    percent_fte = models.FloatField(
+        null=True, blank=True, verbose_name="Prozent einer Vollzeitstelle"
+    )
     start_date = models.DateField()
     end_date = models.DateField()
     initial_carryover_minutes = models.IntegerField(default=0)
     initial_vacation_carryover_minutes = models.IntegerField(default=0)
     color = models.CharField(max_length=7, default="#8ac5ff")
+    worktime_model_name = models.CharField(
+        max_length=200, choices=VALIDATOR_CLASS_NAMES, verbose_name="Validierungsklasse"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE
@@ -218,37 +231,24 @@ class Report(models.Model):
 
     @property
     def debit_worktime(self):
-        """
-        Calculate the actual debit worktime for a report.
+        current_date = self.month_year
+        month_end_day = monthrange(current_date.year, current_date.month)[1]
+        start_date = self.contract.start_date
+        end_date = self.contract.end_date
 
-        The actual debitworktime can be lower than the provided value from the contract due to:
-        incomplete months (contract starts not at first, or end not on the last of a month.)
-        """
-        month = self.month_year.month
-        year = self.month_year.year
-        end_day = monthrange(year, month)[1]
-
-        # Contract starts (at 16th of) this month
-        if (
-            self.contract.start_date.month == month
-            and self.contract.start_date.year == year
-        ):
-            minutes = (
-                (end_day - self.contract.start_date.day + 1)
-                / end_day
-                * self.contract.minutes
+        if self.contract.worktime_model_name == "studEmp":
+            return timedelta(
+                minutes=self.contract.minutes
+                * stud_emp_worktime_multiplicator(
+                    current_date, start_date, end_date, month_end_day
+                )
             )
-            return timedelta(minutes=minutes)
-
-        # Contract ends (at 15th of) this month
-        if (
-            self.contract.end_date.month == month
-            and self.contract.end_date.year == year
-        ):
-            minutes = self.contract.end_date.day / end_day * self.contract.minutes
-            return timedelta(minutes=minutes)
-
-        return timedelta(minutes=self.contract.minutes)
+        return timedelta(
+            minutes=self.contract.percent_fte
+            / 100
+            * FTE_WEEKYL_MINUTES[self.contract.worktime_model_name]
+            * worktime_multiplicator(current_date, start_date, end_date, month_end_day)
+        )
 
     @property
     def debit_vacation_time(self):
@@ -261,24 +261,33 @@ class Report(models.Model):
         Calculation description for vacation_seconds_per_month:
         ('Worktime per month' / 'avg weeks per month' / 'workdays per week') * 'general vacation days' / '12 months'
 
-        """
-        vacation_seconds_per_month = (
-            ((self.contract.minutes * 60) / 4.348 / 5) * 20 / 12
-        )
+        Calculation for non student employees:
+        Given an employee works on X days in a week he receives X/5 * 30 days of vacation.
+        Since we are not saving the actual days of work, only the percent FTE, we can not compute this.
+        Return 0
 
-        return timedelta(
-            seconds=(
-                self.debit_worktime.total_seconds()
-                / (self.contract.minutes * 60)
-                * vacation_seconds_per_month
+        """
+        if self.contract.worktime_model_name == "studEmp":
+            vacation_seconds_per_month = (
+                ((self.contract.minutes * 60) / 4.348 / 5) * 20 / 12
             )
-        )
+
+            return timedelta(
+                seconds=(
+                    self.debit_worktime.total_seconds()
+                    / (self.contract.minutes * 60)
+                    * vacation_seconds_per_month
+                )
+            )
+
+        return timedelta()
 
     @property
     def carryover(self):
         carryover = self.worktime - self.debit_worktime + self.carryover_previous_month
-        if carryover > timedelta(minutes=self.contract.minutes) / 2:
-            return timedelta(minutes=self.contract.minutes) / 2
+        max_carryover = self.debit_worktime / 2
+        if carryover > max_carryover:
+            return max_carryover
         return carryover
 
     @property

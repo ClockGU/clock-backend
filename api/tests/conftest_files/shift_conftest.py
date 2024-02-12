@@ -426,6 +426,17 @@ def ten_hour_fortyfive_minutes_shift_json_querydict(
 
 
 @pytest.fixture
+def eleven_hour_shift(create_n_shift_objects, user_object, contract_object):
+    return create_n_shift_objects(
+        (1,),
+        user_object,
+        contract_object,
+        started=datetime.datetime(2019, 1, 29, 7),
+        stopped=datetime.datetime(2019, 1, 29, 18),
+    )[0]
+
+
+@pytest.fixture
 def eleven_hour_shift_json(valid_shift_json):
     """
     This fixture creates an JSON dictionary on a 29th of January in 2019 as a shift over 11h.

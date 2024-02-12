@@ -53,6 +53,8 @@ def valid_contract_json(user_object):
         "modified_by": user,
         "created_at": created_at,
         "modified_at": modified_at,
+        "worktime_model_name": "studEmp",
+        "percent_fte": 0.0,
         "initial_carryover_minutes": 0,
     }
 
@@ -267,6 +269,8 @@ def create_n_contract_objects(user_object):
                 user=user,
                 created_by=user,
                 modified_by=user,
+                worktime_model_name="studEmp",
+                percent_fte=0.0,
             )
             for i in range(*start_stop)
         ]
