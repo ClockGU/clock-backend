@@ -132,7 +132,7 @@ def timedelta_to_string(timedelta):
     seconds = timedelta.total_seconds()
     if seconds < 0:
         format_string = "-{hours:02g}:{minutes:02g}"
-        seconds = -1*seconds
+        seconds = -1 * seconds
     hours, remainder = divmod(seconds, 3600)
     minutes, _ = divmod(remainder, 60)
     return format_string.format(hours=hours, minutes=minutes)

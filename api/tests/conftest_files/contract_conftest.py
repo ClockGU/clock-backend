@@ -270,7 +270,7 @@ def create_n_contract_objects(user_object):
                 created_by=user,
                 modified_by=user,
                 worktime_model_name="studEmp",
-                percent_fte=0.0
+                percent_fte=0.0,
             )
             for i in range(*start_stop)
         ]

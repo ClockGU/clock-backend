@@ -26,8 +26,8 @@ from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 
 from .validators import (
-    VALIDATOR_CLASS_NAMES,
     FTE_WEEKYL_MINUTES,
+    VALIDATOR_CLASS_NAMES,
     business_weeks,
     stud_emp_worktime_multiplicator,
     worktime_multiplicator,

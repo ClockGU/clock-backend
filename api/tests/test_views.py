@@ -822,16 +822,14 @@ class TestReportApiEndpoint:
 
     @pytest.mark.django_db
     def test_export_marks_violations(
-            self,
-            prepared_ReportViewSet_view,
-            eleven_hour_shift,
-            report_object
+        self, prepared_ReportViewSet_view, eleven_hour_shift, report_object
     ):
         shifts = prepared_ReportViewSet_view.get_shifts_to_export(report_object)
-        aggregated_shift_content = prepared_ReportViewSet_view.aggregate_shift_content(shifts)
+        aggregated_shift_content = prepared_ReportViewSet_view.aggregate_shift_content(
+            shifts
+        )
 
         assert aggregated_shift_content["29.01.2019"]["notes"] == "1, 5"
-
 
 
 class TestDjoserCustomizing:

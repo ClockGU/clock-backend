@@ -424,9 +424,17 @@ def ten_hour_fortyfive_minutes_shift_json_querydict(
     qdict.update(ten_hour_fortyfive_minutes_shift_json)
     return qdict
 
+
 @pytest.fixture
 def eleven_hour_shift(create_n_shift_objects, user_object, contract_object):
-    return create_n_shift_objects((1,),  user_object, contract_object, started=datetime.datetime(2019, 1, 29, 7), stopped=datetime.datetime(2019, 1, 29, 18))[0]
+    return create_n_shift_objects(
+        (1,),
+        user_object,
+        contract_object,
+        started=datetime.datetime(2019, 1, 29, 7),
+        stopped=datetime.datetime(2019, 1, 29, 18),
+    )[0]
+
 
 @pytest.fixture
 def eleven_hour_shift_json(valid_shift_json):
