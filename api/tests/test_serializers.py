@@ -14,8 +14,10 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
 import datetime
+from calendar import monthrange
 
 import pytest
+from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import exceptions, serializers
 
@@ -26,6 +28,8 @@ from api.serializers import (
     ReportSerializer,
     ShiftSerializer,
 )
+from api.utilities import timedelta_to_string
+from api.validators import stud_emp_worktime_multiplicator
 
 
 class TestContractSerializerValidation:
@@ -596,16 +600,6 @@ class TestShiftSerializerValidation:
             data=ten_hour_fortyfive_minutes_shift_json_querydict,
             context={"request": plain_request_object},
         ).is_valid(raise_exception=False)
-
-    @pytest.mark.django_db
-    def test_eleven_hour_shift_not_allowed(
-        self, eleven_hour_shift_json_querydict, plain_request_object
-    ):
-        with pytest.raises(serializers.ValidationError):
-            ShiftSerializer(
-                data=eleven_hour_shift_json_querydict,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
 
     @pytest.mark.django_db
     def test_creating_shift_in_not_owned_contract_not_allowed(

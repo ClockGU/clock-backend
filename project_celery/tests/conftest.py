@@ -35,6 +35,7 @@ def december_contract(user_object):
         user=user_object,
         created_by=user_object,
         modified_by=user_object,
+        worktime_model_name="studEmp",
     )
 
 

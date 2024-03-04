@@ -29,7 +29,7 @@ from api.utilities import (
     calculate_break,
     calculate_worktime_breaktime,
     create_reports_for_contract,
-    relativedelta_to_string,
+    timedelta_to_string,
     update_reports,
 )
 
@@ -49,7 +49,7 @@ class TagsSerializerField(serializers.Field):
 
 class TimedeltaField(serializers.Field):
     def to_representation(self, value):
-        return relativedelta_to_string(relativedelta(seconds=value.total_seconds()))
+        return timedelta_to_string(value)
 
 
 class RestrictModificationModelSerializer(serializers.ModelSerializer):
@@ -445,14 +445,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
             this_day_reviewed = this_day.filter(was_reviewed=True)
 
-            new_worktime = stopped - started
-            old_worktime = this_day_reviewed.aggregate(
-                total_work_time=Coalesce(
-                    Sum(F("stopped") - F("started"), output_field=DurationField()),
-                    datetime.timedelta(0),
-                )
-            )["total_work_time"]
-
             if this_day_reviewed.exists():
                 if this_day_reviewed.filter(
                     started__lte=started, stopped__gt=started
@@ -508,24 +500,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                             "There are already sick shifts this day, combining sick and vacation shifts is not allowed"
                         )
                     )
-
-            # calculate total worktime of the day depending on the other shifts
-            work_time, break_time = calculate_worktime_breaktime(
-                worktime=(old_worktime + new_worktime),
-                breaktime=calculate_break(
-                    shifts_queryset=this_day_reviewed,
-                    new_shift_started=started,
-                    new_shift_stopped=stopped,
-                ),
-            )
-
-            if work_time > datetime.timedelta(hours=10):
-                raise exceptions.ValidationError(
-                    _(
-                        f"It is not allowed to save more than 10h total worktime per day "
-                        f"(clocked: {work_time} vs allowed: {datetime.timedelta(hours=10)})"
-                    )
-                )
         return data
 
     def validate_contract(self, contract):
