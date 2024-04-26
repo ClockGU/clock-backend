@@ -65,7 +65,7 @@ class ProviderAuthView(APIView):
         app = provider.get_app(request)
 
         redirect_uri = request.GET.get("redirect_uri")
-        if redirect_uri != settings.GOETHE_OAUTH2_REDIRECT_URI:
+        if redirect_uri not in settings.GOETHE_OAUTH2_REDIRECT_URIS:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         authorize_url = adapter.authorize_url
@@ -80,7 +80,6 @@ class ProviderAuthView(APIView):
 
 class GoetheUniLogin(SocialLoginView):
     adapter_class = GoetheUniOAuth2Adapter
-    callback_url = settings.GOETHE_OAUTH2_REDIRECT_URI
     client_class = OAuth2Client
 
 

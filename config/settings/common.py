@@ -183,7 +183,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + ["checkoutuser"]
 
 # The client must provide a `redirect_uri` query parameter when requesting the
 # authorization code URL. We retrieve it from the environment.
-GOETHE_OAUTH2_REDIRECT_URI = env.str("GOETHE_OAUTH2_REDIRECT_URI", default="")
+GOETHE_OAUTH2_REDIRECT_URIS = env.list("GOETHE_OAUTH2_REDIRECT_URI", default=[])
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
