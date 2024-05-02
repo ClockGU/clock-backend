@@ -131,6 +131,7 @@ class User(AbstractUser):
     dsgvo_accepted = models.BooleanField(default=False)
     onboarding_passed = models.BooleanField(default=False)
     marked_for_deletion = models.BooleanField(default=False)
+    is_supervisor = models.BooleanField(default=False)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "personal_number"]
 
