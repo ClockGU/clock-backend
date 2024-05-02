@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "api.oauth.providers.goetheuni",
     "allauth.socialaccount.providers.github",
+    "supervisor_api.apps.SupervisorApiConfig"
 ]
 
 MIDDLEWARE = [
