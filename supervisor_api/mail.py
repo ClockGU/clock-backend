@@ -14,5 +14,4 @@ def format_message(token):
         "Bitte nutzen Sie den zu dieser Email-Adresse gehörigen HRZ Account.",
         "Das ist eine automatisch generierte Nachricht von Clock (System URL: https://clock.uni-frankfurt.de)",
     )
-
     return "\n".join(text)
