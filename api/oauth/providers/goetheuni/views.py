@@ -78,8 +78,15 @@ class ProviderAuthView(APIView):
         return Response(data)
 
 
-class GoetheUniLogin(SocialLoginView):
+class ClockGoetheUniLogin(SocialLoginView):
     adapter_class = GoetheUniOAuth2Adapter
+    callback_url = settings.GOETHE_OAUTH2_REDIRECT_URIS[0]
+    client_class = OAuth2Client
+
+
+class SupervisorGoetheUniLogin(SocialLoginView):
+    adapter_class = GoetheUniOAuth2Adapter
+    callback_url = settings.GOETHE_OAUTH2_REDIRECT_URIS[1]
     client_class = OAuth2Client
 
 

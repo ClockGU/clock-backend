@@ -25,7 +25,7 @@ from api.views import (
     index,
 )
 
-from .oauth.providers.goetheuni.views import GoetheUniLogin, ProviderAuthView
+from .oauth.providers.goetheuni.views import ClockGoetheUniLogin, SupervisorGoetheUniLogin,ProviderAuthView
 
 app_name = "api"
 router = DefaultRouter()
@@ -39,7 +39,8 @@ lock_shifts = ContractViewSet.as_view({"post": "lock_shifts"})
 
 urlpatterns = [
     path("auth/o/authorize/", ProviderAuthView.as_view(), name="gotheuni_auth"),
-    path("auth/o/token/", GoetheUniLogin.as_view(), name="goetheuni_login"),
+    path("auth/o/token/", ClockGoetheUniLogin.as_view(), name="clock_login"),
+    path("supervisor/auth/o/token/", SupervisorGoetheUniLogin.as_view(), name="supervisor_login"),
     # Demonstration url for celery
     path("celery-dummy", index, name="index"),
     path(
