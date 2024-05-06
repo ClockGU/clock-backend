@@ -3,7 +3,7 @@ from rest_framework import generics, serializers
 from rest_framework.views import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED
 
-from api.serializers import DjoserUserSerializer
+from api.serializers import UserSerializer
 from .encryption import decrypt_token
 from .models import AuthKey
 from cryptography.fernet import InvalidToken
@@ -15,7 +15,6 @@ class VerifySerializer(serializers.Serializer):
 
 class VerifyEndpoint(generics.GenericAPIView):
     serializer_class = VerifySerializer
-    permission_classes = ()
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -45,4 +44,4 @@ class VerifyEndpoint(generics.GenericAPIView):
         user.is_supervisor = True
         user.save()
         auth_key_instance.delete()
-        return Response(data=DjoserUserSerializer(user).data)
+        return Response(data=UserSerializer(user).data)
