@@ -121,6 +121,7 @@ class DjoserUserSerializer(serializers.Serializer):
             "modified_at",
             "last_login",
             "is_superuser",
+            "is_supervisor",
             "onboarding_passed",
         ]
 
