@@ -13,7 +13,7 @@ def encrypt_data(data):
     if not isinstance(data, str):
         raise TypeError("Data provided for encryption is not of type String.")
 
-    return fernet.encrypt(bytes(data, "utf-8"))
+    return str(fernet.encrypt(bytes(data, "utf-8")), "utf-8")
 
 
 def decrypt_token(token):
