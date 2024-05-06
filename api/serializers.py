@@ -99,6 +99,7 @@ class UserSerializer(RestrictModificationModelSerializer):
             "modified_at",
             "last_login",
             "is_superuser",
+            "is_supervisor",
             "onboarding_passed",
         ]
         ref_name = "user-gdpr-serializers"
