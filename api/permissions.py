@@ -24,3 +24,9 @@ class AccessOwnDataPermission(IsAuthenticated):
 
     def has_object_permission(self, request, view, obj):
         return request.user.id == obj.user.id
+
+
+class IsSupervisorPermission(IsAuthenticated):
+
+    def has_permission(self, request, view):
+        return request.user.is_supervisor
