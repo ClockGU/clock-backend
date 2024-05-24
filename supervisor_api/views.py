@@ -56,34 +56,9 @@ class ReportingEndpoint(generics.GenericAPIView):
     permission_classes = (IsSupervisorPermission,)
 
     def get(self, request, month=None, year=None):
-        # user_query = "&users=".join(request.user.object_references)
-        # response = requests.get(url=f"{settings.TIME_VAULT_URL}/reports?month={month}&year={year}")
-        data = [{'days_content':
-            {
-                '02.05.2024': {'started': '10:00', 'stopped': '14:00', 'break_time': '00:00', 'work_time': '04:00',
-                               'absence_type': '', 'type': 'Schicht', 'notes': ''},
-                '06.05.2024': {'started': '09:00', 'stopped': '12:00', 'break_time': '00:00', 'work_time': '03:00',
-                               'absence_type': '', 'type': 'Schicht', 'notes': ''},
-                '07.05.2024': {'started': '18:00', 'stopped': '22:00', 'break_time': '00:00', 'work_time': '04:00',
-                               'absence_type': '', 'type': 'Schicht', 'notes': '4'},
-                '12.05.2024': {'started': '10:00', 'stopped': '12:00', 'break_time': '00:00', 'work_time': '02:00',
-                               'absence_type': '', 'type': 'Schicht', 'notes': '6'},
-                '15.05.2024': {'started': '14:00', 'stopped': '18:00', 'break_time': '00:00', 'work_time': '04:00',
-                               'absence_type': '', 'type': 'Schicht', 'notes': ''}
-            },
-            'general':
-                {
-                    'user_name': 'Grossmüller, Christian',
-                    'personal_number': None,
-                    'contract_name': '22',
-                    'month': 5,
-                    'year': 2024,
-                    'long_month_name': 'Mai',
-                    'debit_worktime': '22:00',
-                    'total_worked_time': '17:00',
-                    'last_month_carry_over': '00:00',
-                    'next_month_carry_over': '-05:00',
-                    'net_worktime': '17:00',
-                }
-        }]
-        return Response(data=data)
+        user_query = f"references={'&references='.join(request.user.supervised_references)}"
+        response = requests.get(
+            url=f"{settings.TIME_VAULT_URL}/retrieve/{month}/{year}?{user_query}",
+            headers={"X-API-KEY": settings.TIME_VAULT_API_KEY}
+        )
+        return Response(data=response.json())
