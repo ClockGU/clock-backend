@@ -148,6 +148,7 @@ class Contract(models.Model):
         to=User, related_name="contracts", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
+    reference = models.UUIDField(default=uuid.uuid4)
     minutes = models.PositiveIntegerField()
     percent_fte = models.FloatField(
         null=True, blank=True, verbose_name="Prozent einer Vollzeitstelle"
