@@ -133,6 +133,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         model = Contract
         fields = "__all__"
         extra_kwargs = {
+            "reference": {"required": True},
             # Will be set automatically by the Model
             "created_at": {"required": False},
             # Will be set automatically by the Model
