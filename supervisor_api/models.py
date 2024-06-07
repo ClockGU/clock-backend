@@ -1,6 +1,7 @@
 import base64
 import json
 import uuid
+import logging
 
 from django.db import models
 from django.conf import settings
@@ -8,6 +9,8 @@ from .encryption import encrypt_data, fernet
 from django.core.mail import EmailMessage
 
 from supervisor_api.mail import format_message
+
+LOGGER = logging.getLogger("supervisor")
 
 
 class AuthKey(models.Model):
@@ -34,4 +37,5 @@ class AuthKey(models.Model):
                 to=[self.email],
             )
             message.send(fail_silently=False)
+            LOGGER.info(token)
         super(AuthKey, self).save(force_insert, force_update, using, update_fields)
