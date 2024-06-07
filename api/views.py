@@ -478,6 +478,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["user_name"] = "{lastname}, {firstname}".format(
             lastname=user.last_name, firstname=user.first_name
         )
+        content["reference"] = report_object.contract.reference
         content["personal_number"] = user.personal_number
         content["contract_name"] = report_object.contract.name
         content["month"] = report_object.month_year.month
