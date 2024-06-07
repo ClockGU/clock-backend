@@ -1,5 +1,3 @@
-
-
 def format_message(token):
     text = (
         "Sehr geherte*r Nutzer*in,",

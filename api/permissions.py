@@ -27,6 +27,5 @@ class AccessOwnDataPermission(IsAuthenticated):
 
 
 class IsSupervisorPermission(IsAuthenticated):
-
     def has_permission(self, request, view):
         return request.user.is_supervisor

@@ -103,11 +103,15 @@ class ContractViewSet(viewsets.ModelViewSet):
         report = Report.objects.get(
             contract=instance, month_year__month=month, month_year__year=year
         )
-        response = requests.post(url=f"{settings.TIME_VAULT_URL}/reports/",
-                                 json=ReportViewSet().aggregate_export_content(report),
-                                 headers={"X-API-KEY": settings.TIME_VAULT_API_KEY})
+        response = requests.post(
+            url=f"{settings.TIME_VAULT_URL}/reports/",
+            json=ReportViewSet().aggregate_export_content(report),
+            headers={"X-API-KEY": settings.TIME_VAULT_API_KEY},
+        )
         if response.status_code != 201:
-            return Response(data=json.loads(response.content), status=response.status_code)
+            return Response(
+                data=json.loads(response.content), status=response.status_code
+            )
         Shift.objects.filter(
             contract=instance, started__month=month, started__year=year
         ).update(locked=True)

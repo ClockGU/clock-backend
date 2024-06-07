@@ -38,7 +38,7 @@ class UserAdmin(BaseUserAdmin):
         "personal_number",
         "dsgvo_accepted",
         "onboarding_passed",
-        "is_supervisor"
+        "is_supervisor",
     )
     ordering = ("-date_joined",)
     readonly_fields = ("date_joined",)

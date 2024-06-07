@@ -69,7 +69,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "api.oauth.providers.goetheuni",
     "allauth.socialaccount.providers.github",
-    "supervisor_api.apps.SupervisorApiConfig"
+    "supervisor_api.apps.SupervisorApiConfig",
 ]
 
 MIDDLEWARE = [
@@ -258,7 +258,7 @@ LOGGING = {
             "when": "midnight",
             "interval": 1,
             "backupCount": 10,
-        }
+        },
     },
     "loggers": {
         "deprovisioning": {

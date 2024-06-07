@@ -18,9 +18,9 @@ from calendar import monthrange
 from datetime import datetime, timedelta
 
 from dateutil.relativedelta import relativedelta
-from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
@@ -133,7 +133,9 @@ class User(AbstractUser):
     onboarding_passed = models.BooleanField(default=False)
     marked_for_deletion = models.BooleanField(default=False)
     is_supervisor = models.BooleanField(default=False)
-    supervised_references = ArrayField(default=list, base_field=models.CharField(max_length=50, null=True), blank=True)
+    supervised_references = ArrayField(
+        default=list, base_field=models.CharField(max_length=50, null=True), blank=True
+    )
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "personal_number"]
 
