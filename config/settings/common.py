@@ -249,11 +249,25 @@ LOGGING = {
             "when": "midnight",
             "interval": 1,
             "backupCount": 10,
+        },
+        "supervisorlogfile": {
+            "level": "DEBUG",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": os.path.join(str(LOG_ROOT.path("api_logs")), "supervisor.log"),
+            "formatter": "verbose",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 10,
         }
     },
     "loggers": {
         "deprovisioning": {
             "handlers": ["deprovisionlogfile"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "supervisor": {
+            "handlers": ["supervisorlogfile"],
             "level": "INFO",
             "propagate": True,
         },
