@@ -719,8 +719,8 @@ class TestReportApiEndpoint:
         assert content["26.01.2019"]
         assert content["26.01.2019"]["started"] == "10:00"
         assert content["26.01.2019"]["stopped"] == "18:00"
-        assert content["26.01.2019"]["work_time"] == "06:00"
-        assert content["26.01.2019"]["break_time"] == "02:00"
+        assert content["26.01.2019"]["worktime"] == "06:00"
+        assert content["26.01.2019"]["breaktime"] == "02:00"
 
     @pytest.mark.django_db
     def test_aggregate_shift_content_handles_vacation_shifts(
@@ -734,8 +734,8 @@ class TestReportApiEndpoint:
         assert content["26.01.2019"]
         assert content["26.01.2019"]["started"] == "10:00"
         assert content["26.01.2019"]["stopped"] == "18:00"
-        assert content["26.01.2019"]["break_time"] == "00:30"
-        assert content["26.01.2019"]["work_time"] == "07:30"
+        assert content["26.01.2019"]["breaktime"] == "00:30"
+        assert content["26.01.2019"]["worktime"] == "07:30"
         assert content["26.01.2019"]["type"] == _("Vacation")
         assert content["26.01.2019"]["absence_type"] == "U"
 
@@ -757,7 +757,7 @@ class TestReportApiEndpoint:
             rep, None
         )
 
-        assert content["debit_work_time"] == "10:19"
+        assert content["debit_worktime"] == "10:19"
 
     @pytest.mark.django_db
     def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):
@@ -825,7 +825,7 @@ class TestReportApiEndpoint:
         self, prepared_ReportViewSet_view, eleven_hour_shift, report_object
     ):
         shifts = prepared_ReportViewSet_view.get_shifts_to_export(report_object)
-        aggregated_shift_content = prepared_ReportViewSet_view.aggregate_shift_content(
+        aggregated_shift_content = prepared_ReportViewSet_view.aggregate_days_content(
             shifts
         )
 
