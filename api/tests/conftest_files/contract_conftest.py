@@ -46,7 +46,7 @@ def valid_contract_json(user_object):
 
     data = {
         "name": name,
-        "reference": reference,
+        "reference": str(reference),
         "minutes": minutes,
         "start_date": start_date,
         "end_date": end_date,
