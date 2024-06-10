@@ -331,7 +331,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
 
 class ShiftSerializer(RestrictModificationModelSerializer):
-    # tags = TagsSerializerField()
+    tags = TagsSerializerField()
 
     class Meta:
         model = Shift
