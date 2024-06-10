@@ -1,13 +1,14 @@
+from datetime import date
 from json import JSONDecodeError
 
 import requests
 from cryptography.fernet import InvalidToken
 from django.conf import settings
-from django.shortcuts import render
 from rest_framework import generics, serializers, views
 from rest_framework.status import HTTP_401_UNAUTHORIZED
 from rest_framework.views import Response
 
+from api.models import Contract
 from api.permissions import IsSupervisorPermission
 from api.serializers import UserSerializer
 
@@ -73,3 +74,23 @@ class ReportingEndpoint(generics.GenericAPIView):
             headers={"X-API-KEY": settings.TIME_VAULT_API_KEY},
         )
         return Response(data=response.json())
+
+
+class CheckReferencesEnpoint(generics.GenericAPIView):
+    permission_classes = (IsSupervisorPermission,)
+
+    def post(self, request):
+        data = request.data
+        for uuid in data[:]:
+            try:
+                contract = Contract.objects.get(
+                    reference=uuid,
+                    start_date__lte=date.today(),
+                    end_date__gte=date.today(),
+                )
+            except Contract.DoesNotExist:
+                data.remove(uuid)
+        user = request.user
+        user.supervised_references = data
+        user.save()
+        return Response(data=data)
