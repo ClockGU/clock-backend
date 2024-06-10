@@ -109,6 +109,7 @@ class ContractViewSet(viewsets.ModelViewSet):
             headers={"X-API-KEY": settings.TIME_VAULT_API_KEY},
         )
         if response.status_code != 201:
+            raise Exception(response.content)
             return Response(
                 data=json.loads(response.content), status=response.status_code
             )
@@ -482,7 +483,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["user_name"] = "{lastname}, {firstname}".format(
             lastname=user.last_name, firstname=user.first_name
         )
-        content["reference"] = report_object.contract.reference
+        content["reference"] = str(report_object.contract.reference)
         content["personal_number"] = user.personal_number
         content["contract_name"] = report_object.contract.name
         content["month"] = report_object.month_year.month
