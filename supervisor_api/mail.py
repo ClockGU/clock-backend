@@ -4,7 +4,7 @@ def format_message(token):
         "",
         "Sie wurden als Vorgesetzter im Web-Dienst CLOCK eingetragen.",
         "Um Stundenzettel der Ihnen unterstellten sutdentischen Hilfskräfte einsehen zu können",
-        "melden Sie sich bitte unter <HIER URL EINFÜGEN> an.",
+        "melden Sie sich bitte unter https://supervisor.clock.uni-frankfurt.de an.",
         "Für die Erst-Registrierung benötigen Sie folgenden Authentifizierungstoken:",
         "",
         f"{token}",
