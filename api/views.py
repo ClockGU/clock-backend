@@ -109,7 +109,6 @@ class ContractViewSet(viewsets.ModelViewSet):
             headers={"X-API-KEY": settings.TIME_VAULT_API_KEY},
         )
         if response.status_code != 201:
-            raise Exception(response.content)
             return Response(
                 data=json.loads(response.content), status=response.status_code
             )
