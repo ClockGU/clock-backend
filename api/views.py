@@ -110,7 +110,7 @@ class ContractViewSet(viewsets.ModelViewSet):
         )
         if response.status_code != 201:
             return Response(
-                data=json.loads(response.content), status=response.status_code
+                data={"inital": response.content}, status=response.status_code
             )
         Shift.objects.filter(
             contract=instance, started__month=month, started__year=year
