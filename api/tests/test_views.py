@@ -341,7 +341,6 @@ class TestContractApiEndpoint:
         )
 
     @pytest.mark.django_db
-    @pytest.mark.skip(reason="Cant connect to timevault for locking logic.")
     def test_locking_shifts(
         self, client, contract_object, shift_object, user_object_jwt, mock_api, aggregated_report_data
     ):
