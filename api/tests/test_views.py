@@ -373,12 +373,7 @@ class TestContractApiEndpoint:
 
     @pytest.mark.django_db
     def test_locking_shifts_without_personal_number(
-        self,
-        client,
-        contract_object,
-        shift_object,
-        user_object_jwt,
-        user_object
+        self, client, contract_object, shift_object, user_object_jwt, user_object
     ):
         user_object.personal_number = ""
         user_object.save()

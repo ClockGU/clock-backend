@@ -107,8 +107,10 @@ class ContractViewSet(viewsets.ModelViewSet):
         if not report.user.personal_number:
             # Catch this case before sending the data to time-vault
             return Response(
-                data={"non_field_errors": "Value for field personal_number is missing."},
-                status=400
+                data={
+                    "non_field_errors": "Value for field personal_number is missing."
+                },
+                status=400,
             )
 
         response = requests.post(
