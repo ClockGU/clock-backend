@@ -342,9 +342,19 @@ class TestContractApiEndpoint:
 
     @pytest.mark.django_db
     def test_locking_shifts(
-        self, client, contract_object, shift_object, user_object_jwt, mock_api, aggregated_report_data
+        self,
+        client,
+        contract_object,
+        shift_object,
+        user_object_jwt,
+        mock_api,
+        aggregated_report_data,
     ):
-        mock_api.post(f"{settings.TIME_VAULT_URL}/reports/", json=aggregated_report_data, status_code=201)
+        mock_api.post(
+            f"{settings.TIME_VAULT_URL}/reports/",
+            json=aggregated_report_data,
+            status_code=201,
+        )
         assert not shift_object.locked
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.post(

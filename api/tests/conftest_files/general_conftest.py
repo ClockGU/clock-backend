@@ -24,7 +24,6 @@ from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.views import ContractViewSet, ReportViewSet
 
-
 # This conftest file provides all necessary test data concerning project classes and auxiliary functions/classes.
 # It will be imported by the conftest.py in the parent directory.
 
@@ -133,7 +132,7 @@ def negative_relativedelta_object():
 
 @pytest.fixture
 def test_contract_change(
-        create_n_contract_objects, create_n_shift_objects, user_object
+    create_n_contract_objects, create_n_shift_objects, user_object
 ):
     contracts = create_n_contract_objects((1, 3), user_object)
     create_n_shift_objects((1,), user=user_object, contract=contracts[0])
