@@ -7,8 +7,8 @@ ARG DJANGO_SENTRY_DSN
 ENV PYTHONBUFFERED=1 DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE} DJANGO_ADMIN_URL=${DJANGO_ADMIN_URL} DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY} DATABASE_URL=${DATABASE_URL} DJANGO_SENTRY_DSN=${DJANGO_SENTRY_DSN} POETRY_VERSION=1.3.2 POETRY_VIRTUALENVS_CREATE=false
 
 # Add new user to run the whole thing as non-root
-RUN groupadd app --gid 32768
-RUN adduser --ingroup app --home /app --uid 32768 --disabled-password --gecos "" app
+RUN groupadd app --gid 32767
+RUN adduser --ingroup app --home /app --uid 32767 --disabled-password --gecos "" app
 
 # Install build dependencies
 RUN apt update \
