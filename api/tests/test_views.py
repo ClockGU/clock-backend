@@ -18,6 +18,7 @@ from datetime import datetime
 
 import pytest
 from dateutil.parser import parse
+from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from freezegun import freeze_time
@@ -340,10 +341,20 @@ class TestContractApiEndpoint:
         )
 
     @pytest.mark.django_db
-    @pytest.mark.skip(reason="Cant connect to timevault for locking logic.")
     def test_locking_shifts(
-        self, client, contract_object, shift_object, user_object_jwt
+        self,
+        client,
+        contract_object,
+        shift_object,
+        user_object_jwt,
+        mock_api,
+        aggregated_report_data,
     ):
+        mock_api.post(
+            f"{settings.TIME_VAULT_URL}/reports/",
+            json=aggregated_report_data,
+            status_code=201,
+        )
         assert not shift_object.locked
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.post(
@@ -359,6 +370,28 @@ class TestContractApiEndpoint:
         )
         assert response.status_code == 200
         assert Shift.objects.get(pk=shift_object.pk).locked
+
+    @pytest.mark.django_db
+    def test_locking_shifts_without_personal_number(
+        self, client, contract_object, shift_object, user_object_jwt, user_object
+    ):
+        user_object.personal_number = ""
+        user_object.save()
+        assert not shift_object.locked
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path=reverse(
+                "api:contracts-lock-shifts",
+                args=[
+                    str(contract_object.id),
+                    shift_object.started.month,
+                    shift_object.started.year,
+                ],
+            ),
+            content_type="application/json",
+        )
+        assert response.status_code == 400
+        assert not Shift.objects.get(pk=shift_object.pk).locked
 
     @pytest.mark.django_db
     def test_queryset_ordering(

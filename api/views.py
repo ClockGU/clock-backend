@@ -103,11 +103,22 @@ class ContractViewSet(viewsets.ModelViewSet):
         report = Report.objects.get(
             contract=instance, month_year__month=month, month_year__year=year
         )
+
+        if not report.user.personal_number:
+            # Catch this case before sending the data to time-vault
+            return Response(
+                data={
+                    "non_field_errors": "Value for field personal_number is missing."
+                },
+                status=400,
+            )
+
         response = requests.post(
             url=f"{settings.TIME_VAULT_URL}/reports/",
             json=ReportViewSet().aggregate_export_content(report),
             headers={"X-API-KEY": settings.TIME_VAULT_API_KEY},
         )
+
         if response.status_code != 201:
             return Response(
                 data={"inital": response.content}, status=response.status_code

@@ -14,6 +14,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
 import pytest
+import requests_mock
 from dateutil.relativedelta import relativedelta
 from django.test import RequestFactory
 from django.urls import reverse
@@ -136,3 +137,9 @@ def test_contract_change(
     contracts = create_n_contract_objects((1, 3), user_object)
     create_n_shift_objects((1,), user=user_object, contract=contracts[0])
     return contracts
+
+
+@pytest.fixture
+def mock_api():
+    with requests_mock.Mocker() as m:
+        yield m
