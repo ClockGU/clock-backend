@@ -20,6 +20,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
@@ -131,6 +132,10 @@ class User(AbstractUser):
     dsgvo_accepted = models.BooleanField(default=False)
     onboarding_passed = models.BooleanField(default=False)
     marked_for_deletion = models.BooleanField(default=False)
+    is_supervisor = models.BooleanField(default=False)
+    supervised_references = ArrayField(
+        default=list, base_field=models.CharField(max_length=50, null=True), blank=True
+    )
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "personal_number"]
 
@@ -145,6 +150,7 @@ class Contract(models.Model):
         to=User, related_name="contracts", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
+    reference = models.UUIDField(default=uuid.uuid4)
     minutes = models.PositiveIntegerField()
     percent_fte = models.FloatField(
         null=True, blank=True, verbose_name="Prozent einer Vollzeitstelle"

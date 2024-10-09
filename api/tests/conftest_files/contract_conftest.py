@@ -39,12 +39,14 @@ def valid_contract_json(user_object):
     start_date = datetime.date(2019, 1, 1).isoformat()
     end_date = datetime.date(2019, 1, 31).isoformat()
     user = str(user_object.id)
+    reference = uuid.uuid4()
 
     created_at = datetime.datetime(2018, 12, 31, hour=10).isoformat()
     modified_at = created_at
 
     data = {
         "name": name,
+        "reference": str(reference),
         "minutes": minutes,
         "start_date": start_date,
         "end_date": end_date,

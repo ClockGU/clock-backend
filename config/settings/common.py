@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "api.oauth.providers.goetheuni",
     "allauth.socialaccount.providers.github",
+    "supervisor_api.apps.SupervisorApiConfig",
 ]
 
 MIDDLEWARE = [
@@ -183,7 +184,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + ["checkoutuser"]
 
 # The client must provide a `redirect_uri` query parameter when requesting the
 # authorization code URL. We retrieve it from the environment.
-GOETHE_OAUTH2_REDIRECT_URI = env.str("GOETHE_OAUTH2_REDIRECT_URI", default="")
+GOETHE_OAUTH2_REDIRECT_URIS = env.list("GOETHE_OAUTH2_REDIRECT_URI", default=[])
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
@@ -221,6 +222,10 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_ALWAYS_EAGER = True
 
+# Time Vault
+
+TIME_VAULT_URL = env("TIME_VAULT_URL", default="")
+TIME_VAULT_API_KEY = env("TIME_VAULT_API_KEY", default="")
 # Locale
 
 LANGUAGES = [("de", _("German")), ("en", _("English"))]
@@ -244,11 +249,25 @@ LOGGING = {
             "when": "midnight",
             "interval": 1,
             "backupCount": 10,
-        }
+        },
+        "supervisorlogfile": {
+            "level": "DEBUG",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": os.path.join(str(LOG_ROOT.path("api_logs")), "supervisor.log"),
+            "formatter": "verbose",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 10,
+        },
     },
     "loggers": {
         "deprovisioning": {
             "handlers": ["deprovisionlogfile"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "supervisor": {
+            "handlers": ["supervisorlogfile"],
             "level": "INFO",
             "propagate": True,
         },

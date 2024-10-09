@@ -23,7 +23,9 @@ services:
       - RABBITMQ_URL=amqp://broker_adm:broker_pass@rabbit_broker:5672/
       - DJANGO_SECRET_KEY=h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)
       - CORS_ORIGIN_WHITELIST=http://localhost:8080,https://preview.clock.uni-frankfurt.de
-      - GOETHE_OAUTH2_REDIRECT_URI=https://preview.clock.uni-frankfurt.de/logging-in
+      - GOETHE_OAUTH2_REDIRECT_URI=https://preview.clock.uni-frankfurt.de/logging-in,https://preview.clock.uni-frankfurt.de/login
+      - TIME_VAULT_URL=http://time-vault-api:8080
+      - TIME_VAULT_API_KEY=SOME KEY WE KEEP SECRET
       - SITE_ID=1
       - IDM_API_URL=default
       - IDM_API_KEY=default
@@ -59,6 +61,7 @@ services:
       - RABBITMQ_URL=amqp://broker_adm:broker_pass@rabbit_broker:5672/
       - DJANGO_SETTINGS_MODULE=config.settings.local
       - DJANGO_SECRET_KEY=h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cf2l2%-0yqx7ss)
+      - GOETHE_OAUTH2_REDIRECT_URI=https://preview.clock.uni-frankfurt.de/logging-in,https://preview.clock.uni-frankfurt.de/login
     volumes:
       - .:/app
     links:

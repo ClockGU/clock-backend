@@ -182,3 +182,34 @@ def second_months_report_locked_shifts(contract_locked_shifts):
     return Report.objects.get(
         contract=contract_locked_shifts, month_year=datetime.date(2020, 2, 1)
     )
+
+
+@pytest.fixture
+def aggregated_report_data():
+    return {
+        "days_content": {
+            "29.01.2019": {
+                "started": "14:00",
+                "stopped": "16:00",
+                "breaktime": "00:00",
+                "worktime": "02:00",
+                "absence_type": "",
+                "type": "Schicht",
+                "notes": "",
+            }
+        },
+        "general": {
+            "user_name": "Testlastname, Testfirstname",
+            "reference": "d5d6ea83-df80-46df-ad85-341ae62b491c",
+            "personal_number": "1234567890",
+            "contract_name": "Test Contract0",
+            "month": 1,
+            "year": 2019,
+            "long_month_name": "Januar",
+            "debit_worktime": "20:00",
+            "total_worked_time": "02:00",
+            "last_month_carry_over": "00:00",
+            "next_month_carry_over": "-18:00",
+            "net_worktime": "02:00",
+        },
+    }

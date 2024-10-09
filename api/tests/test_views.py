@@ -18,6 +18,7 @@ from datetime import datetime
 
 import pytest
 from dateutil.parser import parse
+from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from freezegun import freeze_time
@@ -341,15 +342,26 @@ class TestContractApiEndpoint:
 
     @pytest.mark.django_db
     def test_locking_shifts(
-        self, client, contract_object, shift_object, user_object_jwt
+        self,
+        client,
+        contract_object,
+        shift_object,
+        user_object_jwt,
+        mock_api,
+        aggregated_report_data,
     ):
+        mock_api.post(
+            f"{settings.TIME_VAULT_URL}/reports/",
+            json=aggregated_report_data,
+            status_code=201,
+        )
         assert not shift_object.locked
         client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
         response = client.post(
             path=reverse(
                 "api:contracts-lock-shifts",
                 args=[
-                    contract_object.id,
+                    str(contract_object.id),
                     shift_object.started.month,
                     shift_object.started.year,
                 ],
@@ -358,6 +370,28 @@ class TestContractApiEndpoint:
         )
         assert response.status_code == 200
         assert Shift.objects.get(pk=shift_object.pk).locked
+
+    @pytest.mark.django_db
+    def test_locking_shifts_without_personal_number(
+        self, client, contract_object, shift_object, user_object_jwt, user_object
+    ):
+        user_object.personal_number = ""
+        user_object.save()
+        assert not shift_object.locked
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.post(
+            path=reverse(
+                "api:contracts-lock-shifts",
+                args=[
+                    str(contract_object.id),
+                    shift_object.started.month,
+                    shift_object.started.year,
+                ],
+            ),
+            content_type="application/json",
+        )
+        assert response.status_code == 400
+        assert not Shift.objects.get(pk=shift_object.pk).locked
 
     @pytest.mark.django_db
     def test_queryset_ordering(
@@ -676,7 +710,7 @@ class TestReportApiEndpoint:
         Test that the utility method of the ReportViewSet 'aggregate_shift_content' catches all Shifts of a month.
         :return:
         """
-        content = prepared_ReportViewSet_view.aggregate_shift_content(
+        content = prepared_ReportViewSet_view.aggregate_days_content(
             shift_content_aggregation_gather_all_shifts
         )
 
@@ -711,7 +745,7 @@ class TestReportApiEndpoint:
         shift_content_aggregation_merges_shifts,
         report_object,
     ):
-        content = prepared_ReportViewSet_view.aggregate_shift_content(
+        content = prepared_ReportViewSet_view.aggregate_days_content(
             shift_content_aggregation_merges_shifts
         )
 
@@ -719,14 +753,14 @@ class TestReportApiEndpoint:
         assert content["26.01.2019"]
         assert content["26.01.2019"]["started"] == "10:00"
         assert content["26.01.2019"]["stopped"] == "18:00"
-        assert content["26.01.2019"]["work_time"] == "06:00"
-        assert content["26.01.2019"]["break_time"] == "02:00"
+        assert content["26.01.2019"]["worktime"] == "06:00"
+        assert content["26.01.2019"]["breaktime"] == "02:00"
 
     @pytest.mark.django_db
     def test_aggregate_shift_content_handles_vacation_shifts(
         self, prepared_ReportViewSet_view, two_vacation_shifts
     ):
-        content = prepared_ReportViewSet_view.aggregate_shift_content(
+        content = prepared_ReportViewSet_view.aggregate_days_content(
             two_vacation_shifts
         )
 
@@ -734,8 +768,8 @@ class TestReportApiEndpoint:
         assert content["26.01.2019"]
         assert content["26.01.2019"]["started"] == "10:00"
         assert content["26.01.2019"]["stopped"] == "18:00"
-        assert content["26.01.2019"]["break_time"] == "00:30"
-        assert content["26.01.2019"]["work_time"] == "07:30"
+        assert content["26.01.2019"]["breaktime"] == "00:30"
+        assert content["26.01.2019"]["worktime"] == "07:30"
         assert content["26.01.2019"]["type"] == _("Vacation")
         assert content["26.01.2019"]["absence_type"] == "U"
 
@@ -757,7 +791,7 @@ class TestReportApiEndpoint:
             rep, None
         )
 
-        assert content["debit_work_time"] == "10:19"
+        assert content["debit_worktime"] == "10:19"
 
     @pytest.mark.django_db
     def test_compile_pdf_returns_pdf(self, prepared_ReportViewSet_view, report_object):
@@ -825,7 +859,7 @@ class TestReportApiEndpoint:
         self, prepared_ReportViewSet_view, eleven_hour_shift, report_object
     ):
         shifts = prepared_ReportViewSet_view.get_shifts_to_export(report_object)
-        aggregated_shift_content = prepared_ReportViewSet_view.aggregate_shift_content(
+        aggregated_shift_content = prepared_ReportViewSet_view.aggregate_days_content(
             shifts
         )
 

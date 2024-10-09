@@ -66,6 +66,9 @@ black = "^23.3.0"
 pre-commit = "^2.21.0"
 isort = "^5.11.5"
 
+[tool.poetry.group.dev.dependencies]
+requests-mock = "^1.12.1"
+
 [tool.black]
 exclude = '''
 /(migrations)/

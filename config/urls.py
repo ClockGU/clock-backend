@@ -25,6 +25,7 @@ urlpatterns = [
     path("", include("feedback.urls"), name="feedback-app"),
     path("", include("message.urls"), name="message-app"),
     path("", include("faq.urls"), name="faq-app"),
+    path("supervisor/", include("supervisor_api.urls"), name="supervisor_api-app"),
     path("admin/", admin.site.urls),
     path("auth/", include("djoser.urls"), name="djoser-auth"),
     path("auth/", include("djoser.urls.jwt")),
