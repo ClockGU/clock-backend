@@ -30,6 +30,8 @@ jobs:
         run: poetry install
       - name: Run unit tests
         run: poetry run pytest --cov
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
