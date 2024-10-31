@@ -29,6 +29,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/", include("djoser.urls"), name="djoser-auth"),
     path("auth/", include("djoser.urls.jwt")),
+    path('silk/', include('silk.urls', namespace='silk')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if "rosetta" in settings.INSTALLED_APPS:
