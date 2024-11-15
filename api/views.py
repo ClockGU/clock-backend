@@ -205,6 +205,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             "checkoutuser", False
         ):
             user = User.objects.get(id=self.request.headers["checkoutuser"])
+            self.request.user = user
         queryset = super(ReportViewSet, self).get_queryset()
         return queryset.filter(user__id=user.id)
 
