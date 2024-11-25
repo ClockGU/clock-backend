@@ -65,7 +65,8 @@ class ProviderAuthView(APIView):
         app = provider.get_app(request)
 
         redirect_uri = request.GET.get("redirect_uri")
-        if redirect_uri not in settings.GOETHE_OAUTH2_REDIRECT_URIS:
+        starts_with_valid_uris = [redirect_uri.startswith(uri) for uri in settings.GOETHE_OAUTH2_REDIRECT_URIS]
+        if not any(starts_with_valid_uris):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         authorize_url = adapter.authorize_url

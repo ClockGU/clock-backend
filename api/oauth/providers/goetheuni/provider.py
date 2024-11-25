@@ -16,11 +16,21 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 from allauth.socialaccount.providers.base import ProviderAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 
+from api.models import User
+
 
 class GoetheUniProvider(OAuth2Provider):
     id = "goetheuni"
     name = "GoetheUni"
     account_class = ProviderAccount
+
+    def sociallogin_from_response(self, request, response):
+        user = User.objects.get(username=response["id"])
+        if user.email != response["email"]:
+            user.email = response["email"]
+            user.save()
+
+        return super(GoetheUniProvider, self).sociallogin_from_response(request, response)
 
     def extract_uid(self, data):
         """Grab the uid from attributes and force it to lowercase."""
