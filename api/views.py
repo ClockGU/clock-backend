@@ -397,8 +397,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 year=date.year, month=date.month, day=date.day, hour=8
             )
             if (
-                shifts_of_date.filter(started__lte=today_at_8).exists()
-                or shifts_of_date.filter(stopped__lte=today_at_8).exists()
+                shifts_of_date.filter(started__lt=today_at_8).exists()
+                or shifts_of_date.filter(stopped__lt=today_at_8).exists()
             ):
                 notes_list.append("5")
 
