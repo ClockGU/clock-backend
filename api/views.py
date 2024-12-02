@@ -333,17 +333,17 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             shifts_of_yesterday = shifts.filter(
                 started__date=date - datetime.timedelta(days=1)
             )
-
-            worktime, breaktime = calculate_worktime_breaktime(
+            actual_breaktime = calculate_break(
+                shifts_of_date,
+            )
+            worktime, corrected_breaktime = calculate_worktime_breaktime(
                 worktime=shifts_of_date.aggregate(
                     work_time=Coalesce(
                         Sum(F("stopped") - F("started"), output_field=DurationField()),
                         datetime.timedelta(0),
                     )
                 )["work_time"],
-                breaktime=calculate_break(
-                    shifts_of_date,
-                ),
+                breaktime=actual_breaktime,
             )
 
             absence_type = ""
@@ -366,10 +366,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             # 2: Pausenzeit zu gering
             if (
                 datetime.timedelta(hours=9) > worktime > datetime.timedelta(hours=6)
-                and breaktime < datetime.timedelta(minutes=30)
+                and actual_breaktime < datetime.timedelta(minutes=30)
             ) or (
                 worktime > datetime.timedelta(hours=9)
-                and breaktime < datetime.timedelta(minutes=45)
+                and actual_breaktime < datetime.timedelta(minutes=45)
             ):
                 notes_list.append("2")
 
@@ -387,8 +387,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 year=date.year, month=date.month, day=date.day, hour=20
             )
             if (
-                shifts_of_date.filter(started__gte=today_at_20).exists()
-                or shifts_of_date.filter(stopped__gte=today_at_20).exists()
+                shifts_of_date.filter(started__gt=today_at_20).exists()
+                or shifts_of_date.filter(stopped__gt=today_at_20).exists()
             ):
                 notes_list.append("4")
 
@@ -397,8 +397,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 year=date.year, month=date.month, day=date.day, hour=8
             )
             if (
-                shifts_of_date.filter(started__lte=today_at_8).exists()
-                or shifts_of_date.filter(stopped__lte=today_at_8).exists()
+                shifts_of_date.filter(started__lt=today_at_8).exists()
+                or shifts_of_date.filter(stopped__lt=today_at_8).exists()
             ):
                 notes_list.append("5")
 
@@ -426,7 +426,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             content[date.strftime("%d.%m.%Y")] = {
                 "started": started.time().strftime("%H:%M"),
                 "stopped": stopped.time().strftime("%H:%M"),
-                "breaktime": timedelta_to_string(breaktime),
+                "breaktime": timedelta_to_string(corrected_breaktime),
                 "worktime": (
                     timedelta_to_string(worktime)
                     if timedelta_to_string(worktime) != "00:00"
