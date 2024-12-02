@@ -57,6 +57,11 @@ Als Proof-of-Concept, dass Celery lokal funktioniert :
 3. Wähle die url `localhost:8000/api/celery-dummy` an
     - Diese View erstellt asynchron 5 User mit Username `Tim<rand-int>`
     - Ferner printet sie vor jedem Erstellen und danach jeweils etwas in stdout.
+Query um alle Contracts zu bekommen die in einem bestimmten Monat (hier Oktober 2024) gelocked sind
+existing_shifts = Shift.objects.filter(started__date__gte=nov, started__date__lte=date(2024,10,31), locked=True, contract=OuterRef("pk"))
+oct_locked_contracts = Contract.objects.filter(Exists(existing_shifts))
+ Andere Methode:
+Shift.objects.filter(started__date__gte=october, started__date__lte=date(2024,10,31), locked=True).values("contract").distinct()
 
 
       
