@@ -334,8 +334,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 started__date=date - datetime.timedelta(days=1)
             )
             actual_breaktime = calculate_break(
-                    shifts_of_date,
-                )
+                shifts_of_date,
+            )
             worktime, corrected_breaktime = calculate_worktime_breaktime(
                 worktime=shifts_of_date.aggregate(
                     work_time=Coalesce(
@@ -343,7 +343,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                         datetime.timedelta(0),
                     )
                 )["work_time"],
-                breaktime=actual_breaktime
+                breaktime=actual_breaktime,
             )
 
             absence_type = ""
