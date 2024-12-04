@@ -366,10 +366,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             # 2: Pausenzeit zu gering
             if (
                 datetime.timedelta(hours=9) > worktime > datetime.timedelta(hours=6)
-                and actual_breaktime < datetime.timedelta(minutes=30)
+                and corrected_breaktime < datetime.timedelta(minutes=30)
             ) or (
                 worktime > datetime.timedelta(hours=9)
-                and actual_breaktime < datetime.timedelta(minutes=45)
+                and corrected_breaktime < datetime.timedelta(minutes=45)
             ):
                 notes_list.append("2")
 

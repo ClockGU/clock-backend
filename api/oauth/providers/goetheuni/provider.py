@@ -25,14 +25,18 @@ class GoetheUniProvider(OAuth2Provider):
     account_class = ProviderAccount
 
     def sociallogin_from_response(self, request, response):
-        user = User.objects.get(username=response["id"])
-        if user.email != response["email"]:
-            user.email = response["email"]
-            user.save()
-
-        return super(GoetheUniProvider, self).sociallogin_from_response(
-            request, response
-        )
+        try:
+            user = User.objects.get(username=response["id"])
+        except User.DoesNotExist:
+            pass
+        else:
+            if user.email != response["email"]:
+                user.email = response["email"]
+                user.save()
+        finally:
+            return super(GoetheUniProvider, self).sociallogin_from_response(
+                request, response
+            )
 
     def extract_uid(self, data):
         """Grab the uid from attributes and force it to lowercase."""
