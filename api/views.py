@@ -19,7 +19,7 @@ import requests
 import weasyprint
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.db.models import DurationField, F, Sum
+from django.db.models import DurationField, F, Sum, Prefetch
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -34,6 +34,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from unidecode import unidecode
+from taggit.models import Tag
 
 from api.filters import ReportFilterSet, ShiftFilterSet
 from api.models import ClockedInShift, Contract, Report, Shift, User
@@ -147,7 +148,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         ):
             user = User.objects.get(id=self.request.headers["checkoutuser"])
         queryset = super(ShiftViewSet, self).get_queryset()
-        return queryset.filter(user__id=user.id)
+        return queryset.filter(user__id=user.id).prefetch_related('tags')  # Prefetch related tags
 
     def list_month_year(self, request, month=None, year=None, *args, **kwargs):
         """
