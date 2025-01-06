@@ -31,6 +31,8 @@ from django.db.models import (
 from django.db.models.functions import Trunc
 from django.db.models.signals import post_delete, post_save
 from more_itertools import pairwise
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 from api.models import Contract, Report, Shift
 
@@ -332,4 +334,42 @@ post_delete.connect(
     update_last_used_on_contract,
     sender=Shift,
     dispatch_uid="update_last_used_on_contract_delete",
+)
+
+def send_reports_through_websocket(sender, instance, created=False, **kwargs):
+    """
+    Reciever function:
+    After saving a Report we send the Report to the frontend via a websocket.
+    :param sender:
+    :param instance:
+    :param created:
+    :param kwargs:
+    :return:
+    """
+    channel_layer = get_channel_layer()
+
+
+    async_to_sync(channel_layer.group_send)(
+        f'ReportsSocket_{str(instance.user.id)}',
+        {
+            "type": "report_message",
+            "message": {
+                "id": str(instance.id),
+                "month_year": instance.month_year.strftime("%Y-%m"),
+                "worktime": str(instance.worktime),
+                "vacation_time": str(instance.vacation_time),
+                "contract_id": str(instance.contract.id),
+                "user_id": str(instance.user.id),
+                "created_at": instance.created_at.isoformat(),
+                "created_by": str(instance.created_by.id),
+                "modified_at": instance.modified_at.isoformat(),
+                "modified_by": str(instance.modified_by.id),
+            },
+        },
+    )
+
+post_save.connect(
+    send_reports_through_websocket,
+    sender=Report,
+    dispatch_uid="send_reports_through_websocket",
 )
