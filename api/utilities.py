@@ -346,25 +346,22 @@ def send_reports_through_websocket(sender, instance, created=False, **kwargs):
     :param kwargs:
     :return:
     """
-    channel_layer = get_channel_layer()
+    try:
+        channel_layer = get_channel_layer()
+    except:
+        return None
+    
+    # Avoid circular import by importing serializer here
+    from api.serializers import ReportSerializer
 
+    data = ReportSerializer(instance).data
+    data.pop('contract', None)
 
     async_to_sync(channel_layer.group_send)(
         f'ReportsSocket_{str(instance.user.id)}',
         {
             "type": "report_message",
-            "message": {
-                "id": str(instance.id),
-                "month_year": instance.month_year.strftime("%Y-%m"),
-                "worktime": str(instance.worktime),
-                "vacation_time": str(instance.vacation_time),
-                "contract_id": str(instance.contract.id),
-                "user_id": str(instance.user.id),
-                "created_at": instance.created_at.isoformat(),
-                "created_by": str(instance.created_by.id),
-                "modified_at": instance.modified_at.isoformat(),
-                "modified_by": str(instance.modified_by.id),
-            },
+            "message": data,
         },
     )
 

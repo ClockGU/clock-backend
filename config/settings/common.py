@@ -109,7 +109,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_rabbitmq.core.RabbitmqChannelLayer',
         'CONFIG': {
-            "host": "amqp://broker_adm:broker_pass@rabbit_broker:5672/",  # URL for RabbitMQ connection
+            "host": env.str('RABBITMQ_URL'),  
         },
     'CHANNEL_LAYER_OPTIONS': {
             'debug': True,  # Enable debug logging
