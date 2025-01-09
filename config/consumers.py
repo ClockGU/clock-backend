@@ -2,7 +2,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.exceptions import DenyConnection
 import json
 
-class MyConsumer(AsyncWebsocketConsumer):
+class ReportConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         if self.scope["user"].is_anonymous:
             await self.close(code=4000, reason="User is not authenticated or token is missing")

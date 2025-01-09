@@ -694,3 +694,4 @@ class ReportSerializer(RestrictModificationModelSerializer):
             "modified_by": {"write_only": True},
             "user": {"write_only": True},
         }
+    

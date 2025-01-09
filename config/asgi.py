@@ -6,7 +6,7 @@ from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
 from django.urls import path
 
-from config.consumers import MyConsumer
+from config.consumers import ReportConsumer
 from config.middleware import JWTAuthMiddleware
 
 # Set up Django settings
@@ -18,7 +18,7 @@ websocket_application = JWTAuthMiddleware(
     AuthMiddlewareStack(
         URLRouter(
             [
-                path("ws/reportsocket/", MyConsumer.as_asgi()),
+                path("ws/reportsocket/", ReportConsumer.as_asgi()),
             ]
         )))
 

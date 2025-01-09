@@ -15,6 +15,8 @@ RUN curl -sSL https://install.python-poetry.org  | python3 -
 COPY pyproject.toml poetry.lock /
 RUN PATH="$PATH:$HOME/.local/bin" && poetry install
 
+RUN pip install remote-pdb
+
 # Copy the entrypoint.sh and start.sh and make them executable
 COPY docker/local/entrypoint.sh docker/local/start.sh docker/local/vendor/wait-for-it/wait-for-it.sh /
 RUN chmod +x /entrypoint.sh /start.sh /wait-for-it.sh
