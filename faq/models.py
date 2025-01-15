@@ -28,8 +28,7 @@ class FaqHeading(models.Model):
     )
 
     def __str__(self):
-        return self.en_heading
-
+        return self.de_heading
 
 class Faq(models.Model):
     de_question = models.CharField(max_length=200, verbose_name="Faq-question german")
@@ -56,3 +55,6 @@ class Faq(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(100)],
         verbose_name="Prio (0 - 100)",
     )
+
+    def __str__(self):
+        return self.de_question
