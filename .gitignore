@@ -35,3 +35,6 @@ celerybeat-schedule
 
 # IDE's
 .idea/
+
+# Static files
+/staticfiles/
