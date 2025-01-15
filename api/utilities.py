@@ -14,6 +14,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
 import datetime
+from datetime import date
 
 from dateutil.relativedelta import relativedelta
 from django.db.models import (
@@ -30,10 +31,8 @@ from django.db.models import (
 )
 from django.db.models.functions import Trunc
 from django.db.models.signals import post_delete, post_save
-from more_itertools import pairwise
 from holidays.countries import Germany
-from datetime import date
-
+from more_itertools import pairwise
 
 from api.models import Contract, Report, Shift
 
@@ -340,10 +339,10 @@ post_delete.connect(
 
 class GermanyHolidays(Germany):
     def _populate(self, year):
-        '''
+        """
         Populate the holiday list and 24-12 and 31-12 as full bank holidays.
-        '''
+        """
         super()._populate(year)
-        
+
         self[date(year, 12, 24)] = "Christmas Eve (Half-Holiday)"
         self[date(year, 12, 31)] = "New Year's Eve (Half-Holiday)"
