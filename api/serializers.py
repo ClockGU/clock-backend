@@ -619,7 +619,7 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
 
     def validate_started(self, started):
         # no Live clocking on Feiertage/holidays
-        de_he_holidays = country_holidays("DE", subdiv="HE")
+        de_he_holidays = GermanyHolidays(subdiv="HE")
         if started.strftime("%d/%m/%Y") in de_he_holidays:
             raise serializers.ValidationError(
                 _("Live clocking is not allowed on feiertage/ bank holidays.")
