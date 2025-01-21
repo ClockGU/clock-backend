@@ -20,12 +20,12 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
-from holidays import country_holidays
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
+    GermanyHolidays,
     calculate_break,
     calculate_worktime_breaktime,
     create_reports_for_contract,
@@ -426,7 +426,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             #     )
 
             # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
-            de_he_holidays = country_holidays("DE", subdiv="HE")
+            de_he_holidays = GermanyHolidays(subdiv="HE")
             if started.strftime("%Y-%m-%d") in de_he_holidays and shift_type != "bh":
                 raise serializers.ValidationError(
                     _(
