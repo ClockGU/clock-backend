@@ -1,6 +1,6 @@
 def format_message(token):
     text = (
-        "Sehr geherte*r Nutzer*in,",
+        "Sehr geehrte*r Nutzer*in,",
         "",
         "Sie wurden als Vorgesetzter im Web-Dienst CLOCK eingetragen.",
         "Um Stundenzettel der Ihnen unterstellten sutdentischen Hilfskräfte einsehen zu können",
