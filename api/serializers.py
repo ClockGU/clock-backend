@@ -427,22 +427,19 @@ class ShiftSerializer(RestrictModificationModelSerializer):
 
             # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
             de_he_holidays = GermanyHolidays(subdiv="HE")
-            if started.strftime("%Y-%m-%d") in de_he_holidays and shift_type != "bh":
+            if started.date() in de_he_holidays and shift_type != "bh":
                 raise serializers.ValidationError(
                     _(
                         "This is the holiday "
-                        + de_he_holidays.get(started.strftime("%Y-%m-%d"))
+                        + de_he_holidays.get(started.date())
                         + " and there can just be clocked shifts with type holiday (de: Feiertag)."
                     )
                 )
-            if (
-                shift_type == "bh"
-                and started.strftime("%Y-%m-%d") not in de_he_holidays
-            ):
+            if shift_type == "bh" and started.date() not in de_he_holidays:
                 raise serializers.ValidationError(
                     _(
                         "This day "
-                        + started.strftime("%Y-%m-%d")
+                        + started.strftime("%d-%m-%Y")
                         + " is not a holiday (de: Feiertag)."
                     )
                 )
@@ -620,7 +617,7 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
     def validate_started(self, started):
         # no Live clocking on Feiertage/holidays
         de_he_holidays = GermanyHolidays(subdiv="HE")
-        if started.strftime("%d/%m/%Y") in de_he_holidays:
+        if started.date() in de_he_holidays:
             raise serializers.ValidationError(
                 _("Live clocking is not allowed on feiertage/ bank holidays.")
             )
