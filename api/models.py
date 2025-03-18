@@ -136,6 +136,13 @@ class User(AbstractUser):
     supervised_references = ArrayField(
         default=list, base_field=models.CharField(max_length=50, null=True), blank=True
     )
+    USER_ROLE_CHOICES = (
+        (0, "Student"),
+        (1, "supervisor"),
+        (2, "Clerk"),
+    )
+    user_role = models.IntegerField(choices=USER_ROLE_CHOICES, default=0)
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "personal_number"]
 
