@@ -144,10 +144,9 @@ class ReportAdmin(admin.ModelAdmin):
         "created_at",
         "modified_at",
     )
+    search_fields = ("user", "contract")
     list_filter = (
         "month_year",
-        "user",
-        "contract"
     )
 
     def format_date(self, obj):
