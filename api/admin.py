@@ -59,7 +59,7 @@ class ContractAdmin(admin.ModelAdmin):
     )
     list_per_page = 100
     ordering = ("-modified_at",)
-    search_fields = ("user__first_name", "user__last_name", "user__id", "user__mail")
+    search_fields = ("user__first_name", "user__last_name", "user__id", "user__email")
     list_filter = (
         "start_date",  
         "end_date",
