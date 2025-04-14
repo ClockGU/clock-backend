@@ -59,6 +59,11 @@ class ContractAdmin(admin.ModelAdmin):
     )
     list_per_page = 100
     ordering = ("-modified_at",)
+    search_fields = ("user__first_name", "user__last_name", "user__id", "user__email")
+    list_filter = (
+        "start_date",
+        "end_date",
+    )
 
     def link_user(self, obj):
         """
@@ -80,6 +85,8 @@ class ShiftAdmin(admin.ModelAdmin):
     list_display = ("id", "link_user", "started", "stopped", "locked", "modified_at")
     list_per_page = 200
     ordering = ("-modified_at",)
+    search_fields = ("user", "contract", "name")
+    list_filter = ("started",)
 
     def link_user(self, obj):
         """
@@ -136,6 +143,8 @@ class ReportAdmin(admin.ModelAdmin):
         "created_at",
         "modified_at",
     )
+    search_fields = ("user", "contract")
+    list_filter = ("month_year",)
 
     def format_date(self, obj):
         date = obj.month_year
