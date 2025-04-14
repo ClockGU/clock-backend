@@ -61,7 +61,7 @@ class ContractAdmin(admin.ModelAdmin):
     ordering = ("-modified_at",)
     search_fields = ("user__first_name", "user__last_name", "user__id", "user__email")
     list_filter = (
-        "start_date",  
+        "start_date",
         "end_date",
     )
 
@@ -86,9 +86,7 @@ class ShiftAdmin(admin.ModelAdmin):
     list_per_page = 200
     ordering = ("-modified_at",)
     search_fields = ("user", "contract", "name")
-    list_filter = (
-        "started",
-    )
+    list_filter = ("started",)
 
     def link_user(self, obj):
         """
@@ -101,6 +99,7 @@ class ShiftAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">{}</a>', url, user.pk)
 
     link_user.short_description = "user"
+
 
 admin.site.register(Shift, ShiftAdmin)
 
@@ -145,9 +144,7 @@ class ReportAdmin(admin.ModelAdmin):
         "modified_at",
     )
     search_fields = ("user", "contract")
-    list_filter = (
-        "month_year",
-    )
+    list_filter = ("month_year",)
 
     def format_date(self, obj):
         date = obj.month_year
