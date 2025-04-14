@@ -16,6 +16,7 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 import time
 from datetime import datetime, timedelta
 
+import django.db
 import pytest
 
 from api.models import Report
@@ -111,3 +112,22 @@ class TestCeleryBeats:
         assert Report.objects.get(
             contract=december_contract, month_year=datetime(2020, 1, 1)
         ).carryover_previous_month == timedelta(minutes=-1200)
+
+    @pytest.mark.freeze_time("2019-12-01")
+    @pytest.mark.django_db(transaction=True, reset_sequences=True)
+    def test_idempotency_of_report_creation(
+            celery_test_fixture_end_of_year_test,
+            user_object,
+            december_contract,
+            freezer
+    ):
+        """
+        Tetst that the function is idempotent in case of databse hiccups or other unforseen disturbances.
+        """
+        freezer.move_to("2020-01-01")
+        create_reports_monthly()
+        time.sleep(10)
+        try:
+            create_reports_monthly()
+        except django.db.IntegrityError:
+            raise pytest.fail("DID RAISE IntegrityError")

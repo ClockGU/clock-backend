@@ -60,14 +60,16 @@ def create_reports_monthly(self):
         for contract in user.contracts.filter(
             start_date__lt=date_now, end_date__gte=date_now
         ):
-            Report.objects.create(
+            Report.objects.get_or_create(
                 month_year=date_now,
-                worktime=datetime.timedelta(minutes=0),
-                vacation_time=datetime.timedelta(minutes=0),
                 contract=contract,
                 user=user,
-                created_by=user,
-                modified_by=user,
+                defaults={
+                    "worktime": datetime.timedelta(minutes=0),
+                    "vacation_time": datetime.timedelta(minutes=0),
+                    "created_by": user,
+                    "modified_by": user,
+                },
             )
 
 
