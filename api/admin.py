@@ -85,9 +85,8 @@ class ShiftAdmin(admin.ModelAdmin):
     list_display = ("id", "link_user", "started", "stopped", "locked", "modified_at")
     list_per_page = 200
     ordering = ("-modified_at",)
+    search_fields = ("user", "contract", "name")
     list_filter = (
-        "user",
-        "contract",
         "started",
     )
 
