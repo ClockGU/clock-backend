@@ -521,13 +521,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         content["next_month_carry_over"] = relativedelta_to_string(
             relativedelta(seconds=carryover["next_month"].total_seconds())
         )
-        content["net_worktime"] = relativedelta_to_string(
-            relativedelta(
-                seconds=time_worked_seconds
-                - carryover["previous_month"].total_seconds()
-            )
-        )
-
         return content
 
     def aggregate_export_content(self, report_object):
