@@ -175,7 +175,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
             # No shifts out of scope after modification
             if Shift.objects.filter(
-                contract=self.instance, started__lt=start_date
+                contract=self.instance, started__date__lt=start_date
             ).exists():
                 raise serializers.ValidationError(
                     _(
@@ -184,7 +184,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     )
                 )
             if Shift.objects.filter(
-                contract=self.instance, started__gt=end_date
+                contract=self.instance, started__date__gt=end_date
             ).exists():
                 raise serializers.ValidationError(
                     _(
