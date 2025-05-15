@@ -73,7 +73,7 @@ sentry_sdk.init(
     dsn=env("GLITCHTIP_DSN"),
     integrations=[DjangoIntegration()],
     auto_session_tracking=False,
-    traces_sample_rate=0
+    traces_sample_rate=0,
 )
 
 # ADMIN URL
