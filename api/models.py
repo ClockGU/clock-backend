@@ -140,6 +140,7 @@ class User(AbstractUser):
         (0, "Student"),
         (1, "supervisor"),
         (2, "Clerk"),
+        (3, "Approver"),
     )
     user_role = models.IntegerField(choices=USER_ROLE_CHOICES, default=0)
 
