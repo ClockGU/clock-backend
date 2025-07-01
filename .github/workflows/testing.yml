@@ -1,8 +1,6 @@
 name: pytest
 
-on:
-  pull_request:
-    branches: [ develop ]
+on: [ pull_request, push ]
 
 permissions:
   contents: read
@@ -13,6 +11,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
+      - name: Setup a local virtual environment (if no poetry.toml file)
+        run: |
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project true --local
+      - uses: actions/cache@v3
+        name: Define a cache for the virtual environment based on the dependencies lock file
+        with:
+          path: ./.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install
       - name: Run unit tests
-        run: docker-compose run --rm web pytest
+        run: poetry run pytest --cov
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
