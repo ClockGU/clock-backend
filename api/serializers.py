@@ -322,10 +322,10 @@ class ContractSerializer(RestrictModificationModelSerializer):
             create_reports_for_contract(contract=instance)
 
         if initial_carryover_minutes_changed:
-            update_reports(instance, instance.start_date)
+            update_reports(instance, instance.start_date.replace(day=1))
 
         if initial_vacation_carryover_minutes_changed:
-            update_reports(instance, instance.start_date)
+            update_reports(instance, instance.start_date.replace(day=1))
 
         return return_instance
 
