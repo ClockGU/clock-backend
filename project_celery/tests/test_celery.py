@@ -116,10 +116,7 @@ class TestCeleryBeats:
     @pytest.mark.freeze_time("2019-12-01")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
     def test_idempotency_of_report_creation(
-            celery_test_fixture_end_of_year_test,
-            user_object,
-            december_contract,
-            freezer
+        celery_test_fixture_end_of_year_test, user_object, december_contract, freezer
     ):
         """
         Tetst that the function is idempotent in case of databse hiccups or other unforseen disturbances.
