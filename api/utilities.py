@@ -172,7 +172,7 @@ def create_reports_for_contract(contract):
             modified_by=contract.user,
         )
         _month_year += relativedelta(months=1)
-    update_reports(contract, contract.start_date)
+    update_reports(contract, contract.start_date.replace(day=1))
 
 
 def create_report_after_contract_creation(sender, instance, created, **kwargs):
