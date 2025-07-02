@@ -140,6 +140,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
             "modified_at": {"required": False},
             "created_by": {"write_only": True},
             "modified_by": {"write_only": True},
+            "last_used":{"read_only": True},
             "user": {"write_only": True},
         }
 
