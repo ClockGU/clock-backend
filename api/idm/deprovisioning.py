@@ -49,7 +49,7 @@ class Deprovisioner:
         return self.model
 
     def get_queryset(self):
-        return self.model.objects.all()
+        return self.model.objects.all().exclude(username="")
 
     def create_hmac(self, request_body):
         encoded_data = self.idm_api_url + request_body + self.API_KEY + str(self.time)
