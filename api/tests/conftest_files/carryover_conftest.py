@@ -24,31 +24,34 @@ def report_carryover_account_contract(create_n_contract_objects, user_object):
 
 @pytest.fixture
 @pytest.mark.django_db
-def january_report_initial_carryover_account(report_carryover_account_contract):
+def get_january_report_initial_carryover_account(report_carryover_account_contract):
     """
     Creates a contract from 1.1.2019 - 31.3.2019
     with debit worktime of 20 hours and an initial carryover of 2460 minutes (41 hours).
     """
-    return Report.objects.get(contract=report_carryover_account_contract, month_year=datetime.date(2019, 1, 1))
+    def _get():
+        return Report.objects.get(contract=report_carryover_account_contract, month_year=datetime.date(2019, 1, 1))
+    return _get
 
 @pytest.fixture
 @pytest.mark.django_db
-def february_report_initial_carryover_account(report_carryover_account_contract):
+def get_february_report_initial_carryover_account(report_carryover_account_contract):
     """
     Creates a contract from 1.1.2019 - 31.3.2019
     with debit worktime of 20 hours and an initial carryover of 2460 minutes (41 hours).
     """
-    return Report.objects.get(contract=report_carryover_account_contract, month_year=datetime.date(2019, 2, 1))
-
+    def _get():
+        return Report.objects.get(contract=report_carryover_account_contract, month_year=datetime.date(2019, 2, 1))
+    return _get
 
 @pytest.fixture
-def report_initial_carryover_with_shifts_account(january_report_initial_carryover_account, create_n_shift_objects):
+def report_initial_carryover_with_shifts_account(get_january_report_initial_carryover_account, create_n_shift_objects):
     """
     Creates two 5 hour shifts on 3. and 4. January 2019.
     """
-
-    contract = january_report_initial_carryover_account.contract
-    user = january_report_initial_carryover_account.user
+    report = get_january_report_initial_carryover_account()
+    contract = report.contract
+    user = report.user
     create_n_shift_objects(
         (1,),
         user,
@@ -63,15 +66,16 @@ def report_initial_carryover_with_shifts_account(january_report_initial_carryove
         started=datetime.datetime(2019,1,4,10),
         stopped=datetime.datetime(2019,1,4,15)
     )
-    return january_report_initial_carryover_account
+    return get_january_report_initial_carryover_account()
 
 @pytest.fixture
-def report_carryover_with_additional_overtime(january_report_initial_carryover_account, create_n_shift_objects):
+def report_carryover_with_additional_overtime(get_january_report_initial_carryover_account, create_n_shift_objects):
     """
     Creates five 5 hour shifts on 3., 4., 5., 6., 7. January 2019.
     """
-    contract = january_report_initial_carryover_account.contract
-    user = january_report_initial_carryover_account.user
+    report = get_january_report_initial_carryover_account()
+    contract = report.contract
+    user = report.user
     create_n_shift_objects(
         (1,),
         user,
@@ -107,15 +111,16 @@ def report_carryover_with_additional_overtime(january_report_initial_carryover_a
         started=datetime.datetime(2019,1,7,10),
         stopped=datetime.datetime(2019,1,7,15)
     )
-    return january_report_initial_carryover_account
+    return get_january_report_initial_carryover_account()
 
 @pytest.fixture
-def report_carryover_with_too_much_additional_overtime(january_report_initial_carryover_account, create_n_shift_objects):
+def report_carryover_with_too_much_additional_overtime(get_january_report_initial_carryover_account, create_n_shift_objects):
     """
     Creates seven 5 hour shifts on 3., 4., 5., 6., 7., 8., 9. January 2019.
     """
-    contract = january_report_initial_carryover_account.contract
-    user = january_report_initial_carryover_account.user
+    report = get_january_report_initial_carryover_account()
+    contract = report.contract
+    user = report.user
     create_n_shift_objects(
         (1,),
         user,
@@ -165,4 +170,4 @@ def report_carryover_with_too_much_additional_overtime(january_report_initial_ca
         started=datetime.datetime(2019,1,9,10),
         stopped=datetime.datetime(2019,1,9,15)
     )
-    return january_report_initial_carryover_account
+    return get_january_report_initial_carryover_account()

@@ -788,15 +788,15 @@ class TestReportProperties:
 
     @pytest.mark.django_db
     @freezegun.freeze_time("2019-02-01")
-    def test_carryover_account_with_initial_carryover(self, january_report_initial_carryover_account):
+    def test_carryover_account_with_initial_carryover(self, get_january_report_initial_carryover_account):
         """
         Test that the initial carryover of 41 hours is deducted 20 hours of
         debit worktime and a carryover of 21 hours is left.
         """
-        assert january_report_initial_carryover_account.carryover == datetime.timedelta(
+        assert get_january_report_initial_carryover_account().carryover == datetime.timedelta(
             minutes=1260
         )
-        assert january_report_initial_carryover_account.debit_worktime == datetime.timedelta(
+        assert get_january_report_initial_carryover_account().debit_worktime == datetime.timedelta(
             minutes=1200
         )
 
@@ -808,17 +808,18 @@ class TestReportProperties:
         debit worktime and shifts of the month (2x 5h shift) are added to the carryover
         resulting in a carryover of 21 hours + 10 hours = 31 hours.
         """
+        assert report_initial_carryover_with_shifts_account.worktime == datetime.timedelta(minutes=600)
         assert report_initial_carryover_with_shifts_account.carryover == datetime.timedelta(
             minutes=1860
         )
     @pytest.mark.django_db
     @freezegun.freeze_time("2019-02-01")
-    def test_carryover_account_previous_month(self,february_report_initial_carryover_account):
+    def test_carryover_account_previous_month(self,get_february_report_initial_carryover_account):
         """
         Test that the carryover is correctly recognized by the report of the following month.
         """
 
-        assert february_report_initial_carryover_account.carryover_previous_month == datetime.timedelta(minutes=1260)
+        assert get_february_report_initial_carryover_account().carryover_previous_month == datetime.timedelta(minutes=1260)
 
     @pytest.mark.django_db
     @freezegun.freeze_time("2019-02-01")
@@ -844,4 +845,4 @@ class TestReportProperties:
 
         The carryover my only increase upto 50% of the debit worktime (10h in this case).
         """
-        assert report_carryover_with_additional_overtime.carryover == datetime.timedelta(minutes=3060)
+        assert report_carryover_with_too_much_additional_overtime.carryover == datetime.timedelta(minutes=3060)
