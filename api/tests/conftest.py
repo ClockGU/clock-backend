@@ -25,3 +25,4 @@ from api.tests.conftest_files.general_conftest import *  # noqa
 from api.tests.conftest_files.report_conftest import *  # noqa
 from api.tests.conftest_files.shift_conftest import *  # noqa
 from api.tests.conftest_files.user_conftest import *  # noqa
+from api.tests.conftest_files.carryover_conftest import *  # noqa

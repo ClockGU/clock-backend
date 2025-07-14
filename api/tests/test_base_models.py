@@ -16,6 +16,7 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 import datetime
 import uuid
 
+import freezegun
 import pytest
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -784,3 +785,63 @@ class TestReportProperties:
         self, report_object
     ):
         assert report_object.vacation_carryover_previous_month == datetime.timedelta(0)
+
+    @pytest.mark.django_db
+    @freezegun.freeze_time("2019-02-01")
+    def test_carryover_account_with_initial_carryover(self, january_report_initial_carryover_account):
+        """
+        Test that the initial carryover of 41 hours is deducted 20 hours of
+        debit worktime and a carryover of 21 hours is left.
+        """
+        assert january_report_initial_carryover_account.carryover == datetime.timedelta(
+            minutes=1260
+        )
+        assert january_report_initial_carryover_account.debit_worktime == datetime.timedelta(
+            minutes=1200
+        )
+
+    @pytest.mark.django_db
+    @freezegun.freeze_time("2019-02-01")
+    def test_carryover_account_correct_summation_of_shifts(self, report_initial_carryover_with_shifts_account):
+        """
+        Test that the initial carryover of 41 hours is deducted 20 hours of
+        debit worktime and shifts of the month (2x 5h shift) are added to the carryover
+        resulting in a carryover of 21 hours + 10 hours = 31 hours.
+        """
+        assert report_initial_carryover_with_shifts_account.carryover == datetime.timedelta(
+            minutes=1860
+        )
+    @pytest.mark.django_db
+    @freezegun.freeze_time("2019-02-01")
+    def test_carryover_account_previous_month(self,february_report_initial_carryover_account):
+        """
+        Test that the carryover is correctly recognized by the report of the following month.
+        """
+
+        assert february_report_initial_carryover_account.carryover_previous_month == datetime.timedelta(minutes=1260)
+
+    @pytest.mark.django_db
+    @freezegun.freeze_time("2019-02-01")
+    def test_carryover_account_with_new_overtime(self, report_carryover_with_additional_overtime):
+        """
+        Test that additional over time (5 hours) is correctly added to the account.
+        41 h initial carryover
+        25 h of shifts
+        ----
+        46 h carryover (2760 minutes)
+        """
+        assert report_carryover_with_additional_overtime.carryover == datetime.timedelta(minutes=2760)
+
+    @pytest.mark.django_db
+    @freezegun.freeze_time("2019-02-01")
+    def test_carryover_account_with_too_much_new_overtime(self, report_carryover_with_too_much_additional_overtime):
+        """
+        Test that additional over time (5 hours) is correctly added to the account.
+        41 h initial carryover
+        35 h of shifts
+        ----
+        51 h carryover (3060 minutes)
+
+        The carryover my only increase upto 50% of the debit worktime (10h in this case).
+        """
+        assert report_carryover_with_additional_overtime.carryover == datetime.timedelta(minutes=3060)
