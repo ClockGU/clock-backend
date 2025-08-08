@@ -25,6 +25,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
+from django.utils.functional import cached_property
+
 
 from .validators import (
     FTE_WEEKYL_MINUTES,
@@ -303,28 +305,18 @@ class Report(models.Model):
         ) - self.vacation_time
         return carryover_next_month
 
-    @property
+    @cached_property
     def carryover_previous_month(self):
         try:
-            last_mon_report_object = Report.objects.only(
-                "worktime", "vacation_time"
-            ).get(
+            last_mon_report_object = Report.objects.get(
                 contract=self.contract,
                 month_year=self.month_year - relativedelta(months=1),
             )
+
         except Report.DoesNotExist:
             return timedelta(minutes=self.contract.initial_carryover_minutes)
 
-        last_carryover = (
-            last_mon_report_object.worktime
-            - last_mon_report_object.debit_worktime
-            + timedelta(minutes=self.contract.initial_carryover_minutes)
-        )
-
-        max_carryover_increase = last_mon_report_object.debit_worktime / 2
-        if last_carryover > max_carryover_increase:
-            return max_carryover_increase
-        return last_carryover
+        return last_mon_report_object.carryover
 
     @property
     def vacation_carryover_previous_month(self):
