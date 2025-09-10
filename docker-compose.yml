@@ -30,6 +30,8 @@ services:
       - IDM_API_URL=default
       - IDM_API_KEY=default
       - IDM_SECRET_KEY=64656661756c74
+      - JWT_PUBLIC_KEY=./certs/public.pem
+
     volumes:
       - .:/app
     links:
@@ -40,6 +42,7 @@ services:
       - db
     ports:
       - "8000:8000"
+      - "4444:4444"
 
   rabbit_broker:
     hostname: "rabbit_broker"

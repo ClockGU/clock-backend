@@ -14,43 +14,19 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
-from api.models import ClockedInShift, Contract, Report, Shift, User
+from api.models import ClockedInShift, Contract, Report, Shift
 
-
-class UserAdmin(BaseUserAdmin):
-    list_display = (
-        "id",
-        "email",
-        "username",
-        "first_name",
-        "last_name",
-        "date_joined",
-        "modified_at",
-    )
-    fieldsets = BaseUserAdmin.fieldsets
-    fieldsets[1][1]["fields"] += (
-        "language",
-        "personal_number",
-        "dsgvo_accepted",
-        "onboarding_passed",
-        "is_supervisor",
-    )
-    ordering = ("-date_joined",)
-    readonly_fields = ("date_joined",)
-
-
-admin.site.register(User, UserAdmin)
+# Removed User import and UserAdmin class since user management is external
 
 
 class ContractAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "link_user",
+        "display_user_id",
         "name",
         "minutes",
         "start_date",
@@ -59,59 +35,55 @@ class ContractAdmin(admin.ModelAdmin):
     )
     list_per_page = 100
     ordering = ("-modified_at",)
-    search_fields = ("user__first_name", "user__last_name", "user__id", "user__email")
+    search_fields = ("user_id", "name", "id")
     list_filter = (
         "start_date",
         "end_date",
     )
 
-    def link_user(self, obj):
+    def display_user_id(self, obj):
         """
-        Creates a link to the corresponding User object to display in the columns.
-        :param obj:
-        :return: string
+        Display the user_id since we no longer have direct user access
         """
-        user = obj.user
-        url = reverse("admin:api_user_change", args=[user.pk])
-        return format_html('<a href="{}">{}</a>', url, user.pk)
+        return str(obj.user_id)
 
-    link_user.short_description = "user"
+    display_user_id.short_description = "User ID"
 
 
 admin.site.register(Contract, ContractAdmin)
 
 
 class ShiftAdmin(admin.ModelAdmin):
-    list_display = ("id", "link_user", "started", "stopped", "locked", "modified_at")
+    list_display = ("id", "display_user_id", "started", "stopped", "locked", "modified_at")
     list_per_page = 200
     ordering = ("-modified_at",)
-    search_fields = ("user", "contract", "name")
-    list_filter = ("started",)
+    search_fields = ("user_id", "contract__name", "id")
+    list_filter = ("started", "type", "locked")
 
-    def link_user(self, obj):
+    def display_user_id(self, obj):
         """
-        Creates a link to the corresponding User object to display in the columns.
-        :param obj:
-        :return: string
+        Display the user_id since we no longer have direct user access
         """
-        user = obj.user
-        url = reverse("admin:api_user_change", args=[user.pk])
-        return format_html('<a href="{}">{}</a>', url, user.pk)
+        return str(obj.user_id)
 
-    link_user.short_description = "user"
+    display_user_id.short_description = "User ID"
 
 
 admin.site.register(Shift, ShiftAdmin)
 
 
-class ClockedInShiftAdmin(ShiftAdmin):
-    list_display = ("id", "link_user", "link_contract", "created_at", "duration")
+class ClockedInShiftAdmin(admin.ModelAdmin):
+    list_display = ("id", "display_user_id", "link_contract", "created_at", "duration")
+
+    def display_user_id(self, obj):
+        """
+        Display the user_id since we no longer have direct user access
+        """
+        return str(obj.user_id)
 
     def link_contract(self, obj):
         """
         Creates a link to the corresponding Contract object to display in the columns.
-        :param obj:
-        :return: string
         """
         contract = obj.contract
         url = reverse("admin:api_contract_change", args=[contract.pk])
@@ -127,6 +99,7 @@ class ClockedInShiftAdmin(ShiftAdmin):
 
         return f"{hours:02d}:{minutes:02d}"
 
+    display_user_id.short_description = "User ID"
     link_contract.short_description = "contract"
     duration.short_description = "duration"
 
@@ -137,42 +110,35 @@ admin.site.register(ClockedInShift, ClockedInShiftAdmin)
 class ReportAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "link_user",
+        "display_user_id",
         "format_date",
         "link_contract",
         "created_at",
         "modified_at",
     )
-    search_fields = ("user", "contract")
+    search_fields = ("user_id", "contract__name", "id")
     list_filter = ("month_year",)
 
     def format_date(self, obj):
         date = obj.month_year
-
         return date.strftime("%B %Y")
 
-    def link_user(self, obj):
+    def display_user_id(self, obj):
         """
-        Creates a link to the corresponding User object to display in the columns.
-        :param obj:
-        :return: string
+        Display the user_id since we no longer have direct user access
         """
-        user = obj.user
-        url = reverse("admin:api_user_change", args=[user.pk])
-        return format_html('<a href="{}">{}</a>', url, user.pk)
+        return str(obj.user_id)
 
     def link_contract(self, obj):
         """
         Creates a link to the corresponding Contract object to display in the columns.
-        :param obj:
-        :return: string
         """
         contract = obj.contract
         url = reverse("admin:api_contract_change", args=[contract.pk])
         return format_html('<a href="{}">{}</a>', url, contract.pk)
 
     format_date.short_description = "date"
-    link_user.short_description = "user"
+    display_user_id.short_description = "User ID"
     link_contract.short_description = "contract"
 
 

@@ -37,7 +37,7 @@ from taggit.models import Tag
 from unidecode import unidecode
 
 from api.filters import ReportFilterSet, ShiftFilterSet
-from api.models import ClockedInShift, Contract, Report, Shift, User
+from api.models import ClockedInShift, Contract, Report, Shift
 from api.serializers import (
     ClockedInShiftSerializer,
     ContractSerializer,
@@ -51,20 +51,8 @@ from api.utilities import (
     relativedelta_to_string,
     timedelta_to_string,
 )
-from project_celery.tasks import async_5_user_creation
-
-# Proof of Concept that celery works
 
 
-def index(request):
-    """
-    This function based view provides a proof of concept (for the local env) that
-    the celery workers (in extern Docker Containers) work.
-    :param request:
-    :return:
-    """
-    async_5_user_creation.delay()
-    return HttpResponse("A Dummy site.")
 
 
 class ContractViewSet(viewsets.ModelViewSet):
@@ -79,10 +67,8 @@ class ContractViewSet(viewsets.ModelViewSet):
         :return:
         """
         user = self.request.user
-        if self.request.user.is_superuser and self.request.headers.get(
-            "checkoutuser", False
-        ):
-            user = User.objects.get(id=self.request.headers["checkoutuser"])
+        if self.request.user.is_superuser and self.request.headers.get("checkoutuser", False):
+            user_id = self.request.headers["checkoutuser"]
         queryset = super(ContractViewSet, self).get_queryset()
         return queryset.filter(user__id=user.id).order_by("-last_used")
 
@@ -105,7 +91,7 @@ class ContractViewSet(viewsets.ModelViewSet):
             contract=instance, month_year__month=month, month_year__year=year
         )
 
-        if not report.user.personal_number:
+        if not self.request.user.personal_number:
             # Catch this case before sending the data to time-vault
             return Response(
                 data={
@@ -116,7 +102,7 @@ class ContractViewSet(viewsets.ModelViewSet):
 
         response = requests.post(
             url=f"{settings.TIME_VAULT_URL}/reports/",
-            json=ReportViewSet().aggregate_export_content(report),
+            json=ReportViewSet().aggregate_export_content(self.request.user, report),
             headers={"X-API-KEY": settings.TIME_VAULT_API_KEY},
         )
 
@@ -143,10 +129,6 @@ class ShiftViewSet(viewsets.ModelViewSet):
         :return:
         """
         user = self.request.user
-        if self.request.user.is_superuser and self.request.headers.get(
-            "checkoutuser", False
-        ):
-            user = User.objects.get(id=self.request.headers["checkoutuser"])
         queryset = super(ShiftViewSet, self).get_queryset()
         return queryset.filter(user__id=user.id).prefetch_related(
             "tags"
@@ -182,12 +164,10 @@ class ClockedInShiftViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         """
-        user = self.request.user
-        if self.request.user.is_superuser and self.request.headers.get(
-            "checkoutuser", False
-        ):
-            user = User.objects.get(id=self.request.headers["checkoutuser"])
-        instance = get_object_or_404(self.get_queryset(), user__id=user.id)
+        user_id = self.request.user.id  # Assuming user object still has id from token
+        if self.request.user.is_superuser and self.request.headers.get("checkoutuser", False):
+            user_id = self.request.headers["checkoutuser"]
+        instance = get_object_or_404(self.get_queryset(), user_id=user_id)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -203,14 +183,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         Customized method to only retrieve Objects owned by the User issueing the request.
         :return:
         """
-        user = self.request.user
-        if self.request.user.is_superuser and self.request.headers.get(
-            "checkoutuser", False
-        ):
-            user = User.objects.get(id=self.request.headers["checkoutuser"])
-            self.request.user = user
+        user_id = self.request.user.id
+        if self.request.user.is_superuser and self.request.headers.get("checkoutuser", False):
+            user_id = self.request.headers["checkoutuser"]
         queryset = super(ReportViewSet, self).get_queryset()
-        return queryset.filter(user__id=user.id)
+        return queryset.filter(user_id=user_id)
 
     @action(
         detail=False,
@@ -248,7 +225,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         :return:
         """
         report = self.get_object()
-        aggregated_content = self.aggregate_export_content(report_object=report)
+        aggregated_content = self.aggregate_export_content(self.request.user, report)
         pdf = self.compile_pdf(
             template_name="api/stundenzettel.html", content_dict=aggregated_content
         )
@@ -469,7 +446,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 }
             )
 
-    def aggregate_general_content(self, report_object, shifts):
+    def aggregate_general_content(self, user, report_object, shifts):
         """
         Aggregate Data for Tablefooter and User info of the Stundenzettel.
         :param report_object:
@@ -491,7 +468,6 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             12: "Dezember",
         }
         content = {}
-        user = report_object.user
 
         # User data
         content["user_name"] = "{lastname}, {firstname}".format(
@@ -523,7 +499,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return content
 
-    def aggregate_export_content(self, report_object):
+    def aggregate_export_content(self, user,report_object):
         """
         Method which aggregates a dictionary to fill in the Stundenzettel HTML-Template.
         :param report_object:
@@ -539,7 +515,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         # Get all dates the user has worked on
         content["days_content"] = self.aggregate_days_content(shift_queryset)
         content["general"] = self.aggregate_general_content(
-            report_object, shift_queryset
+            user, report_object, shift_queryset
         )
 
         return content

@@ -67,7 +67,6 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "api.oauth.providers.goetheuni",
     "allauth.socialaccount.providers.github",
     "supervisor_api.apps.SupervisorApiConfig",
 ]
@@ -136,23 +135,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-AUTH_USER_MODEL = "api.User"
 
-# Simple_JWT
-SIMPLE_JWT = {
-    "ALGORITHM": "HS256",
-    "SIGNING_KEY": env.str("DJANGO_SECRET_KEY"),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
-    "ROTATE_REFRESH_TOKENS": True,
-}
+
+JWT_PUBLIC_KEY = env("JWT_PUBLIC_KEY", default="")
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": ("api.permissions.AccessOwnDataPermission",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "dj_rest_auth.utils.JWTCookieAuthentication",
+        "api.authentication.ExternalJWTAuthentication",  
     ),
-    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
 }
 
 # Djoser

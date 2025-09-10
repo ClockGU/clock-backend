@@ -23,7 +23,7 @@ from django.utils.translation import gettext_lazy as _
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 
-from api.models import ClockedInShift, Contract, Report, Shift, User
+from api.models import ClockedInShift, Contract, Report, Shift
 from api.utilities import (
     GermanyHolidays,
     calculate_break,
@@ -56,15 +56,15 @@ class RestrictModificationModelSerializer(serializers.ModelSerializer):
     """
     This class, derived from ModelSerializer, is used as a base class for all Serializer classes within the project.
     The purpose of this baseclass is to assure that whatever a (possible) malicious User provides within the fields
-    'user', 'created_by' or 'modified_by' is set to the user id given by the JWT Authentication.
+    'user_id', 'created_by_user_id' or 'modified_by_user_id' is set to the user id given by the JWT Authentication.
     This solely refers to POST, PUT and PATCH methods and thereby prevent manipulation of other users content.
     """
 
     def add_user_id(self, request, data):
         user_id = request.user.id
-        data["user"] = user_id
-        data["created_by"] = user_id
-        data["modified_by"] = user_id
+        data["user_id"] = user_id
+        data["created_by_user_id"] = user_id
+        data["modified_by_user_id"] = user_id
         return data
 
     def to_internal_value(self, data):
@@ -79,30 +79,30 @@ class RestrictModificationModelSerializer(serializers.ModelSerializer):
         return super(RestrictModificationModelSerializer, self).to_internal_value(data)
 
 
-class UserSerializer(RestrictModificationModelSerializer):
+class UserSerializer(serializers.Serializer):
     """
-    Serializer only needed for GDPR-Export of User data.
+    Serializer for GDPR-Export of User data.
+    Since User model is now external, this serializer works with raw user data
+    retrieved from the external user service.
     """
 
+    id = serializers.UUIDField(read_only=True)
+    username = serializers.CharField(read_only=True)
+    email = serializers.EmailField(read_only=True)
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+    personal_number = serializers.CharField(read_only=True)
+    language = serializers.CharField(read_only=True)
+    dsgvo_accepted = serializers.BooleanField(read_only=True)
+    date_joined = serializers.DateTimeField(read_only=True)
+    modified_at = serializers.DateTimeField(read_only=True)
+    last_login = serializers.DateTimeField(read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True)
+    is_supervisor = serializers.BooleanField(read_only=True)
+    supervised_references = serializers.ListField(read_only=True)
+    onboarding_passed = serializers.BooleanField(read_only=True)
+
     class Meta:
-        model = User
-        fields = [
-            "id",
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "personal_number",
-            "language",
-            "dsgvo_accepted",
-            "date_joined",
-            "modified_at",
-            "last_login",
-            "is_superuser",
-            "is_supervisor",
-            "supervised_references",
-            "onboarding_passed",
-        ]
         ref_name = "user-gdpr-serializers"
 
 

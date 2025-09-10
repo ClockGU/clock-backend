@@ -13,7 +13,6 @@ RUN adduser --ingroup app --home /app --uid 32767 --disabled-password --gecos ""
 # Install build dependencies
 RUN apt update \
     && apt install -y gettext git binutils ca-certificates libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libharfbuzz-subset0
-
 # Set the correct timezone
 RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
     && echo "Europe/Berlin" > /etc/timezone
