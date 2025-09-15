@@ -50,24 +50,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.sites",
+    
     "api.apps.APIConfig",
-    "message.apps.MessageConfig",
+    "message.apps.MessageConfig", 
     "faq.apps.FaqConfig",
     "project_celery",
     "taggit",
     "rest_framework",
-    "rest_framework.authtoken",
     "django_filters",
     "drf_yasg",
-    "djoser",
     "corsheaders",
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.github",
     "supervisor_api.apps.SupervisorApiConfig",
 ]
 
@@ -116,6 +108,7 @@ DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
+
 # EMAIL
 SYSTEM_EMAILS = {
     "RECEIVER": env.str("SYSTEM_EMAIL_RECEIVER", "hello@example.com"),
@@ -135,36 +128,41 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-
-
+# JWT Configuration for external user service
 JWT_PUBLIC_KEY = env("JWT_PUBLIC_KEY", default="")
 
+# REST Framework with dual authentication
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "api.authentication.ExternalJWTAuthentication",  
+        "api.authentication.ExternalJWTAuthentication",  # For API users (external JWT)
+        "rest_framework.authentication.SessionAuthentication",  # For admin panel (local User)
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ),
 }
 
-# Djoser
-DJOSER = {
-    "TOKEN_MODEL": None,
-    "SERIALIZERS": {
-        "user_delete": "api.serializers.DjoserUserSerializer",
-        "current_user": "api.serializers.UserSerializer",
-    },
-}
+# Remove these configurations since we're not using custom user model anymore
+AUTH_USER_MODEL = "api.User"
+# MIGRATION_MODULES = {'admin': None,}
 
-# django-allauth: Query for the users email,
-# but do not prompt for verification
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "none"
+# Djoser - can be removed since we're not using it
+# DJOSER = {
+#     "TOKEN_MODEL": None,
+#     "SERIALIZERS": {
+#         "user_delete": "api.serializers.DjoserUserSerializer",
+#         "current_user": "api.serializers.UserSerializer",
+#     },
+# }
 
-# Return JWT and cookie after logging in
-REST_USE_JWT = True
-JWT_AUTH_COOKIE = "clock"
+# django-allauth configurations - can be removed
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_EMAIL_VERIFICATION = "none"
+# REST_USE_JWT = True
+# JWT_AUTH_COOKIE = "clock"
 
 # Explicitly allow the frontend URL(s) that will be allowd to access the backend
 # Define them as a comma-separated list, i.e.

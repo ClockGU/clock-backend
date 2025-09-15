@@ -24,6 +24,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
+from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractUser
 
 from .validators import (
     FTE_WEEKYL_MINUTES,
@@ -40,11 +42,112 @@ class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
         verbose_name_plural = "Tags"
 
 
+# Removed AdminUser and AdminUserManager classes
+class CustomUserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(
+        self,
+        email,
+        password,
+        first_name="",
+        last_name="",
+        personal_number="",
+        username="",
+        **extra_fields,
+    ):
+        """
+        Create and save a user with the given username, email, password, first_name, last_name and personal_number.
+        """
+
+        email = self.normalize_email(email)
+        user = self.model(
+            username=username,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            personal_number=personal_number,
+            **extra_fields,
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(
+        self,
+        email="",
+        first_name="",
+        last_name="",
+        personal_number="",
+        password="",
+        username="",
+        **extra_fields,
+    ):
+        if not email:
+            raise ValueError("The field 'email' is required.")
+        if not first_name:
+            raise ValueError("The field 'first_name' is required.")
+        if not last_name:
+            raise ValueError("The field 'last_name' is required.")
+        if not password:
+            raise ValueError("The field 'password' is required.")
+        # We always set the provided username to the user's email
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        return self._create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            personal_number=personal_number,
+            **extra_fields,
+        )
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+
+        return self._create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
+    LANGUAGE_CHOICES = (("de", "Deutsch"), ("en", "English"))
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    username = models.CharField(max_length=151, blank=True)
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=50)  # Firstname is required
+    last_name = models.CharField(max_length=100)  # Lastname is required
+    personal_number = models.CharField(
+        max_length=100, default="", null=True, blank=True
+    )
+    language = models.CharField(choices=LANGUAGE_CHOICES, default="de", max_length=2)
+    date_joined = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    dsgvo_accepted = models.BooleanField(default=False)
+    onboarding_passed = models.BooleanField(default=False)
+    marked_for_deletion = models.BooleanField(default=False)
+    is_supervisor = models.BooleanField(default=False)
+    supervised_references = ArrayField(
+        default=list, base_field=models.CharField(max_length=50, null=True), blank=True
+    )
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name", "personal_number"]
+
+    objects = CustomUserManager()
+
 class Contract(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    user_id = models.UUIDField()  # External user ID from JWT
     name = models.CharField(max_length=100)
     reference = models.UUIDField(default=uuid.uuid4)
     minutes = models.PositiveIntegerField()
@@ -60,10 +163,10 @@ class Contract(models.Model):
         max_length=200, choices=VALIDATOR_CLASS_NAMES, verbose_name="Validierungsklasse"
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    created_by_user_id = models.UUIDField()  # External user ID from JWT
     last_used = models.DateTimeField(default=datetime.now)
     modified_at = models.DateTimeField(auto_now=True)
-    modified_by_user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    modified_by_user_id = models.UUIDField()  # External user ID from JWT
 
 
 class Shift(models.Model):
@@ -77,7 +180,7 @@ class Shift(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    user_id = models.UUIDField()  # External user ID from JWT
     started = models.DateTimeField()
     stopped = models.DateTimeField()
     contract = models.ForeignKey(
@@ -89,24 +192,24 @@ class Shift(models.Model):
     was_reviewed = models.BooleanField(default=True)
     locked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    created_by_user_id = models.UUIDField()  # External user ID from JWT
     modified_at = models.DateTimeField(auto_now=True)
-    modified_by_user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    modified_by_user_id = models.UUIDField()  # External user ID from JWT
 
 
 class ClockedInShift(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    user_id = models.UUIDField(unique=True)  # Changed from OneToOneField to UUIDField with unique=True
+    user_id = models.UUIDField(unique=True)  # External user ID from JWT
     started = models.DateTimeField()
     contract = models.OneToOneField(
         to=Contract, related_name="clocked_in_shift", on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    created_by_user_id = models.UUIDField()  # External user ID from JWT
     modified_at = models.DateTimeField(auto_now=True)
-    modified_by_user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    modified_by_user_id = models.UUIDField()  # External user ID from JWT
 
 
 class Report(models.Model):
@@ -119,11 +222,11 @@ class Report(models.Model):
     contract = models.ForeignKey(
         to=Contract, related_name="reports", on_delete=models.CASCADE
     )
-    user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    user_id = models.UUIDField()  # External user ID from JWT
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    created_by_user_id = models.UUIDField()  # External user ID from JWT
     modified_at = models.DateTimeField(auto_now=True)
-    modified_by_user_id = models.UUIDField()  # Changed from ForeignKey to UUIDField
+    modified_by_user_id = models.UUIDField()  # External user ID from JWT
 
     @property
     def debit_worktime(self):

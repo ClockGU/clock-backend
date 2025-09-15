@@ -129,7 +129,4 @@ class Migration(migrations.Migration):
             field=models.UUIDField(default=0),
             preserve_default=False,
         ),
-        migrations.DeleteModel(
-            name="User",
-        ),
     ]
