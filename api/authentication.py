@@ -1,7 +1,9 @@
 # api/authentication.py
 import jwt
+import uuid
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework import exceptions
 
@@ -17,35 +19,51 @@ def _get_token(request):
         return request.COOKIES[cookie]
     raise exceptions.AuthenticationFailed("Missing bearer token")
 
-def user_info(claims):
-    return {
-        "sub": claims["sub"],
-        "email": claims.get("email", ""),
-        "first_name": claims.get("first_name", ""),
-        "last_name": claims.get("last_name", ""),
-    }
+class ExternalJWTUser:
+    def __init__(self, payload):
+        sub = payload.get("sub")
+        self.id = uuid.UUID(sub) if sub else None  
+        self.username = payload.get("username")
+        self.email = payload.get("email")
+        self.first_name = payload.get("first_name")
+        self.last_name = payload.get("last_name")
+        self.user_role = payload.get("user_role")
+        self.language = payload.get("language")
+        self.dsgvo_accepted = payload.get("dsgvo_accepted")
+        self.is_staff = payload.get("is_staff", False)
+        self.is_active = payload.get("is_active", True)
+        self.is_superuser = payload.get("is_superuser", False)
+        self.personal_number = payload.get("personal_number")
+        self.exp = payload.get("exp")
+
+    @property
+    def is_authenticated(self):
+        return True
+
+def user_info(payload):
+    return ExternalJWTUser(payload)
 
 class ExternalJWTAuthentication(BaseAuthentication):
     """Verify RS256 token from HR-Login"""
     def authenticate(self, request):
-        #import remote_pdb; remote_pdb.set_trace('0.0.0.0',4444)  
+        #import remote_pdb; remote_pdb.set_trace('0.0.0.0',4444)
         token = _get_token(request)
-        pubkey = settings.JWT_PUBLIC_KEY
-        if not pubkey:
+        public_key_path = settings.JWT_PUBLIC_KEY
+        with open(public_key_path, "r") as f:
+            public_key = f.read()
+        algorithm = getattr(settings, "JWT_ALGORITHM", "RS256")
+        if not public_key:
             raise exceptions.AuthenticationFailed("Auth public key not configured")
         try:
-            user_data = jwt.decode(
+            payload = jwt.decode(
                 token,
-                pubkey,
-                algorithms=["RS256"],
-                issuer=getattr(settings, "AUTH_ISSUER", None),
-                audience=getattr(settings, "AUTH_AUDIENCE", None),
-                options={"require": ["exp", "sub"]},
+                public_key,
+                algorithms=[algorithm]
             )
         except jwt.ExpiredSignatureError:
             raise exceptions.AuthenticationFailed("Token expired")
         except jwt.InvalidTokenError as e:
             raise exceptions.AuthenticationFailed(f"Invalid token: {e}")
 
-        user = user_info(user_data)
+        user = user_info(payload)
         return (user, token)

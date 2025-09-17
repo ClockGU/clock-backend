@@ -38,4 +38,4 @@ celerybeat-schedule
 
 /staticfiles
 
-.certs/
+/certs/

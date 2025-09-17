@@ -70,7 +70,7 @@ class ContractViewSet(viewsets.ModelViewSet):
         if self.request.user.is_superuser and self.request.headers.get("checkoutuser", False):
             user_id = self.request.headers["checkoutuser"]
         queryset = super(ContractViewSet, self).get_queryset()
-        return queryset.filter(user__id=user.id).order_by("-last_used")
+        return queryset.filter(user=user.id).order_by("-last_used")
 
     @action(detail=True, url_name="shifts", url_path="shifts", methods=["get"])
     def get_shifts_list(self, request, *args, **kwargs):
@@ -130,7 +130,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         queryset = super(ShiftViewSet, self).get_queryset()
-        return queryset.filter(user__id=user.id).prefetch_related(
+        return queryset.filter(user=user.id).prefetch_related(
             "tags"
         )  # Prefetch related tags
 
@@ -164,10 +164,10 @@ class ClockedInShiftViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         """
-        user_id = self.request.user.id  # Assuming user object still has id from token
+        user_id = self.request.user.id
         if self.request.user.is_superuser and self.request.headers.get("checkoutuser", False):
             user_id = self.request.headers["checkoutuser"]
-        instance = get_object_or_404(self.get_queryset(), user_id=user_id)
+        instance = get_object_or_404(self.get_queryset(), user=user_id)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -187,7 +187,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         if self.request.user.is_superuser and self.request.headers.get("checkoutuser", False):
             user_id = self.request.headers["checkoutuser"]
         queryset = super(ReportViewSet, self).get_queryset()
-        return queryset.filter(user_id=user_id)
+        return queryset.filter(user=user_id)
 
     @action(
         detail=False,
@@ -573,10 +573,10 @@ class GDPRExportView(viewsets.ViewSet):
     def construct_json_object(self, user):
         user_data = UserSerializer(user).data
         contract_data = ContractSerializer(
-            Contract.objects.filter(user=user), many=True
+            Contract.objects.filter(user=user.id), many=True
         ).data
-        shift_data = ShiftSerializer(Shift.objects.filter(user=user), many=True).data
-        report_data = ReportSerializer(Report.objects.filter(user=user), many=True).data
+        shift_data = ShiftSerializer(Shift.objects.filter(user=user.id), many=True).data
+        report_data = ReportSerializer(Report.objects.filter(user=user.id), many=True).data
 
         return {
             "user_data": user_data,

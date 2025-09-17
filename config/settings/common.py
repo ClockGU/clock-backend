@@ -13,6 +13,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+import os
 import os.path
 
 """
@@ -264,3 +265,6 @@ LOGGING = {
         },
     },
 }
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+JWT_PUBLIC_KEY = os.path.join(BASE_DIR, "certs", "public.pem")

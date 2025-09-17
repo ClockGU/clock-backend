@@ -147,7 +147,7 @@ class Contract(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    user_id = models.UUIDField()  # External user ID from JWT
+    user= models.UUIDField()  # External user ID from JWT
     name = models.CharField(max_length=100)
     reference = models.UUIDField(default=uuid.uuid4)
     minutes = models.PositiveIntegerField()
@@ -163,10 +163,10 @@ class Contract(models.Model):
         max_length=200, choices=VALIDATOR_CLASS_NAMES, verbose_name="Validierungsklasse"
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_user_id = models.UUIDField()  # External user ID from JWT
+    created_by = models.UUIDField()  # External user ID from JWT
     last_used = models.DateTimeField(default=datetime.now)
     modified_at = models.DateTimeField(auto_now=True)
-    modified_by_user_id = models.UUIDField()  # External user ID from JWT
+    modified_by = models.UUIDField()  # External user ID from JWT
 
 
 class Shift(models.Model):
@@ -180,7 +180,7 @@ class Shift(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    user_id = models.UUIDField()  # External user ID from JWT
+    user = models.UUIDField()  
     started = models.DateTimeField()
     stopped = models.DateTimeField()
     contract = models.ForeignKey(
@@ -192,24 +192,24 @@ class Shift(models.Model):
     was_reviewed = models.BooleanField(default=True)
     locked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_user_id = models.UUIDField()  # External user ID from JWT
+    created_by = models.UUIDField()  
     modified_at = models.DateTimeField(auto_now=True)
-    modified_by_user_id = models.UUIDField()  # External user ID from JWT
+    modified_by = models.UUIDField()  
 
 
 class ClockedInShift(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    user_id = models.UUIDField(unique=True)  # External user ID from JWT
+    user = models.UUIDField(unique=True)  
     started = models.DateTimeField()
     contract = models.OneToOneField(
         to=Contract, related_name="clocked_in_shift", on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_user_id = models.UUIDField()  # External user ID from JWT
+    created_by = models.UUIDField()  
     modified_at = models.DateTimeField(auto_now=True)
-    modified_by_user_id = models.UUIDField()  # External user ID from JWT
+    modified_by = models.UUIDField()  
 
 
 class Report(models.Model):
@@ -222,11 +222,11 @@ class Report(models.Model):
     contract = models.ForeignKey(
         to=Contract, related_name="reports", on_delete=models.CASCADE
     )
-    user_id = models.UUIDField()  # External user ID from JWT
+    user = models.UUIDField()  
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by_user_id = models.UUIDField()  # External user ID from JWT
+    created_by = models.UUIDField() 
     modified_at = models.DateTimeField(auto_now=True)
-    modified_by_user_id = models.UUIDField()  # External user ID from JWT
+    modified_by = models.UUIDField() 
 
     @property
     def debit_worktime(self):

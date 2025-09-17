@@ -407,7 +407,6 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     "A shift must belong to a contract which is active on the respective date."
                 )
             )
-
         if not was_reviewed:
             if stopped < datetime.datetime.now().astimezone(utc):
                 raise serializers.ValidationError(
@@ -505,7 +504,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         return data
 
     def validate_contract(self, contract):
-        if not (contract.user == self.context["request"].user):
+        if not (contract.user == self.context["request"].user.id):
             raise serializers.ValidationError(
                 _("The contract object must be owned by the user creating the shift.")
             )
@@ -632,7 +631,7 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
         return started
 
     def validate_contract(self, contract):
-        if not (contract.user == self.context["request"].user):
+        if not (contract.user == self.context["request"].user.id):
             raise serializers.ValidationError(
                 _("The contract must be owned by the user creating the shift.")
             )
