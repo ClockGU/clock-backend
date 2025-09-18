@@ -155,6 +155,11 @@ class ContractAdmin(admin.ModelAdmin):
 admin.site.register(Contract, ContractAdmin)
 
 
+@admin.action(description="Unlock selected shifts")
+def unlock_shifts_action(modeladmin, request, queryset):
+    queryset.update(locked=False)
+
+
 class ShiftAdmin(admin.ModelAdmin):
     list_display = ("id", "link_user", "started", "stopped", "locked", "modified_at")
     list_per_page = 200
@@ -164,6 +169,7 @@ class ShiftAdmin(admin.ModelAdmin):
         ShiftMonthYearFilter,
         YearFilter,
     )
+    actions = [unlock_shifts_action]
 
     def link_user(self, obj):
         """
