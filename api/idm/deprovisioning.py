@@ -14,6 +14,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
 import base64
+import datetime
 import hashlib
 import hmac
 import json
@@ -22,6 +23,7 @@ import pprint
 import time
 
 import requests
+from dateutil.relativedelta import relativedelta
 from django.db import transaction
 
 from api.models import User
@@ -42,8 +44,12 @@ class Deprovisioner:
         self.SECRET_KEY = bytes.fromhex(env.str("IDM_SECRET_KEY"))
         self.queryset = user_queryset if user_queryset else self.get_queryset()
         self.request_bodies = []
-        self.time = int(time.time() * 1000)
+        self.last_deprovision_time = (datetime.datetime.now()-relativedelta(months=1)).timestamp()*1000
         self.update_cnt = 0
+
+    @property
+    def current_time(self):
+        return int(time.time() * 1000)
 
     def get_model(self):
         return self.model
@@ -52,7 +58,7 @@ class Deprovisioner:
         return self.model.objects.all().exclude(username="")
 
     def create_hmac(self, request_body):
-        encoded_data = self.idm_api_url + request_body + self.API_KEY + str(self.time)
+        encoded_data = self.idm_api_url + request_body + self.API_KEY + str(self.current_time)
 
         b64mac = base64.b64encode(
             hmac.new(
@@ -66,7 +72,7 @@ class Deprovisioner:
             "Accept": "application/json",
             "Content-Type": "application/json",
             "x-uniffm-apikey": self.API_KEY,
-            "x-uniffm-time": str(self.time),
+            "x-uniffm-time": str(self.current_time),
             "x-uniffm-mac": b64mac,
         }
 
@@ -103,7 +109,8 @@ class Deprovisioner:
                 "filter": [
                     f"db.hrzlogin={getattr(obj, self.identifier_field)} && db.accountstatus=L"
                 ],
-                "datain": {"timestamp": self.time, "returns": None, "debug": False},
+                #the "timestamp" is a pseudo filter used by the json-rpc endpoint to filter by "last_changed">"timestamp"
+                "datain": {"timestamp": self.last_deprovision_time, "returns": None, "debug": False},
             },
         }
         return body_obj
