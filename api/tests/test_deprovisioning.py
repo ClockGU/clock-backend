@@ -18,6 +18,7 @@ import json
 import time
 
 import pytest
+from dateutil.relativedelta import relativedelta
 
 from api.idm.deprovisioning import Deprovisioner
 from api.models import User
@@ -59,6 +60,9 @@ class TestClassAttributes:
 
     def test_has_current_time(self):
         assert hasattr(self.instance, "current_time")
+
+    def test_has_last_deprovision_time(self):
+        assert hasattr(self.instance, "last_deprovision_time")
 
     # Test for existing methods
     def test_has_get_model(self):
