@@ -134,6 +134,8 @@ class User(AbstractUser):
     onboarding_passed = models.BooleanField(default=False)
     marked_for_deletion = models.BooleanField(default=False)
     is_supervisor = models.BooleanField(default=False)
+    snack_time = models.IntegerField(default=5000)
+    timeout_enabled = models.BooleanField(default=True)
     supervised_references = ArrayField(
         default=list, base_field=models.CharField(max_length=50, null=True), blank=True
     )

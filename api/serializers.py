@@ -102,6 +102,8 @@ class UserSerializer(RestrictModificationModelSerializer):
             "is_supervisor",
             "supervised_references",
             "onboarding_passed",
+            "snack_time",       
+            "timeout_enabled",   
         ]
         ref_name = "user-gdpr-serializers"
 
@@ -125,6 +127,8 @@ class DjoserUserSerializer(serializers.Serializer):
             "is_superuser",
             "is_supervisor",
             "onboarding_passed",
+            "snack_time",
+            "timeout_enabled",
         ]
 
 

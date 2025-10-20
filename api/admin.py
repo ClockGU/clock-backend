@@ -31,6 +31,8 @@ class UserAdmin(BaseUserAdmin):
         "last_name",
         "date_joined",
         "modified_at",
+        "snack_time",
+        "timeout_enabled",
     )
     fieldsets = BaseUserAdmin.fieldsets
     fieldsets[1][1]["fields"] += (
