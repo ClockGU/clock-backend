@@ -57,8 +57,8 @@ class TestClassAttributes:
     def test_has_request_bodies(self):
         assert hasattr(self.instance, "request_bodies")
 
-    def test_has_time(self):
-        assert hasattr(self.instance, "time")
+    def test_has_current_time(self):
+        assert hasattr(self.instance, "current_time")
 
     # Test for existing methods
     def test_has_get_model(self):
@@ -148,7 +148,9 @@ class TestDeprovisionSteps:
         body = test_deprovisioner_instance.prepare_obj_json_rpc(
             first_deprovision_test_user
         )
-        frozen_unix_epoch = int(time.time() * 1000)
+        frozen_unix_epoch = (
+            datetime.datetime.now() - relativedelta(months=1)
+        ).timestamp() * 1000
         correct_body = {
             "jsonrpc": "2.0",
             "method": "idm.read",
