@@ -44,7 +44,9 @@ class Deprovisioner:
         self.SECRET_KEY = bytes.fromhex(env.str("IDM_SECRET_KEY"))
         self.queryset = user_queryset if user_queryset else self.get_queryset()
         self.request_bodies = []
-        self.last_deprovision_time = (datetime.datetime.now()-relativedelta(months=1)).timestamp()*1000
+        self.last_deprovision_time = (
+            datetime.datetime.now() - relativedelta(months=1)
+        ).timestamp() * 1000
         self.update_cnt = 0
 
     @property
@@ -58,7 +60,9 @@ class Deprovisioner:
         return self.model.objects.all().exclude(username="")
 
     def create_hmac(self, request_body):
-        encoded_data = self.idm_api_url + request_body + self.API_KEY + str(self.current_time)
+        encoded_data = (
+            self.idm_api_url + request_body + self.API_KEY + str(self.current_time)
+        )
 
         b64mac = base64.b64encode(
             hmac.new(
@@ -109,8 +113,12 @@ class Deprovisioner:
                 "filter": [
                     f"db.hrzlogin={getattr(obj, self.identifier_field)} && db.accountstatus=L"
                 ],
-                #the "timestamp" is a pseudo filter used by the json-rpc endpoint to filter by "last_changed">"timestamp"
-                "datain": {"timestamp": self.last_deprovision_time, "returns": None, "debug": False},
+                # the "timestamp" is a pseudo filter used by the json-rpc endpoint to filter by "last_changed">"timestamp"
+                "datain": {
+                    "timestamp": self.last_deprovision_time,
+                    "returns": None,
+                    "debug": False,
+                },
             },
         }
         return body_obj
