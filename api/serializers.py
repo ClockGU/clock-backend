@@ -173,6 +173,9 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     "initial_vacation_carryover_minutes",
                     self.instance.initial_vacation_carryover_minutes,
                 )
+                minutes = attrs.get("minutes", self.instance.minutes)
+            else:
+                minutes = attrs.get("minutes", self.instance.minutes)
 
             # No shifts out of scope after modification
             if Shift.objects.filter(
@@ -239,6 +242,17 @@ class ContractSerializer(RestrictModificationModelSerializer):
                             "is not allowed to modify."
                         )
                     )
+
+        # validate minutes > 0
+        effective_minutes = minutes if minutes is not None else (
+            self.instance.minutes if self.instance else None
+        )
+        if effective_minutes is None:
+            raise serializers.ValidationError(_("The minutes field must be provided."))
+        if effective_minutes <= 0:
+            raise serializers.ValidationError(
+                _("The minutes field must be greater than 0.")
+            )
 
         if start_date > end_date:
             raise serializers.ValidationError(
