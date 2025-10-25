@@ -67,13 +67,26 @@ class ContractAdmin(admin.ModelAdmin):
 
     def link_user(self, obj):
         """
-        Creates a link to the corresponding User object to display in the columns.
-        :param obj:
-        :return: string
+        Display linked user's full name (or username) for Contract.
+        Contract.user may be a UUID (not a FK), so resolve to User if needed.
         """
-        user = obj.user
-        url = reverse("admin:api_user_change", args=[user.pk])
-        return format_html('<a href="{}">{}</a>', url, user.pk)
+        try:
+            user_ref = obj.user
+            # If this is a raw UUID/string/UUIDField, look up the User record
+            if not hasattr(user_ref, "get_full_name"):
+                user_obj = User.objects.filter(pk=user_ref).first()
+            else:
+                user_obj = user_ref
+
+            if user_obj:
+                label = user_obj.get_full_name() or getattr(user_obj, "username", None) or str(user_obj.pk)
+                url = reverse("admin:api_user_change", args=[user_obj.pk])
+                return format_html('<a href="{}">{}</a>', url, label)
+
+            # fallback: show the raw value
+            return str(user_ref)
+        except Exception:
+            return str(getattr(obj, "user", ""))
 
     link_user.short_description = "user"
 
@@ -95,8 +108,10 @@ class ShiftAdmin(admin.ModelAdmin):
         :return: string
         """
         user = obj.user
+        # prefer full name, fall back to username, then id
+        label = user.get_full_name() or getattr(user, "username", None) or str(user.pk)
         url = reverse("admin:api_user_change", args=[user.pk])
-        return format_html('<a href="{}">{}</a>', url, user.pk)
+        return format_html('<a href="{}">{}</a>', url, label)
 
     link_user.short_description = "user"
 
@@ -158,8 +173,9 @@ class ReportAdmin(admin.ModelAdmin):
         :return: string
         """
         user = obj.user
+        label = user.get_full_name() or getattr(user, "username", None) or str(user.pk)
         url = reverse("admin:api_user_change", args=[user.pk])
-        return format_html('<a href="{}">{}</a>', url, user.pk)
+        return format_html('<a href="{}">{}</a>', url, label)
 
     def link_contract(self, obj):
         """
