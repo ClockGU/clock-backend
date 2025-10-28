@@ -19,6 +19,7 @@ jobs:
       IDM_SECRET_KEY: aba7d1a3a3832e8e2b75c904604cf251
       DJANGO_SETTINGS_MODULE: config.settings.local
       GOETHE_OAUTH2_REDIRECT_URI: https://preview.clock.uni-frankfurt.de/logging-in,https://preview.clock.uni-frankfurt.de/login
+      TIME_VAULT_URL: http://time-vault.test.de
     services:
       postgres:
         image: postgres:15.5
