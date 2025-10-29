@@ -18,8 +18,82 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
+
+
+class ShiftMonthYearFilter(admin.SimpleListFilter):
+    """
+    Filter for Shifts by month and year.
+    """
+
+    title = _("Month and Year")
+    parameter_name = "month"
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each tuple is the coded value
+        for the option that will appear in the URL query. The second element is the
+        human-readable name for the option that will appear in the right sidebar.
+        """
+        return (
+            ("1", _("January")),
+            ("2", _("February")),
+            ("3", _("March")),
+            ("4", _("April")),
+            ("5", _("May")),
+            ("6", _("June")),
+            ("7", _("July")),
+            ("8", _("August")),
+            ("9", _("September")),
+            ("10", _("October")),
+            ("11", _("November")),
+            ("12", _("December")),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value provided in the query string.
+        """
+        if self.value():
+            month = self.value()
+            year = request.GET.get("year", None)
+
+            if year:
+                return queryset.filter(started__month=month, started__year=year)
+            return queryset.filter(started__month=month)
+        return queryset
+
+
+class YearFilter(admin.SimpleListFilter):
+    """
+    Filter for Shifts by year.
+    """
+
+    title = _("Year")
+    parameter_name = "year"
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples with years from 2020 to current year + 1.
+        """
+        current_year = timezone.now().year
+        years = [(str(year), str(year)) for year in range(2020, current_year + 2)]
+        return years
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value provided in the query string.
+        """
+        if self.value():
+            year = self.value()
+            month = request.GET.get("month", None)
+
+            if month:
+                return queryset.filter(started__month=month, started__year=year)
+            return queryset.filter(started__year=year)
+        return queryset
 
 
 class UserAdmin(BaseUserAdmin):
@@ -81,12 +155,27 @@ class ContractAdmin(admin.ModelAdmin):
 admin.site.register(Contract, ContractAdmin)
 
 
+@admin.action(description="Unlock selected shifts")
+def unlock_shifts_action(modeladmin, request, queryset):
+    queryset.update(locked=False)
+
+
 class ShiftAdmin(admin.ModelAdmin):
     list_display = ("id", "link_user", "started", "stopped", "locked", "modified_at")
     list_per_page = 200
     ordering = ("-modified_at",)
-    search_fields = ("user", "contract", "name")
-    list_filter = ("started",)
+    search_fields = (
+        "user__id",
+        "contract__id",
+        "contract__reference",
+        "user__first_name",
+        "user__last_name",
+    )
+    list_filter = (
+        ShiftMonthYearFilter,
+        YearFilter,
+    )
+    actions = [unlock_shifts_action]
 
     def link_user(self, obj):
         """
