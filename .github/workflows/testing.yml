@@ -10,9 +10,53 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cTest%-0yqx7ss)
+      CI_RUN: True
+      RABBITMQ_URL: amqp://broker_adm:broker_pass@localhost:5672/
+      IDM_API_URL: some_url.for.idm.de
+      IDM_API_KEY: h18i_1j3^d1e6iq8xur&yvbkpk08il9x^&9cIDM%-0yqx7ss)
+      IDM_SECRET_KEY: aba7d1a3a3832e8e2b75c904604cf251
+      DJANGO_SETTINGS_MODULE: config.settings.local
+      GOETHE_OAUTH2_REDIRECT_URI: https://preview.clock.uni-frankfurt.de/logging-in,https://preview.clock.uni-frankfurt.de/login
+      TIME_VAULT_URL: http://time-vault.test.de
+    services:
+      postgres:
+        image: postgres:15.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: db_app
+          POSTGRES_PASSWORD: db_pass
+        ports:
+          - 5432:5432
+      rabbitmq:
+        image: rabbitmq:latest
+        env:
+          RABBITMQ_DEFAULT_USER: broker_adm
+          RABBITMQ_DEFAULT_PASS: broker_pass
+        ports:
+          - 5672:5672
 
     steps:
       - uses: actions/checkout@v4
-
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v4
+      - name: Setup a local virtual environment (if no poetry.toml file)
+        run: |
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project true --local
+      - uses: actions/cache@v3
+        name: Define a cache for the virtual environment based on the dependencies lock file
+        with:
+          path: ./.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
+      - name: Install the project dependencies
+        run: poetry install
+      - name: Migrate the database
+        run: poetry run python manage.py migrate
       - name: Run unit tests
-        run: docker compose run --rm web pytest
+        run: poetry run pytest -v
