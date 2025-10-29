@@ -27,8 +27,9 @@ class ShiftMonthYearFilter(admin.SimpleListFilter):
     """
     Filter for Shifts by month and year.
     """
-    title = _('Month and Year')
-    parameter_name = 'month'
+
+    title = _("Month and Year")
+    parameter_name = "month"
 
     def lookups(self, request, model_admin):
         """
@@ -37,18 +38,18 @@ class ShiftMonthYearFilter(admin.SimpleListFilter):
         human-readable name for the option that will appear in the right sidebar.
         """
         return (
-            ('1', _('January')),
-            ('2', _('February')),
-            ('3', _('March')),
-            ('4', _('April')),
-            ('5', _('May')),
-            ('6', _('June')),
-            ('7', _('July')),
-            ('8', _('August')),
-            ('9', _('September')),
-            ('10', _('October')),
-            ('11', _('November')),
-            ('12', _('December')),
+            ("1", _("January")),
+            ("2", _("February")),
+            ("3", _("March")),
+            ("4", _("April")),
+            ("5", _("May")),
+            ("6", _("June")),
+            ("7", _("July")),
+            ("8", _("August")),
+            ("9", _("September")),
+            ("10", _("October")),
+            ("11", _("November")),
+            ("12", _("December")),
         )
 
     def queryset(self, request, queryset):
@@ -57,7 +58,7 @@ class ShiftMonthYearFilter(admin.SimpleListFilter):
         """
         if self.value():
             month = self.value()
-            year = request.GET.get('year', None)
+            year = request.GET.get("year", None)
 
             if year:
                 return queryset.filter(started__month=month, started__year=year)
@@ -69,8 +70,9 @@ class YearFilter(admin.SimpleListFilter):
     """
     Filter for Shifts by year.
     """
-    title = _('Year')
-    parameter_name = 'year'
+
+    title = _("Year")
+    parameter_name = "year"
 
     def lookups(self, request, model_admin):
         """
@@ -85,15 +87,13 @@ class YearFilter(admin.SimpleListFilter):
         Returns the filtered queryset based on the value provided in the query string.
         """
         if self.value():
-
             year = self.value()
-            month = request.GET.get('month', None)
+            month = request.GET.get("month", None)
 
             if month:
                 return queryset.filter(started__month=month, started__year=year)
             return queryset.filter(started__year=year)
         return queryset
-
 
 
 class UserAdmin(BaseUserAdmin):
@@ -164,7 +164,13 @@ class ShiftAdmin(admin.ModelAdmin):
     list_display = ("id", "link_user", "started", "stopped", "locked", "modified_at")
     list_per_page = 200
     ordering = ("-modified_at",)
-    search_fields = ("user__id", "contract__id", "contract__reference","user__first_name", "user__last_name")
+    search_fields = (
+        "user__id",
+        "contract__id",
+        "contract__reference",
+        "user__first_name",
+        "user__last_name",
+    )
     list_filter = (
         ShiftMonthYearFilter,
         YearFilter,
