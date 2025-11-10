@@ -153,10 +153,10 @@ def create_reports_for_contract(contract):
         month_year=_month_year,
         worktime=datetime.timedelta(0),
         vacation_time=datetime.timedelta(0),
-        contract=contract,
-        user=contract.user,
-        created_by=contract.user,
-        modified_by=contract.user,
+        contract=c,
+        user=c.user,
+        created_by=c.user,
+        modified_by=c.user,
     )
     _month_year += relativedelta(months=1)
 

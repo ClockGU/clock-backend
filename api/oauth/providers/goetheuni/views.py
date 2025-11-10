@@ -36,23 +36,23 @@ class GoetheUniOAuth2Adapter(OAuth2Adapter):
     provider_id = GoetheUniProvider.id
     settings = app_settings.PROVIDERS.get(provider_id, {})
 
-    web_url = "https://cas.rz.uni-frankfurt.de/cas/oauth2.0"
-    api_url = "https://cas.rz.uni-frankfurt.de/cas/oauth2.0"
+    web_url = "https://idp.ub.uni-frankfurt.de/idp/profile/oidc"
+    api_url = "https://idp.ub.uni-frankfurt.de/idp/profile/oidc"
 
-    access_token_url = "{0}/accessToken".format(web_url)
+    access_token_url = "{0}/token".format(web_url)
     authorize_url = "{0}/authorize".format(web_url)
-    profile_url = "{0}/profile".format(api_url)
+    profile_url = "{0}/userinfo".format(api_url)
 
     def complete_login(self, request, app, token, **kwargs):
         params = {"access_token": token.token}
         resp = requests.get(self.profile_url, params=params)
         resp.raise_for_status()
         extra_data = resp.json()
-        attributes = extra_data["attributes"]
-        extra_data["username"] = attributes["uid"]
-        extra_data["email"] = attributes["mailPrimaryAddress"]
-        extra_data["first_name"] = attributes["givenName"]
-        extra_data["last_name"] = attributes["sn"]
+        attributes = extra_data
+        extra_data["username"] = attributes["preferred_username"]
+        extra_data["email"] = attributes["sub"]
+        extra_data["first_name"] = attributes["given_name"]
+        extra_data["last_name"] = attributes["family_name"]
         return self.get_provider().sociallogin_from_response(request, extra_data)
 
 
@@ -63,6 +63,7 @@ class ProviderAuthView(APIView):
         adapter = GoetheUniOAuth2Adapter(request)
         provider = adapter.get_provider()
         app = provider.get_app(request)
+        from urllib import parse
 
         redirect_uri = request.GET.get("redirect_uri")
         starts_with_valid_uris = [
@@ -75,7 +76,7 @@ class ProviderAuthView(APIView):
         state = str(uuid4())
 
         data = {
-            "authorization_url": f"{authorize_url}?response_type=code&client_id={app.client_id}&redirect_uri={redirect_uri}&state={state}&scope=user"
+            "authorization_url": f"{authorize_url}?response_type=code&client_id={app.client_id}&redirect_uri={parse.quote_plus(redirect_uri)}&state={state}&scope=openid%20profile%20email"
         }
 
         return Response(data)
