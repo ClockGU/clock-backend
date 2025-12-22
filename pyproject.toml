@@ -7,7 +7,7 @@ authors = ["Christian Grossmüller <chgad.games@gmail.com>", "Sören Grieger <so
 [tool.poetry.dependencies]
 python = "^3.10"
 gunicorn = "==21.2.0"
-gevent = "23.7.0"
+gevent = "23.9.0"
 raven = "==6.10.0"
 whitenoise = "==6.6.0"
 django-guardian = "2.4.0"
