@@ -3,8 +3,8 @@
 # Compile translations once during start
 python manage.py compilemessages
 
-while true; do
-    echo "Re-starting Django runserver_plus!"
-    python manage.py runserver_plus 0.0.0.0:8000
-    sleep 2
-done
+# Run Django development server to serve static files
+python manage.py collectstatic --noinput
+
+echo "Starting Uvicorn ASGI server!"
+uvicorn config.asgi:application --host 0.0.0.0 --port 8000
