@@ -1,8 +1,8 @@
 import os
-import django
 
-from channels.routing import ProtocolTypeRouter, URLRouter
+import django
 from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 from django.urls import path
 
@@ -20,10 +20,14 @@ websocket_application = JWTAuthMiddleware(
             [
                 path("ws/reportsocket/", ReportConsumer.as_asgi()),
             ]
-        )))
+        )
+    )
+)
 
 # Define the overall ASGI application
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": websocket_application,
-})
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": websocket_application,
+    }
+)
