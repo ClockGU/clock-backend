@@ -16,6 +16,8 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 import datetime
 from datetime import date
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from dateutil.relativedelta import relativedelta
 from django.db.models import (
     Case,
@@ -33,8 +35,6 @@ from django.db.models.functions import Trunc
 from django.db.models.signals import post_delete, post_save
 from holidays.countries import Germany
 from more_itertools import pairwise
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 
 from api.models import Contract, Report, Shift
 
@@ -338,6 +338,7 @@ post_delete.connect(
     dispatch_uid="update_last_used_on_contract_delete",
 )
 
+
 def send_reports_through_websocket(sender, instance, created=False, **kwargs):
     """
     Reciever function:
@@ -352,26 +353,28 @@ def send_reports_through_websocket(sender, instance, created=False, **kwargs):
         channel_layer = get_channel_layer()
     except:
         return None
-    
+
     # Avoid circular import by importing serializer here
     from api.serializers import ReportSerializer
 
     data = ReportSerializer(instance).data
-    data.pop('contract', None)
+    data.pop("contract", None)
 
     async_to_sync(channel_layer.group_send)(
-        f'ReportsSocket_{str(instance.user.id)}',
+        f"ReportsSocket_{str(instance.user.id)}",
         {
             "type": "report_message",
             "message": data,
         },
     )
 
+
 post_save.connect(
     send_reports_through_websocket,
     sender=Report,
     dispatch_uid="send_reports_through_websocket",
 )
+
 
 class GermanyHolidays(Germany):
     def _populate(self, year):
