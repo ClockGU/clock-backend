@@ -210,6 +210,5 @@ def aggregated_report_data():
             "total_worked_time": "02:00",
             "last_month_carry_over": "00:00",
             "next_month_carry_over": "-18:00",
-            "net_worktime": "02:00",
         },
     }

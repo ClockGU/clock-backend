@@ -20,12 +20,12 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
-from holidays import country_holidays
 from pytz import datetime, utc
 from rest_framework import exceptions, serializers
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
+    GermanyHolidays,
     calculate_break,
     calculate_worktime_breaktime,
     create_reports_for_contract,
@@ -140,6 +140,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
             "modified_at": {"required": False},
             "created_by": {"write_only": True},
             "modified_by": {"write_only": True},
+            "last_used": {"read_only": True},
             "user": {"write_only": True},
         }
 
@@ -175,7 +176,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
             # No shifts out of scope after modification
             if Shift.objects.filter(
-                contract=self.instance, started__lt=start_date
+                contract=self.instance, started__date__lt=start_date
             ).exists():
                 raise serializers.ValidationError(
                     _(
@@ -184,7 +185,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     )
                 )
             if Shift.objects.filter(
-                contract=self.instance, started__gt=end_date
+                contract=self.instance, started__date__gt=end_date
             ).exists():
                 raise serializers.ValidationError(
                     _(
@@ -322,10 +323,10 @@ class ContractSerializer(RestrictModificationModelSerializer):
             create_reports_for_contract(contract=instance)
 
         if initial_carryover_minutes_changed:
-            update_reports(instance, instance.start_date)
+            update_reports(instance, instance.start_date.replace(day=1))
 
         if initial_vacation_carryover_minutes_changed:
-            update_reports(instance, instance.start_date)
+            update_reports(instance, instance.start_date.replace(day=1))
 
         return return_instance
 
@@ -426,23 +427,20 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             #     )
 
             # validate feiertage/bank holiday is just clockable on a feiertag/bank holiday
-            de_he_holidays = country_holidays("DE", subdiv="HE")
-            if started.strftime("%Y-%m-%d") in de_he_holidays and shift_type != "bh":
+            de_he_holidays = GermanyHolidays(subdiv="HE")
+            if started.date() in de_he_holidays and shift_type != "bh":
                 raise serializers.ValidationError(
                     _(
                         "This is the holiday "
-                        + de_he_holidays.get(started.strftime("%Y-%m-%d"))
+                        + de_he_holidays.get(started.date())
                         + " and there can just be clocked shifts with type holiday (de: Feiertag)."
                     )
                 )
-            if (
-                shift_type == "bh"
-                and started.strftime("%Y-%m-%d") not in de_he_holidays
-            ):
+            if shift_type == "bh" and started.date() not in de_he_holidays:
                 raise serializers.ValidationError(
                     _(
                         "This day "
-                        + started.strftime("%Y-%m-%d")
+                        + started.strftime("%d-%m-%Y")
                         + " is not a holiday (de: Feiertag)."
                     )
                 )
@@ -619,8 +617,8 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
 
     def validate_started(self, started):
         # no Live clocking on Feiertage/holidays
-        de_he_holidays = country_holidays("DE", subdiv="HE")
-        if started.strftime("%d/%m/%Y") in de_he_holidays:
+        de_he_holidays = GermanyHolidays(subdiv="HE")
+        if started.date() in de_he_holidays:
             raise serializers.ValidationError(
                 _("Live clocking is not allowed on feiertage/ bank holidays.")
             )

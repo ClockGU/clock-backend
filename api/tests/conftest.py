@@ -18,6 +18,7 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 # Everything is handled according to the pytest documentiation
 # found here: https://docs.pytest.org/en/latest/fixture.html#conftest-py-sharing-fixture-functions
 
+from api.tests.conftest_files.carryover_conftest import *  # noqa
 from api.tests.conftest_files.clockedinshift_conftest import *  # noqa
 from api.tests.conftest_files.contract_conftest import *  # noqa
 from api.tests.conftest_files.deprovision_conftest import *  # noqa

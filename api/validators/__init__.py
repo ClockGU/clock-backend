@@ -40,8 +40,10 @@ def worktime_multiplicator(current_date, start_date, end_date, month_end_day):
     end_day = month_end_day
     if end_date.month == current_date.month and end_date.year == current_date.year:
         end_day = end_date.day
-    # -1 needed to count the start date too
-    return business_weeks(current_date, start_date.day - 1, end_day)
+    if start_date.month == current_date.month and start_date.year == current_date.year:
+        # -1 needed to count the start date too
+        return business_weeks(current_date, start_date.day - 1, end_day)
+    return business_weeks(current_date, end_day=end_day)
 
 
 def stud_emp_worktime_multiplicator(current_date, start_date, end_date, month_end_day):

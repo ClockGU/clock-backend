@@ -22,6 +22,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
@@ -291,9 +292,9 @@ class Report(models.Model):
     @property
     def carryover(self):
         carryover = self.worktime - self.debit_worktime + self.carryover_previous_month
-        max_carryover = self.debit_worktime / 2
-        if carryover > max_carryover:
-            return max_carryover
+        max_carryover_increase = self.debit_worktime / 2
+        if carryover > self.carryover_previous_month + max_carryover_increase:
+            return self.carryover_previous_month + max_carryover_increase
         return carryover
 
     @property
@@ -303,7 +304,7 @@ class Report(models.Model):
         ) - self.vacation_time
         return carryover_next_month
 
-    @property
+    @cached_property
     def carryover_previous_month(self):
         try:
             last_mon_report_object = Report.objects.get(

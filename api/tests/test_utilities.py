@@ -481,7 +481,7 @@ class TestUpdateSignals:
         ).worktime == datetime.timedelta(hours=3)
         assert Report.objects.get(
             contract=contract_210h_carryover, month_year=datetime.date(2019, 1, 1)
-        ).carryover == datetime.timedelta(minutes=1200 / 2)
+        ).carryover == datetime.timedelta(minutes=12600 + 3 * 60 - 1200)
 
 
 class TestContractSignals:
