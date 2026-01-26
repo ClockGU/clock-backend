@@ -180,7 +180,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
             ).exists():
                 raise serializers.ValidationError(
                     _(
-                        "A contract's start date can not be modified"
+                        "A contract's start date cannot be modified "
                         "if shifts before this date exist."
                     )
                 )
@@ -189,7 +189,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
             ).exists():
                 raise serializers.ValidationError(
                     _(
-                        "A contract's end date can not be modified"
+                        "A contract's end date cannot be modified "
                         "if shifts after this date exist."
                     )
                 )
@@ -198,8 +198,8 @@ class ContractSerializer(RestrictModificationModelSerializer):
             if relativedelta(end_date, self.instance.end_date).months >= 6:
                 raise serializers.ValidationError(
                     _(
-                        "A contract's end date can not be modified"
-                        "extended for more than 6 months."
+                        "A contract's end date cannot be modified "
+                        "to for more than 6 months."
                     )
                 )
 
@@ -208,8 +208,8 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 if self.instance.initial_carryover_minutes != initial_carryover_minutes:
                     raise serializers.ValidationError(
                         _(
-                            "The Carryover of a contract with locked shifts "
-                            "is not allowed to modify."
+                            "The initial carryover of a contract cannot be modified "
+                            "if shifts are locked."
                         )
                     )
 
@@ -219,24 +219,24 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 ):
                     raise serializers.ValidationError(
                         _(
-                            "The Vacation Carryover of a contract with locked shifts "
-                            "is not allowed to modify."
+                            "The vacation carryover of a contract cannot be modified "
+                            "if shifts are locked."
                         )
                     )
 
                 if self.instance.start_date != start_date:
                     raise serializers.ValidationError(
                         _(
-                            "The start date of a contract with locked shifts "
-                            "is not allowed to modify."
+                            "The start date of a contract cannot be modified "
+                            "if shifts are locked."
                         )
                     )
 
                 if self.instance.minutes != minutes:
                     raise serializers.ValidationError(
                         _(
-                            "The minutes of a contract with locked shifts "
-                            "is not allowed to modify."
+                            "The minutes of a contract cannot be modified "
+                            "if shifts are locked."
                         )
                     )
 
@@ -374,7 +374,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
         ).exists():
             raise exceptions.PermissionDenied(
                 _(
-                    "A Shift can't be created or changed if the month of this contract has already been locked."
+                    "A Shift cannot be created or changed if the month has already been locked."
                 )
             )
 
@@ -433,7 +433,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                     _(
                         "This is the holiday "
                         + de_he_holidays.get(started.date())
-                        + " and there can just be clocked shifts with type holiday (de: Feiertag)."
+                        + " and there can only be clocked shifts with type holiday (de: Feiertag)."
                     )
                 )
             if shift_type == "bh" and started.date() not in de_he_holidays:
@@ -453,7 +453,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 ).exists():
                     raise serializers.ValidationError(
                         _(
-                            "The started date is in the time of an already existing reviewed shift : "
+                            "The start date falls within the time of an already existing reviewed shift : "
                         )
                     )
                 if this_day_reviewed.filter(
@@ -461,7 +461,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
                 ).exists():
                     raise serializers.ValidationError(
                         _(
-                            "The stopped date is in the time of an already existing reviewed shift : "
+                            "The stopped date falls within the time of an already existing reviewed shift : "
                         )
                     )
 
@@ -609,7 +609,7 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
         if vacation_sick_shifts_this_day.exists():
             raise serializers.ValidationError(
                 _(
-                    "Live clocking is not allowed on days where already a vacation or a sick shift is clocked."
+                    "Live clocking is not allowed on days where a vacation or a sick shift is clocked."
                 )
             )
 
@@ -620,7 +620,7 @@ class ClockedInShiftSerializer(RestrictModificationModelSerializer):
         de_he_holidays = GermanyHolidays(subdiv="HE")
         if started.date() in de_he_holidays:
             raise serializers.ValidationError(
-                _("Live clocking is not allowed on feiertage/ bank holidays.")
+                _("Live clocking is not allowed on bank holidays (de: Feiertag).")
             )
 
         # no live clocking on a sunday
