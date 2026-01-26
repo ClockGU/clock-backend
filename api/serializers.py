@@ -199,7 +199,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 raise serializers.ValidationError(
                     _(
                         "A contract's end date cannot be modified "
-                        "to for more than 6 months."
+                        "to extend more than 6 months."
                     )
                 )
 
