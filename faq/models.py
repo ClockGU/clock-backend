@@ -27,6 +27,9 @@ class FaqHeading(models.Model):
         verbose_name="Prio Heading (1 - 10)",
     )
 
+    def __str__(self):
+        return self.en_heading
+
 
 class Faq(models.Model):
     de_question = models.CharField(max_length=200, verbose_name="Faq-question german")
