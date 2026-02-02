@@ -26,6 +26,7 @@ class FaqHeading(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(10)],
         verbose_name="Prio Heading (1 - 10)",
     )
+
     def __str__(self):
         return self.en_heading
 
