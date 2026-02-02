@@ -244,8 +244,10 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     )
 
         # validate minutes > 0
-        effective_minutes = minutes if minutes is not None else (
-            self.instance.minutes if self.instance else None
+        effective_minutes = (
+            minutes
+            if minutes is not None
+            else (self.instance.minutes if self.instance else None)
         )
         if effective_minutes is None:
             raise serializers.ValidationError(_("The minutes field must be provided."))

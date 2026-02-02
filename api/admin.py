@@ -153,7 +153,11 @@ class ContractAdmin(admin.ModelAdmin):
                 user_obj = user_ref
 
             if user_obj:
-                label = user_obj.get_full_name() or getattr(user_obj, "username", None) or str(user_obj.pk)
+                label = (
+                    user_obj.get_full_name()
+                    or getattr(user_obj, "username", None)
+                    or str(user_obj.pk)
+                )
                 url = reverse("admin:api_user_change", args=[user_obj.pk])
                 return format_html('<a href="{}">{}</a>', url, label)
 
