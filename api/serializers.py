@@ -380,6 +380,7 @@ class ShiftSerializer(RestrictModificationModelSerializer):
             stopped = data.get("stopped", self.instance.stopped)
             contract = data.get("contract", self.instance.contract)
             was_reviewed = data.get("was_reviewed", self.instance.was_reviewed)
+            shift_type = data.get("type", self.instance.type)
 
         # locked is read_only and marks whether a shift was exported and hence not modifiable anymore
         if Shift.objects.filter(
