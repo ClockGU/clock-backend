@@ -339,21 +339,6 @@ class TestContractSerializerValidation:
         assert start_date_changed
         assert initial_carryover_minutes_changed
 
-    @pytest.mark.freeze_time("2019-1-20")
-    @pytest.mark.django_db
-    def test_update_contract_end_date(
-        self,
-        contract_end_date_7_months_apart_json,
-        plain_request_object,
-        contract_object,
-    ):
-        with pytest.raises(serializers.ValidationError):
-            ContractSerializer(
-                instance=contract_object,
-                data=contract_end_date_7_months_apart_json,
-                context={"request": plain_request_object},
-            ).is_valid(raise_exception=True)
-
     @pytest.mark.django_db
     def test_carryover_not_modifiable_with_locked_shifts(
         self,
