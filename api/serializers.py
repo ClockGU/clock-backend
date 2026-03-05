@@ -197,15 +197,6 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     )
                 )
 
-            # check if new end date is more than 6 month apart from the old one
-            if relativedelta(end_date, self.instance.end_date).months >= 6:
-                raise serializers.ValidationError(
-                    _(
-                        "A contract's end date cannot be modified "
-                        "to extend more than 6 months."
-                    )
-                )
-
             # no modification of minutes, start_date and carryover with locked shifts
             if Shift.objects.filter(contract=self.instance, locked=True).exists():
                 if self.instance.initial_carryover_minutes != initial_carryover_minutes:
