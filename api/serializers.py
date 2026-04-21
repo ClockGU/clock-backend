@@ -159,7 +159,8 @@ class ContractSerializer(RestrictModificationModelSerializer):
         initial_vacation_carryover_minutes = attrs.get(
             "initial_vacation_carryover_minutes"
         )
-
+        worktime_model_name = attrs.get("worktime_model_name")
+        percent_fte = attrs.get("percent_fte")
         # Catches PUT
         if self.instance:
             # Catches PATCH
@@ -174,6 +175,8 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     self.instance.initial_vacation_carryover_minutes,
                 )
                 minutes = attrs.get("minutes", self.instance.minutes)
+                worktime_model_name = attrs.get("worktime_model_name",self.instance.worktime_model_name)
+                percent_fte = attrs.get("percent_fte", self.instance.percent_fte)
             else:
                 minutes = attrs.get("minutes", self.instance.minutes)
 
@@ -233,19 +236,24 @@ class ContractSerializer(RestrictModificationModelSerializer):
                             "if shifts are locked."
                         )
                     )
-
+        if worktime_model_name == "studEmp":
         # validate minutes > 0
-        effective_minutes = (
-            minutes
-            if minutes is not None
-            else (self.instance.minutes if self.instance else None)
-        )
-        if effective_minutes is None:
-            raise serializers.ValidationError(_("The minutes field must be provided."))
-        if effective_minutes <= 0:
-            raise serializers.ValidationError(
-                _("The minutes field must be greater than 0.")
+            effective_minutes = (
+                minutes
+                if minutes is not None
+                else (self.instance.minutes if self.instance else None)
             )
+            if effective_minutes is None:
+                raise serializers.ValidationError(_("The minutes field must be provided."))
+            if effective_minutes <= 0:
+                raise serializers.ValidationError(
+                    _("The minutes field must be greater than 0.")
+                )
+        else:
+            if percent_fte <= 0 or percent_fte > 100:
+                raise serializers.ValidationError(
+                    _("The percent_fte field must be between 1 and 100.")
+                )
 
         if start_date > end_date:
             raise serializers.ValidationError(
