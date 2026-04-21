@@ -139,12 +139,12 @@ def timedelta_to_string(timedelta):
     minutes, _ = divmod(remainder, 60)
     return format_string.format(hours=hours, minutes=minutes)
 
+
 def create_reports_until_current_month(contract):
     create_reports_for_contract(
-        contract,
-        contract.start_date.replace(day=1),
-        date.today()
+        contract, contract.start_date.replace(day=1), date.today()
     )
+
 
 # TODO: This function needs a different, more phony name.
 def create_reports_for_contract(contract, start, stop):

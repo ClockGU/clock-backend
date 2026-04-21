@@ -331,7 +331,11 @@ class ContractSerializer(RestrictModificationModelSerializer):
             # Recreate them.
             create_reports_until_current_month(contract=instance)
         if end_date_changed:
-            create_reports_for_contract(contract=instance, start=instance.end_date.replace(day=1), stop=datetime.date.today())
+            create_reports_for_contract(
+                contract=instance,
+                start=instance.end_date.replace(day=1),
+                stop=datetime.date.today(),
+            )
 
         if initial_carryover_minutes_changed:
             update_reports(instance, instance.start_date.replace(day=1))
