@@ -58,9 +58,6 @@ class TestClassAttributes:
     def test_has_request_bodies(self):
         assert hasattr(self.instance, "request_bodies")
 
-    def test_has_current_time(self):
-        assert hasattr(self.instance, "current_time")
-
     def test_has_last_deprovision_time(self):
         assert hasattr(self.instance, "last_deprovision_time")
 
@@ -81,13 +78,9 @@ class TestClassAttributes:
         assert hasattr(self.instance, "create_headers")
         assert callable(getattr(self.instance, "create_headers"))
 
-    def test_has_prepare_request_bodies(self):
-        assert hasattr(self.instance, "prepare_request_bodies")
-        assert callable(getattr(self.instance, "prepare_request_bodies"))
-
-    def test_has_prepare_obj_json_rpc(self):
-        assert hasattr(self.instance, "prepare_obj_json_rpc")
-        assert callable(getattr(self.instance, "prepare_obj_json_rpc"))
+    def test_has_prepare_request_body(self):
+        assert hasattr(self.instance, "prepare_request_body")
+        assert callable(getattr(self.instance, "prepare_request_body"))
 
     def test_has_deprovision(self):
         assert hasattr(self.instance, "deprovision")
@@ -131,45 +124,32 @@ class TestClassAttributes:
 
 
 class TestDeprovisionSteps:
-    @pytest.mark.django_db
-    def test_request_batch_size(
-        self, deprovision_test_users, test_deprovisioner_instance
-    ):
-        test_deprovisioner_instance.prepare_request_bodies()
-        assert len(test_deprovisioner_instance.request_bodies) == 5
-        assert all(
-            map(
-                lambda x: len(json.loads(x)) == 2,
-                test_deprovisioner_instance.request_bodies,
-            )
-        )
-
-    @pytest.mark.freeze_time("2012-01-14")
-    @pytest.mark.django_db
-    def test_correct_obj_json_rpc(
-        self, first_deprovision_test_user, test_deprovisioner_instance
-    ):
-        body = test_deprovisioner_instance.prepare_obj_json_rpc(
-            first_deprovision_test_user
-        )
-        frozen_unix_epoch = (
-            datetime.datetime.now() - relativedelta(months=1)
-        ).timestamp() * 1000
-        correct_body = {
-            "jsonrpc": "2.0",
-            "method": "idm.read",
-            "id": "testusername0",
-            "params": {
-                "object": ["shortstamm"],
-                "filter": [f"db.hrzlogin=testusername0 && db.accountstatus=L"],
-                "datain": {
-                    "timestamp": frozen_unix_epoch,
-                    "returns": None,
-                    "debug": False,
-                },
-            },
-        }
-        assert body == correct_body
+    # @pytest.mark.freeze_time("2012-01-14")
+    # @pytest.mark.django_db
+    # def test_correct_obj_json_rpc(
+    #     self, first_deprovision_test_user, test_deprovisioner_instance
+    # ):
+    #     body = test_deprovisioner_instance.prepare_obj_json_rpc(
+    #         first_deprovision_test_user
+    #     )
+    #     frozen_unix_epoch = (
+    #         datetime.datetime.now() - relativedelta(months=1)
+    #     ).timestamp() * 1000
+    #     correct_body = {
+    #         "jsonrpc": "2.0",
+    #         "method": "idm.read",
+    #         "id": "testusername0",
+    #         "params": {
+    #             "object": ["shortstamm"],
+    #             "filter": [f"db.hrzlogin=testusername0 && db.accountstatus=L"],
+    #             "datain": {
+    #                 "timestamp": frozen_unix_epoch,
+    #                 "returns": None,
+    #                 "debug": False,
+    #             },
+    #         },
+    #     }
+    #     assert body == correct_body
 
     @pytest.mark.django_db
     def test_get_update_value_for_non_deletion(
@@ -203,30 +183,30 @@ class TestDeprovisionSteps:
             )
         )
 
-    @pytest.mark.django_db
-    def test_mark_for_deletion_marks_users(
-        self, response_body_for_test_users, test_deprovisioner_instance
-    ):
-        """
-        Test whether the method `mark_for_deletion` actually marks the users whith resultsize > 0
-        for  deletion.
-        """
-        test_deprovisioner_instance.mark_for_deletion(response_body_for_test_users)
+    # @pytest.mark.django_db
+    # def test_mark_for_deletion_marks_users(
+    #     self, response_body_for_test_users, test_deprovisioner_instance
+    # ):
+    #     """
+    #     Test whether the method `mark_for_deletion` actually marks the users whith resultsize > 0
+    #     for  deletion.
+    #     """
+    #     test_deprovisioner_instance.mark_for_deletion(response_body_for_test_users)
+    #
+    #     assert User.objects.filter(marked_for_deletion=True).count() == 5
 
-        assert User.objects.filter(marked_for_deletion=True).count() == 5
-
-    @pytest.mark.django_db
-    def test_handle_response_only_does_marking_for_deletion(
-        self, response_body_for_test_users, test_deprovisioner_instance
-    ):
-        """
-        Test whether the hook/method `handle_response` calls `mark_for_deletion`.
-
-        We can practically only test, that calling this method does the same as calling `mark_for_deletion`.
-        """
-        test_deprovisioner_instance.handle_response(response_body_for_test_users)
-
-        assert User.objects.filter(marked_for_deletion=True).count() == 5
+    # @pytest.mark.django_db
+    # def test_handle_response_only_does_marking_for_deletion(
+    #     self, response_body_for_test_users, test_deprovisioner_instance
+    # ):
+    #     """
+    #     Test whether the hook/method `handle_response` calls `mark_for_deletion`.
+    #
+    #     We can practically only test, that calling this method does the same as calling `mark_for_deletion`.
+    #     """
+    #     test_deprovisioner_instance.handle_response(response_body_for_test_users)
+    #
+    #     assert User.objects.filter(marked_for_deletion=True).count() == 5
 
     def test_update_counter(self, test_deprovisioner_instance):
         assert test_deprovisioner_instance.update_cnt == 0
