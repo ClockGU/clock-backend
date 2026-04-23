@@ -29,6 +29,7 @@ from api.utilities import (
     calculate_break,
     calculate_worktime_breaktime,
     create_reports_for_contract,
+    create_reports_until_current_month,
     timedelta_to_string,
     update_reports,
 )
@@ -314,6 +315,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
     def update(self, instance, validated_data):
         start_date_changed = bool(validated_data.get("start_date"))
+        end_date_changed = bool(validated_data.get("end_date"))
         initial_carryover_minutes_changed = bool(
             validated_data.get("initial_carryover_minutes")
         )
@@ -322,6 +324,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         )
         if not self.partial:
             start_date_changed = validated_data.get("start_date") != instance.start_date
+            end_date_changed = validated_data.get("end_date") != instance.end_date
             initial_carryover_minutes_changed = (
                 validated_data.get("initial_carryover_minutes")
                 != instance.initial_carryover_minutes
@@ -334,12 +337,17 @@ class ContractSerializer(RestrictModificationModelSerializer):
         return_instance = super(ContractSerializer, self).update(
             instance, validated_data
         )
-
         if start_date_changed:
             # Delete all existing Reports
             Report.objects.filter(contract=instance).delete()
             # Recreate them.
-            create_reports_for_contract(contract=instance)
+            create_reports_until_current_month(contract=instance)
+        if end_date_changed:
+            create_reports_for_contract(
+                contract=instance,
+                start=instance.end_date.replace(day=1),
+                stop=datetime.date.today(),
+            )
 
         if initial_carryover_minutes_changed:
             update_reports(instance, instance.start_date.replace(day=1))

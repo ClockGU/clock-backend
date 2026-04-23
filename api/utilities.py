@@ -140,17 +140,23 @@ def timedelta_to_string(timedelta):
     return format_string.format(hours=hours, minutes=minutes)
 
 
+def create_reports_until_current_month(contract):
+    create_reports_for_contract(
+        contract, contract.start_date.replace(day=1), date.today()
+    )
+
+
 # TODO: This function needs a different, more phony name.
-def create_reports_for_contract(contract):
+def create_reports_for_contract(contract, start, stop):
     """
     Function used to create all Reports from contracts start_date to date.today().
     :param contract:
     :return:
     """
-    _month_year = contract.start_date.replace(day=1)
-    today = datetime.date.today()
+    assert start.day == 1
+
     Report.objects.create(
-        month_year=_month_year,
+        month_year=start,
         worktime=datetime.timedelta(0),
         vacation_time=datetime.timedelta(0),
         contract=contract,
@@ -158,10 +164,10 @@ def create_reports_for_contract(contract):
         created_by=contract.user,
         modified_by=contract.user,
     )
-    _month_year += relativedelta(months=1)
+    _month_year = start + relativedelta(months=1)
 
     # Create Reports for all months between start_date and now/end_date
-    while _month_year <= today and _month_year <= contract.end_date:
+    while _month_year <= stop and _month_year <= contract.end_date:
         Report.objects.create(
             month_year=_month_year,
             worktime=datetime.timedelta(0),
@@ -192,7 +198,7 @@ def create_report_after_contract_creation(sender, instance, created, **kwargs):
     :return:
     """
     if created:
-        create_reports_for_contract(contract=instance)
+        create_reports_until_current_month(contract=instance)
 
 
 post_save.connect(
