@@ -381,6 +381,25 @@ class TestContractSerializerValidation:
                 context={"request": plain_request_object},
             ).is_valid(raise_exception=True)
 
+    @pytest.mark.freeze_time("2019-5-1")
+    @pytest.mark.django_db
+    def test_report_creation_after_contract_extension(
+        self, plain_request_object, contract_ending_in_april
+    ):
+        report_cnt = Report.objects.filter(contract=contract_ending_in_april).count()
+        seri = ContractSerializer(
+            instance=contract_ending_in_april,
+            data={"end_date": datetime.date(2019, 5, 31)},
+            partial=True,
+            context={"request": plain_request_object},
+        )
+        seri.is_valid(raise_exception=True)
+        seri.save()
+        assert (
+            report_cnt
+            == Report.objects.filter(contract=contract_ending_in_april).count() - 1
+        )
+
 
 class TestShiftSerializerValidation:
     """

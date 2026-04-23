@@ -29,6 +29,7 @@ from api.utilities import (
     calculate_break,
     calculate_worktime_breaktime,
     create_reports_for_contract,
+    create_reports_until_current_month,
     timedelta_to_string,
     update_reports,
 )
@@ -159,7 +160,8 @@ class ContractSerializer(RestrictModificationModelSerializer):
         initial_vacation_carryover_minutes = attrs.get(
             "initial_vacation_carryover_minutes"
         )
-
+        worktime_model_name = attrs.get("worktime_model_name")
+        percent_fte = attrs.get("percent_fte")
         # Catches PUT
         if self.instance:
             # Catches PATCH
@@ -174,6 +176,10 @@ class ContractSerializer(RestrictModificationModelSerializer):
                     self.instance.initial_vacation_carryover_minutes,
                 )
                 minutes = attrs.get("minutes", self.instance.minutes)
+                worktime_model_name = attrs.get(
+                    "worktime_model_name", self.instance.worktime_model_name
+                )
+                percent_fte = attrs.get("percent_fte", self.instance.percent_fte)
             else:
                 minutes = attrs.get("minutes", self.instance.minutes)
 
@@ -233,19 +239,26 @@ class ContractSerializer(RestrictModificationModelSerializer):
                             "if shifts are locked."
                         )
                     )
-
-        # validate minutes > 0
-        effective_minutes = (
-            minutes
-            if minutes is not None
-            else (self.instance.minutes if self.instance else None)
-        )
-        if effective_minutes is None:
-            raise serializers.ValidationError(_("The minutes field must be provided."))
-        if effective_minutes <= 0:
-            raise serializers.ValidationError(
-                _("The minutes field must be greater than 0.")
+        if worktime_model_name == "studEmp":
+            # validate minutes > 0
+            effective_minutes = (
+                minutes
+                if minutes is not None
+                else (self.instance.minutes if self.instance else None)
             )
+            if effective_minutes is None:
+                raise serializers.ValidationError(
+                    _("The minutes field must be provided.")
+                )
+            if effective_minutes <= 0:
+                raise serializers.ValidationError(
+                    _("The minutes field must be greater than 0.")
+                )
+        else:
+            if percent_fte <= 0 or percent_fte > 100:
+                raise serializers.ValidationError(
+                    _("The percent_fte field must be between 1 and 100.")
+                )
 
         if start_date > end_date:
             raise serializers.ValidationError(
@@ -302,6 +315,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
 
     def update(self, instance, validated_data):
         start_date_changed = bool(validated_data.get("start_date"))
+        end_date_changed = bool(validated_data.get("end_date"))
         initial_carryover_minutes_changed = bool(
             validated_data.get("initial_carryover_minutes")
         )
@@ -310,6 +324,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
         )
         if not self.partial:
             start_date_changed = validated_data.get("start_date") != instance.start_date
+            end_date_changed = validated_data.get("end_date") != instance.end_date
             initial_carryover_minutes_changed = (
                 validated_data.get("initial_carryover_minutes")
                 != instance.initial_carryover_minutes
@@ -322,12 +337,17 @@ class ContractSerializer(RestrictModificationModelSerializer):
         return_instance = super(ContractSerializer, self).update(
             instance, validated_data
         )
-
         if start_date_changed:
             # Delete all existing Reports
             Report.objects.filter(contract=instance).delete()
             # Recreate them.
-            create_reports_for_contract(contract=instance)
+            create_reports_until_current_month(contract=instance)
+        if end_date_changed:
+            create_reports_for_contract(
+                contract=instance,
+                start=instance.end_date.replace(day=1),
+                stop=datetime.date.today(),
+            )
 
         if initial_carryover_minutes_changed:
             update_reports(instance, instance.start_date.replace(day=1))

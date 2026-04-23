@@ -19,7 +19,6 @@ import hashlib
 import hmac
 import json
 import logging
-import pprint
 import time
 
 import requests
@@ -48,10 +47,7 @@ class Deprovisioner:
             datetime.datetime.now() - relativedelta(months=1)
         ).timestamp() * 1000
         self.update_cnt = 0
-
-    @property
-    def current_time(self):
-        return int(time.time() * 1000)
+        self.__current_time = int(time.time() * 1000)
 
     def get_model(self):
         return self.model
@@ -59,16 +55,19 @@ class Deprovisioner:
     def get_queryset(self):
         return self.model.objects.all().exclude(username="")
 
+    def set_current_time(self):
+        self.__current_time = int(time.time() * 1000)
+
     def create_hmac(self, request_body):
         encoded_data = (
-            self.idm_api_url + request_body + self.API_KEY + str(self.current_time)
+            self.idm_api_url + request_body + self.API_KEY + str(self.__current_time)
         )
 
         b64mac = base64.b64encode(
             hmac.new(
-                self.SECRET_KEY, bytes(encoded_data, "utf-8"), hashlib.sha1
+                self.SECRET_KEY, encoded_data.encode("utf-8"), hashlib.sha1
             ).digest()
-        )
+        ).decode("ascii")
         return b64mac
 
     def create_headers(self, b64mac):
@@ -76,43 +75,21 @@ class Deprovisioner:
             "Accept": "application/json",
             "Content-Type": "application/json",
             "x-uniffm-apikey": self.API_KEY,
-            "x-uniffm-time": str(self.current_time),
+            "x-uniffm-time": str(self.__current_time),
             "x-uniffm-mac": b64mac,
         }
 
-    def prepare_request_bodies(self):
-        """
-        Prepare an Array of Strings each representing one Batch-Request body for an JSON-RPC Request.
-        """
-        assert len(self.request_bodies) == 0
-        n = 0
-        queryset_partition = self.queryset[
-            n * self.REQUEST_OBJ_COUNT : (n + 1) * self.REQUEST_OBJ_COUNT
-        ]
-
-        while queryset_partition:
-            prepared_rpc_bodies = [
-                self.prepare_obj_json_rpc(user_obj) for user_obj in queryset_partition
-            ]
-            self.request_bodies.append(json.dumps(prepared_rpc_bodies, sort_keys=True))
-            n += 1
-            queryset_partition = self.queryset[
-                n * self.REQUEST_OBJ_COUNT : (n + 1) * self.REQUEST_OBJ_COUNT
-            ]
-
-    def prepare_obj_json_rpc(self, obj):
+    def prepare_request_body(self):
         """
         Prepare the object for a JSON-RPC request for one user.
         """
         body_obj = {
             "jsonrpc": "2.0",
             "method": "idm.read",
-            "id": f"{getattr(obj, self.identifier_field)}",
+            "id": "1",
             "params": {
                 "object": ["shortstamm"],
-                "filter": [
-                    f"db.hrzlogin={getattr(obj, self.identifier_field)} && db.accountstatus=L"
-                ],
+                "filter": ["db.accountstatus=L"],
                 # the "timestamp" is a pseudo filter used by the json-rpc endpoint to filter by "last_changed">"timestamp"
                 "datain": {
                     "timestamp": self.last_deprovision_time,
@@ -121,7 +98,7 @@ class Deprovisioner:
                 },
             },
         }
-        return body_obj
+        return json.dumps(body_obj, sort_keys=True)
 
     def deprovision(self):
         """
@@ -134,17 +111,15 @@ class Deprovisioner:
             3.1 Mark model instances that full-fill the deprovisioning condition for future deletion
         """
         LOGGER.info("Deprovisioning started.")
+        self.set_current_time()
         self.pre_deprovision()
-        self.prepare_request_bodies()
-
-        for body in self.request_bodies:
-            mac = self.create_hmac(body)
-            headers = self.create_headers(mac)
-            response = requests.post(
-                self.idm_api_url, data=body, headers=headers, verify=True
-            )
-            parsed_content = json.loads(response.content)
-            self.handle_response(parsed_content)
+        body = self.prepare_request_body()
+        headers = self.create_headers(self.create_hmac(body))
+        response = requests.post(
+            self.idm_api_url, data=body, headers=headers, verify=True
+        )
+        parsed_content = json.loads(response.content)
+        self.handle_response(parsed_content)
 
     def pre_deprovision(self):
         """
@@ -171,19 +146,19 @@ class Deprovisioner:
         """
         LOGGER.info("mark_for_deletion called")
         with transaction.atomic():
-            for body_obj in response_body:
-                update_value = self.get_update_value(body_obj)
-                self.model.objects.filter(
-                    **{self.identifier_field: self.get_obj_identifier_value(body_obj)}
-                ).update(**{self.deprovision_cond_field: update_value})
-                self.update_counter(update_value)
+            data = response_body.get("result").get("data")
+            logins = [obj["hrzlogin"] for obj in data]
+            updated_cnt = self.model.objects.filter(username__in=logins).update(
+                **{self.deprovision_cond_field: True}
+            )
+            self.update_counter(updated_cnt)
         LOGGER.info(f"{self.update_cnt} Objects updated.")
         self.reset_update_cnt()
 
     def reset_update_cnt(self):
         self.update_cnt = 0
 
-    def update_counter(self, conditional_value=None):
+    def update_counter(self, value):
         """
         Method to update the counter of objects.
         :param conditional_value: value used to determine whether an object was actually updated
@@ -191,12 +166,12 @@ class Deprovisioner:
         Example:
         Changing a field from 1 --> 1 does not count as real update in thos case.
         """
-        self.update_cnt += self.get_increment(conditional_value)
+        self.update_cnt += self.get_increment(value)
 
-    def get_increment(self, conditional_value):
+    def get_increment(self, value):
         """
-        Method to determine what increment to provide for the update counter
-        depending on the conditional_value.
+        Method to determine what increment to provide for the update counter.
+        Default to value provided.
 
         :param conditional_value: value used to determine increment
 
@@ -205,7 +180,7 @@ class Deprovisioner:
 
         Can be further generalized in future deprovisioning classes if needed.
         """
-        return conditional_value
+        return value
 
     def handle_response(self, response_body):
         """

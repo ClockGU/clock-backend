@@ -1,0 +1,9 @@
+groups:
+  all-dependencies:
+    patterns:
+      - "*"
+schedule:
+  interval: "weekly"
+ignore:
+  - dependency-name: "*"
+    update-types: ["version-update:semver-patch"]
