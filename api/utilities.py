@@ -154,30 +154,24 @@ def create_reports_for_contract(contract, start, stop):
     :return:
     """
     assert start.day == 1
-
-    Report.objects.create(
-        month_year=start,
-        worktime=datetime.timedelta(0),
-        vacation_time=datetime.timedelta(0),
-        contract=contract,
-        user=contract.user,
-        created_by=contract.user,
-        modified_by=contract.user,
-    )
-    _month_year = start + relativedelta(months=1)
+    _month_year = start
+    end = min(stop, contract.end_date)
 
     # Create Reports for all months between start_date and now/end_date
-    while _month_year <= stop and _month_year <= contract.end_date:
-        Report.objects.create(
+    while _month_year <= end:
+        Report.objects.get_or_create(
             month_year=_month_year,
-            worktime=datetime.timedelta(0),
-            vacation_time=datetime.timedelta(0),
             contract=contract,
-            user=contract.user,
-            created_by=contract.user,
-            modified_by=contract.user,
+            defaults={
+                "worktime": datetime.timedelta(0),
+                "vacation_time": datetime.timedelta(0),
+                "user": contract.user,
+                "created_by": contract.user,
+                "modified_by": contract.user,
+            },
         )
         _month_year += relativedelta(months=1)
+
     update_reports(contract, contract.start_date.replace(day=1))
 
 
