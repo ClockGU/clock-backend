@@ -254,6 +254,7 @@ class ReportAdmin(admin.ModelAdmin):
     search_fields = ("user__id", "contract__id", "contract__reference")
     list_filter = ("month_year",)
 
+    @admin.display(ordering="month_year")
     def format_date(self, obj):
         date = obj.month_year
 
