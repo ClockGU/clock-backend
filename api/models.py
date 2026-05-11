@@ -113,6 +113,8 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("Superuser must have is_superuser=True.")
 
         return self._create_user(email, password, **extra_fields)
+
+
 class User(AbstractUser):
     LANGUAGE_CHOICES = (("de", "Deutsch"), ("en", "English"))
     id = models.UUIDField(
@@ -142,6 +144,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
 
 class Contract(models.Model):
     id = models.UUIDField(
@@ -173,9 +176,10 @@ class Contract(models.Model):
     modified_by = models.ForeignKey(
         to=User, related_name="+", on_delete=models.CASCADE
     )  # No backwards relation to these Fields
-    
+
     def __str__(self):
         return f"{self.user.last_name} - {self.name}"
+
 
 class Shift(models.Model):
     TYPE_CHOICES = (
@@ -205,7 +209,8 @@ class Shift(models.Model):
     modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.user} - {self.started} - {self.stopped}"
+        return f"{self.user.last_name} - {self.started} - {self.stopped}"
+
 
 class ClockedInShift(models.Model):
     id = models.UUIDField(
@@ -225,6 +230,7 @@ class ClockedInShift(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.started}"
+
 
 class Report(models.Model):
     id = models.UUIDField(
