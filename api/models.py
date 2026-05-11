@@ -249,7 +249,7 @@ class Report(models.Model):
     modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.user} - {self.month_year}"
+        return f"{self.user.last_name} - {self.month_year}"
 
     @property
     def debit_worktime(self):
