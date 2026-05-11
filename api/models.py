@@ -229,7 +229,7 @@ class ClockedInShift(models.Model):
     modified_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.user} - {self.started}"
+        return f"{self.user.last_name} - {self.started}"
 
 
 class Report(models.Model):
