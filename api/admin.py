@@ -13,6 +13,10 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+from hashlib import sha256
+
+import requests
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.urls import reverse
@@ -27,12 +31,35 @@ from api.models import ClockedInShift, Contract, Report, Shift, User
 def unlock_reports(modeladmin, request, queryset):
     if modeladmin.model != Report:
         raise Exception("Unlocking reports is only allowed for Report model")
+    hash = bytes(settings.ADMIN_KEYWORD, "utf-8") + bytes(
+        settings.TIME_VAULT_API_KEY, "utf-8"
+    )
+    hashed_key = sha256(hash).hexdigest()
+
     for report in queryset:
-        Shift.objects.filter(
-            contract=report.contract,
-            started__month=report.month_year.month,
-            started__year=report.month_year.year
-        ).update(locked=False)
+        response = requests.delete(
+            url=f"{settings.TIME_VAULT_URL}/delete/{report.contract.reference}/{report.month_year.month}/{report.month_year.year}",
+            headers={"X-API-KEY": hashed_key},
+        )
+
+        if response.status_code == 410:
+            modeladmin.message_user(
+                request, "The report was already deleted.", level="warning"
+            )
+            break
+        elif response.status_code != 204:
+            modeladmin.message_user(
+                request,
+                f"An error occurred while deleting the report: {response.content}",
+                level="error",
+            )
+        else:
+            Shift.objects.filter(
+                contract=report.contract,
+                started__month=report.month_year.month,
+                started__year=report.month_year.year,
+            ).update(locked=False)
+
 
 class ShiftMonthYearFilter(admin.SimpleListFilter):
     """
