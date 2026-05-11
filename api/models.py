@@ -175,7 +175,7 @@ class Contract(models.Model):
     )  # No backwards relation to these Fields
     
     def __str__(self):
-        return self.name
+        return f"{self.user.last_name} - {self.name}"
 
 class Shift(models.Model):
     TYPE_CHOICES = (
