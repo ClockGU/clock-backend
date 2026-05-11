@@ -40,22 +40,6 @@ def december_contract(user_object):
 
 
 @pytest.fixture
-def celery_test_fixture(user_object):
-    """
-    This Fixture starts a celery worker in the running test container and exits it.
-    With this manual entering and exiting it is possible to use the time set by freezgun and also
-    use the Testdatabase.
-    :param user_object:
-    :param contract_ending_in_february:
-    :return:
-    """
-    worker = start_worker(app)
-    worker.__enter__()
-    yield
-    worker.__exit__(None, None, None)
-
-
-@pytest.fixture
 def celery_test_fixture_correct_minutes(user_object, contract_ending_in_february):
     """
     This fixture modifies the automatically created report for January to have symbolicaly 600 minutes of work
@@ -68,24 +52,3 @@ def celery_test_fixture_correct_minutes(user_object, contract_ending_in_february
     january_report = contract_ending_in_february.reports.get(month_year__month=1)
     january_report.worktime = datetime.timedelta(minutes=600)
     january_report.save()
-    worker = start_worker(app)
-    worker.__enter__()
-    yield
-    worker.__exit__(None, None, None)
-
-
-@pytest.fixture
-def celery_test_fixture_end_of_year_test(december_contract):
-    """
-    This fixture creates a Contract which starts on 1.1.2019 and ends at 29.2.2020.
-    The expected output is as in every other month: -1200 minutes on the automatically created Report at the beginning
-    of a month.
-
-    :param december_contract:
-    :return:
-    """
-
-    worker = start_worker(app)
-    worker.__enter__()
-    yield
-    worker.__exit__(None, None, None)

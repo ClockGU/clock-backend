@@ -29,7 +29,7 @@ from api.utilities import (
     calculate_break,
     calculate_worktime_breaktime,
     create_reports_for_contract,
-    create_reports_until_current_month,
+    create_reports_from_scratch,
     timedelta_to_string,
     update_reports,
 )
@@ -341,7 +341,7 @@ class ContractSerializer(RestrictModificationModelSerializer):
             # Delete all existing Reports
             Report.objects.filter(contract=instance).delete()
             # Recreate them.
-            create_reports_until_current_month(contract=instance)
+            create_reports_from_scratch(contract=instance)
         if end_date_changed:
             create_reports_for_contract(
                 contract=instance,
