@@ -23,6 +23,17 @@ from django.utils.translation import gettext_lazy as _
 from api.models import ClockedInShift, Contract, Report, Shift, User
 
 
+@admin.action(description="Unlock selected reports")
+def unlock_reports(modeladmin, request, queryset):
+    if modeladmin.model != Report:
+        raise Exception("Unlocking reports is only allowed for Report model")
+    for report in queryset:
+        Shift.objects.filter(
+            contract=report.contract,
+            started__month=report.month_year.month,
+            started__year=report.month_year.year
+        ).update(locked=False)
+
 class ShiftMonthYearFilter(admin.SimpleListFilter):
     """
     Filter for Shifts by month and year.
@@ -253,6 +264,7 @@ class ReportAdmin(admin.ModelAdmin):
     )
     search_fields = ("user__id", "contract__id", "contract__reference")
     list_filter = ("month_year",)
+    actions = [unlock_reports]
 
     @admin.display(ordering="month_year")
     def format_date(self, obj):
