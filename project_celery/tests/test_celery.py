@@ -63,14 +63,12 @@ class TestCeleryBeats:
         freezer,
     ):
         """
-                Test that the automatic Report creation correctly carries over the minutes of the last month.
-
-                In the Report for January, in this case, has a value for minutes of timedelta(minutes=600).
-                The contract specifies 1200 minutes as debit.
-        stat        The carry over should turn out to be timedelta(minutes=-600) for February.
-                :param user_object:
-                :param contract_ending_in_february:
-                :return:
+        Test that the automatic Report creation correctly carries over the minutes of the last month.
+        The contract specifies 1200 minutes as debit.
+        The carry over should turn out to be timedelta(minutes=-600) for February.
+        :param user_object:
+        :param contract_ending_in_february:
+        :return:
         """
         freezer.move_to("2019-02-01")
         create_reports_monthly()
@@ -81,7 +79,7 @@ class TestCeleryBeats:
         ).worktime == timedelta(minutes=0)
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year__month=2
-        ).carryover_previous_month == timedelta(minutes=-600)
+        ).carryover_previous_month == timedelta(minutes=-1200)
 
     @pytest.mark.freeze_time("2019-12-01")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)

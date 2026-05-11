@@ -145,7 +145,7 @@ class TestContractAutomaticReportCreation:
         )
 
         reports = Report.objects.filter(contract=_contract)
-        assert reports.__len__() == 1
+        assert reports.count() == 1
         assert reports.first().month_year == datetime.date(2020, 5, 1)
 
 

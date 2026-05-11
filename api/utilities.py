@@ -140,10 +140,14 @@ def timedelta_to_string(timedelta):
     return format_string.format(hours=hours, minutes=minutes)
 
 
-def create_reports_until_current_month(contract):
-    create_reports_for_contract(
-        contract, contract.start_date.replace(day=1), date.today()
-    )
+def create_reports_from_scratch(contract):
+    """
+    This function creates all reports for a given contract such that
+    all months between the start_date and date.today() have a corresponding Report object.
+    If the contract starts in the future, only a report for the start month is created.
+    """
+    stop = max(contract.start_date, date.today())
+    create_reports_for_contract(contract, contract.start_date.replace(day=1), stop)
 
 
 # TODO: This function needs a different, more phony name.
@@ -192,7 +196,7 @@ def create_report_after_contract_creation(sender, instance, created, **kwargs):
     :return:
     """
     if created:
-        create_reports_until_current_month(contract=instance)
+        create_reports_from_scratch(contract=instance)
 
 
 post_save.connect(
