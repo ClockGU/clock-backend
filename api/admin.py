@@ -35,7 +35,7 @@ def unlock_reports(modeladmin, request, queryset):
         settings.TIME_VAULT_API_KEY, "utf-8"
     )
     hashed_key = sha256(hash).hexdigest()
-
+    deleted_reports = 0
     for report in queryset:
         response = requests.delete(
             url=f"{settings.TIME_VAULT_URL}/delete/{report.contract.reference}/{report.month_year.month}/{report.month_year.year}",
@@ -59,6 +59,8 @@ def unlock_reports(modeladmin, request, queryset):
                 started__month=report.month_year.month,
                 started__year=report.month_year.year,
             ).update(locked=False)
+            deleted_reports +=1
+    modeladmin.message_user(request, f"{deleted_reports} reports deleted.")
 
 
 class ShiftMonthYearFilter(admin.SimpleListFilter):
