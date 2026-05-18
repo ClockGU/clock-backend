@@ -44,6 +44,7 @@ LOG_ROOT = ROOT_DIR.path("logs")
 env = environ.Env()
 
 INSTALLED_APPS = [
+    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -102,7 +103,19 @@ TEMPLATES = [
     }
 ]
 
-WSGI_APPLICATION = "config.wsgi.application"
+# WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_rabbitmq.core.RabbitmqChannelLayer",
+        "CONFIG": {
+            "host": env.str("RABBITMQ_URL"),
+        },
+        "CHANNEL_LAYER_OPTIONS": {
+            "debug": True,  # Enable debug logging
+        },
+    },
+}
 
 # DATABASE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -226,6 +239,7 @@ CELERY_ALWAYS_EAGER = True
 
 TIME_VAULT_URL = env("TIME_VAULT_URL", default="")
 TIME_VAULT_API_KEY = env("TIME_VAULT_API_KEY", default="")
+ADMIN_KEYWORD = env("ADMIN_KEYWORD", default="")
 # Locale
 
 LANGUAGES = [("de", _("German")), ("en", _("English"))]

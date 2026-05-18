@@ -38,3 +38,6 @@ class AuthKey(models.Model):
             message.send(fail_silently=False)
             LOGGER.info(token)
         super(AuthKey, self).save(force_insert, force_update, using, update_fields)
+
+        def __str__(self):
+            return self.email

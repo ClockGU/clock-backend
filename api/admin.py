@@ -13,6 +13,13 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+import datetime
+from hashlib import sha256
+from itertools import groupby, pairwise
+
+import requests
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.urls import reverse
@@ -21,6 +28,74 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from api.models import ClockedInShift, Contract, Report, Shift, User
+
+
+@admin.action(description="Unlock selected reports")
+def unlock_reports(modeladmin, request, queryset):
+    if modeladmin.model != Report:
+        raise Exception("Unlocking reports is only allowed for Report model")
+    hash = bytes(settings.ADMIN_KEYWORD, "utf-8") + bytes(
+        settings.TIME_VAULT_API_KEY, "utf-8"
+    )
+    hashed_key = sha256(hash).hexdigest()
+
+    # Check if all reports belong to the same contract
+    g = groupby(map(lambda x: x.contract, queryset))
+    if not (next(g, True) and not next(g, False)):
+        modeladmin.message_user(
+            request, "Selected reports belong to different contracts.", level="error"
+        )
+        return
+
+    # Check if selected reports are consecutive months
+    d = map(lambda x: x.month_year, queryset)
+    diffs = all([a + relativedelta(months=1) == b for a, b in pairwise(d)])
+    if not diffs:
+        modeladmin.message_user(
+            request, "Selected reports are not form consecutive months.", level="error"
+        )
+        return
+
+    # Check if locked months after the last selected report exist
+    locked_shifts_after = Shift.objects.filter(
+        contract=queryset.last().contract,
+        started__date__gte=queryset.last().month_year + relativedelta(months=1),
+        locked=True,
+    )
+    if locked_shifts_after.exists():
+        modeladmin.message_user(
+            request,
+            "There are locked shifts after the selected reports. Please unlock them first.",
+            level="error",
+        )
+        return
+
+    deleted_reports = 0
+    for report in queryset:
+        response = requests.delete(
+            url=f"{settings.TIME_VAULT_URL}/delete/{report.contract.reference}/{report.month_year.month}/{report.month_year.year}",
+            headers={"X-API-KEY": hashed_key},
+        )
+
+        if response.status_code == 410:
+            modeladmin.message_user(
+                request, "The report was already deleted.", level="warning"
+            )
+            break
+        elif response.status_code != 204:
+            modeladmin.message_user(
+                request,
+                f"An error occurred while deleting the report: {response.content}",
+                level="error",
+            )
+        else:
+            Shift.objects.filter(
+                contract=report.contract,
+                started__month=report.month_year.month,
+                started__year=report.month_year.year,
+            ).update(locked=False)
+            deleted_reports += 1
+    modeladmin.message_user(request, f"{deleted_reports} reports deleted.")
 
 
 class ShiftMonthYearFilter(admin.SimpleListFilter):
@@ -251,9 +326,11 @@ class ReportAdmin(admin.ModelAdmin):
         "created_at",
         "modified_at",
     )
-    search_fields = ("user", "contract")
+    search_fields = ("user__id", "contract__id", "contract__reference")
     list_filter = ("month_year",)
+    actions = [unlock_reports]
 
+    @admin.display(ordering="month_year")
     def format_date(self, obj):
         date = obj.month_year
 

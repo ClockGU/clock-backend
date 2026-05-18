@@ -27,12 +27,11 @@ class TestCeleryBeats:
     @pytest.mark.freeze_time("2019-01-31")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
     def test_start_of_month_report_creation(
-        self, celery_test_fixture, user_object, contract_ending_in_february, freezer
+        self, user_object, contract_ending_in_february, freezer
     ):
         """
         Test the periodical task which creates a Report for every user, and each of his contracts, at
         the first of each month.
-        :param celery_test_fixture:
         :param user_object:
         :param contract_ending_in_february:
         :return:
@@ -59,18 +58,14 @@ class TestCeleryBeats:
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
     def test_start_of_month_report_creation_correct_minutes(
         self,
-        celery_test_fixture_correct_minutes,
         user_object,
         contract_ending_in_february,
         freezer,
     ):
         """
         Test that the automatic Report creation correctly carries over the minutes of the last month.
-
-        In the Report for January, in this case, has a value for minutes of timedelta(minutes=600).
         The contract specifies 1200 minutes as debit.
         The carry over should turn out to be timedelta(minutes=-600) for February.
-        :param celery_test_fixture_correct_minutes:
         :param user_object:
         :param contract_ending_in_february:
         :return:
@@ -84,20 +79,18 @@ class TestCeleryBeats:
         ).worktime == timedelta(minutes=0)
         assert Report.objects.get(
             contract=contract_ending_in_february, month_year__month=2
-        ).carryover_previous_month == timedelta(minutes=-600)
+        ).carryover_previous_month == timedelta(minutes=-1200)
 
     @pytest.mark.freeze_time("2019-12-01")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
     def test_start_of_month_report_creation_year_change(
         self,
-        celery_test_fixture_end_of_year_test,
         user_object,
         december_contract,
         freezer,
     ):
         """
         Test that the monthly Report creation also works correctly at the beginning of a new year (1. January).
-        :param celery_test_fixture_correct_minutes:
         :param user_object:
         :param contract_ending_in_february:
         :return:
@@ -116,7 +109,10 @@ class TestCeleryBeats:
     @pytest.mark.freeze_time("2019-12-01")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
     def test_idempotency_of_report_creation(
-        celery_test_fixture_end_of_year_test, user_object, december_contract, freezer
+        self,
+        user_object,
+        december_contract,
+        freezer,
     ):
         """
         Tetst that the function is idempotent in case of databse hiccups or other unforseen disturbances.

@@ -16,6 +16,8 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 import datetime
 from datetime import date
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from dateutil.relativedelta import relativedelta
 from django.db.models import (
     Case,
@@ -140,10 +142,14 @@ def timedelta_to_string(timedelta):
     return format_string.format(hours=hours, minutes=minutes)
 
 
-def create_reports_until_current_month(contract):
-    create_reports_for_contract(
-        contract, contract.start_date.replace(day=1), date.today()
-    )
+def create_reports_from_scratch(contract):
+    """
+    This function creates all reports for a given contract such that
+    all months between the start_date and date.today() have a corresponding Report object.
+    If the contract starts in the future, only a report for the start month is created.
+    """
+    stop = max(contract.start_date, date.today())
+    create_reports_for_contract(contract, contract.start_date.replace(day=1), stop)
 
 
 # TODO: This function needs a different, more phony name.
@@ -192,7 +198,7 @@ def create_report_after_contract_creation(sender, instance, created, **kwargs):
     :return:
     """
     if created:
-        create_reports_until_current_month(contract=instance)
+        create_reports_from_scratch(contract=instance)
 
 
 post_save.connect(
@@ -334,6 +340,42 @@ post_delete.connect(
     update_last_used_on_contract,
     sender=Shift,
     dispatch_uid="update_last_used_on_contract_delete",
+)
+
+
+def send_reports_through_websocket(sender, instance, created=False, **kwargs):
+    """
+    Reciever function:
+    After saving a Report we send the Report to the frontend via a websocket.
+    :param sender:
+    :param instance:
+    :param created:
+    :param kwargs:
+    """
+    try:
+        channel_layer = get_channel_layer()
+    except:
+        return
+
+    # Avoid circular import
+    from api.serializers import ReportSerializer
+
+    data = ReportSerializer(instance).data
+    data.pop("contract", None)
+
+    async_to_sync(channel_layer.group_send)(
+        f"ReportsSocket_{str(instance.user.id)}",
+        {
+            "type": "report_message",
+            "data": data,
+        },
+    )
+
+
+post_save.connect(
+    send_reports_through_websocket,
+    sender=Report,
+    dispatch_uid="send_reports_through_websocket",
 )
 
 
