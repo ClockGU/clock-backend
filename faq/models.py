@@ -28,7 +28,7 @@ class FaqHeading(models.Model):
     )
 
     def __str__(self):
-        return self.en_heading
+        return self.de_heading
 
 
 class Faq(models.Model):
@@ -56,3 +56,6 @@ class Faq(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(100)],
         verbose_name="Prio (0 - 100)",
     )
+
+    def __str__(self):
+        return self.de_question
