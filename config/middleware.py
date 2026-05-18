@@ -17,11 +17,10 @@ class JWTAuthMiddleware(BaseMiddleware):
         """
         from django.contrib.auth.models import AnonymousUser
 
-        headers = dict(scope["headers"])
+        subprotocols = scope.get("subprotocols", [])
         token = None
-        if b"jwt_token" in headers:
-            token = headers[b"jwt_token"]
-            auth_header = token.decode()
+        if len(subprotocols) == 2 and subprotocols[0] == "token":
+            token = subprotocols[1].encode()
 
         if not token:
             user = AnonymousUser()
