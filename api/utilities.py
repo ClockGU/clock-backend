@@ -16,6 +16,8 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 import datetime
 from datetime import date
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from dateutil.relativedelta import relativedelta
 from django.db.models import (
     Case,
@@ -338,6 +340,42 @@ post_delete.connect(
     update_last_used_on_contract,
     sender=Shift,
     dispatch_uid="update_last_used_on_contract_delete",
+)
+
+
+def send_reports_through_websocket(sender, instance, created=False, **kwargs):
+    """
+    Reciever function:
+    After saving a Report we send the Report to the frontend via a websocket.
+    :param sender:
+    :param instance:
+    :param created:
+    :param kwargs:
+    """
+    try:
+        channel_layer = get_channel_layer()
+    except:
+        return
+
+    # Avoid circular import
+    from api.serializers import ReportSerializer
+
+    data = ReportSerializer(instance).data
+    data.pop("contract", None)
+
+    async_to_sync(channel_layer.group_send)(
+        f"ReportsSocket_{str(instance.user.id)}",
+        {
+            "type": "report_message",
+            "data": data,
+        },
+    )
+
+
+post_save.connect(
+    send_reports_through_websocket,
+    sender=Report,
+    dispatch_uid="send_reports_through_websocket",
 )
 
 

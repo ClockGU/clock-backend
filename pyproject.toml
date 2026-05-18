@@ -43,6 +43,10 @@ pytest-sugar = "^0.9.7"
 freezegun = "^1.2.2"
 django-coverage-plugin = "3.1.0"
 pylint-django = "2.5.3"
+channels = "^4.2.0"
+uvicorn = "^0.34.0"
+websockets = "^14.1"
+channels-rabbitmq = "^4.0.1"
 
 [tool.poetry.dev-dependencies]
 coverage = "==5.0a4"
