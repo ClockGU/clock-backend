@@ -13,9 +13,12 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+import datetime
 from hashlib import sha256
+from itertools import groupby, pairwise
 
 import requests
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -35,6 +38,38 @@ def unlock_reports(modeladmin, request, queryset):
         settings.TIME_VAULT_API_KEY, "utf-8"
     )
     hashed_key = sha256(hash).hexdigest()
+
+    # Check if all reports belong to the same contract
+    g = groupby(map(lambda x: x.contract, queryset))
+    if not (next(g, True) and not next(g, False)):
+        modeladmin.message_user(
+            request, "Selected reports belong to different contracts.", level="error"
+        )
+        return
+
+    # Check if selected reports are consecutive months
+    d = map(lambda x: x.month_year, queryset)
+    diffs = all([a + relativedelta(months=1) == b for a, b in pairwise(d)])
+    if not diffs:
+        modeladmin.message_user(
+            request, "Selected reports are not form consecutive months.", level="error"
+        )
+        return
+
+    # Check if locked months after the last selected report exist
+    locked_shifts_after = Shift.objects.filter(
+        contract=queryset.last().contract,
+        started__date__gte=queryset.last().month_year + relativedelta(months=1),
+        locked=True,
+    )
+    if locked_shifts_after.exists():
+        modeladmin.message_user(
+            request,
+            "There are locked shifts after the selected reports. Please unlock them first.",
+            level="error",
+        )
+        return
+
     deleted_reports = 0
     for report in queryset:
         response = requests.delete(
@@ -59,7 +94,7 @@ def unlock_reports(modeladmin, request, queryset):
                 started__month=report.month_year.month,
                 started__year=report.month_year.year,
             ).update(locked=False)
-            deleted_reports +=1
+            deleted_reports += 1
     modeladmin.message_user(request, f"{deleted_reports} reports deleted.")
 
 
