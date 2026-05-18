@@ -351,14 +351,13 @@ def send_reports_through_websocket(sender, instance, created=False, **kwargs):
     :param instance:
     :param created:
     :param kwargs:
-    :return:
     """
     try:
         channel_layer = get_channel_layer()
     except:
-        return None
+        return
 
-    # Avoid circular import by importing serializer here
+    # Avoid circular import
     from api.serializers import ReportSerializer
 
     data = ReportSerializer(instance).data
@@ -368,7 +367,7 @@ def send_reports_through_websocket(sender, instance, created=False, **kwargs):
         f"ReportsSocket_{str(instance.user.id)}",
         {
             "type": "report_message",
-            "message": data,
+            "data": data,
         },
     )
 
