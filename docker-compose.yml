@@ -30,6 +30,7 @@ services:
       - IDM_API_URL=default
       - IDM_API_KEY=default
       - IDM_SECRET_KEY=64656661756c74
+      - ADMIN_KEYWORD=test_keyword
     volumes:
       - .:/app
     links:
