@@ -2,7 +2,6 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 
 class ReportConsumer(AsyncJsonWebsocketConsumer):
-
     @property
     def room_group_name(self):
         return f'ReportsSocket_{self.scope["user"].id}'
