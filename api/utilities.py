@@ -229,7 +229,7 @@ def update_reports(contract, month_year):
 
     for report in Report.objects.filter(
         contract=contract, month_year__gte=month_year
-    ).order_by("month_year"):
+    ):
         shifts_this_day = Shift.objects.filter(
             contract=report.contract,
             started__month=report.month_year.month,
