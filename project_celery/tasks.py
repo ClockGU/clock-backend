@@ -24,6 +24,7 @@ from pytz import datetime
 
 from api.idm.deprovisioning import Deprovisioner
 from api.models import Report, User
+from api.utilities import update_reports
 from project_celery.celery import app
 
 
@@ -71,6 +72,7 @@ def create_reports_monthly(self):
                     "modified_by": user,
                 },
             )
+            update_reports(contract, date_now)
 
 
 @app.task(bind=True, default_retry_delay=10)
