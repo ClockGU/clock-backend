@@ -215,14 +215,13 @@ def update_reports(contract, month_year):
     :param month_year:
     :return:
     """
-    prev_report = (
-        Report.objects.filter(contract=contract, month_year__lt=month_year)
-        .order_by("month_year")
-        .last()
-    )
-    if prev_report is not None:
+    try:
+        prev_report = Report.objects.get(
+            contract=contract,
+            month_year=month_year - relativedelta(months=1),
+        )
         carryover_previous_month = prev_report.carryover
-    else:
+    except Report.DoesNotExist:
         carryover_previous_month = datetime.timedelta(
             minutes=contract.initial_carryover_minutes
         )
