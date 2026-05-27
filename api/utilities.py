@@ -215,9 +215,21 @@ def update_reports(contract, month_year):
     :param month_year:
     :return:
     """
-    # Loop over all Reports starting from month in which the created/update shift
-    # took place.
-    for report in Report.objects.filter(contract=contract, month_year__gte=month_year):
+    prev_report = (
+        Report.objects.filter(contract=contract, month_year__lt=month_year)
+        .order_by("month_year")
+        .last()
+    )
+    if prev_report is not None:
+        current_carryover = prev_report.carryover
+    else:
+        current_carryover = datetime.timedelta(
+            minutes=contract.initial_carryover_minutes
+        )
+
+    for report in Report.objects.filter(
+        contract=contract, month_year__gte=month_year
+    ).order_by("month_year"):
         shifts_this_day = Shift.objects.filter(
             contract=report.contract,
             started__month=report.month_year.month,
@@ -260,6 +272,7 @@ def update_reports(contract, month_year):
                 output_field=DurationField(),
             ),
         )
+        report.carryover_previous_month = current_carryover
         report.worktime = sum(
             map(
                 lambda shift: shift.day_worktime - shift.missing_breaktime,
@@ -277,6 +290,7 @@ def update_reports(contract, month_year):
             datetime.timedelta(0),
         )
         report.save()
+        current_carryover = report.carryover
 
 
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):
