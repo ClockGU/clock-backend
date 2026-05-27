@@ -241,6 +241,7 @@ class Report(models.Model):
     contract = models.ForeignKey(
         to=Contract, related_name="reports", on_delete=models.CASCADE
     )
+    carryover_previous_month = models.DurationField(default=timedelta(0))
     user = models.ForeignKey(to=User, related_name="reports", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
@@ -305,10 +306,18 @@ class Report(models.Model):
 
     @property
     def carryover(self):
-        carryover = self.worktime - self.debit_worktime + self.carryover_previous_month
+        if self.month_year == self.contract.start_date.replace(day=1):
+            effective_carryover_previous_month = timedelta(
+                minutes=self.contract.initial_carryover_minutes
+            )
+        else:
+            effective_carryover_previous_month = self.carryover_previous_month
+        carryover = (
+            self.worktime - self.debit_worktime + effective_carryover_previous_month
+        )
         max_carryover_increase = self.debit_worktime / 2
-        if carryover > self.carryover_previous_month + max_carryover_increase:
-            return self.carryover_previous_month + max_carryover_increase
+        if carryover > effective_carryover_previous_month + max_carryover_increase:
+            return effective_carryover_previous_month + max_carryover_increase
         return carryover
 
     @property
@@ -317,8 +326,6 @@ class Report(models.Model):
             self.debit_vacation_time + self.vacation_carryover_previous_month
         ) - self.vacation_time
         return carryover_next_month
-
-    carryover_previous_month = models.DurationField(default=timedelta(0))
 
     @property
     def vacation_carryover_previous_month(self):
