@@ -221,9 +221,9 @@ def update_reports(contract, month_year):
         .last()
     )
     if prev_report is not None:
-        current_carryover = prev_report.carryover
+        carryover_previous_month = prev_report.carryover
     else:
-        current_carryover = datetime.timedelta(
+        carryover_previous_month = datetime.timedelta(
             minutes=contract.initial_carryover_minutes
         )
 
@@ -272,7 +272,7 @@ def update_reports(contract, month_year):
                 output_field=DurationField(),
             ),
         )
-        report.carryover_previous_month = current_carryover
+        report.carryover_previous_month = carryover_previous_month
         report.worktime = sum(
             map(
                 lambda shift: shift.day_worktime - shift.missing_breaktime,
@@ -290,7 +290,7 @@ def update_reports(contract, month_year):
             datetime.timedelta(0),
         )
         report.save()
-        current_carryover = report.carryover
+        carryover_previous_month = report.carryover
 
 
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):
