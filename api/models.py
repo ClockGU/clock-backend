@@ -22,7 +22,6 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
@@ -319,18 +318,7 @@ class Report(models.Model):
         ) - self.vacation_time
         return carryover_next_month
 
-    @cached_property
-    def carryover_previous_month(self):
-        try:
-            last_mon_report_object = Report.objects.get(
-                contract=self.contract,
-                month_year=self.month_year - relativedelta(months=1),
-            )
-
-        except Report.DoesNotExist:
-            return timedelta(minutes=self.contract.initial_carryover_minutes)
-
-        return last_mon_report_object.carryover
+    carryover_previous_month = models.DurationField(default=timedelta(0))
 
     @property
     def vacation_carryover_previous_month(self):
