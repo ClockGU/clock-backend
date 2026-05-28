@@ -17,7 +17,6 @@ import uuid
 from calendar import monthrange
 from datetime import datetime, timedelta
 
-from dateutil.relativedelta import relativedelta
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
@@ -242,6 +241,7 @@ class Report(models.Model):
         to=Contract, related_name="reports", on_delete=models.CASCADE
     )
     carryover_previous_month = models.DurationField(default=timedelta(0))
+    vacation_carryover_previous_month = models.DurationField(default=timedelta(0))
     user = models.ForeignKey(to=User, related_name="reports", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(to=User, related_name="+", on_delete=models.CASCADE)
@@ -322,26 +322,20 @@ class Report(models.Model):
 
     @property
     def vacation_carryover_next_month(self):
-        carryover_next_month = (
-            self.debit_vacation_time + self.vacation_carryover_previous_month
-        ) - self.vacation_time
-        return carryover_next_month
-
-    @property
-    def vacation_carryover_previous_month(self):
-        try:
-            last_mon_report_object = Report.objects.get(
-                contract=self.contract,
-                month_year=self.month_year - relativedelta(months=1),
+        if self.month_year == self.contract.start_date.replace(day=1):
+            effective_vacation_carryover_previous_month = timedelta(
+                minutes=self.contract.initial_vacation_carryover_minutes
             )
 
-        except Report.DoesNotExist:
-            return timedelta(minutes=self.contract.initial_vacation_carryover_minutes)
-
-        except Report.DoesNotExist:
-            return timedelta(0)
-
-        return last_mon_report_object.vacation_carryover_next_month
+        else:
+            effective_vacation_carryover_previous_month = (
+                self.vacation_carryover_previous_month
+            )
+        return (
+            self.debit_vacation_time
+            + effective_vacation_carryover_previous_month
+            - self.vacation_time
+        )
 
     class Meta:
         ordering = ["month_year"]
