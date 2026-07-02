@@ -221,13 +221,9 @@ def update_reports(contract, month_year):
             month_year=month_year - relativedelta(months=1),
         )
         carryover_previous_month = prev_report.carryover
-        vacation_carryover_previous_month = prev_report.vacation_carryover_next_month
     except Report.DoesNotExist:
         carryover_previous_month = datetime.timedelta(
             minutes=contract.initial_carryover_minutes
-        )
-        vacation_carryover_previous_month = datetime.timedelta(
-            minutes=contract.initial_vacation_carryover_minutes
         )
 
     for report in Report.objects.filter(
@@ -276,7 +272,6 @@ def update_reports(contract, month_year):
             ),
         )
         report.carryover_previous_month = carryover_previous_month
-        report.vacation_carryover_previous_month = vacation_carryover_previous_month
         report.worktime = sum(
             map(
                 lambda shift: shift.day_worktime - shift.missing_breaktime,
@@ -295,7 +290,6 @@ def update_reports(contract, month_year):
         )
         report.save()
         carryover_previous_month = report.carryover
-        vacation_carryover_previous_month = report.vacation_carryover_next_month
 
 
 def update_report_after_shift_save(sender, instance, created=False, **kwargs):
