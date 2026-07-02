@@ -47,6 +47,8 @@ def worktime_multiplicator(current_date, start_date, end_date, month_end_day):
 
 
 def stud_emp_worktime_multiplicator(current_date, start_date, end_date, month_end_day):
+    if start_date.month == end_date.month and start_date.year == end_date.year:
+        return end_date.day / month_end_day
     if start_date.month == current_date.month and start_date.year == current_date.year:
         return (month_end_day - start_date.day + 1) / month_end_day
     if end_date.month == current_date.month and end_date.year == current_date.year:
