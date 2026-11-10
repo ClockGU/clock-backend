@@ -50,7 +50,8 @@ uvicorn = "^0.34.0"
 websockets = "^14.1"
 channels-rabbitmq = "^4.0.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+requests-mock = "^1.12.1"
 coverage = "==5.0a4"
 django-coverage-plugin = "==3.1.0"
 ipython = "==7.16.3"
@@ -71,9 +72,6 @@ django-request-logging = "^0.7.1"
 black = "^23.3.0"
 pre-commit = "^2.21.0"
 isort = "^5.11.5"
-
-[tool.poetry.group.dev.dependencies]
-requests-mock = "^1.12.1"
 
 [tool.black]
 exclude = '''
