@@ -22,7 +22,7 @@ RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
 COPY --chown=app:app pyproject.toml poetry.lock /
 RUN pip install --upgrade pip
 RUN curl -sSL https://install.python-poetry.org  | python3 -
-RUN PATH="$PATH:$HOME/.local/bin" && poetry install --no-root
+RUN PATH="$PATH:$HOME/.local/bin" && poetry install
 
 # Copy dokku specific files to the project root
 COPY --chown=app:app docker/dokku/* /app/
