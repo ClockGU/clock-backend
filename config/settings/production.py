@@ -48,7 +48,12 @@ WHITENOISE_MIDDLEWARE = ["whitenoise.middleware.WhiteNoiseMiddleware"]
 MIDDLEWARE = WHITENOISE_MIDDLEWARE + MIDDLEWARE
 
 # STATICFILES
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}
 
 # ALLOWED HOSTS
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS")
