@@ -6,6 +6,9 @@ authors = [{ name = "Christian Grossmüller", email = "chgad.games@gmail.com" },
     { name = "Michael Gecht", email = "<gecht.m@gmail.com>" }]
 requires-python ="^3.14"
 
+[tool.poetry]
+package-mode = false
+
 [tool.poetry.dependencies]
 python = "^3.14"
 gunicorn = "==22.0.0"
