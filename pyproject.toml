@@ -1,63 +1,69 @@
-[tool.poetry]
-name = "api"
+[project]
+name = "clock-backend"
 version = "0.1.0"
 description = ""
-authors = ["Christian Grossmüller <chgad.games@gmail.com>", "Sören Grieger <soeren.grieger@posteo.de>", "Michael Gecht <gecht.m@gmail.com>"]
+authors = [{ name = "Christian Grossmüller", email = "chgad.games@gmail.com" }, {name = "Sören Grieger", email = "soeren.grieger@posteo.de" },
+    { name = "Michael Gecht", email = "<gecht.m@gmail.com>" }]
+requires-python ="^3.14"
+
+[tool.poetry]
+package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.14"
 gunicorn = "==22.0.0"
-gevent = "23.9.0"
+gevent = "^25.8"
 raven = "==6.10.0"
 whitenoise = "==6.6.0"
-django-guardian = "2.4.0"
+django-guardian = "==2.4.0"
 django-environ = "*"
 djoser = "*"
-python-dateutil = "==2.7.5"
-django-anymail = "10.1"
-django-taggit = "3.1.0"
-psycopg2-binary = "==2.9.7"
+python-dateutil = "^2.9.0"
+django-anymail = "==10.1"
+django-taggit = "==7.0.0"
+psycopg2-binary = "==2.9.11"
 djangorestframework = "*"
 djangorestframework-simplejwt = "5.5.*"
-celery = "==5.2.2"
+celery = "5.7.0"
 drf-yasg = "*"
 django-cors-headers = "^4.2.0"
 pdfkit = "*"
 pytest = "^7.4.0"
 pytest-django = "*"
-django = "^4.2"
+django = "^5.2"
 more-itertools = "*"
 django-rosetta = "*"
 django-allauth = "==0.54.0"
 dj-rest-auth = "==2.2.8"
 sentry-sdk = "*"
-django-filter = "23.2"
+django-filter = "^25.1"
 Unidecode = "^1.2.0"
 Sphinx = "^4.5.0"
-weasyprint = "^58.1"
+weasyprint = "^67"
 holidays = "^0.17"
 black = "^23.3.0"
 pre-commit = "^2.21.0"
 isort = "^5.11.5"
 pytest-sugar = "^0.9.7"
-freezegun = "^1.2.2"
-django-coverage-plugin = "3.1.0"
-pylint-django = "2.5.3"
+freezegun = "^1.5.5"
+django-coverage-plugin = "==3.1.0"
+pylint-django = "==2.5.3"
 channels = "^4.2.0"
 uvicorn = "^0.34.0"
 websockets = "^14.1"
 channels-rabbitmq = "^4.0.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+requests-mock = "^1.12.1"
 coverage = "==5.0a4"
 django-coverage-plugin = "==3.1.0"
 ipython = "==7.16.3"
 ipdb = "==0.13"
 pytest-django = "*"
-django = "^4.2"
+django = "^5.2"
 pytest-sugar = "==0.9.7"
 pytest-cov = "==2.6.1"
-freezegun = "==1.2.2"
+freezegun = "^1.5.5"
 pylint = "==2.2.2"
 pylint-django = "==2.5.3"
 flake8 = "==3.6.0"
@@ -70,20 +76,17 @@ black = "^23.3.0"
 pre-commit = "^2.21.0"
 isort = "^5.11.5"
 
-[tool.poetry.group.dev.dependencies]
-requests-mock = "^1.12.1"
-
 [tool.black]
 exclude = '''
 /(migrations)/
 | /venv
 '''
 line_length = 88
-target_version = ["py310"]
+target_version = ["py314"]
 
 [tool.isort]
 profile = "black"
-py_version = 310
+py_version = 314
 multi_line_output = 3
 line_length = 88
 

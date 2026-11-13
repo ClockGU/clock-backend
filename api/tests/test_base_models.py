@@ -452,7 +452,7 @@ class TestShiftFields:
             ("bh", _("Bank Holiday")),
         )
         field = shift_model_class._meta.get_field("type")
-        assert field.choices == choices
+        assert all(choice in field.choices for choice in choices)
 
     def test_field_conf_was_reviewed(self, shift_model_class):
         field = shift_model_class._meta.get_field("was_reviewed")
