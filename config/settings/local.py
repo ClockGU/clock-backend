@@ -61,6 +61,11 @@ CACHES = {
         "LOCATION": "",
     }
 }
+REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "dj_rest_auth.utils.JWTCookieAuthentication",
+        "rest_framework.authentication.BasicAuthentication"
+    )
 
 REQUEST_LOGGING_ENABLE_COLORIZE = True
 REQUEST_LOGGING_SENSITIVE_HEADERS = []

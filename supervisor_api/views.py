@@ -62,7 +62,7 @@ class VerifyEndpoint(generics.GenericAPIView):
         return Response(data=UserSerializer(user).data)
 
 
-class ReportingEndpoint(generics.GenericAPIView):
+class ReportingEndpoint(views.APIView):
     permission_classes = (IsSupervisorPermission,)
 
     def get(self, request, month=None, year=None):
@@ -76,7 +76,7 @@ class ReportingEndpoint(generics.GenericAPIView):
         return Response(data=response.json())
 
 
-class CheckReferencesEnpoint(generics.GenericAPIView):
+class CheckReferencesEnpoint(views.APIView):
     permission_classes = (IsSupervisorPermission,)
 
     def post(self, request):
