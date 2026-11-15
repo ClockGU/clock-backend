@@ -13,6 +13,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+
 from django.conf import settings
 from django.core.mail import EmailMessage
 from drf_yasg.utils import swagger_auto_schema

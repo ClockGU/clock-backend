@@ -13,6 +13,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+
 # flake8: noqa
 
 import sentry_sdk
@@ -48,7 +49,12 @@ WHITENOISE_MIDDLEWARE = ["whitenoise.middleware.WhiteNoiseMiddleware"]
 MIDDLEWARE = WHITENOISE_MIDDLEWARE + MIDDLEWARE
 
 # STATICFILES
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}
 
 # ALLOWED HOSTS
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS")
