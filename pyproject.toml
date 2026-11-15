@@ -42,7 +42,6 @@ Sphinx = "^4.5.0"
 weasyprint = "^67"
 holidays = "^0.17"
 pre-commit = "^2.21.0"
-isort = "^5.11.5"
 pytest-sugar = "^0.9.7"
 freezegun = "^1.5.5"
 django-coverage-plugin = "==3.1.0"
@@ -52,6 +51,7 @@ uvicorn = "^0.34.0"
 websockets = "^14.1"
 channels-rabbitmq = "^4.0.1"
 black = "^25"
+isort = "^9.0.2"
 
 [tool.poetry.group.dev.dependencies]
 requests-mock = "^1.12.1"
@@ -73,7 +73,6 @@ django-test-plus = "*"
 django-extensions = "*"
 django-request-logging = "^0.7.1"
 pre-commit = "^2.21.0"
-isort = "^5.11.5"
 black = "^25"
 
 [tool.black]
