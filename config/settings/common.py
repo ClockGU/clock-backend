@@ -13,6 +13,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+
 import os.path
 
 """
@@ -207,8 +208,6 @@ LANGUAGE_CODE = "de"
 TIME_ZONE = "Europe/Berlin"
 
 USE_I18N = True
-
-USE_L10N = True
 
 USE_TZ = True
 

@@ -13,6 +13,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+
 import datetime
 from datetime import date
 
@@ -226,9 +227,7 @@ def update_reports(contract, month_year):
             minutes=contract.initial_carryover_minutes
         )
 
-    for report in Report.objects.filter(
-        contract=contract, month_year__gte=month_year
-    ):
+    for report in Report.objects.filter(contract=contract, month_year__gte=month_year):
         shifts_this_day = Shift.objects.filter(
             contract=report.contract,
             started__month=report.month_year.month,

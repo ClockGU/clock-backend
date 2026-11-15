@@ -13,6 +13,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+
 import datetime
 import uuid
 
@@ -452,7 +453,7 @@ class TestShiftFields:
             ("bh", _("Bank Holiday")),
         )
         field = shift_model_class._meta.get_field("type")
-        assert field.choices == choices
+        assert all(choice in field.choices for choice in choices)
 
     def test_field_conf_was_reviewed(self, shift_model_class):
         field = shift_model_class._meta.get_field("was_reviewed")

@@ -13,6 +13,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+
 import json
 
 import requests
@@ -253,11 +254,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             template_name="api/stundenzettel.html", content_dict=aggregated_content
         )
         response = HttpResponse(pdf, content_type="application/pdf")
-        response[
-            "Content-Disposition"
-        ] = "attachment; filename=Stundenzettel_{month:02d}_{year}.pdf".format(
-            month=aggregated_content["general"]["month"],
-            year=aggregated_content["general"]["year"],
+        response["Content-Disposition"] = (
+            "attachment; filename=Stundenzettel_{month:02d}_{year}.pdf".format(
+                month=aggregated_content["general"]["month"],
+                year=aggregated_content["general"]["year"],
+            )
         )
         return response
 
@@ -587,10 +588,10 @@ class GDPRExportView(viewsets.ViewSet):
         rendered = self.render_json_object(json_object)
         response = HttpResponse(rendered, content_type="text/json")
         date = datetime.datetime.now().strftime("%d_%m_%Y")
-        response[
-            "Content-Disposition"
-        ] = "attachment; filename={0}_{1}_gdpr-export_{2}.json".format(
-            unidecode(user.first_name), unidecode(user.last_name), date
+        response["Content-Disposition"] = (
+            "attachment; filename={0}_{1}_gdpr-export_{2}.json".format(
+                unidecode(user.first_name), unidecode(user.last_name), date
+            )
         )
         return response
 
