@@ -13,6 +13,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
+
 # This conftest file will be discovered first and summarizes all files in the ./conftest_files directory.
 # The conftest file is split up into these files for clarity and brevity.
 # Everything is handled according to the pytest documentiation
