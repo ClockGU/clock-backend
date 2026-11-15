@@ -3569,49 +3569,50 @@ files = [
 
 [[package]]
 name = "social-auth-app-django"
-version = "5.4.3"
+version = "7.2.0"
 description = "Python Social Authentication, Django integration."
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "social_auth_app_django-5.4.3-py3-none-any.whl", hash = "sha256:db70b972faeb10ee1ec83d0dc7dbd0558d5f5830417bba317b712b10ff58d031"},
-    {file = "social_auth_app_django-5.4.3.tar.gz", hash = "sha256:d1f4286d5ca1e512c9b2f686e7ecb2a0128148f1a33d853b69dc07b58508362e"},
+    {file = "social_auth_app_django-7.2.0-py3-none-any.whl", hash = "sha256:b91db5f116590c35160c1277ff1a5da8839eef682a2e9067c1c02bb1e47c2e1d"},
+    {file = "social_auth_app_django-7.2.0.tar.gz", hash = "sha256:f0f647e1d96925cb0e368951266b36f4b9fcb8d4b36456a08ed6b54ad8a70785"},
 ]
 
 [package.dependencies]
-Django = ">=3.2"
-social-auth-core = ">=4.4,<5.0"
+asgiref = ">=3.8.1"
+Django = ">=5.2"
+social-auth-core = ">=6.2.0,<7.0.0"
 
 [package.extras]
-dev = ["coverage (>=3.6)"]
+dev = ["coverage (>=3.6)", "django-stubs (==6.0.9)", "django-stubs-ext (==6.0.9)", "mypy (==2.4.0)", "pre-commit", "pyright (==1.1.414)", "tox"]
 
 [[package]]
 name = "social-auth-core"
-version = "4.9.1"
+version = "6.2.0"
 description = "Python social authentication made simple."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "social_auth_core-4.9.1-py3-none-any.whl", hash = "sha256:2eca8a6ae678bae7e24e5aa3c72f99c77983012a09b8916ce9791dcfccade725"},
-    {file = "social_auth_core-4.9.1.tar.gz", hash = "sha256:34ee16bddc10b8bf5d6a90c3a033f6e5bb1300197984ad66a4d363783f23bcd8"},
+    {file = "social_auth_core-6.2.0-py3-none-any.whl", hash = "sha256:385771345372b9e87b448fe23b1ca4909fcbb0b752d1206600ab3c18342cd321"},
+    {file = "social_auth_core-6.2.0.tar.gz", hash = "sha256:93daa49e5cb11e7ac06838690679fc6e2901d9add2ba8316651ee19aca26a340"},
 ]
 
 [package.dependencies]
 cryptography = ">=46.0.7"
 defusedxml = ">=0.7.1"
 oauthlib = ">=3.3.1"
-PyJWT = {version = ">=2.12.1", extras = ["crypto"]}
+PyJWT = {version = ">=2.13.0", extras = ["crypto"]}
 python3-openid = ">=3.2.0"
-requests = ">=2.33.1"
+requests = ">=2.34.0"
 requests-oauthlib = ">=2.0.0"
 
 [package.extras]
 all = ["social-auth-core[azuread]", "social-auth-core[google-onetap]", "social-auth-core[saml]", "social-auth-core[shopify]"]
 allpy3 = ["social-auth-core[all]"]
-dev = ["coverage (==7.13.5)", "flake8 (==7.3.0)", "google-auth-stubs (==0.3.0)", "mypy (==1.20.2)", "pyright (==1.1.409)", "pytest (==9.0.3)", "pytest-cov (==7.1.0)", "pytest-github-actions-annotate-failures (==0.4.0)", "pytest-profiling (==1.8.1)", "pytest-xdist (==3.8.0)", "responses (==0.26.0)", "ty (==0.0.33)", "types-defusedxml (==0.7.0.20260408)", "types-oauthlib (==3.3.0.20260408)", "types-requests (==2.33.0.20260408)", "types-requests-oauthlib (==2.0.0.20260408)"]
-google-onetap = ["google-auth (>=2.40.0,<2.50)"]
+dev = ["coverage (==7.16.2)", "flake8 (==7.4.1)", "mypy (==2.4.0)", "pyright (==1.1.414)", "pytest (==9.1.1)", "pytest-cov (==7.1.0)", "pytest-github-actions-annotate-failures (==0.4.2)", "pytest-profiling (==1.8.1)", "pytest-xdist (==3.8.0)", "responses (==0.26.3)", "ty (==0.0.89)", "types-defusedxml (==0.7.0.20260504)", "types-lxml (==2026.2.16)", "types-oauthlib (==4.0.0.20261018)", "types-requests (==2.33.0.20261006)", "types-requests-oauthlib (==2.0.0.20261006)"]
+google-onetap = ["google-auth (>=2.40.0,<2.63)"]
 saml = ["python3-saml (>=1.16.0)"]
 shopify = ["ShopifyAPI"]
 
