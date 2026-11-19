@@ -10,10 +10,10 @@ from api.idm.deprovisioning import Deprovisioner
 class Command(BaseCommand):
 
     def handle(self, *args: Any, **options: Any) -> str | None:
-        self.deprovision_users_monthly()
+        deprovision_users_monthly()
 
-    def deprovision_users_monthly(self):
-        """
-        This is a Periodical task which runs the deprovision.
-        """
-        Deprovisioner().deprovision()
+def deprovision_users_monthly():
+    """
+    This is a Periodical task which runs the deprovision.
+    """
+    Deprovisioner().deprovision()
