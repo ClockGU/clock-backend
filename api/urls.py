@@ -23,7 +23,6 @@ from api.views import (
     GDPRExportView,
     ReportViewSet,
     ShiftViewSet,
-    index,
 )
 
 from .oauth.providers.goetheuni.views import (
@@ -50,8 +49,6 @@ urlpatterns = [
         SupervisorGoetheUniLogin.as_view(),
         name="supervisor_login",
     ),
-    # Demonstration url for celery
-    path("celery-dummy", index, name="index"),
     path(
         "list-shifts/<int:month>/<int:year>/",
         list_month_year_shifts,

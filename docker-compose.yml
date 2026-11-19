@@ -34,8 +34,6 @@ services:
     volumes:
       - .:/app
     links:
-      - rabbit_broker
-      - celery_worker
       - db
     depends_on:
       - db

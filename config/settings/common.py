@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     "api.apps.APIConfig",
     "message.apps.MessageConfig",
     "faq.apps.FaqConfig",
-    "project_celery",
     "taggit",
     "rest_framework",
     "rest_framework.authtoken",
