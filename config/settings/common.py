@@ -226,14 +226,6 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-# CELERY STUFF
-BROKER_URL = env("RABBITMQ_URL")
-CELERY_RESULT_BACKEND = env("RABBITMQ_URL").replace("amqp", "rpc")
-CELERY_ACCEPT_CONTENT = ["application/json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_ALWAYS_EAGER = True
-
 # Time Vault
 
 TIME_VAULT_URL = env("TIME_VAULT_URL", default="")
