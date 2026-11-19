@@ -4,10 +4,9 @@ from django.contrib.auth.models import User
 
 from api.models import Report
 from api.utilities import update_reports
-from project_celery.celery import app
+from datetime import datetime, timedelta
 
 
-@app.task(bind=True, default_retry_delay=10)
 def create_reports_monthly(self):
     """
     This is a Periodical Task which creates a Report object for every active users
@@ -16,7 +15,7 @@ def create_reports_monthly(self):
     :param self:
     :return:
     """
-    date_now = datetime.datetime.now().date()
+    date_now = datetime.now().date()
     for user in User.objects.filter(is_active=True, is_staff=False):
         for contract in user.contracts.filter(
             start_date__lt=date_now, end_date__gte=date_now
@@ -26,8 +25,8 @@ def create_reports_monthly(self):
                 contract=contract,
                 user=user,
                 defaults={
-                    "worktime": datetime.timedelta(minutes=0),
-                    "vacation_time": datetime.timedelta(minutes=0),
+                    "worktime": timedelta(minutes=0),
+                    "vacation_time": timedelta(minutes=0),
                     "created_by": user,
                     "modified_by": user,
                 },
