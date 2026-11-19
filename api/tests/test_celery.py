@@ -20,8 +20,8 @@ from datetime import datetime, timedelta
 import django.db
 import pytest
 
-from api.models import Report
 from api.management.commands.create_reports_monthly import create_reports_monthly
+from api.models import Report
 
 
 class TestCeleryBeats:

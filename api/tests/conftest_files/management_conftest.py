@@ -19,10 +19,11 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 # Everything is handled according to the pytest documentiation
 # found here: https://docs.pytest.org/en/latest/fixture.html#conftest-py-sharing-fixture-functions
 
+from datetime import date, timedelta
+
 import pytest
 
 from api.models import Contract
-from datetime import date, timedelta
 
 
 @pytest.fixture

@@ -1,11 +1,12 @@
 from __future__ import absolute_import
 
+from datetime import datetime, timedelta
+
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
 from api.models import Report
 from api.utilities import update_reports
-from datetime import datetime, timedelta
 
 
 class Command(BaseCommand):
