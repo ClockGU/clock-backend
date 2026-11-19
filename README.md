@@ -41,11 +41,15 @@ sich keine Gedanken mehr über Black machen. Bei jedem Commit wird der Black For
 
 ## Periodische Tasks
 
-Das Projekt beinhlatet zwei periodische Tasks:
+Das Projekt beinhaltet zwei periodische Tasks:
 
 1. Monatliche Erstellung von Reports (`manage.py create_reports_monthly`)
 2. Deprovisionierung von Nutzer die im Identity Provider (IDM GU) bereits zur Löschung
-markiert wurden (`manage.py deprovision_users_monthly)
+markiert wurden (`manage.py deprovision_users_monthly`)
+
+ 
+Die Cron jobs laufen nur in den `production` apps. In den Staging apps sind die cronjobs ausgeschaltet 
+via `dokku cron:set <app-staging> maintenance true`. 
 
 Beide Tasks werden nur im staging/production Systems durch "Scheduled Cron Tasks" von `dokku` ausgeführt
 und verwaltet.
