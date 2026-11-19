@@ -8,5 +8,15 @@
         "web": {
             "quantity": 1
         }
-    }
+    },
+    "cron": [
+        {
+            "command": "python manage.py create_reports_monthly",
+            "schedule": "0 2 1 * *"
+        },
+        {
+            "command": "python manage.py deprovision_users_monthly",
+            "schedule": "0 1 1 * *"
+        }
+    ]
 }
