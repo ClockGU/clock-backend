@@ -39,29 +39,16 @@ in `.pre-commit-config.yaml` definierte Hook installiert werden. Dies geschieht 
 sich keine Gedanken mehr über Black machen. Bei jedem Commit wird der Black Formatter über den Code geschickt.
 
 
-## Celery
+## Periodische Tasks
 
-Das Projekt Clock nutzt im Backend für diverse Aufgaben Celery, um diese asynchron abzuwickeln.
+Das Projekt beinhlatet zwei periodische Tasks:
 
-Bis jetzt (**Stand Dez. 2018**) ist Celery nur in der lokalen Entwicklungsumgebung durch `docker-compose`
-zugänglich. Der Grund hierfür ist, dass das von uns verfolgte Prinzip "Celeryumgebung abgekoppelt von Bussinesumgebung",
-also zwei Container, Web-Container und Celery-Container, noch (**Stand Okt. 2018**) nicht auf Dokku übertragbar ist.
+1. Monatliche Erstellung von Reports (`manage.py create_reports_monthly`)
+2. Deprovisionierung von Nutzer die im Identity Provider (IDM GU) bereits zur Löschung
+markiert wurden (`manage.py deprovision_users_monthly)
 
-In der Developmentumgebung existiert eine funktionierende Implementation, die im Folgenden erläutert wird.
-
-Als Proof-of-Concept, dass Celery lokal funktioniert :
-1. Starte ein Terminal und starte den Dockercontainer via `docker-compose up`
-    - Dies startet die Datenbank, den Webserver, einen Rabbit MQ broker und einen celery_worker
-    - sind mehr als ein Worker erwünscht, so muss folgender Command zum Starten benutzt werden `docker-compose up --scale celery_worker=N` für *N* Worker.
-2. Um die Funktionalität zu prüfen, öffne einen Browser der Wahl
-3. Wähle die url `localhost:8000/api/celery-dummy` an
-    - Diese View erstellt asynchron 5 User mit Username `Tim<rand-int>`
-    - Ferner printet sie vor jedem Erstellen und danach jeweils etwas in stdout.
-Query um alle Contracts zu bekommen die in einem bestimmten Monat (hier Oktober 2024) gelocked sind
-existing_shifts = Shift.objects.filter(started__date__gte=nov, started__date__lte=date(2024,10,31), locked=True, contract=OuterRef("pk"))
-oct_locked_contracts = Contract.objects.filter(Exists(existing_shifts))
- Andere Methode:
-Shift.objects.filter(started__date__gte=october, started__date__lte=date(2024,10,31), locked=True).values("contract").distinct()
-
+Beide Tasks werden nur im staging/production Systems durch "Scheduled Cron Tasks" von `dokku` ausgeführt
+und verwaltet.
+Die Tasks werden im lokalen Setup nicht ausgeführt.
 
       
