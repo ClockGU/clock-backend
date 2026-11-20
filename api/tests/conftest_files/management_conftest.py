@@ -19,10 +19,11 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 # Everything is handled according to the pytest documentiation
 # found here: https://docs.pytest.org/en/latest/fixture.html#conftest-py-sharing-fixture-functions
 
-from celery.contrib.testing.worker import start_worker
+from datetime import date, timedelta
 
-from api.tests.conftest import *  # noqa
-from project_celery.celery import app
+import pytest
+
+from api.models import Contract
 
 
 @pytest.fixture
@@ -30,8 +31,8 @@ def december_contract(user_object):
     return Contract.objects.create(
         name="Test Contract",
         minutes=1200,
-        start_date=datetime.date(2019, 12, 1),
-        end_date=datetime.date(2020, 2, 29),
+        start_date=date(2019, 12, 1),
+        end_date=date(2020, 2, 29),
         initial_carryover_minutes=0,
         user=user_object,
         created_by=user_object,
@@ -51,5 +52,5 @@ def celery_test_fixture_correct_minutes(user_object, contract_ending_in_february
     :return:
     """
     january_report = contract_ending_in_february.reports.get(month_year__month=1)
-    january_report.worktime = datetime.timedelta(minutes=600)
+    january_report.worktime = timedelta(minutes=600)
     january_report.save()

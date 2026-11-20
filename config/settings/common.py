@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     "api.apps.APIConfig",
     "message.apps.MessageConfig",
     "faq.apps.FaqConfig",
-    "project_celery",
     "taggit",
     "rest_framework",
     "rest_framework.authtoken",
@@ -225,14 +224,6 @@ STATICFILES_FINDERS = (
     # "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
-
-# CELERY STUFF
-BROKER_URL = env("RABBITMQ_URL")
-CELERY_RESULT_BACKEND = env("RABBITMQ_URL").replace("amqp", "rpc")
-CELERY_ACCEPT_CONTENT = ["application/json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_ALWAYS_EAGER = True
 
 # Time Vault
 
