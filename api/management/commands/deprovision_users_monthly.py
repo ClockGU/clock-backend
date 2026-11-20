@@ -12,6 +12,7 @@ class Command(BaseCommand):
     def handle(self, *args: Any, **options: Any) -> str | None:
         deprovision_users_monthly()
 
+
 def deprovision_users_monthly():
     """
     This is a Periodical task which runs the deprovision.
