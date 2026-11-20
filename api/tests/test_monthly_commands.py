@@ -20,11 +20,11 @@ from datetime import datetime, timedelta
 import django.db
 import pytest
 
+from api.management.commands.create_reports_monthly import create_reports_monthly
 from api.models import Report
-from project_celery.tasks import create_reports_monthly
 
 
-class TestCeleryBeats:
+class TestMonthlyCommands:
     @pytest.mark.freeze_time("2019-01-31")
     @pytest.mark.django_db(transaction=True, reset_sequences=True)
     def test_start_of_month_report_creation(

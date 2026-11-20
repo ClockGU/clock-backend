@@ -52,20 +52,6 @@ from api.utilities import (
     relativedelta_to_string,
     timedelta_to_string,
 )
-from project_celery.tasks import async_5_user_creation
-
-# Proof of Concept that celery works
-
-
-def index(request):
-    """
-    This function based view provides a proof of concept (for the local env) that
-    the celery workers (in extern Docker Containers) work.
-    :param request:
-    :return:
-    """
-    async_5_user_creation.delay()
-    return HttpResponse("A Dummy site.")
 
 
 class ContractViewSet(viewsets.ModelViewSet):
