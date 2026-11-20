@@ -15,6 +15,7 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 """
 
 import environ
+from django.conf import settings
 from django.urls import re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -22,9 +23,11 @@ from rest_framework import permissions
 
 # This is the documentation for the API, generated for swagger and Redoc standart
 env = environ.Env()
-base_url = "https://{}".format(env("DJANGO_ALLOWED_HOSTS", default="localhost:8000"))
+protocol = "http" if settings.ALLOWED_HOSTS == ["*"] else "https"
+base_url = "{}://{}".format(
+    protocol, env("DJANGO_ALLOWED_HOSTS", default="localhost:8000")
+)
 contact_mail = env("CONTACT_MAIL", default="")
-
 schema_view = get_schema_view(
     openapi.Info(
         title="Clock API",
