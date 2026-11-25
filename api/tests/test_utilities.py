@@ -15,12 +15,14 @@ along with this program.  If not, see <https://github.com/ClockGU/clock-backend/
 """
 
 import datetime
+import json
 
 import pytest
+from django.urls import reverse
 from freezegun import freeze_time
 from pytz import utc
 
-from api.models import Contract, Report, Shift
+from api.models import Contract, Report, Shift, User
 from api.utilities import relativedelta_to_string
 
 
@@ -505,3 +507,45 @@ class TestContractSignals:
             was_reviewed=False,
         )
         assert contract_object.last_used == time_stamp
+
+class TestUtility:
+    @pytest.mark.freeze_time("2026-04-02")
+    @pytest.mark.django_db
+    def test_contract_extension_report_count(
+        self,
+        client,
+        user_object,
+        user_object_jwt,
+    ):
+
+        _contract = Contract.objects.create(
+            user=user_object,
+            name="Report Extension Test Contract",
+            minutes=1200,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 3, 31),
+            created_by=user_object,
+            modified_by=user_object,
+            worktime_model_name="studEmp",
+        )
+
+        # report count should be 3 before contract extension
+        _reports = Report.objects.filter(contract=_contract)
+        report_count = _reports.count()
+        assert report_count == 3
+
+        client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(user_object_jwt))
+        response = client.patch(
+            path=reverse("api:contracts-detail", args=[_contract.id]),
+            data=json.dumps({"end_date":"2026-06-30"}),
+            content_type="application/json",
+        )
+
+        # extend contract
+        _contract=Contract.objects.get(id=_contract.id)
+        assert _contract.end_date==datetime.date(2026, 6, 30)
+
+        # report count should be 4 after contract extension
+        _reports = Report.objects.filter(contract=_contract)
+        report_count = _reports.count()
+        assert report_count == 4

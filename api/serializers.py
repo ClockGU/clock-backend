@@ -20,9 +20,9 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import DurationField, F, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
-from pytz import datetime, utc
+from pytz import utc
 from rest_framework import exceptions, serializers
-
+import datetime
 from api.models import ClockedInShift, Contract, Report, Shift, User
 from api.utilities import (
     GermanyHolidays,
@@ -334,18 +334,21 @@ class ContractSerializer(RestrictModificationModelSerializer):
                 != instance.initial_vacation_carryover_minutes
             )
 
+        old_end_date = instance.end_date
         return_instance = super(ContractSerializer, self).update(
             instance, validated_data
         )
+
         if start_date_changed:
             # Delete all existing Reports
             Report.objects.filter(contract=instance).delete()
             # Recreate them.
             create_reports_from_scratch(contract=instance)
+
         if end_date_changed:
             create_reports_for_contract(
                 contract=instance,
-                start=instance.end_date.replace(day=1),
+                start=old_end_date.replace(day=1),
                 stop=datetime.date.today(),
             )
 
