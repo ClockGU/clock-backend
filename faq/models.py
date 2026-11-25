@@ -23,6 +23,10 @@ class FaqHeading(models.Model):
 
     en_heading = models.CharField(max_length=250, verbose_name="Faq-heading english")
 
+    show_in_clock = models.BooleanField(default=True)
+
+    show_in_supervisor = models.BooleanField(default=True)
+
     prio_level = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)],
         verbose_name="Prio Heading (1 - 10)",

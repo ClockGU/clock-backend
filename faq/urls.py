@@ -14,7 +14,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
 
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from .views import FaqsViewSet
 
@@ -22,10 +23,9 @@ app_name = "faq"
 
 faqs = FaqsViewSet.as_view({"get": "list"})
 
+router = DefaultRouter()
+router.register(r"faqs", FaqsViewSet, basename="faqs")
+
 urlpatterns = [
-    path(
-        "faqs/",
-        faqs,
-        name="faqs",
-    ),
+    path("", include(router.urls)),
 ]

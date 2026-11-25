@@ -13,8 +13,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://github.com/ClockGU/clock-backend/blob/master/licenses/>.
 """
-
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from faq.models import Faq
@@ -26,3 +27,16 @@ class FaqsViewSet(ReadOnlyModelViewSet):
     serializer_class = FaqSerializer
     name = "faqs"
     permission_classes = [AllowAny]
+
+    @action(
+        detail=False,
+        methods=["GET",],
+        url_name="get_faqs",
+        url_path="projects/(?P<project>[^/.]+)",
+    )
+    def get_faqs(self, request, project, *args, **kwargs):
+        queryset = self.get_queryset()
+        filters = {"faq_heading__show_in_{}".format(project) : True}
+        instances = queryset.filter(**filters)
+        serializer = self.get_serializer(instances, many=True)
+        return Response(serializer.data)
