@@ -22,7 +22,7 @@ from .models import Faq, FaqHeading
 class FaqHeadingSerializer(ModelSerializer):
     class Meta:
         model = FaqHeading
-        fields = ["prio_level", "de_heading", "en_heading"]
+        fields = ["prio_level", "de_heading", "en_heading", "show_in_clock", "show_in_supervisor"]
 
 
 class FaqSerializer(ModelSerializer):
